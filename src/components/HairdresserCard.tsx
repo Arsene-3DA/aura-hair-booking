@@ -22,12 +22,16 @@ const HairdresserCard = ({ hairdresser }: { hairdresser: HairdresserProps }) => 
   return (
     <>
       <Card className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 shadow-lg overflow-hidden">
-        <div className="relative h-48 bg-gradient-to-br from-gold-100 to-orange-100 flex items-center justify-center">
-          {/* Profile Avatar */}
-          <div className="w-24 h-24 bg-gradient-gold rounded-full flex items-center justify-center shadow-lg">
-            <span className="text-2xl font-bold text-white">
-              {hairdresser.name.split(' ').map(n => n[0]).join('')}
-            </span>
+        <div className="relative h-48 bg-gradient-to-br from-gold-100 to-orange-100">
+          {/* Profile Photo */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg border-4 border-white">
+              <img 
+                src={hairdresser.image} 
+                alt={hairdresser.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
           
           {/* Availability Badge */}

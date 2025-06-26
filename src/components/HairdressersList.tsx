@@ -8,7 +8,7 @@ const hairdressers = [
     name: "Anna Martin",
     specialties: ["Coupe Femme", "Couleur", "Balayage"],
     rating: 4.9,
-    image: "",
+    image: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=400&fit=crop&crop=face",
     availability: "Aujourd'hui dès 14h",
     experience: "8 ans d'expérience"
   },
@@ -17,7 +17,7 @@ const hairdressers = [
     name: "Julie Dubois",
     specialties: ["Soins", "Extensions", "Coiffage"],
     rating: 4.8,
-    image: "",
+    image: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=400&fit=crop&crop=face",
     availability: "Demain dès 9h",
     experience: "6 ans d'expérience"
   },
@@ -26,7 +26,7 @@ const hairdressers = [
     name: "Marc Rousseau",
     specialties: ["Coupe Homme", "Barbe", "Styling"],
     rating: 4.9,
-    image: "",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
     availability: "Aujourd'hui dès 16h",
     experience: "12 ans d'expérience"
   },
@@ -35,7 +35,7 @@ const hairdressers = [
     name: "Sophie Laurent",
     specialties: ["Coupe", "Couleur", "Mèches"],
     rating: 4.7,
-    image: "",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
     availability: "Lundi dès 10h",
     experience: "5 ans d'expérience"
   },
@@ -44,7 +44,7 @@ const hairdressers = [
     name: "Thomas Moreau",
     specialties: ["Coupe Moderne", "Dégradé", "Entretien"],
     rating: 4.8,
-    image: "",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
     availability: "Aujourd'hui dès 15h",
     experience: "7 ans d'expérience"
   },
@@ -53,7 +53,7 @@ const hairdressers = [
     name: "Camille Petit",
     specialties: ["Mariée", "Événement", "Chignon"],
     rating: 5.0,
-    image: "",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
     availability: "Sur RDV",
     experience: "10 ans d'expérience"
   }
