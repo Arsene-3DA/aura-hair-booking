@@ -7,6 +7,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Calendar as CalendarIcon, Clock, Users, Settings, LogOut } from 'lucide-react';
+import WorkingHoursModal from '../components/WorkingHoursModal';
+import BookingDetailsModal from '../components/BookingDetailsModal';
 
 const HairdresserDashboard = () => {
   const navigate = useNavigate();
@@ -14,8 +16,12 @@ const HairdresserDashboard = () => {
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
+  const [isWorkingHoursModalOpen, setIsWorkingHoursModalOpen] = useState(false);
+  const [isBookingDetailsModalOpen, setIsBookingDetailsModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [workingHours, setWorkingHours] = useState({ start: '09:00', end: '20:00' });
 
-  // Données simulées des réservations
+  // Données simulées des réservations avec plus de détails
   const todayAppointments = [
     {
       id: 1,
@@ -24,7 +30,9 @@ const HairdresserDashboard = () => {
       phone: '06 12 34 56 78',
       email: 'marie.dubois@email.com',
       service: 'Coupe Femme',
-      status: 'confirmé'
+      status: 'confirmé',
+      date: 'Aujourd\'hui',
+      comments: 'Première visite, souhaite un changement de style'
     },
     {
       id: 2,
@@ -33,7 +41,9 @@ const HairdresserDashboard = () => {
       phone: '06 98 76 54 32',
       email: 'jean.martin@email.com',
       service: 'Coupe Homme',
-      status: 'confirmé'
+      status: 'confirmé',
+      date: 'Aujourd\'hui',
+      comments: ''
     },
     {
       id: 3,
@@ -41,8 +51,21 @@ const HairdresserDashboard = () => {
       clientName: 'Sophie Laurent',
       phone: '06 11 22 33 44',
       email: 'sophie.laurent@email.com',
-      service: 'Couleur',
-      status: 'en attente'
+      service: 'Couleur + Coupe',
+      status: 'nouveau',
+      date: 'Aujourd\'hui',
+      comments: 'Souhaite passer au blond'
+    },
+    {
+      id: 4,
+      time: '16:00',
+      clientName: 'Alice Moreau',
+      phone: '06 55 44 33 22',
+      email: 'alice.moreau@email.com',
+      service: 'Balayage',
+      status: 'nouveau',
+      date: 'Aujourd\'hui',
+      comments: 'Référée par Marie Dubois'
     }
   ];
 
@@ -76,6 +99,18 @@ const HairdresserDashboard = () => {
     }
   };
 
+  const handleBookingClick = (booking: any) => {
+    setSelectedBooking(booking);
+    setIsBookingDetailsModalOpen(true);
+  };
+
+  const handleWorkingHoursSave = (hours: { start: string; end: string }) => {
+    setWorkingHours(hours);
+  };
+
+  // Compter les nouvelles réservations
+  const newBookingsCount = todayAppointments.filter(apt => apt.status === 'nouveau').length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -87,6 +122,14 @@ const HairdresserDashboard = () => {
               <p className="text-gray-600">Bienvenue, Anna Martin</p>
             </div>
             <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsWorkingHoursModalOpen(true)}
+              >
+                <Clock className="h-4 w-4 mr-2" />
+                Horaires ({workingHours.start}-{workingHours.end})
+              </Button>
               <Button variant="outline" size="sm">
                 <Settings className="h-4 w-4 mr-2" />
                 Profil
@@ -160,10 +203,17 @@ const HairdresserDashboard = () => {
                     <Clock className="h-5 w-5 mr-2 text-gold-500" />
                     Réservations du jour
                   </div>
-                  <Badge variant="secondary">
-                    <Users className="h-4 w-4 mr-1" />
-                    {todayAppointments.length} clients
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary">
+                      <Users className="h-4 w-4 mr-1" />
+                      {todayAppointments.length} clients
+                    </Badge>
+                    {newBookingsCount > 0 && (
+                      <Badge className="bg-green-500 text-white">
+                        {newBookingsCount} nouveau{newBookingsCount > 1 ? 'x' : ''}
+                      </Badge>
+                    )}
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -171,7 +221,10 @@ const HairdresserDashboard = () => {
                   {todayAppointments.map((appointment) => (
                     <div
                       key={appointment.id}
-                      className="p-4 border rounded-lg hover:shadow-md transition-shadow"
+                      className={`p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer ${
+                        appointment.status === 'nouveau' ? 'border-green-300 bg-green-50' : ''
+                      }`}
+                      onClick={() => handleBookingClick(appointment)}
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -182,8 +235,9 @@ const HairdresserDashboard = () => {
                             <h3 className="font-semibold">{appointment.clientName}</h3>
                             <Badge 
                               variant={appointment.status === 'confirmé' ? 'default' : 'secondary'}
+                              className={appointment.status === 'nouveau' ? 'bg-green-500 text-white' : ''}
                             >
-                              {appointment.status}
+                              {appointment.status === 'nouveau' ? 'NOUVEAU' : appointment.status}
                             </Badge>
                           </div>
                           
@@ -218,6 +272,20 @@ const HairdresserDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <WorkingHoursModal
+        isOpen={isWorkingHoursModalOpen}
+        onClose={() => setIsWorkingHoursModalOpen(false)}
+        currentHours={workingHours}
+        onSave={handleWorkingHoursSave}
+      />
+
+      <BookingDetailsModal
+        isOpen={isBookingDetailsModalOpen}
+        onClose={() => setIsBookingDetailsModalOpen(false)}
+        booking={selectedBooking}
+      />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
-import { Users, Plus, Settings, LogOut, Upload, User, Mail, Phone } from 'lucide-react';
+import { Users, Plus, Settings, LogOut, Upload, User, Mail, Phone, Activity } from 'lucide-react';
+import HairdresserActivityTable from '../components/HairdresserActivityTable';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const AdminDashboard = () => {
       specialties: ['Coupe Femme', 'Couleur', 'Balayage'],
       experience: '8 ans',
       status: 'active',
-      image: ''
+      image: 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=400&fit=crop&crop=face'
     },
     {
       id: 2,
@@ -45,7 +46,17 @@ const AdminDashboard = () => {
       specialties: ['Soins', 'Extensions', 'Coiffage'],
       experience: '6 ans',
       status: 'active',
-      image: ''
+      image: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=400&fit=crop&crop=face'
+    },
+    {
+      id: 3,
+      name: 'Marc Rousseau',
+      email: 'marc.rousseau@salon.com',
+      phone: '06 55 44 33 22',
+      specialties: ['Coupe Homme', 'Barbe', 'Styling'],
+      experience: '12 ans',
+      status: 'active',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face'
     }
   ]);
 
@@ -177,163 +188,177 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        {/* Gestion des coiffeurs */}
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="flex items-center">
-                <Users className="h-5 w-5 mr-2 text-gold-500" />
-                Gestion des Coiffeurs
-              </CardTitle>
-              
-              <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-gradient-gold text-white">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nouveau Coiffeur
-                  </Button>
-                </DialogTrigger>
-                
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Créer un nouveau coiffeur</DialogTitle>
-                  </DialogHeader>
+        {/* Onglets pour naviguer */}
+        <Tabs defaultValue="hairdressers" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="hairdressers">Gestion des Coiffeurs</TabsTrigger>
+            <TabsTrigger value="activity">Activité des Coiffeurs</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="hairdressers">
+            {/* Gestion des coiffeurs */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex items-center">
+                    <Users className="h-5 w-5 mr-2 text-gold-500" />
+                    Gestion des Coiffeurs
+                  </CardTitle>
                   
-                  <form onSubmit={handleCreateHairdresser} className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Nom complet *</Label>
-                      <Input
-                        id="name"
-                        value={newHairdresser.name}
-                        onChange={(e) => setNewHairdresser({...newHairdresser, name: e.target.value})}
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={newHairdresser.email}
-                        onChange={(e) => setNewHairdresser({...newHairdresser, email: e.target.value})}
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="phone">Téléphone</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={newHairdresser.phone}
-                        onChange={(e) => setNewHairdresser({...newHairdresser, phone: e.target.value})}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="specialties">Spécialités (séparées par des virgules)</Label>
-                      <Input
-                        id="specialties"
-                        value={newHairdresser.specialties}
-                        onChange={(e) => setNewHairdresser({...newHairdresser, specialties: e.target.value})}
-                        placeholder="Coupe, Couleur, Balayage"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="experience">Expérience</Label>
-                      <Input
-                        id="experience"
-                        value={newHairdresser.experience}
-                        onChange={(e) => setNewHairdresser({...newHairdresser, experience: e.target.value})}
-                        placeholder="5 ans d'expérience"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="image" className="flex items-center">
-                        <Upload className="h-4 w-4 mr-1" />
-                        Photo de profil
-                      </Label>
-                      <Input
-                        id="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                      />
-                    </div>
-
-                    <div className="flex gap-4 pt-4">
-                      <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)} className="flex-1">
-                        Annuler
+                  <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-gradient-gold text-white">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nouveau Coiffeur
                       </Button>
-                      <Button type="submit" className="flex-1 bg-gradient-gold text-white">
-                        Créer le compte
-                      </Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardHeader>
-          
-          <CardContent>
-            <div className="space-y-4">
-              {hairdressers.map((hairdresser) => (
-                <div key={hairdresser.id} className="flex items-center gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={hairdresser.image} />
-                    <AvatarFallback className="bg-gradient-gold text-white">
-                      {hairdresser.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold">{hairdresser.name}</h3>
-                      <Badge variant={hairdresser.status === 'active' ? 'default' : 'secondary'}>
-                        {hairdresser.status === 'active' ? 'Actif' : 'Inactif'}
-                      </Badge>
-                    </div>
+                    </DialogTrigger>
                     
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div className="flex items-center gap-1">
-                        <Mail className="h-3 w-3" />
-                        {hairdresser.email}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-3 w-3" />
-                        {hairdresser.phone}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {hairdresser.experience}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {hairdresser.specialties.map((specialty) => (
-                        <Badge key={specialty} variant="secondary" className="text-xs">
-                          {specialty}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      Modifier
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      Voir planning
-                    </Button>
-                  </div>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Créer un nouveau coiffeur</DialogTitle>
+                      </DialogHeader>
+                      
+                      <form onSubmit={handleCreateHairdresser} className="space-y-4">
+                        <div>
+                          <Label htmlFor="name">Nom complet *</Label>
+                          <Input
+                            id="name"
+                            value={newHairdresser.name}
+                            onChange={(e) => setNewHairdresser({...newHairdresser, name: e.target.value})}
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="email">Email *</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={newHairdresser.email}
+                            onChange={(e) => setNewHairdresser({...newHairdresser, email: e.target.value})}
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="phone">Téléphone</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={newHairdresser.phone}
+                            onChange={(e) => setNewHairdresser({...newHairdresser, phone: e.target.value})}
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="specialties">Spécialités (séparées par des virgules)</Label>
+                          <Input
+                            id="specialties"
+                            value={newHairdresser.specialties}
+                            onChange={(e) => setNewHairdresser({...newHairdresser, specialties: e.target.value})}
+                            placeholder="Coupe, Couleur, Balayage"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="experience">Expérience</Label>
+                          <Input
+                            id="experience"
+                            value={newHairdresser.experience}
+                            onChange={(e) => setNewHairdresser({...newHairdresser, experience: e.target.value})}
+                            placeholder="5 ans d'expérience"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="image" className="flex items-center">
+                            <Upload className="h-4 w-4 mr-1" />
+                            Photo de profil
+                          </Label>
+                          <Input
+                            id="image"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                          />
+                        </div>
+
+                        <div className="flex gap-4 pt-4">
+                          <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)} className="flex-1">
+                            Annuler
+                          </Button>
+                          <Button type="submit" className="flex-1 bg-gradient-gold text-white">
+                            Créer le compte
+                          </Button>
+                        </div>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardHeader>
+              
+              <CardContent>
+                <div className="space-y-4">
+                  {hairdressers.map((hairdresser) => (
+                    <div key={hairdresser.id} className="flex items-center gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage src={hairdresser.image} />
+                        <AvatarFallback className="bg-gradient-gold text-white">
+                          {hairdresser.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold">{hairdresser.name}</h3>
+                          <Badge variant={hairdresser.status === 'active' ? 'default' : 'secondary'}>
+                            {hairdresser.status === 'active' ? 'Actif' : 'Inactif'}
+                          </Badge>
+                        </div>
+                        
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <div className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {hairdresser.email}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            {hairdresser.phone}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            {hairdresser.experience}
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {hairdresser.specialties.map((specialty) => (
+                            <Badge key={specialty} variant="secondary" className="text-xs">
+                              {specialty}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          Modifier
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          Voir planning
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="activity">
+            <HairdresserActivityTable />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
