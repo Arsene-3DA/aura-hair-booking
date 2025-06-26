@@ -106,6 +106,46 @@
     @apply bg-gradient-to-br from-gold-400 via-orange-500 to-orange-600;
   }
   
+  .bg-gradient-gold {
+    @apply bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500;
+  }
+  
+  .text-gold-500 {
+    color: #f59e0b;
+  }
+  
+  .text-gold-600 {
+    color: #d97706;
+  }
+  
+  .text-gold-700 {
+    color: #b45309;
+  }
+  
+  .text-gold-800 {
+    color: #92400e;
+  }
+  
+  .bg-gold-50 {
+    background-color: #fffbeb;
+  }
+  
+  .bg-gold-100 {
+    background-color: #fef3c7;
+  }
+  
+  .bg-gold-200 {
+    background-color: #fde68a;
+  }
+  
+  .border-gold-100 {
+    border-color: #fef3c7;
+  }
+  
+  .border-gold-200 {
+    border-color: #fde68a;
+  }
+  
   .glass-effect {
     @apply backdrop-blur-sm bg-white/10 border border-white/20;
   }
