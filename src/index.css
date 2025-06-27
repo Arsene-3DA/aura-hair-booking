@@ -189,13 +189,17 @@
   
   /* Cards améliorées */
   .professional-card {
-    @apply luxury-card hover-lift group cursor-pointer;
+    @apply luxury-card hover-lift cursor-pointer;
   }
   
   .professional-card::before {
     content: '';
-    @apply absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl;
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 rounded-2xl;
     background: linear-gradient(135deg, rgba(255, 212, 59, 0.1) 0%, rgba(255, 193, 7, 0.2) 100%);
+  }
+  
+  .professional-card:hover::before {
+    @apply opacity-100;
   }
 }
 
