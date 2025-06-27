@@ -105,7 +105,8 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
       return;
     }
 
-    // Ajouter la réservation au contexte global
+    // Créer la réservation avec l'ID du coiffeur correct
+    const bookingDate = selectedDate.toISOString().split('T')[0];
     const newBooking = {
       time: selectedTime,
       clientName: `${formData.firstName} ${formData.lastName}`,
@@ -115,9 +116,12 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
       status: 'nouveau' as const,
       date: selectedDate.toLocaleDateString('fr-FR'),
       comments: formData.comments,
-      hairdresserId: hairdresser.id,
-      bookingDate: selectedDate.toISOString().split('T')[0]
+      hairdresserId: hairdresser.id, // S'assurer que l'ID du coiffeur est correct
+      bookingDate: bookingDate
     };
+
+    console.log('Création de réservation pour:', hairdresser.name, 'ID:', hairdresser.id);
+    console.log('Données de réservation:', newBooking);
 
     addBooking(newBooking);
 

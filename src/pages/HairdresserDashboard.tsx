@@ -1,12 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
-import { Calendar as CalendarIcon, Clock, Users, Settings, LogOut, Bell, Eye, Filter } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, Settings, LogOut, Bell, Eye, Filter, Check, X } from 'lucide-react';
 import WorkingHoursModal from '../components/WorkingHoursModal';
 import BookingDetailsModal from '../components/BookingDetailsModal';
 import { useBookings } from '@/contexts/BookingsContext';
@@ -14,7 +14,7 @@ import { useBookings } from '@/contexts/BookingsContext';
 const HairdresserDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { getBookingsForHairdresser, getBookingsForDate, getAllBookingsByDate } = useBookings();
+  const { getBookingsForHairdresser, getBookingsForDate, getAllBookingsByDate, updateBookingStatus } = useBookings();
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
@@ -26,6 +26,16 @@ const HairdresserDashboard = () => {
 
   // ID du coiffeur connecté (Thomas Moreau = 1)
   const currentHairdresserId = 1;
+
+  // Forcer le rechargement des données à chaque render
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Force un re-render pour récupérer les nouvelles données
+      setSelectedDate(prev => new Date(prev));
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Obtenir les réservations pour la date sélectionnée
   const getBookingsForDateFormatted = (date: Date) => {
@@ -63,9 +73,12 @@ const HairdresserDashboard = () => {
 
   const weekBookings = getWeekBookings();
 
-  console.log('Dashboard - Toutes les réservations:', allHairdresserBookings);
-  console.log('Dashboard - Réservations par date:', allBookingsByDate);
-  console.log('Dashboard - Réservations aujourd\'hui:', todayBookings);
+  // Logs pour le debug
+  console.log('=== DASHBOARD DEBUG ===');
+  console.log('Coiffeur ID:', currentHairdresserId);
+  console.log('Toutes les réservations du coiffeur:', allHairdresserBookings);
+  console.log('Réservations aujourd\'hui:', todayBookings);
+  console.log('Réservations par date:', allBookingsByDate);
 
   const handleLogout = () => {
     toast({
@@ -100,6 +113,14 @@ const HairdresserDashboard = () => {
   const handleBookingClick = (booking: any) => {
     setSelectedBooking(booking);
     setIsBookingDetailsModalOpen(true);
+  };
+
+  const handleConfirmBooking = (bookingId: number) => {
+    updateBookingStatus(bookingId, 'confirmé');
+    toast({
+      title: "Réservation confirmée",
+      description: "La réservation a été confirmée avec succès"
+    });
   };
 
   const handleWorkingHoursSave = (hours: { start: string; end: string }) => {
@@ -159,11 +180,31 @@ const HairdresserDashboard = () => {
         </div>
         
         <div className="flex flex-col gap-2 ml-4">
-          <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50">
-            Modifier
-          </Button>
-          <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
-            Annuler
+          {appointment.status === 'nouveau' && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="text-green-600 border-green-200 hover:bg-green-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleConfirmBooking(appointment.id);
+              }}
+            >
+              <Check className="h-4 w-4 mr-1" />
+              Confirmer
+            </Button>
+          )}
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="text-blue-600 border-blue-200 hover:bg-blue-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleBookingClick(appointment);
+            }}
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            Détails
           </Button>
         </div>
       </div>
