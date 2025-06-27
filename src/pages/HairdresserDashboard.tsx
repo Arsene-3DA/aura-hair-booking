@@ -9,10 +9,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Calendar as CalendarIcon, Clock, Users, Settings, LogOut, Bell, Eye, Filter } from 'lucide-react';
 import WorkingHoursModal from '../components/WorkingHoursModal';
 import BookingDetailsModal from '../components/BookingDetailsModal';
+import { useBookings } from '@/contexts/BookingsContext';
 
 const HairdresserDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { getBookingsForHairdresser, getBookingsForDate } = useBookings();
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
@@ -22,110 +24,13 @@ const HairdresserDashboard = () => {
   const [workingHours, setWorkingHours] = useState({ start: '09:00', end: '20:00' });
   const [viewMode, setViewMode] = useState<'today' | 'selected' | 'week'>('today');
 
-  // Données simulées des réservations par jour avec plus de détails
-  const allBookings = {
-    '2024-12-27': [
-      {
-        id: 1,
-        time: '09:00',
-        clientName: 'Marie Dubois',
-        phone: '06 12 34 56 78',
-        email: 'marie.dubois@email.com',
-        service: 'Coupe Femme',
-        status: 'confirmé',
-        date: 'Aujourd\'hui',
-        comments: 'Première visite, souhaite un changement de style'
-      },
-      {
-        id: 2,
-        time: '10:30',
-        clientName: 'Jean Martin',
-        phone: '06 98 76 54 32',
-        email: 'jean.martin@email.com',
-        service: 'Coupe Homme',
-        status: 'confirmé',
-        date: 'Aujourd\'hui',
-        comments: ''
-      },
-      {
-        id: 3,
-        time: '14:00',
-        clientName: 'Sophie Laurent',
-        phone: '06 11 22 33 44',
-        email: 'sophie.laurent@email.com',
-        service: 'Couleur + Coupe',
-        status: 'nouveau',
-        date: 'Aujourd\'hui',
-        comments: 'Souhaite passer au blond'
-      },
-      {
-        id: 4,
-        time: '16:00',
-        clientName: 'Alice Moreau',
-        phone: '06 55 44 33 22',
-        email: 'alice.moreau@email.com',
-        service: 'Balayage',
-        status: 'nouveau',
-        date: 'Aujourd\'hui',
-        comments: 'Référée par Marie Dubois'
-      }
-    ],
-    '2024-12-28': [
-      {
-        id: 5,
-        time: '09:30',
-        clientName: 'Pierre Durand',
-        phone: '06 77 88 99 00',
-        email: 'pierre.durand@email.com',
-        service: 'Coupe + Barbe',
-        status: 'confirmé',
-        date: 'Demain',
-        comments: 'Client régulier'
-      },
-      {
-        id: 6,
-        time: '15:00',
-        clientName: 'Emma Bernard',
-        phone: '06 33 44 55 66',
-        email: 'emma.bernard@email.com',
-        service: 'Mèches',
-        status: 'nouveau',
-        date: 'Demain',
-        comments: 'Souhaite des mèches californiennes'
-      }
-    ],
-    '2024-12-26': [
-      {
-        id: 7,
-        time: '11:00',
-        clientName: 'Laura Petit',
-        phone: '06 44 55 66 77',
-        email: 'laura.petit@email.com',
-        service: 'Coupe Femme',
-        status: 'confirmé',
-        date: 'Hier',
-        comments: 'Cliente fidèle'
-      }
-    ],
-    '2024-12-29': [
-      {
-        id: 8,
-        time: '10:00',
-        clientName: 'Marc Rousseau',
-        phone: '06 88 99 00 11',
-        email: 'marc.rousseau@email.com',
-        service: 'Coupe Moderne',
-        status: 'nouveau',
-        date: 'Dimanche',
-        comments: 'Premier rendez-vous'
-      }
-    ]
-  };
+  // ID du coiffeur connecté (Thomas Moreau = 1)
+  const currentHairdresserId = 1;
 
   // Obtenir les réservations pour la date sélectionnée
-  const getBookingsForDate = (date: Date) => {
+  const getBookingsForDateFormatted = (date: Date) => {
     const dateKey = date.toISOString().split('T')[0];
-    return allBookings[dateKey] || [];
+    return getBookingsForDate(currentHairdresserId, dateKey);
   };
 
   // Obtenir les réservations de la semaine
@@ -138,8 +43,7 @@ const HairdresserDashboard = () => {
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(startOfWeek);
       currentDate.setDate(startOfWeek.getDate() + i);
-      const dateKey = currentDate.toISOString().split('T')[0];
-      const dayBookings = allBookings[dateKey] || [];
+      const dayBookings = getBookingsForDateFormatted(currentDate);
       if (dayBookings.length > 0) {
         weekBookings.push({
           date: currentDate,
@@ -151,9 +55,10 @@ const HairdresserDashboard = () => {
     return weekBookings;
   };
 
-  const selectedDateBookings = getBookingsForDate(selectedDate);
-  const todayBookings = getBookingsForDate(new Date());
+  const selectedDateBookings = getBookingsForDateFormatted(selectedDate);
+  const todayBookings = getBookingsForDateFormatted(new Date());
   const weekBookings = getWeekBookings();
+  const allHairdresserBookings = getBookingsForHairdresser(currentHairdresserId);
 
   const handleLogout = () => {
     toast({
@@ -196,8 +101,13 @@ const HairdresserDashboard = () => {
 
   // Compter les nouvelles réservations
   const newBookingsCount = selectedDateBookings.filter(apt => apt.status === 'nouveau').length;
-  const totalNewBookings = Object.values(allBookings).flat().filter(apt => apt.status === 'nouveau').length;
-  const totalBookings = Object.values(allBookings).flat().length;
+  const totalNewBookings = allHairdresserBookings.filter(apt => apt.status === 'nouveau').length;
+  const totalBookings = allHairdresserBookings.length;
+
+  // Obtenir les dates avec des réservations
+  const datesWithBookings = allHairdresserBookings.map(booking => 
+    new Date(booking.bookingDate)
+  );
 
   const renderBookingCard = (appointment: any) => (
     <div
@@ -261,7 +171,7 @@ const HairdresserDashboard = () => {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold gradient-text">Dashboard Coiffeur</h1>
-              <p className="text-gray-600">Bienvenue, Anna Martin</p>
+              <p className="text-gray-600">Bienvenue, Thomas Moreau</p>
             </div>
             <div className="flex gap-2 items-center">
               {totalNewBookings > 0 && (
@@ -370,7 +280,7 @@ const HairdresserDashboard = () => {
                   className="rounded-md border"
                   modifiers={{
                     unavailable: unavailableDates,
-                    hasBookings: Object.keys(allBookings).map(dateStr => new Date(dateStr))
+                    hasBookings: datesWithBookings
                   }}
                   modifiersStyles={{
                     unavailable: { 

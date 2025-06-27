@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, Phone, Mail, MessageSquare, Scissors } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useBookings } from '@/contexts/BookingsContext';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -46,9 +47,9 @@ const allSpecialties = {
 
 const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
   const { toast } = useToast();
+  const { addBooking, getBookingsForDate } = useBookings();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>('');
-  const [blockedSlots, setBlockedSlots] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -58,23 +59,28 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
     comments: ''
   });
 
-  // Simulated unavailable slots (in real app, this would come from backend)
-  const unavailableSlots = ['09:00', '14:30', '16:00'];
-  
   // Available time slots
   const availableSlots = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
     '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00'
   ];
 
+  // Get booked slots for the selected date
+  const getBookedSlots = () => {
+    if (!selectedDate) return [];
+    const dateKey = selectedDate.toISOString().split('T')[0];
+    const dayBookings = getBookingsForDate(hairdresser.id, dateKey);
+    return dayBookings.map(booking => booking.time);
+  };
+
+  const bookedSlots = getBookedSlots();
+
   const handleTimeSelection = (time: string) => {
-    // Real-time blocking: immediately block the slot for other users
-    if (!blockedSlots.includes(time) && !unavailableSlots.includes(time)) {
+    if (!bookedSlots.includes(time)) {
       setSelectedTime(time);
-      // Simulate blocking for other users
       toast({
         title: "Créneau sélectionné",
-        description: `${time} temporairement réservé pendant votre réservation`
+        description: `${time} sélectionné pour votre réservation`
       });
     }
   };
@@ -99,8 +105,21 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
       return;
     }
 
-    // Add to blocked slots permanently
-    setBlockedSlots([...blockedSlots, selectedTime]);
+    // Ajouter la réservation au contexte global
+    const newBooking = {
+      time: selectedTime,
+      clientName: `${formData.firstName} ${formData.lastName}`,
+      phone: formData.phone,
+      email: formData.email,
+      service: formData.service || 'Service non spécifié',
+      status: 'nouveau' as const,
+      date: selectedDate.toLocaleDateString('fr-FR'),
+      comments: formData.comments,
+      hairdresserId: hairdresser.id,
+      bookingDate: selectedDate.toISOString().split('T')[0]
+    };
+
+    addBooking(newBooking);
 
     toast({
       title: "✅ Réservation confirmée !",
@@ -124,7 +143,6 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
 
   const getAvailableSpecialties = () => {
     const genderSpecialties = allSpecialties[hairdresser.gender || 'female'];
-    // Combine hairdresser's specialties with all possible specialties
     return [...hairdresser.specialties, ...genderSpecialties].filter((value, index, self) => self.indexOf(value) === index);
   };
 
@@ -163,32 +181,32 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                 <h3 className="text-lg font-semibold mb-4">2. Choisissez votre heure</h3>
                 <div className="grid grid-cols-3 gap-2">
                   {availableSlots.map((time) => {
-                    const isUnavailable = unavailableSlots.includes(time) || blockedSlots.includes(time);
+                    const isBooked = bookedSlots.includes(time);
                     const isSelected = selectedTime === time;
                     
                     return (
                       <Button
                         key={time}
-                        variant={isSelected ? "default" : isUnavailable ? "secondary" : "outline"}
+                        variant={isSelected ? "default" : isBooked ? "secondary" : "outline"}
                         size="sm"
                         onClick={() => handleTimeSelection(time)}
-                        disabled={isUnavailable}
+                        disabled={isBooked}
                         className={`${
                           isSelected 
                             ? "bg-gradient-gold text-white" 
-                            : isUnavailable 
+                            : isBooked 
                             ? "opacity-50 cursor-not-allowed bg-gray-200" 
                             : "hover:bg-gold-50"
                         }`}
                       >
                         {time}
-                        {isUnavailable && <span className="ml-1 text-xs">❌</span>}
+                        {isBooked && <span className="ml-1 text-xs">❌</span>}
                       </Button>
                     );
                   })}
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  ❌ = Créneau indisponible • ⏰ = Disponible
+                  ❌ = Créneau réservé • ⏰ = Disponible
                 </p>
               </div>
             )}
