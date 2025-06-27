@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HairdresserCard from '@/components/HairdresserCard';
+import BookingModal from '@/components/BookingModal';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 
@@ -96,6 +97,8 @@ const ProfessionalsList = () => {
   const { gender } = useParams<{ gender?: 'male' | 'female' }>();
   const navigate = useNavigate();
   const [professionals, setProfessionals] = useState(baseProfessionals);
+  const [selectedProfessional, setSelectedProfessional] = useState<any>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   console.log('Current gender parameter:', gender);
   console.log('Available professionals:', professionals);
@@ -140,6 +143,17 @@ const ProfessionalsList = () => {
     ? 'Spécialistes en coupe homme, barbe et styling masculin'
     : 'Spécialistes en coupe femme, couleur et coiffage';
 
+  const handleChooseProfessional = (professional: any) => {
+    console.log('Professionnel choisi:', professional.name);
+    setSelectedProfessional(professional);
+    setIsBookingModalOpen(true);
+  };
+
+  const handleCloseBookingModal = () => {
+    setIsBookingModalOpen(false);
+    setSelectedProfessional(null);
+  };
+
   console.log('Rendering professionals for gender:', gender);
   console.log('Current professionals count:', currentProfessionals.length);
 
@@ -182,10 +196,7 @@ const ProfessionalsList = () => {
                       photo={professional.image}
                       tags={professional.specialties}
                       rating={professional.rating}
-                      onChoose={() => {
-                        console.log('Professionnel choisi:', professional.name);
-                        // TODO: Implement booking logic
-                      }}
+                      onChoose={() => handleChooseProfessional(professional)}
                     />
                   </div>
                 ))}
@@ -215,6 +226,15 @@ const ProfessionalsList = () => {
         </section>
       </main>
       <Footer />
+      
+      {/* Booking Modal */}
+      {selectedProfessional && (
+        <BookingModal
+          isOpen={isBookingModalOpen}
+          onClose={handleCloseBookingModal}
+          hairdresser={selectedProfessional}
+        />
+      )}
     </div>
   );
 };
