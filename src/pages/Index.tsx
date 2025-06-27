@@ -1,4 +1,3 @@
-
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,12 +12,19 @@ const Index = () => {
     navigate(`/professionals/${gender}`);
   };
 
+  const scrollToProfessionals = () => {
+    const professionalsSection = document.getElementById('professionals');
+    if (professionalsSection) {
+      professionalsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <main className="pt-20">
         {/* Hero Section Redesigné */}
-        <section className="hero-section">
+        <section id="accueil" className="hero-section">
           {/* Background Effects */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-20 left-10 w-72 h-72 bg-luxury-gold-100 rounded-full opacity-20 animate-float"></div>
@@ -71,7 +77,10 @@ const Index = () => {
                 </div>
               </div>
 
-              <Button className="luxury-button text-xl px-12 py-6 mb-8">
+              <Button 
+                className="luxury-button text-xl px-12 py-6 mb-8"
+                onClick={scrollToProfessionals}
+              >
                 <Diamond className="h-6 w-6 mr-3" />
                 Réserver Votre Expérience VIP
               </Button>
@@ -80,7 +89,7 @@ const Index = () => {
         </section>
 
         {/* Section Sélection - Design Ultra Premium */}
-        <section className="py-32 bg-gradient-to-br from-luxury-black via-luxury-charcoal to-luxury-gray relative overflow-hidden">
+        <section id="professionals" className="py-32 bg-gradient-to-br from-luxury-black via-luxury-charcoal to-luxury-gray relative overflow-hidden">
           {/* Background Effects */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-gold opacity-5"></div>
@@ -239,7 +248,7 @@ const Index = () => {
         </section>
 
         {/* Section Excellence */}
-        <section className="py-32 bg-white relative overflow-hidden">
+        <section id="services" className="py-32 bg-white relative overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="text-center mb-20">
               <h2 className="text-5xl lg:text-6xl font-black mb-6 text-luxury-charcoal">
