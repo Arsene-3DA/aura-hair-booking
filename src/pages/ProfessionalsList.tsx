@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
@@ -203,10 +204,6 @@ const ProfessionalsList = () => {
             id: 1, // Utiliser un ID numérique par défaut pour compatibilité
             name: selectedProfessional.name,
             specialties: selectedProfessional.specialties,
-            image: selectedProfessional.image_url,
-            availability: "Disponible",
-            experience: selectedProfessional.experience,
-            location: selectedProfessional.location,
             gender: selectedProfessional.gender
           }}
         />
