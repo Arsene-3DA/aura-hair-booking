@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,20 +9,30 @@ import { useToast } from "@/hooks/use-toast";
 import { Calendar as CalendarIcon, Clock, Users, Settings, LogOut, Bell, Eye, Filter, Check, X } from 'lucide-react';
 import WorkingHoursModal from '../components/WorkingHoursModal';
 import BookingDetailsModal from '../components/BookingDetailsModal';
-import PendingBookingsNotification from '../components/PendingBookingsNotification';
-import { useBookings } from '@/contexts/BookingsContext';
+import AuthenticatedRoute from '../components/AuthenticatedRoute';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+
+interface Booking {
+  id: string;
+  client_name: string;
+  client_email: string;
+  client_phone: string;
+  service: string;
+  booking_date: string;
+  booking_time: string;
+  status: string;
+  comments?: string;
+  expires_at?: string;
+  created_at: string;
+}
 
 const HairdresserDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { 
-    getBookingsForHairdresser, 
-    getBookingsForDate, 
-    getAllBookingsByDate, 
-    updateBookingStatus,
-    getPendingBookingsCount 
-  } = useBookings();
+  const { user, logout } = useAuth();
+  const { getCoiffeurByUserId, getBookingsForCoiffeur, updateBookingStatus } = useSupabaseAuth();
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
@@ -30,71 +41,95 @@ const HairdresserDashboard = () => {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [workingHours, setWorkingHours] = useState({ start: '09:00', end: '20:00' });
   const [viewMode, setViewMode] = useState<'today' | 'selected' | 'week' | 'all'>('today');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [coiffeurProfile, setCoiffeurProfile] = useState<any>(null);
 
-  // ID du coiffeur connecté (Thomas Moreau = 1) - utilise le numéro pour compatibilité avec le contexte local
-  const currentHairdresserId = 1;
+  useEffect(() => {
+    if (user) {
+      loadCoiffeurData();
+    }
+  }, [user]);
 
-  // Forcer le rechargement des données à chaque render
   useEffect(() => {
     const interval = setInterval(() => {
-      // Force un re-render pour récupérer les nouvelles données
-      setSelectedDate(prev => new Date(prev));
-    }, 5000); // Actualisation plus fréquente pour les notifications
+      if (coiffeurProfile) {
+        loadBookings();
+      }
+    }, 30000); // Actualiser toutes les 30 secondes
     
     return () => clearInterval(interval);
-  }, []);
+  }, [coiffeurProfile]);
 
-  // Obtenir les réservations pour la date sélectionnée
-  const getBookingsForDateFormatted = (date: Date) => {
-    const dateKey = date.toISOString().split('T')[0];
-    return getBookingsForDate(currentHairdresserId, dateKey);
-  };
-
-  // Obtenir toutes les réservations du coiffeur groupées par date
-  const allBookingsByDate = getAllBookingsByDate(currentHairdresserId);
-  const allHairdresserBookings = getBookingsForHairdresser(currentHairdresserId);
-  const selectedDateBookings = getBookingsForDateFormatted(selectedDate);
-  const todayBookings = getBookingsForDateFormatted(new Date());
-  const pendingCount = getPendingBookingsCount(currentHairdresserId);
-
-  // Obtenir les réservations de la semaine
-  const getWeekBookings = () => {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
+  const loadCoiffeurData = async () => {
+    if (!user) return;
     
-    const weekBookings = [];
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(startOfWeek);
-      currentDate.setDate(startOfWeek.getDate() + i);
-      const dayBookings = getBookingsForDateFormatted(currentDate);
-      if (dayBookings.length > 0) {
-        weekBookings.push({
-          date: currentDate,
-          bookings: dayBookings,
-          dayName: currentDate.toLocaleDateString('fr-FR', { weekday: 'long' })
+    try {
+      setLoading(true);
+      const profile = await getCoiffeurByUserId(user.id);
+      
+      if (!profile) {
+        toast({
+          title: "❌ Erreur",
+          description: "Profil coiffeur non trouvé",
+          variant: "destructive"
         });
+        navigate('/login');
+        return;
       }
+
+      setCoiffeurProfile(profile);
+      await loadBookings(profile.hairdresser_id);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+    } finally {
+      setLoading(false);
     }
-    return weekBookings;
   };
 
-  const weekBookings = getWeekBookings();
+  const loadBookings = async (hairdresserId?: string) => {
+    if (!hairdresserId && !coiffeurProfile) return;
+    
+    try {
+      const bookingsData = await getBookingsForCoiffeur(hairdresserId || coiffeurProfile.hairdresser_id);
+      setBookings(bookingsData);
+    } catch (error) {
+      console.error('Erreur lors du chargement des réservations:', error);
+    }
+  };
 
-  // Logs pour le debug
-  console.log('=== DASHBOARD DEBUG ===');
-  console.log('Coiffeur ID:', currentHairdresserId);
-  console.log('Toutes les réservations du coiffeur:', allHairdresserBookings);
-  console.log('Réservations aujourd\'hui:', todayBookings);
-  console.log('Réservations par date:', allBookingsByDate);
-  console.log('Nombre de réservations en attente:', pendingCount);
+  // Filtrer les réservations selon la vue
+  const getFilteredBookings = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
 
-  const handleLogout = () => {
-    toast({
-      title: "Déconnexion",
-      description: "À bientôt !"
-    });
+    switch (viewMode) {
+      case 'today':
+        return bookings.filter(booking => booking.booking_date === today);
+      case 'selected':
+        return bookings.filter(booking => booking.booking_date === selectedDateStr);
+      case 'week':
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        
+        return bookings.filter(booking => {
+          const bookingDate = new Date(booking.booking_date);
+          return bookingDate >= startOfWeek && bookingDate <= endOfWeek;
+        });
+      case 'all':
+      default:
+        return bookings;
+    }
+  };
+
+  const filteredBookings = getFilteredBookings();
+  const pendingCount = bookings.filter(b => b.status === 'en_attente').length;
+  const confirmedCount = bookings.filter(b => b.status === 'confirmé').length;
+
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
@@ -120,35 +155,34 @@ const HairdresserDashboard = () => {
     }
   };
 
-  const handleBookingClick = (booking: any) => {
+  const handleBookingClick = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsBookingDetailsModalOpen(true);
   };
 
-  const handleConfirmBooking = (bookingId: string | number) => {
-    const bookingIdString = typeof bookingId === 'number' ? bookingId.toString() : bookingId;
-    updateBookingStatus(bookingIdString, 'confirmé');
-    toast({
-      title: "Réservation confirmée",
-      description: "La réservation a été confirmée avec succès"
-    });
+  const handleConfirmBooking = async (bookingId: string) => {
+    try {
+      await updateBookingStatus(bookingId, 'confirmé');
+      await loadBookings();
+    } catch (error) {
+      console.error('Erreur lors de la confirmation:', error);
+    }
+  };
+
+  const handleRejectBooking = async (bookingId: string) => {
+    try {
+      await updateBookingStatus(bookingId, 'refusé');
+      await loadBookings();
+    } catch (error) {
+      console.error('Erreur lors du refus:', error);
+    }
   };
 
   const handleWorkingHoursSave = (hours: { start: string; end: string }) => {
     setWorkingHours(hours);
   };
 
-  // Statistiques corrigées
-  const totalBookings = allHairdresserBookings.length;
-  const confirmedBookings = allHairdresserBookings.filter(apt => apt.status === 'confirmé').length;
-  const rejectedBookings = allHairdresserBookings.filter(apt => apt.status === 'refusé').length;
-
-  // Obtenir les dates avec des réservations
-  const datesWithBookings = allHairdresserBookings.map(booking => 
-    new Date(booking.bookingDate)
-  );
-
-  const renderBookingCard = (appointment: any) => {
+  const renderBookingCard = (booking: Booking) => {
     const getStatusBadge = (status: string) => {
       switch (status) {
         case 'en_attente':
@@ -157,52 +191,50 @@ const HairdresserDashboard = () => {
           return <Badge className="bg-green-500 text-white font-medium">✅ CONFIRMÉ</Badge>;
         case 'refusé':
           return <Badge className="bg-red-500 text-white font-medium">❌ REFUSÉ</Badge>;
-        case 'nouveau':
-          return <Badge className="bg-blue-500 text-white animate-pulse font-medium">🆕 NOUVEAU</Badge>;
         default:
           return <Badge variant="secondary">{status}</Badge>;
       }
     };
 
-    const isActionable = appointment.status === 'en_attente' || appointment.status === 'nouveau';
+    const isActionable = booking.status === 'en_attente';
 
     return (
       <div
-        key={appointment.id}
+        key={booking.id}
         className={`p-4 border rounded-lg hover:shadow-md transition-all duration-200 cursor-pointer transform hover:scale-[1.02] ${
           isActionable
             ? 'border-orange-300 bg-gradient-to-r from-orange-50 to-yellow-50 shadow-sm' 
-            : appointment.status === 'confirmé'
+            : booking.status === 'confirmé'
             ? 'border-green-300 bg-gradient-to-r from-green-50 to-emerald-50'
             : 'border-gray-200 bg-white'
         }`}
-        onClick={() => handleBookingClick(appointment)}
+        onClick={() => handleBookingClick(booking)}
       >
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-3">
               <Badge className="bg-gradient-gold text-white font-semibold px-3 py-1">
-                {appointment.time}
+                {booking.booking_time}
               </Badge>
-              <h3 className="font-bold text-gray-800 text-lg">{appointment.clientName}</h3>
-              {getStatusBadge(appointment.status)}
+              <h3 className="font-bold text-gray-800 text-lg">{booking.client_name}</h3>
+              {getStatusBadge(booking.status)}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center text-gray-600">
-                <span className="font-medium mr-2">📱</span> {appointment.phone}
+                <span className="font-medium mr-2">📱</span> {booking.client_phone}
               </div>
               <div className="flex items-center text-gray-600">
-                <span className="font-medium mr-2">✉️</span> {appointment.email}
+                <span className="font-medium mr-2">✉️</span> {booking.client_email}
               </div>
               <div className="flex items-center text-blue-600 font-medium col-span-full">
-                <span className="mr-2">✂️</span> {appointment.service}
+                <span className="mr-2">✂️</span> {booking.service}
               </div>
             </div>
             
-            {appointment.comments && (
+            {booking.comments && (
               <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
-                <span className="font-medium text-amber-700">💬 Note:</span> {appointment.comments}
+                <span className="font-medium text-amber-700">💬 Note:</span> {booking.comments}
               </div>
             )}
           </div>
@@ -215,7 +247,7 @@ const HairdresserDashboard = () => {
                   className="bg-green-500 hover:bg-green-600 text-white"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleConfirmBooking(appointment.id);
+                    handleConfirmBooking(booking.id);
                   }}
                 >
                   <Check className="h-4 w-4 mr-1" />
@@ -226,8 +258,7 @@ const HairdresserDashboard = () => {
                   variant="destructive"
                   onClick={(e) => {
                     e.stopPropagation();
-                    const appointmentIdString = typeof appointment.id === 'number' ? appointment.id.toString() : appointment.id;
-                    updateBookingStatus(appointmentIdString, 'refusé');
+                    handleRejectBooking(booking.id);
                   }}
                 >
                   <X className="h-4 w-4 mr-1" />
@@ -241,7 +272,7 @@ const HairdresserDashboard = () => {
               className="text-blue-600 border-blue-200 hover:bg-blue-50"
               onClick={(e) => {
                 e.stopPropagation();
-                handleBookingClick(appointment);
+                handleBookingClick(booking);
               }}
             >
               <Eye className="h-4 w-4 mr-1" />
@@ -265,343 +296,214 @@ const HairdresserDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-16 w-16 border-2 border-gold-300">
-                <AvatarImage 
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-                  alt="Thomas Moreau"
-                  className="object-cover"
-                />
-                <AvatarFallback className="bg-gold-100 text-gold-700 text-lg font-semibold">
-                  TM
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-2xl font-bold gradient-text">Dashboard Coiffeur</h1>
-                <p className="text-gray-600">Bienvenue, Thomas Moreau</p>
+    <AuthenticatedRoute requiredUserType="coiffeur">
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white shadow-sm border-b">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-16 w-16 border-2 border-gold-300">
+                  <AvatarImage 
+                    src={coiffeurProfile?.hairdressers?.image_url}
+                    alt={user?.first_name}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-gold-100 text-gold-700 text-lg font-semibold">
+                    {user?.first_name?.charAt(0)}{user?.last_name?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h1 className="text-2xl font-bold gradient-text">Dashboard Coiffeur</h1>
+                  <p className="text-gray-600">Bienvenue, {user?.first_name} {user?.last_name}</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 items-center">
+                {pendingCount > 0 && (
+                  <div className="relative">
+                    <Bell className="h-6 w-6 text-orange-500 animate-pulse" />
+                    <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-[20px] h-5 flex items-center justify-center rounded-full animate-bounce">
+                      {pendingCount}
+                    </Badge>
+                  </div>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsWorkingHoursModalOpen(true)}
+                >
+                  <Clock className="h-4 w-4 mr-2" />
+                  Horaires ({workingHours.start}-{workingHours.end})
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Déconnexion
+                </Button>
               </div>
             </div>
-            
-            <div className="flex gap-2 items-center">
-              {pendingCount > 0 && (
-                <div className="relative">
-                  <Bell className="h-6 w-6 text-orange-500 animate-pulse" />
-                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-[20px] h-5 flex items-center justify-center rounded-full animate-bounce">
-                    {pendingCount}
-                  </Badge>
-                </div>
-              )}
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setIsWorkingHoursModalOpen(true)}
-              >
-                <Clock className="h-4 w-4 mr-2" />
-                Horaires ({workingHours.start}-{workingHours.end})
-              </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Profil
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Déconnexion
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Notification des demandes en attente */}
-        <div className="mb-8">
-          <PendingBookingsNotification hairdresserId={currentHairdresserId} />
-        </div>
-
-        {/* Statistiques globales corrigées */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-gold-200 bg-gradient-to-br from-gold-50 to-orange-50">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-gold-600 mb-2">{totalBookings}</div>
-              <div className="text-sm text-gray-600 font-medium">Total Réservations</div>
-            </CardContent>
-          </Card>
-          <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-blue-600 mb-2">{todayBookings.length}</div>
-              <div className="text-sm text-gray-600 font-medium">Aujourd'hui</div>
-            </CardContent>
-          </Card>
-          <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-orange-600 mb-2">{pendingCount}</div>
-              <div className="text-sm text-gray-600 font-medium">En attente</div>
-            </CardContent>
-          </Card>
-          <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">{confirmedBookings}</div>
-              <div className="text-sm text-gray-600 font-medium">Confirmées</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Modes de vue */}
-        <div className="mb-6">
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant={viewMode === 'today' ? 'default' : 'outline'}
-              onClick={() => setViewMode('today')}
-              className={viewMode === 'today' ? 'bg-gradient-gold text-white' : ''}
-            >
-              <CalendarIcon className="h-4 w-4 mr-2" />
-              Aujourd'hui ({todayBookings.length})
-            </Button>
-            <Button
-              variant={viewMode === 'selected' ? 'default' : 'outline'}
-              onClick={() => setViewMode('selected')}
-              className={viewMode === 'selected' ? 'bg-gradient-gold text-white' : ''}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Date sélectionnée ({selectedDateBookings.length})
-            </Button>
-            <Button
-              variant={viewMode === 'week' ? 'default' : 'outline'}
-              onClick={() => setViewMode('week')}
-              className={viewMode === 'week' ? 'bg-gradient-gold text-white' : ''}
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Vue semaine ({weekBookings.length} jours)
-            </Button>
-            <Button
-              variant={viewMode === 'all' ? 'default' : 'outline'}
-              onClick={() => setViewMode('all')}
-              className={viewMode === 'all' ? 'bg-gradient-gold text-white' : ''}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Toutes les réservations ({totalBookings})
-            </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Calendrier */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <CalendarIcon className="h-5 w-5 mr-2 text-gold-500" />
-                  Calendrier des réservations
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
-                  className="rounded-md border"
-                  modifiers={{
-                    unavailable: unavailableDates,
-                    hasBookings: datesWithBookings
-                  }}
-                  modifiersStyles={{
-                    unavailable: { 
-                      backgroundColor: '#fee2e2', 
-                      color: '#dc2626',
-                      textDecoration: 'line-through'
-                    },
-                    hasBookings: {
-                      backgroundColor: '#dbeafe',
-                      color: '#1d4ed8',
-                      fontWeight: 'bold'
-                    }
-                  }}
-                />
-                
-                <div className="mt-4 space-y-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleDateAvailability(selectedDate)}
-                    className="w-full"
-                  >
-                    {unavailableDates.some(d => 
-                      d.toDateString() === selectedDate.toDateString()
-                    ) ? 'Débloquer ce jour' : 'Bloquer ce jour'}
-                  </Button>
-                  
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p>• <span className="inline-block w-3 h-3 bg-blue-200 rounded"></span> Jours avec RDV</p>
-                    <p>• <span className="inline-block w-3 h-3 bg-red-200 rounded"></span> Jours bloqués</p>
-                  </div>
-                </div>
+        <div className="container mx-auto px-4 py-8">
+          {/* Statistiques */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <Card className="border-gold-200 bg-gradient-to-br from-gold-50 to-orange-50">
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-gold-600 mb-2">{bookings.length}</div>
+                <div className="text-sm text-gray-600 font-medium">Total Réservations</div>
+              </CardContent>
+            </Card>
+            <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50">
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-blue-600 mb-2">{filteredBookings.filter(b => b.booking_date === new Date().toISOString().split('T')[0]).length}</div>
+                <div className="text-sm text-gray-600 font-medium">Aujourd'hui</div>
+              </CardContent>
+            </Card>
+            <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50">
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-orange-600 mb-2">{pendingCount}</div>
+                <div className="text-sm text-gray-600 font-medium">En attente</div>
+              </CardContent>
+            </Card>
+            <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-green-600 mb-2">{confirmedCount}</div>
+                <div className="text-sm text-gray-600 font-medium">Confirmées</div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Contenu principal selon le mode */}
-          <div className="lg:col-span-2">
-            {viewMode === 'today' && (
+          {/* Modes de vue */}
+          <div className="mb-6">
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant={viewMode === 'today' ? 'default' : 'outline'}
+                onClick={() => setViewMode('today')}
+                className={viewMode === 'today' ? 'bg-gradient-gold text-white' : ''}
+              >
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                Aujourd'hui
+              </Button>
+              <Button
+                variant={viewMode === 'selected' ? 'default' : 'outline'}
+                onClick={() => setViewMode('selected')}
+                className={viewMode === 'selected' ? 'bg-gradient-gold text-white' : ''}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Date sélectionnée
+              </Button>
+              <Button
+                variant={viewMode === 'week' ? 'default' : 'outline'}
+                onClick={() => setViewMode('week')}
+                className={viewMode === 'week' ? 'bg-gradient-gold text-white' : ''}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Vue semaine
+              </Button>
+              <Button
+                variant={viewMode === 'all' ? 'default' : 'outline'}
+                onClick={() => setViewMode('all')}
+                className={viewMode === 'all' ? 'bg-gradient-gold text-white' : ''}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Toutes les réservations
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Calendrier */}
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <CalendarIcon className="h-5 w-5 mr-2 text-gold-500" />
+                    Calendrier
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => date && setSelectedDate(date)}
+                    className="rounded-md border"
+                    modifiers={{
+                      unavailable: unavailableDates
+                    }}
+                    modifiersStyles={{
+                      unavailable: { 
+                        backgroundColor: '#fee2e2', 
+                        color: '#dc2626',
+                        textDecoration: 'line-through'
+                      }
+                    }}
+                  />
+                  
+                  <div className="mt-4 space-y-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleDateAvailability(selectedDate)}
+                      className="w-full"
+                    >
+                      {unavailableDates.some(d => 
+                        d.toDateString() === selectedDate.toDateString()
+                      ) ? 'Débloquer ce jour' : 'Bloquer ce jour'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Réservations */}
+            <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
                       <CalendarIcon className="h-5 w-5 mr-2 text-gold-500" />
-                      Mes rendez-vous d'aujourd'hui
+                      Mes réservations
                     </div>
                     <Badge variant="secondary" className="bg-gold-100 text-gold-800">
                       <Users className="h-4 w-4 mr-1" />
-                      {todayBookings.length} client{todayBookings.length > 1 ? 's' : ''}
+                      {filteredBookings.length}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {todayBookings.length === 0 ? (
+                    {filteredBookings.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
                         <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                        <p className="font-medium">Aucune réservation aujourd'hui</p>
-                        <p className="text-sm">Profitez de cette journée libre !</p>
+                        <p className="font-medium">Aucune réservation</p>
+                        <p className="text-sm">Aucune réservation trouvée pour cette période</p>
                       </div>
                     ) : (
-                      todayBookings.map(renderBookingCard)
+                      filteredBookings.map(renderBookingCard)
                     )}
                   </div>
                 </CardContent>
               </Card>
-            )}
-
-            {viewMode === 'selected' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Eye className="h-5 w-5 mr-2 text-gold-500" />
-                      Réservations du {selectedDate.toLocaleDateString('fr-FR')}
-                    </div>
-                    <Badge variant="secondary">
-                      <Users className="h-4 w-4 mr-1" />
-                      {selectedDateBookings.length} client{selectedDateBookings.length > 1 ? 's' : ''}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {selectedDateBookings.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                        <p className="font-medium">Aucune réservation pour cette date</p>
-                        <p className="text-sm">Sélectionnez une autre date dans le calendrier</p>
-                      </div>
-                    ) : (
-                      selectedDateBookings.map(renderBookingCard)
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {viewMode === 'week' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Filter className="h-5 w-5 mr-2 text-gold-500" />
-                    Vue d'ensemble de la semaine
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {weekBookings.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                        <p className="font-medium">Aucune réservation cette semaine</p>
-                        <p className="text-sm">Une semaine tranquille vous attend !</p>
-                      </div>
-                    ) : (
-                      weekBookings.map((day, index) => (
-                        <div key={index} className="border-l-4 border-gold-400 pl-4">
-                          <h3 className="font-bold text-lg text-gray-800 mb-3 capitalize">
-                            {day.dayName} - {day.date.toLocaleDateString('fr-FR')}
-                            <Badge className="ml-2 bg-gold-100 text-gold-800">
-                              {day.bookings.length} RDV
-                            </Badge>
-                          </h3>
-                          <div className="space-y-3">
-                            {day.bookings.map(renderBookingCard)}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {viewMode === 'all' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-gold-500" />
-                    Toutes mes réservations par date
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {Object.keys(allBookingsByDate).length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                        <p className="font-medium">Aucune réservation trouvée</p>
-                        <p className="text-sm">Les nouvelles réservations apparaîtront ici</p>
-                      </div>
-                    ) : (
-                      Object.entries(allBookingsByDate)
-                        .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
-                        .map(([date, bookings]) => (
-                          <div key={date} className="border-l-4 border-gold-400 pl-4">
-                            <h3 className="font-bold text-lg text-gray-800 mb-3">
-                              {new Date(date).toLocaleDateString('fr-FR', { 
-                                weekday: 'long', 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                              })}
-                              <Badge className="ml-2 bg-gold-100 text-gold-800">
-                                {bookings.length} RDV
-                              </Badge>
-                            </h3>
-                            <div className="space-y-3">
-                              {bookings.map(renderBookingCard)}
-                            </div>
-                          </div>
-                        ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            </div>
           </div>
         </div>
+
+        {/* Modals */}
+        <WorkingHoursModal
+          isOpen={isWorkingHoursModalOpen}
+          onClose={() => setIsWorkingHoursModalOpen(false)}
+          currentHours={workingHours}
+          onSave={handleWorkingHoursSave}
+        />
+
+        <BookingDetailsModal
+          isOpen={isBookingDetailsModalOpen}
+          onClose={() => setIsBookingDetailsModalOpen(false)}
+          booking={selectedBooking}
+        />
       </div>
-
-      {/* Modals */}
-      <WorkingHoursModal
-        isOpen={isWorkingHoursModalOpen}
-        onClose={() => setIsWorkingHoursModalOpen(false)}
-        currentHours={workingHours}
-        onSave={handleWorkingHoursSave}
-      />
-
-      <BookingDetailsModal
-        isOpen={isBookingDetailsModalOpen}
-        onClose={() => setIsBookingDetailsModalOpen(false)}
-        booking={selectedBooking}
-      />
-    </div>
+    </AuthenticatedRoute>
   );
 };
 

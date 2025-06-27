@@ -16,6 +16,7 @@ export type Database = {
           client_email: string
           client_name: string
           client_phone: string
+          client_user_id: string | null
           comments: string | null
           created_at: string
           expires_at: string | null
@@ -30,6 +31,7 @@ export type Database = {
           client_email: string
           client_name: string
           client_phone: string
+          client_user_id?: string | null
           comments?: string | null
           created_at?: string
           expires_at?: string | null
@@ -44,6 +46,7 @@ export type Database = {
           client_email?: string
           client_name?: string
           client_phone?: string
+          client_user_id?: string | null
           comments?: string | null
           created_at?: string
           expires_at?: string | null
@@ -54,10 +57,53 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "bookings_client_user_id_fkey"
+            columns: ["client_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_hairdresser_id_fkey"
             columns: ["hairdresser_id"]
             isOneToOne: false
             referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coiffeur_profiles: {
+        Row: {
+          created_at: string
+          hairdresser_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hairdresser_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hairdresser_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coiffeur_profiles_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: true
+            referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coiffeur_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -113,6 +159,77 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          session_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          session_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          session_token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          is_active: boolean | null
+          last_name: string | null
+          password_hash: string
+          phone: string | null
+          updated_at: string
+          user_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_name?: string | null
+          password_hash: string
+          phone?: string | null
+          updated_at?: string
+          user_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_name?: string | null
+          password_hash?: string
+          phone?: string | null
+          updated_at?: string
+          user_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -121,6 +238,10 @@ export type Database = {
       clean_expired_bookings: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      hash_password: {
+        Args: { password: string }
+        Returns: string
       }
     }
     Enums: {
