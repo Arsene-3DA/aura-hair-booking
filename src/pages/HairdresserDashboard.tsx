@@ -126,7 +126,7 @@ const HairdresserDashboard = () => {
   };
 
   const handleConfirmBooking = (bookingId: number) => {
-    updateBookingStatus(bookingId, 'confirmé');
+    updateBookingStatus(bookingId.toString(), 'confirmé');
     toast({
       title: "Réservation confirmée",
       description: "La réservation a été confirmée avec succès"
@@ -225,7 +225,7 @@ const HairdresserDashboard = () => {
                   variant="destructive"
                   onClick={(e) => {
                     e.stopPropagation();
-                    updateBookingStatus(appointment.id, 'refusé');
+                    updateBookingStatus(appointment.id.toString(), 'refusé');
                   }}
                 >
                   <X className="h-4 w-4 mr-1" />
