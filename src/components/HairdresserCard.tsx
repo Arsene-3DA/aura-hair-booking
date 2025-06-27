@@ -1,112 +1,64 @@
 
-import { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Star, Clock, Calendar, MapPin } from 'lucide-react';
-import BookingModal from './BookingModal';
+import { Star, User } from 'lucide-react';
 
-interface HairdresserProps {
-  id: number;
+interface HairdresserCardProps {
   name: string;
-  specialties: string[];
+  photo: string;
+  tags: string[];
   rating: number;
-  image: string;
-  availability: string;
-  experience: string;
-  location?: string;
-  gender?: 'male' | 'female';
+  onChoose: () => void;
 }
 
-const HairdresserCard = ({ hairdresser }: { hairdresser: HairdresserProps }) => {
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-
+const HairdresserCard = ({ name, photo, tags, rating, onChoose }: HairdresserCardProps) => {
   return (
-    <>
-      <Card className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 shadow-lg overflow-hidden">
-        <div className="relative h-48 bg-gradient-to-br from-gold-100 to-orange-100">
-          {/* Profile Photo */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg border-4 border-white">
-              <img 
-                src={hairdresser.image} 
-                alt={hairdresser.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-          
-          {/* Availability Badge */}
-          <div className="absolute top-4 right-4">
-            <Badge className="bg-green-500 text-white hover:bg-green-600">
-              Disponible
-            </Badge>
-          </div>
-          
-          {/* Rating */}
-          <div className="absolute bottom-4 left-4 flex items-center space-x-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
-            <Star className="h-4 w-4 text-gold-500 fill-current" />
-            <span className="text-sm font-medium">{hairdresser.rating}</span>
-          </div>
+    <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-104 transition-transform duration-200 cursor-pointer">
+      {/* Photo ronde 96px */}
+      <div className="flex justify-center mb-4">
+        <div className="relative">
+          <img 
+            src={photo}
+            alt={name}
+            className="w-24 h-24 rounded-full object-cover border-4 border-luxury-gold-200"
+          />
+          <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white"></div>
         </div>
-        
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-1">{hairdresser.name}</h3>
-              <div className="flex items-center text-gray-600 mb-1">
-                <Clock className="h-4 w-4 mr-1" />
-                <span className="text-sm">{hairdresser.experience}</span>
-              </div>
-              {hairdresser.location && (
-                <div className="flex items-center text-gray-600">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  <span className="text-sm">{hairdresser.location}</span>
-                </div>
-              )}
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              {hairdresser.specialties.slice(0, 3).map((specialty) => (
-                <Badge 
-                  key={specialty} 
-                  variant="secondary" 
-                  className="bg-gold-100 text-gold-800 hover:bg-gold-200"
-                >
-                  {specialty}
-                </Badge>
-              ))}
-              {hairdresser.specialties.length > 3 && (
-                <Badge variant="outline" className="text-gray-600">
-                  +{hairdresser.specialties.length - 3}
-                </Badge>
-              )}
-            </div>
-            
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center text-green-600">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span className="text-sm font-medium">{hairdresser.availability}</span>
-              </div>
-              
-              <Button 
-                className="bg-gradient-gold hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-300"
-                size="sm"
-                onClick={() => setIsBookingModalOpen(true)}
-              >
-                Réserver
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      </div>
 
-      <BookingModal 
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
-        hairdresser={hairdresser}
-      />
-    </>
+      {/* Nom */}
+      <h3 className="text-xl font-bold text-luxury-charcoal text-center mb-3">{name}</h3>
+
+      {/* Tags */}
+      <div className="flex flex-wrap gap-2 justify-center mb-4">
+        {tags.map((tag, index) => (
+          <span key={index} className="px-3 py-1 bg-luxury-gold-100 text-luxury-gold-700 rounded-full text-sm font-medium">
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      {/* Rating */}
+      <div className="flex items-center justify-center mb-6">
+        <div className="flex space-x-1 mr-2">
+          {[...Array(5)].map((_, i) => (
+            <Star 
+              key={i} 
+              className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+            />
+          ))}
+        </div>
+        <span className="text-sm text-luxury-charcoal/70 font-medium">{rating}.0</span>
+      </div>
+
+      {/* Bouton Choisir */}
+      <Button 
+        onClick={onChoose}
+        className="w-full bg-luxury-gold-500 hover:bg-luxury-gold-600 text-luxury-black px-6 py-3 rounded-xl font-bold transition-colors duration-200"
+      >
+        <User className="h-5 w-5 mr-2" />
+        Choisir
+      </Button>
+    </div>
   );
 };
 

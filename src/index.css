@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import des animations personnalisées */
+@import './styles/animations.css';
+
 /* Design System Professionnel - Noir, Blanc, Or */
 
 @layer base {

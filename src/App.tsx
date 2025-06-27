@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import HairdresserDashboard from "./pages/HairdresserDashboard";
 import ProfessionalsList from "./pages/ProfessionalsList";
+import ComponentsDemo from "./pages/ComponentsDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/hairdresser" element={<HairdresserDashboard />} />
             <Route path="/professionals" element={<ProfessionalsList />} />
             <Route path="/professionals/:gender" element={<ProfessionalsList />} />
+            <Route path="/demo" element={<ComponentsDemo />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
