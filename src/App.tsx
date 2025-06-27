@@ -27,6 +27,7 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/hairdresser" element={<HairdresserDashboard />} />
             <Route path="/professionals" element={<ProfessionalsList />} />
+            <Route path="/professionals/:gender" element={<ProfessionalsList />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
