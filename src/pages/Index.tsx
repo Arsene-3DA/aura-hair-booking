@@ -1,3 +1,4 @@
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from "@/components/ui/card";
@@ -113,11 +114,16 @@ const Index = () => {
                 <CardContent className="p-0">
                   <div className="relative h-96 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-600/30"></div>
-                    <img 
-                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&h=600&fit=crop&crop=face"
-                      alt="Maître Coiffeur"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                    {/* Photo circulaire centrée */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-2xl">
+                        <img 
+                          src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&h=600&fit=crop&crop=face"
+                          alt="Maître Coiffeur"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      </div>
+                    </div>
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                       <div className="absolute bottom-8 left-8 text-white">
@@ -181,11 +187,16 @@ const Index = () => {
                 <CardContent className="p-0">
                   <div className="relative h-96 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-rose-600/30"></div>
-                    <img 
-                      src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&h=600&fit=crop&crop=face"
-                      alt="Maître Coiffeuse"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                    {/* Photo circulaire centrée */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-2xl">
+                        <img 
+                          src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&h=600&fit=crop&crop=face"
+                          alt="Maître Coiffeuse"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      </div>
+                    </div>
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                       <div className="absolute bottom-8 left-8 text-white">
