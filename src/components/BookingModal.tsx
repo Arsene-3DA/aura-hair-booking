@@ -118,7 +118,9 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
       date: selectedDate.toLocaleDateString('fr-FR'),
       comments: formData.comments,
       hairdresserId: hairdresser.id,
-      bookingDate: bookingDate
+      bookingDate: bookingDate,
+      status: 'en_attente' as const,
+      createdAt: new Date().toISOString()
     };
 
     addBooking(newBooking);

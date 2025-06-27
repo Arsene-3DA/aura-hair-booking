@@ -135,8 +135,8 @@ const HairdresserDashboard = () => {
   };
 
   // Compter les nouvelles réservations
-  const newBookingsCount = selectedDateBookings.filter(apt => apt.status === 'nouveau').length;
-  const totalNewBookings = allHairdresserBookings.filter(apt => apt.status === 'nouveau').length;
+  const pendingBookingsCount = selectedDateBookings.filter(apt => apt.status === 'en_attente').length;
+  const totalPendingBookings = allHairdresserBookings.filter(apt => apt.status === 'en_attente').length;
   const totalBookings = allHairdresserBookings.length;
 
   // Obtenir les dates avec des réservations
