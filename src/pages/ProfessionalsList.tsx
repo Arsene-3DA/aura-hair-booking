@@ -7,101 +7,33 @@ import HairdresserCard from '@/components/HairdresserCard';
 import BookingModal from '@/components/BookingModal';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
 
-// Separated hairdressers by gender avec possibilité d'ajouter de nouveaux
-const baseProfessionals = {
-  male: [
-    {
-      id: 3,
-      name: "Marc Rousseau",
-      specialties: ["Coupe Homme", "Barbe", "Styling"],
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face",
-      availability: "Aujourd'hui dès 16h",
-      experience: "12 ans d'expérience",
-      location: "Salon Premium - 15e arr.",
-      gender: "male" as const
-    },
-    {
-      id: 5,
-      name: "Thomas Moreau", 
-      specialties: ["Coupe Moderne", "Dégradé", "Entretien"],
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-      availability: "Aujourd'hui dès 15h",
-      experience: "7 ans d'expérience",
-      location: "Salon Premium - 8e arr.",
-      gender: "male" as const
-    },
-    {
-      id: 7,
-      name: "Pierre Martin",
-      specialties: ["Coupe Classique", "Barbe", "Rasage"],
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
-      availability: "Demain dès 10h",
-      experience: "15 ans d'expérience",
-      location: "Salon Premium - 1er arr.",
-      gender: "male" as const
-    }
-  ],
-  female: [
-    {
-      id: 1,
-      name: "Anna Martin",
-      specialties: ["Coupe Femme", "Couleur", "Balayage"],
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=400&fit=crop&crop=face",
-      availability: "Aujourd'hui dès 14h",
-      experience: "8 ans d'expérience",
-      location: "Salon Premium - 16e arr.",
-      gender: "female" as const
-    },
-    {
-      id: 2,
-      name: "Julie Dubois",
-      specialties: ["Soins", "Extensions", "Coiffage"],
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=400&fit=crop&crop=face",
-      availability: "Demain dès 9h",
-      experience: "6 ans d'expérience",
-      location: "Salon Premium - 7e arr.", 
-      gender: "female" as const
-    },
-    {
-      id: 4,
-      name: "Sophie Laurent",
-      specialties: ["Coupe", "Couleur", "Mèches"],
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-      availability: "Lundi dès 10h",
-      experience: "5 ans d'expérience",
-      location: "Salon Premium - 9e arr.",
-      gender: "female" as const
-    },
-    {
-      id: 6,
-      name: "Camille Petit",
-      specialties: ["Mariée", "Événement", "Chignon"],
-      rating: 5.0,
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
-      availability: "Sur RDV",
-      experience: "10 ans d'expérience",
-      location: "Salon Premium - 6e arr.",
-      gender: "female" as const
-    }
-  ]
-};
+interface Professional {
+  id: string;
+  name: string;
+  specialties: string[];
+  rating: number;
+  image_url: string;
+  experience: string;
+  location: string;
+  gender: 'male' | 'female';
+  email: string;
+  phone?: string;
+  is_active: boolean;
+}
 
 const ProfessionalsList = () => {
   const { gender } = useParams<{ gender?: 'male' | 'female' }>();
   const navigate = useNavigate();
-  const [professionals, setProfessionals] = useState(baseProfessionals);
-  const [selectedProfessional, setSelectedProfessional] = useState<any>(null);
+  const { toast } = useToast();
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   console.log('Current gender parameter:', gender);
-  console.log('Available professionals:', professionals);
   
   // Si pas de genre spécifié ou genre invalide, rediriger vers l'accueil
   useEffect(() => {
@@ -112,38 +44,58 @@ const ProfessionalsList = () => {
     }
   }, [gender, navigate]);
 
-  // Charger les nouveaux professionnels ajoutés par l'admin depuis localStorage
+  // Charger les professionnels depuis Supabase
   useEffect(() => {
-    const loadAddedProfessionals = () => {
+    const loadProfessionals = async () => {
+      if (!gender || !['male', 'female'].includes(gender)) return;
+      
       try {
-        const savedProfessionals = localStorage.getItem('addedProfessionals');
-        if (savedProfessionals) {
-          const parsed = JSON.parse(savedProfessionals);
-          setProfessionals(prev => ({
-            male: [...prev.male, ...parsed.male],
-            female: [...prev.female, ...parsed.female]
-          }));
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('hairdressers')
+          .select('*')
+          .eq('gender', gender)
+          .eq('is_active', true)
+          .order('rating', { ascending: false });
+
+        if (error) {
+          console.error('Erreur lors du chargement des professionnels:', error);
+          toast({
+            title: "Erreur",
+            description: "Impossible de charger les professionnels",
+            variant: "destructive",
+          });
+          return;
         }
+
+        setProfessionals(data || []);
+        console.log('Professionnels chargés:', data?.length);
       } catch (error) {
-        console.error('Erreur lors du chargement des professionnels:', error);
+        console.error('Erreur:', error);
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadAddedProfessionals();
-  }, []);
+    loadProfessionals();
+  }, [gender, toast]);
 
   // Si pas de genre valide, ne rien afficher (useEffect va rediriger)
   if (!gender || !['male', 'female'].includes(gender)) {
     return null;
   }
 
-  const currentProfessionals = professionals[gender];
   const title = gender === 'male' ? 'Nos Coiffeurs Experts' : 'Nos Coiffeuses Expertes';
   const subtitle = gender === 'male' 
     ? 'Spécialistes en coupe homme, barbe et styling masculin'
     : 'Spécialistes en coupe femme, couleur et coiffage';
 
-  const handleChooseProfessional = (professional: any) => {
+  const handleChooseProfessional = (professional: Professional) => {
     console.log('Professionnel choisi:', professional.name);
     setSelectedProfessional(professional);
     setIsBookingModalOpen(true);
@@ -153,9 +105,6 @@ const ProfessionalsList = () => {
     setIsBookingModalOpen(false);
     setSelectedProfessional(null);
   };
-
-  console.log('Rendering professionals for gender:', gender);
-  console.log('Current professionals count:', currentProfessionals.length);
 
   return (
     <div className="min-h-screen">
@@ -187,13 +136,17 @@ const ProfessionalsList = () => {
         {/* Professionals Grid */}
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4">
-            {currentProfessionals.length > 0 ? (
+            {loading ? (
+              <div className="text-center py-16">
+                <p className="text-gray-600 text-lg">Chargement des professionnels...</p>
+              </div>
+            ) : professionals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {currentProfessionals.map((professional) => (
+                {professionals.map((professional) => (
                   <div key={professional.id} className="animate-fade-in">
                     <HairdresserCard 
                       name={professional.name}
-                      photo={professional.image}
+                      photo={professional.image_url}
                       tags={professional.specialties}
                       rating={professional.rating}
                       onChoose={() => handleChooseProfessional(professional)}
@@ -232,7 +185,17 @@ const ProfessionalsList = () => {
         <BookingModal
           isOpen={isBookingModalOpen}
           onClose={handleCloseBookingModal}
-          hairdresser={selectedProfessional}
+          hairdresser={{
+            id: parseInt(selectedProfessional.id),
+            name: selectedProfessional.name,
+            specialties: selectedProfessional.specialties,
+            rating: selectedProfessional.rating,
+            image: selectedProfessional.image_url,
+            availability: "Disponible",
+            experience: selectedProfessional.experience,
+            location: selectedProfessional.location,
+            gender: selectedProfessional.gender
+          }}
         />
       )}
     </div>

@@ -9,13 +9,119 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          booking_date: string
+          booking_time: string
+          client_email: string
+          client_name: string
+          client_phone: string
+          comments: string | null
+          created_at: string
+          expires_at: string | null
+          hairdresser_id: string
+          id: string
+          service: string
+          status: string | null
+        }
+        Insert: {
+          booking_date: string
+          booking_time: string
+          client_email: string
+          client_name: string
+          client_phone: string
+          comments?: string | null
+          created_at?: string
+          expires_at?: string | null
+          hairdresser_id: string
+          id?: string
+          service: string
+          status?: string | null
+        }
+        Update: {
+          booking_date?: string
+          booking_time?: string
+          client_email?: string
+          client_name?: string
+          client_phone?: string
+          comments?: string | null
+          created_at?: string
+          expires_at?: string | null
+          hairdresser_id?: string
+          id?: string
+          service?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hairdressers: {
+        Row: {
+          created_at: string
+          email: string
+          experience: string | null
+          gender: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          location: string | null
+          name: string
+          phone: string | null
+          rating: number | null
+          specialties: string[] | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          experience?: string | null
+          gender?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          name: string
+          phone?: string | null
+          rating?: number | null
+          specialties?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          experience?: string | null
+          gender?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          name?: string
+          phone?: string | null
+          rating?: number | null
+          specialties?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      clean_expired_bookings: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
