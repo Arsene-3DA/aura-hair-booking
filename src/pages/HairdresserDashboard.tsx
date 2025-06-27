@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const HairdresserDashboard = () => {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [workingHours, setWorkingHours] = useState({ start: '09:00', end: '20:00' });
   const [viewMode, setViewMode] = useState<'today' | 'selected' | 'week' | 'all'>('today');
+  const [loading, setLoading] = useState(false);
 
   // ID du coiffeur connecté (Thomas Moreau = 1)
   const currentHairdresserId = 1;
@@ -86,6 +88,7 @@ const HairdresserDashboard = () => {
   console.log('Toutes les réservations du coiffeur:', allHairdresserBookings);
   console.log('Réservations aujourd\'hui:', todayBookings);
   console.log('Réservations par date:', allBookingsByDate);
+  console.log('Nombre de réservations en attente:', pendingCount);
 
   const handleLogout = () => {
     toast({
@@ -134,10 +137,10 @@ const HairdresserDashboard = () => {
     setWorkingHours(hours);
   };
 
-  // Compter les nouvelles réservations
-  const pendingBookingsCount = selectedDateBookings.filter(apt => apt.status === 'en_attente').length;
-  const totalPendingBookings = allHairdresserBookings.filter(apt => apt.status === 'en_attente').length;
+  // Statistiques corrigées
   const totalBookings = allHairdresserBookings.length;
+  const confirmedBookings = allHairdresserBookings.filter(apt => apt.status === 'confirmé').length;
+  const rejectedBookings = allHairdresserBookings.filter(apt => apt.status === 'refusé').length;
 
   // Obtenir les dates avec des réservations
   const datesWithBookings = allHairdresserBookings.map(booking => 
@@ -153,16 +156,20 @@ const HairdresserDashboard = () => {
           return <Badge className="bg-green-500 text-white font-medium">✅ CONFIRMÉ</Badge>;
         case 'refusé':
           return <Badge className="bg-red-500 text-white font-medium">❌ REFUSÉ</Badge>;
+        case 'nouveau':
+          return <Badge className="bg-blue-500 text-white animate-pulse font-medium">🆕 NOUVEAU</Badge>;
         default:
           return <Badge variant="secondary">{status}</Badge>;
       }
     };
 
+    const isActionable = appointment.status === 'en_attente' || appointment.status === 'nouveau';
+
     return (
       <div
         key={appointment.id}
         className={`p-4 border rounded-lg hover:shadow-md transition-all duration-200 cursor-pointer transform hover:scale-[1.02] ${
-          appointment.status === 'en_attente' 
+          isActionable
             ? 'border-orange-300 bg-gradient-to-r from-orange-50 to-yellow-50 shadow-sm' 
             : appointment.status === 'confirmé'
             ? 'border-green-300 bg-gradient-to-r from-green-50 to-emerald-50'
@@ -200,7 +207,7 @@ const HairdresserDashboard = () => {
           </div>
           
           <div className="flex flex-col gap-2 ml-4">
-            {appointment.status === 'en_attente' && (
+            {isActionable && (
               <>
                 <Button 
                   size="sm" 
@@ -243,6 +250,17 @@ const HairdresserDashboard = () => {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement de vos réservations...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -290,7 +308,7 @@ const HairdresserDashboard = () => {
           <PendingBookingsNotification hairdresserId={currentHairdresserId} />
         </div>
 
-        {/* Statistiques globales */}
+        {/* Statistiques globales corrigées */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-gold-200 bg-gradient-to-br from-gold-50 to-orange-50">
             <CardContent className="p-6 text-center">
@@ -310,10 +328,10 @@ const HairdresserDashboard = () => {
               <div className="text-sm text-gray-600 font-medium">En attente</div>
             </CardContent>
           </Card>
-          <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50">
+          <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-2">{Object.keys(allBookingsByDate).length}</div>
-              <div className="text-sm text-gray-600 font-medium">Jours avec RDV</div>
+              <div className="text-3xl font-bold text-green-600 mb-2">{confirmedBookings}</div>
+              <div className="text-sm text-gray-600 font-medium">Confirmées</div>
             </CardContent>
           </Card>
         </div>
@@ -429,13 +447,14 @@ const HairdresserDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {todayBookings.map(renderBookingCard)}
-                    {todayBookings.length === 0 && (
+                    {todayBookings.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
                         <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                         <p className="font-medium">Aucune réservation aujourd'hui</p>
                         <p className="text-sm">Profitez de cette journée libre !</p>
                       </div>
+                    ) : (
+                      todayBookings.map(renderBookingCard)
                     )}
                   </div>
                 </CardContent>
@@ -458,13 +477,14 @@ const HairdresserDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {selectedDateBookings.map(renderBookingCard)}
-                    {selectedDateBookings.length === 0 && (
+                    {selectedDateBookings.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
                         <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                         <p className="font-medium">Aucune réservation pour cette date</p>
                         <p className="text-sm">Sélectionnez une autre date dans le calendrier</p>
                       </div>
+                    ) : (
+                      selectedDateBookings.map(renderBookingCard)
                     )}
                   </div>
                 </CardContent>
@@ -481,25 +501,26 @@ const HairdresserDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {weekBookings.map((day, index) => (
-                      <div key={index} className="border-l-4 border-gold-400 pl-4">
-                        <h3 className="font-bold text-lg text-gray-800 mb-3 capitalize">
-                          {day.dayName} - {day.date.toLocaleDateString('fr-FR')}
-                          <Badge className="ml-2 bg-gold-100 text-gold-800">
-                            {day.bookings.length} RDV
-                          </Badge>
-                        </h3>
-                        <div className="space-y-3">
-                          {day.bookings.map(renderBookingCard)}
-                        </div>
-                      </div>
-                    ))}
-                    {weekBookings.length === 0 && (
+                    {weekBookings.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
                         <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                         <p className="font-medium">Aucune réservation cette semaine</p>
                         <p className="text-sm">Une semaine tranquille vous attend !</p>
                       </div>
+                    ) : (
+                      weekBookings.map((day, index) => (
+                        <div key={index} className="border-l-4 border-gold-400 pl-4">
+                          <h3 className="font-bold text-lg text-gray-800 mb-3 capitalize">
+                            {day.dayName} - {day.date.toLocaleDateString('fr-FR')}
+                            <Badge className="ml-2 bg-gold-100 text-gold-800">
+                              {day.bookings.length} RDV
+                            </Badge>
+                          </h3>
+                          <div className="space-y-3">
+                            {day.bookings.map(renderBookingCard)}
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
                 </CardContent>
@@ -516,7 +537,13 @@ const HairdresserDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {Object.keys(allBookingsByDate).length > 0 ? (
+                    {Object.keys(allBookingsByDate).length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                        <p className="font-medium">Aucune réservation trouvée</p>
+                        <p className="text-sm">Les nouvelles réservations apparaîtront ici</p>
+                      </div>
+                    ) : (
                       Object.entries(allBookingsByDate)
                         .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
                         .map(([date, bookings]) => (
@@ -537,12 +564,6 @@ const HairdresserDashboard = () => {
                             </div>
                           </div>
                         ))
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                        <p className="font-medium">Aucune réservation trouvée</p>
-                        <p className="text-sm">Les nouvelles réservations apparaîtront ici</p>
-                      </div>
                     )}
                   </div>
                 </CardContent>

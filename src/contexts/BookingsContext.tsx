@@ -109,6 +109,21 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
         bookingDate: todayDateString,
         createdAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
+      },
+      {
+        id: 4,
+        time: '15:30',
+        clientName: 'Pierre Durand',
+        phone: '06 55 44 33 22',
+        email: 'pierre.durand@email.com',
+        service: 'Coupe Homme',
+        status: 'en_attente',
+        date: 'Demain',
+        comments: 'Coupe rapide avant un entretien',
+        hairdresserId: 1,
+        bookingDate: tomorrowDateString,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
       }
     ];
   });
