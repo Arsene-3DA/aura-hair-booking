@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { Clock, User, Phone, Mail, MessageSquare, Scissors } from 'lucide-react';
+import { Clock, User, Phone, Mail, MessageSquare, Scissors, AlertCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useBookings } from '@/contexts/BookingsContext';
 
@@ -50,6 +49,7 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
   const { addBooking, getBookingsForDate } = useBookings();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -70,7 +70,10 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
     if (!selectedDate) return [];
     const dateKey = selectedDate.toISOString().split('T')[0];
     const dayBookings = getBookingsForDate(hairdresser.id, dateKey);
-    return dayBookings.map(booking => booking.time);
+    // Inclure tous les créneaux réservés ou en attente
+    return dayBookings
+      .filter(booking => booking.status === 'confirmé' || booking.status === 'en_attente')
+      .map(booking => booking.time);
   };
 
   const bookedSlots = getBookedSlots();
@@ -105,7 +108,6 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
       return;
     }
 
-    // Créer la réservation avec l'ID du coiffeur correct
     const bookingDate = selectedDate.toISOString().split('T')[0];
     const newBooking = {
       time: selectedTime,
@@ -113,25 +115,17 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
       phone: formData.phone,
       email: formData.email,
       service: formData.service || 'Service non spécifié',
-      status: 'nouveau' as const,
       date: selectedDate.toLocaleDateString('fr-FR'),
       comments: formData.comments,
-      hairdresserId: hairdresser.id, // S'assurer que l'ID du coiffeur est correct
+      hairdresserId: hairdresser.id,
       bookingDate: bookingDate
     };
 
-    console.log('Création de réservation pour:', hairdresser.name, 'ID:', hairdresser.id);
-    console.log('Données de réservation:', newBooking);
-
     addBooking(newBooking);
+    setShowConfirmation(true);
+  };
 
-    toast({
-      title: "✅ Réservation confirmée !",
-      description: `Rendez-vous avec ${hairdresser.name} le ${selectedDate.toLocaleDateString()} à ${selectedTime}`,
-      duration: 5000
-    });
-
-    // Reset and close
+  const handleClose = () => {
     setFormData({
       firstName: '',
       lastName: '',
@@ -142,6 +136,7 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
     });
     setSelectedDate(undefined);
     setSelectedTime('');
+    setShowConfirmation(false);
     onClose();
   };
 
@@ -150,8 +145,58 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
     return [...hairdresser.specialties, ...genderSpecialties].filter((value, index, self) => self.indexOf(value) === index);
   };
 
+  if (showConfirmation) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold text-green-600">
+              ✅ Demande envoyée !
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="text-center space-y-4 py-6">
+            <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+              <Clock className="h-8 w-8 text-orange-600" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-gray-800">
+                En attente de validation
+              </h3>
+              <p className="text-gray-600">
+                Votre demande de réservation a été envoyée à <strong>{hairdresser.name}</strong>
+              </p>
+            </div>
+            
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 space-y-2">
+              <div className="flex items-center justify-center text-orange-700">
+                <AlertCircle className="h-5 w-5 mr-2" />
+                <span className="font-medium">Important</span>
+              </div>
+              <p className="text-sm text-orange-700">
+                Le professionnel dispose de <strong>30 minutes</strong> pour valider votre demande.
+                Vous recevrez une notification par email dès que la décision sera prise.
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-3 text-sm">
+              <div><strong>Date :</strong> {selectedDate?.toLocaleDateString('fr-FR')}</div>
+              <div><strong>Heure :</strong> {selectedTime}</div>
+              <div><strong>Service :</strong> {formData.service}</div>
+            </div>
+            
+            <Button onClick={handleClose} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              Fermer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold gradient-text flex items-center">
@@ -159,7 +204,7 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
             Réserver avec {hairdresser.name}
           </DialogTitle>
           <DialogDescription>
-            Sélectionnez votre créneau et remplissez vos informations pour confirmer votre rendez-vous
+            Sélectionnez votre créneau et remplissez vos informations. Votre demande sera envoyée au professionnel pour validation
           </DialogDescription>
         </DialogHeader>
 
@@ -308,29 +353,31 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                   />
                 </div>
 
-                {/* Booking Summary */}
                 {selectedDate && selectedTime && (
-                  <div className="bg-gold-50 border border-gold-200 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 mb-2">Récapitulatif de votre réservation :</h4>
+                  <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-900 mb-2">Récapitulatif de votre demande :</h4>
                     <div className="space-y-1 text-sm">
                       <p><strong>Professionnel :</strong> {hairdresser.name}</p>
                       <p><strong>Date :</strong> {selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                       <p><strong>Heure :</strong> {selectedTime}</p>
                       {formData.service && <p><strong>Service :</strong> {formData.service}</p>}
                     </div>
+                    <div className="mt-3 p-2 bg-orange-100 rounded text-xs text-orange-700">
+                      ⚠️ Cette demande sera envoyée au professionnel pour validation
+                    </div>
                   </div>
                 )}
 
                 <div className="flex gap-4 pt-4">
-                  <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+                  <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
                     Annuler
                   </Button>
                   <Button 
                     type="submit" 
-                    className="flex-1 bg-gradient-gold text-white hover:opacity-90"
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white hover:opacity-90"
                     disabled={!selectedDate || !selectedTime}
                   >
-                    ✅ Confirmer la réservation
+                    📤 Envoyer la demande
                   </Button>
                 </div>
               </form>

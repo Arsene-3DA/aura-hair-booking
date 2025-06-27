@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,12 +8,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Calendar as CalendarIcon, Clock, Users, Settings, LogOut, Bell, Eye, Filter, Check, X } from 'lucide-react';
 import WorkingHoursModal from '../components/WorkingHoursModal';
 import BookingDetailsModal from '../components/BookingDetailsModal';
+import PendingBookingsNotification from '../components/PendingBookingsNotification';
 import { useBookings } from '@/contexts/BookingsContext';
 
 const HairdresserDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { getBookingsForHairdresser, getBookingsForDate, getAllBookingsByDate, updateBookingStatus } = useBookings();
+  const { 
+    getBookingsForHairdresser, 
+    getBookingsForDate, 
+    getAllBookingsByDate, 
+    updateBookingStatus,
+    getPendingBookingsCount 
+  } = useBookings();
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
@@ -32,7 +38,7 @@ const HairdresserDashboard = () => {
     const interval = setInterval(() => {
       // Force un re-render pour récupérer les nouvelles données
       setSelectedDate(prev => new Date(prev));
-    }, 1000);
+    }, 5000); // Actualisation plus fréquente pour les notifications
     
     return () => clearInterval(interval);
   }, []);
@@ -48,6 +54,7 @@ const HairdresserDashboard = () => {
   const allHairdresserBookings = getBookingsForHairdresser(currentHairdresserId);
   const selectedDateBookings = getBookingsForDateFormatted(selectedDate);
   const todayBookings = getBookingsForDateFormatted(new Date());
+  const pendingCount = getPendingBookingsCount(currentHairdresserId);
 
   // Obtenir les réservations de la semaine
   const getWeekBookings = () => {
@@ -137,79 +144,105 @@ const HairdresserDashboard = () => {
     new Date(booking.bookingDate)
   );
 
-  const renderBookingCard = (appointment: any) => (
-    <div
-      key={appointment.id}
-      className={`p-4 border rounded-lg hover:shadow-md transition-all duration-200 cursor-pointer transform hover:scale-[1.02] ${
-        appointment.status === 'nouveau' ? 'border-green-300 bg-gradient-to-r from-green-50 to-emerald-50 shadow-sm' : 'border-gray-200 bg-white'
-      }`}
-      onClick={() => handleBookingClick(appointment)}
-    >
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-3">
-            <Badge className="bg-gradient-gold text-white font-semibold px-3 py-1">
-              {appointment.time}
-            </Badge>
-            <h3 className="font-bold text-gray-800 text-lg">{appointment.clientName}</h3>
-            <Badge 
-              variant={appointment.status === 'confirmé' ? 'default' : 'secondary'}
-              className={`${appointment.status === 'nouveau' ? 'bg-green-500 text-white animate-pulse' : ''} font-medium`}
-            >
-              {appointment.status === 'nouveau' ? '🆕 NOUVEAU' : '✅ CONFIRMÉ'}
-            </Badge>
+  const renderBookingCard = (appointment: any) => {
+    const getStatusBadge = (status: string) => {
+      switch (status) {
+        case 'en_attente':
+          return <Badge className="bg-orange-500 text-white animate-pulse font-medium">🕐 EN ATTENTE</Badge>;
+        case 'confirmé':
+          return <Badge className="bg-green-500 text-white font-medium">✅ CONFIRMÉ</Badge>;
+        case 'refusé':
+          return <Badge className="bg-red-500 text-white font-medium">❌ REFUSÉ</Badge>;
+        default:
+          return <Badge variant="secondary">{status}</Badge>;
+      }
+    };
+
+    return (
+      <div
+        key={appointment.id}
+        className={`p-4 border rounded-lg hover:shadow-md transition-all duration-200 cursor-pointer transform hover:scale-[1.02] ${
+          appointment.status === 'en_attente' 
+            ? 'border-orange-300 bg-gradient-to-r from-orange-50 to-yellow-50 shadow-sm' 
+            : appointment.status === 'confirmé'
+            ? 'border-green-300 bg-gradient-to-r from-green-50 to-emerald-50'
+            : 'border-gray-200 bg-white'
+        }`}
+        onClick={() => handleBookingClick(appointment)}
+      >
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-3">
+              <Badge className="bg-gradient-gold text-white font-semibold px-3 py-1">
+                {appointment.time}
+              </Badge>
+              <h3 className="font-bold text-gray-800 text-lg">{appointment.clientName}</h3>
+              {getStatusBadge(appointment.status)}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center text-gray-600">
+                <span className="font-medium mr-2">📱</span> {appointment.phone}
+              </div>
+              <div className="flex items-center text-gray-600">
+                <span className="font-medium mr-2">✉️</span> {appointment.email}
+              </div>
+              <div className="flex items-center text-blue-600 font-medium col-span-full">
+                <span className="mr-2">✂️</span> {appointment.service}
+              </div>
+            </div>
+            
+            {appointment.comments && (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+                <span className="font-medium text-amber-700">💬 Note:</span> {appointment.comments}
+              </div>
+            )}
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <div className="flex items-center text-gray-600">
-              <span className="font-medium mr-2">📱</span> {appointment.phone}
-            </div>
-            <div className="flex items-center text-gray-600">
-              <span className="font-medium mr-2">✉️</span> {appointment.email}
-            </div>
-            <div className="flex items-center text-blue-600 font-medium col-span-full">
-              <span className="mr-2">✂️</span> {appointment.service}
-            </div>
-          </div>
-          
-          {appointment.comments && (
-            <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
-              <span className="font-medium text-amber-700">💬 Note:</span> {appointment.comments}
-            </div>
-          )}
-        </div>
-        
-        <div className="flex flex-col gap-2 ml-4">
-          {appointment.status === 'nouveau' && (
+          <div className="flex flex-col gap-2 ml-4">
+            {appointment.status === 'en_attente' && (
+              <>
+                <Button 
+                  size="sm" 
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleConfirmBooking(appointment.id);
+                  }}
+                >
+                  <Check className="h-4 w-4 mr-1" />
+                  Accepter
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateBookingStatus(appointment.id, 'refusé');
+                  }}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Refuser
+                </Button>
+              </>
+            )}
             <Button 
               size="sm" 
               variant="outline" 
-              className="text-green-600 border-green-200 hover:bg-green-50"
+              className="text-blue-600 border-blue-200 hover:bg-blue-50"
               onClick={(e) => {
                 e.stopPropagation();
-                handleConfirmBooking(appointment.id);
+                handleBookingClick(appointment);
               }}
             >
-              <Check className="h-4 w-4 mr-1" />
-              Confirmer
+              <Eye className="h-4 w-4 mr-1" />
+              Détails
             </Button>
-          )}
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="text-blue-600 border-blue-200 hover:bg-blue-50"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleBookingClick(appointment);
-            }}
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            Détails
-          </Button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -222,11 +255,11 @@ const HairdresserDashboard = () => {
               <p className="text-gray-600">Bienvenue, Thomas Moreau</p>
             </div>
             <div className="flex gap-2 items-center">
-              {totalNewBookings > 0 && (
+              {pendingCount > 0 && (
                 <div className="relative">
-                  <Bell className="h-6 w-6 text-gold-500" />
+                  <Bell className="h-6 w-6 text-orange-500 animate-pulse" />
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-[20px] h-5 flex items-center justify-center rounded-full animate-bounce">
-                    {totalNewBookings}
+                    {pendingCount}
                   </Badge>
                 </div>
               )}
@@ -252,6 +285,11 @@ const HairdresserDashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Notification des demandes en attente */}
+        <div className="mb-8">
+          <PendingBookingsNotification hairdresserId={currentHairdresserId} />
+        </div>
+
         {/* Statistiques globales */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-gold-200 bg-gradient-to-br from-gold-50 to-orange-50">
@@ -266,10 +304,10 @@ const HairdresserDashboard = () => {
               <div className="text-sm text-gray-600 font-medium">Aujourd'hui</div>
             </CardContent>
           </Card>
-          <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+          <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">{totalNewBookings}</div>
-              <div className="text-sm text-gray-600 font-medium">Nouvelles</div>
+              <div className="text-3xl font-bold text-orange-600 mb-2">{pendingCount}</div>
+              <div className="text-sm text-gray-600 font-medium">En attente</div>
             </CardContent>
           </Card>
           <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50">

@@ -8,11 +8,13 @@ interface Booking {
   phone: string;
   email: string;
   service: string;
-  status: 'nouveau' | 'confirmé';
+  status: 'en_attente' | 'confirmé' | 'refusé';
   date: string;
   comments: string;
   hairdresserId: number;
-  bookingDate: string; // Format: YYYY-MM-DD
+  bookingDate: string;
+  createdAt: string;
+  expiresAt?: string; // Pour le timer de 30 minutes
 }
 
 interface BookingsContextType {
@@ -21,7 +23,10 @@ interface BookingsContextType {
   getBookingsForHairdresser: (hairdresserId: number) => Booking[];
   getBookingsForDate: (hairdresserId: number, date: string) => Booking[];
   getAllBookingsByDate: (hairdresserId: number) => { [date: string]: Booking[] };
-  updateBookingStatus: (bookingId: number, status: 'nouveau' | 'confirmé') => void;
+  updateBookingStatus: (bookingId: number, status: 'en_attente' | 'confirmé' | 'refusé') => void;
+  getPendingBookings: (hairdresserId: number) => Booking[];
+  getPendingBookingsCount: (hairdresserId: number) => number;
+  cleanExpiredBookings: () => void;
 }
 
 const BookingsContext = createContext<BookingsContextType | undefined>(undefined);
@@ -49,7 +54,6 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
   const todayDateString = getTodayDateString();
   const tomorrowDateString = getTomorrowDateString();
   
-  // Charger les réservations depuis localStorage au démarrage
   const [bookings, setBookings] = useState<Booking[]>(() => {
     const savedBookings = localStorage.getItem('hairSalonBookings');
     if (savedBookings) {
@@ -62,7 +66,6 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
       }
     }
     
-    // Données initiales si aucune réservation sauvegardée
     return [
       {
         id: 1,
@@ -75,7 +78,8 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
         date: 'Aujourd\'hui',
         comments: 'Première visite, souhaite un changement de style',
         hairdresserId: 1,
-        bookingDate: todayDateString
+        bookingDate: todayDateString,
+        createdAt: new Date().toISOString()
       },
       {
         id: 2,
@@ -88,7 +92,8 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
         date: 'Aujourd\'hui',
         comments: '',
         hairdresserId: 1,
-        bookingDate: todayDateString
+        bookingDate: todayDateString,
+        createdAt: new Date().toISOString()
       },
       {
         id: 3,
@@ -97,40 +102,59 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
         phone: '06 11 22 33 44',
         email: 'sophie.laurent@email.com',
         service: 'Couleur + Coupe',
-        status: 'nouveau',
+        status: 'en_attente',
         date: 'Aujourd\'hui',
         comments: 'Souhaite passer au blond',
         hairdresserId: 1,
-        bookingDate: todayDateString
-      },
-      {
-        id: 4,
-        time: '15:30',
-        clientName: 'Pierre Durand',
-        phone: '06 55 44 33 22',
-        email: 'pierre.durand@email.com',
-        service: 'Coupe Homme',
-        status: 'nouveau',
-        date: 'Demain',
-        comments: 'Coupe rapide avant un entretien',
-        hairdresserId: 1,
-        bookingDate: tomorrowDateString
+        bookingDate: todayDateString,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
       }
     ];
   });
 
-  // Sauvegarder les réservations dans localStorage à chaque changement
+  // Nettoyer les réservations expirées toutes les minutes
+  useEffect(() => {
+    const interval = setInterval(cleanExpiredBookings, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     console.log('Sauvegarde des réservations:', bookings);
     localStorage.setItem('hairSalonBookings', JSON.stringify(bookings));
   }, [bookings]);
 
+  const cleanExpiredBookings = () => {
+    const now = new Date();
+    setBookings(prev => {
+      const filtered = prev.filter(booking => {
+        if (booking.status === 'en_attente' && booking.expiresAt) {
+          const expiresAt = new Date(booking.expiresAt);
+          if (now > expiresAt) {
+            console.log(`Réservation expirée supprimée: ${booking.id}`);
+            return false;
+          }
+        }
+        return true;
+      });
+      return filtered;
+    });
+  };
+
   const addBooking = (newBooking: Omit<Booking, 'id'>) => {
     const id = Math.max(...bookings.map(b => b.id), 0) + 1;
-    const bookingWithId = { ...newBooking, id };
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 30 * 60 * 1000); // 30 minutes
+    
+    const bookingWithId = { 
+      ...newBooking, 
+      id,
+      createdAt: now.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+      status: 'en_attente' as const
+    };
     
     console.log('Ajout nouvelle réservation:', bookingWithId);
-    console.log('Coiffeur ID:', newBooking.hairdresserId);
     
     setBookings(prev => {
       const updated = [...prev, bookingWithId];
@@ -139,31 +163,29 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const updateBookingStatus = (bookingId: number, status: 'nouveau' | 'confirmé') => {
-    setBookings(prev => prev.map(booking => 
-      booking.id === bookingId ? { ...booking, status } : booking
-    ));
+  const updateBookingStatus = (bookingId: number, status: 'en_attente' | 'confirmé' | 'refusé') => {
+    setBookings(prev => prev.map(booking => {
+      if (booking.id === bookingId) {
+        const updatedBooking = { ...booking, status };
+        // Supprimer l'expiration si confirmé ou refusé
+        if (status !== 'en_attente') {
+          delete updatedBooking.expiresAt;
+        }
+        return updatedBooking;
+      }
+      return booking;
+    }));
   };
 
   const getBookingsForHairdresser = (hairdresserId: number) => {
-    console.log('Recherche des réservations pour le coiffeur ID:', hairdresserId);
-    console.log('Toutes les réservations disponibles:', bookings);
-    
-    const result = bookings.filter(booking => {
-      console.log(`Réservation ${booking.id}: hairdresserId=${booking.hairdresserId}, recherche=${hairdresserId}`);
-      return booking.hairdresserId === hairdresserId;
-    });
-    
-    console.log(`Réservations trouvées pour coiffeur ${hairdresserId}:`, result);
+    const result = bookings.filter(booking => booking.hairdresserId === hairdresserId);
     return result;
   };
 
   const getBookingsForDate = (hairdresserId: number, date: string) => {
-    console.log(`Recherche réservations pour coiffeur ${hairdresserId} à la date ${date}`);
     const result = bookings.filter(booking => 
       booking.hairdresserId === hairdresserId && booking.bookingDate === date
     );
-    console.log(`Réservations trouvées:`, result);
     return result;
   };
 
@@ -178,8 +200,17 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
       bookingsByDate[booking.bookingDate].push(booking);
     });
     
-    console.log('Réservations groupées par date pour coiffeur', hairdresserId, ':', bookingsByDate);
     return bookingsByDate;
+  };
+
+  const getPendingBookings = (hairdresserId: number) => {
+    return bookings.filter(booking => 
+      booking.hairdresserId === hairdresserId && booking.status === 'en_attente'
+    );
+  };
+
+  const getPendingBookingsCount = (hairdresserId: number) => {
+    return getPendingBookings(hairdresserId).length;
   };
 
   return (
@@ -189,7 +220,10 @@ export const BookingsProvider = ({ children }: { children: ReactNode }) => {
       getBookingsForHairdresser,
       getBookingsForDate,
       getAllBookingsByDate,
-      updateBookingStatus
+      updateBookingStatus,
+      getPendingBookings,
+      getPendingBookingsCount,
+      cleanExpiredBookings
     }}>
       {children}
     </BookingsContext.Provider>
