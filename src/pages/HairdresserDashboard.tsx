@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import WorkingHoursModal from '../components/WorkingHoursModal';
 import BookingDetailsModal from '../components/BookingDetailsModal';
 import PendingBookingsNotification from '../components/PendingBookingsNotification';
 import { useBookings } from '@/contexts/BookingsContext';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const HairdresserDashboard = () => {
   const navigate = useNavigate();
@@ -268,10 +268,23 @@ const HairdresserDashboard = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold gradient-text">Dashboard Coiffeur</h1>
-              <p className="text-gray-600">Bienvenue, Thomas Moreau</p>
+            <div className="flex items-center space-x-4">
+              <Avatar className="h-16 w-16 border-2 border-gold-300">
+                <AvatarImage 
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                  alt="Thomas Moreau"
+                  className="object-cover"
+                />
+                <AvatarFallback className="bg-gold-100 text-gold-700 text-lg font-semibold">
+                  TM
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-2xl font-bold gradient-text">Dashboard Coiffeur</h1>
+                <p className="text-gray-600">Bienvenue, Thomas Moreau</p>
+              </div>
             </div>
+            
             <div className="flex gap-2 items-center">
               {pendingCount > 0 && (
                 <div className="relative">
