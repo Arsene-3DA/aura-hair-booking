@@ -93,14 +93,21 @@ const baseProfessionals = {
 };
 
 const ProfessionalsList = () => {
-  const { gender } = useParams<{ gender: 'male' | 'female' }>();
+  const { gender } = useParams<{ gender?: 'male' | 'female' }>();
   const navigate = useNavigate();
   const [professionals, setProfessionals] = useState(baseProfessionals);
   
-  if (!gender || !['male', 'female'].includes(gender)) {
-    navigate('/');
-    return null;
-  }
+  console.log('Current gender parameter:', gender);
+  console.log('Available professionals:', professionals);
+  
+  // Si pas de genre spécifié ou genre invalide, rediriger vers l'accueil
+  useEffect(() => {
+    if (!gender || !['male', 'female'].includes(gender)) {
+      console.log('Invalid gender parameter, redirecting to home');
+      navigate('/');
+      return;
+    }
+  }, [gender, navigate]);
 
   // Charger les nouveaux professionnels ajoutés par l'admin depuis localStorage
   useEffect(() => {
@@ -122,11 +129,19 @@ const ProfessionalsList = () => {
     loadAddedProfessionals();
   }, []);
 
+  // Si pas de genre valide, ne rien afficher (useEffect va rediriger)
+  if (!gender || !['male', 'female'].includes(gender)) {
+    return null;
+  }
+
   const currentProfessionals = professionals[gender];
   const title = gender === 'male' ? 'Nos Coiffeurs Experts' : 'Nos Coiffeuses Expertes';
   const subtitle = gender === 'male' 
     ? 'Spécialistes en coupe homme, barbe et styling masculin'
     : 'Spécialistes en coupe femme, couleur et coiffage';
+
+  console.log('Rendering professionals for gender:', gender);
+  console.log('Current professionals count:', currentProfessionals.length);
 
   return (
     <div className="min-h-screen">
@@ -158,13 +173,19 @@ const ProfessionalsList = () => {
         {/* Professionals Grid */}
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {currentProfessionals.map((professional) => (
-                <div key={professional.id} className="animate-fade-in">
-                  <HairdresserCard hairdresser={professional} />
-                </div>
-              ))}
-            </div>
+            {currentProfessionals.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {currentProfessionals.map((professional) => (
+                  <div key={professional.id} className="animate-fade-in">
+                    <HairdresserCard hairdresser={professional} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-gray-600 text-lg">Aucun professionnel trouvé pour cette catégorie.</p>
+              </div>
+            )}
             
             <div className="text-center mt-16">
               <p className="text-gray-600 mb-6">
