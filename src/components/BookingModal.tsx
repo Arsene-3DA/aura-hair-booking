@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { Clock, User, Phone, Mail, MessageSquare } from 'lucide-react';
+import { Clock, User, Phone, Mail, MessageSquare, Scissors } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface BookingModalProps {
@@ -16,13 +16,39 @@ interface BookingModalProps {
     id: number;
     name: string;
     specialties: string[];
+    gender?: 'male' | 'female';
   };
 }
+
+const allSpecialties = {
+  male: [
+    'Coupe Classique Homme',
+    'Coupe Moderne/Tendance',
+    'Dégradé',
+    'Barbe & Styling',
+    'Rasage Traditionnel',
+    'Coupe Enfant',
+    'Entretien & Soins'
+  ],
+  female: [
+    'Coupe Femme Classique',
+    'Coupe Moderne/Tendance', 
+    'Coloration',
+    'Mèches & Balayage',
+    'Coiffure Mariage/Événement',
+    'Extensions',
+    'Défrisage/Lissage',
+    'Soins Capillaires',
+    'Chignon & Coiffage',
+    'Coupe Enfant'
+  ]
+};
 
 const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>('');
+  const [blockedSlots, setBlockedSlots] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -32,11 +58,26 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
     comments: ''
   });
 
-  // Créneaux disponibles (à connecter avec la base de données plus tard)
+  // Simulated unavailable slots (in real app, this would come from backend)
+  const unavailableSlots = ['09:00', '14:30', '16:00'];
+  
+  // Available time slots
   const availableSlots = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
+    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00'
   ];
+
+  const handleTimeSelection = (time: string) => {
+    // Real-time blocking: immediately block the slot for other users
+    if (!blockedSlots.includes(time) && !unavailableSlots.includes(time)) {
+      setSelectedTime(time);
+      // Simulate blocking for other users
+      toast({
+        title: "Créneau sélectionné",
+        description: `${time} temporairement réservé pendant votre réservation`
+      });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,13 +90,25 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
       return;
     }
 
-    // Simuler la réservation (à connecter avec la base de données)
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.email) {
+      toast({
+        title: "Erreur", 
+        description: "Veuillez remplir tous les champs obligatoires.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add to blocked slots permanently
+    setBlockedSlots([...blockedSlots, selectedTime]);
+
     toast({
-      title: "Réservation confirmée !",
-      description: `Votre rendez-vous avec ${hairdresser.name} est confirmé pour le ${selectedDate.toLocaleDateString()} à ${selectedTime}.`
+      title: "✅ Réservation confirmée !",
+      description: `Rendez-vous avec ${hairdresser.name} le ${selectedDate.toLocaleDateString()} à ${selectedTime}`,
+      duration: 5000
     });
 
-    // Réinitialiser et fermer
+    // Reset and close
     setFormData({
       firstName: '',
       lastName: '',
@@ -69,25 +122,32 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
     onClose();
   };
 
+  const getAvailableSpecialties = () => {
+    const genderSpecialties = allSpecialties[hairdresser.gender || 'female'];
+    // Combine hairdresser's specialties with all possible specialties
+    return [...hairdresser.specialties, ...genderSpecialties].filter((value, index, self) => self.indexOf(value) === index);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold gradient-text">
+          <DialogTitle className="text-2xl font-bold gradient-text flex items-center">
+            <Scissors className="h-6 w-6 mr-2 text-gold-500" />
             Réserver avec {hairdresser.name}
           </DialogTitle>
           <DialogDescription>
-            Choisissez votre créneau et remplissez vos informations
+            Sélectionnez votre créneau et remplissez vos informations pour confirmer votre rendez-vous
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Calendrier et créneaux */}
+          {/* Calendar and Time Slots */}
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <Clock className="h-5 w-5 mr-2 text-gold-500" />
-                Sélectionnez une date
+                1. Sélectionnez une date
               </h3>
               <Calendar
                 mode="single"
@@ -100,30 +160,46 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
 
             {selectedDate && (
               <div>
-                <h3 className="text-lg font-semibold mb-4">Créneaux disponibles</h3>
+                <h3 className="text-lg font-semibold mb-4">2. Choisissez votre heure</h3>
                 <div className="grid grid-cols-3 gap-2">
-                  {availableSlots.map((time) => (
-                    <Button
-                      key={time}
-                      variant={selectedTime === time ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedTime(time)}
-                      className={selectedTime === time ? "bg-gradient-gold text-white" : ""}
-                    >
-                      {time}
-                    </Button>
-                  ))}
+                  {availableSlots.map((time) => {
+                    const isUnavailable = unavailableSlots.includes(time) || blockedSlots.includes(time);
+                    const isSelected = selectedTime === time;
+                    
+                    return (
+                      <Button
+                        key={time}
+                        variant={isSelected ? "default" : isUnavailable ? "secondary" : "outline"}
+                        size="sm"
+                        onClick={() => handleTimeSelection(time)}
+                        disabled={isUnavailable}
+                        className={`${
+                          isSelected 
+                            ? "bg-gradient-gold text-white" 
+                            : isUnavailable 
+                            ? "opacity-50 cursor-not-allowed bg-gray-200" 
+                            : "hover:bg-gold-50"
+                        }`}
+                      >
+                        {time}
+                        {isUnavailable && <span className="ml-1 text-xs">❌</span>}
+                      </Button>
+                    );
+                  })}
                 </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  ❌ = Créneau indisponible • ⏰ = Disponible
+                </p>
               </div>
             )}
           </div>
 
-          {/* Formulaire */}
+          {/* Booking Form */}
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <User className="h-5 w-5 mr-2 text-gold-500" />
-                Vos informations
+                3. Vos informations
               </h3>
               
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -135,6 +211,7 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                       value={formData.firstName}
                       onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                       required
+                      placeholder="Votre prénom"
                     />
                   </div>
                   <div>
@@ -144,6 +221,7 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                       value={formData.lastName}
                       onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                       required
+                      placeholder="Votre nom"
                     />
                   </div>
                 </div>
@@ -159,6 +237,7 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     required
+                    placeholder="06 12 34 56 78"
                   />
                 </div>
 
@@ -173,11 +252,12 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     required
+                    placeholder="votre.email@exemple.com"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="service">Service souhaité</Label>
+                  <Label htmlFor="service">Type de coupe souhaité</Label>
                   <select
                     id="service"
                     value={formData.service}
@@ -185,7 +265,7 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gold-500"
                   >
                     <option value="">Sélectionnez un service</option>
-                    {hairdresser.specialties.map((specialty) => (
+                    {getAvailableSpecialties().map((specialty) => (
                       <option key={specialty} value={specialty}>{specialty}</option>
                     ))}
                   </select>
@@ -194,7 +274,7 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                 <div>
                   <Label htmlFor="comments" className="flex items-center">
                     <MessageSquare className="h-4 w-4 mr-1" />
-                    Commentaires (optionnel)
+                    Commentaires spéciaux (optionnel)
                   </Label>
                   <textarea
                     id="comments"
@@ -202,16 +282,33 @@ const BookingModal = ({ isOpen, onClose, hairdresser }: BookingModalProps) => {
                     onChange={(e) => setFormData({...formData, comments: e.target.value})}
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gold-500"
                     rows={3}
-                    placeholder="Précisions particulières..."
+                    placeholder="Précisions particulières, demandes spéciales..."
                   />
                 </div>
+
+                {/* Booking Summary */}
+                {selectedDate && selectedTime && (
+                  <div className="bg-gold-50 border border-gold-200 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-900 mb-2">Récapitulatif de votre réservation :</h4>
+                    <div className="space-y-1 text-sm">
+                      <p><strong>Professionnel :</strong> {hairdresser.name}</p>
+                      <p><strong>Date :</strong> {selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                      <p><strong>Heure :</strong> {selectedTime}</p>
+                      {formData.service && <p><strong>Service :</strong> {formData.service}</p>}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-4 pt-4">
                   <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                     Annuler
                   </Button>
-                  <Button type="submit" className="flex-1 bg-gradient-gold text-white">
-                    Confirmer la réservation
+                  <Button 
+                    type="submit" 
+                    className="flex-1 bg-gradient-gold text-white hover:opacity-90"
+                    disabled={!selectedDate || !selectedTime}
+                  >
+                    ✅ Confirmer la réservation
                   </Button>
                 </div>
               </form>

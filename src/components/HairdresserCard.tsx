@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Clock, Calendar } from 'lucide-react';
+import { Star, Clock, Calendar, MapPin } from 'lucide-react';
 import BookingModal from './BookingModal';
 
 interface HairdresserProps {
@@ -14,6 +14,8 @@ interface HairdresserProps {
   image: string;
   availability: string;
   experience: string;
+  location?: string;
+  gender?: 'male' | 'female';
 }
 
 const HairdresserCard = ({ hairdresser }: { hairdresser: HairdresserProps }) => {
@@ -52,14 +54,20 @@ const HairdresserCard = ({ hairdresser }: { hairdresser: HairdresserProps }) => 
           <div className="space-y-4">
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-1">{hairdresser.name}</h3>
-              <p className="text-gray-600 flex items-center">
+              <div className="flex items-center text-gray-600 mb-1">
                 <Clock className="h-4 w-4 mr-1" />
-                {hairdresser.experience}
-              </p>
+                <span className="text-sm">{hairdresser.experience}</span>
+              </div>
+              {hairdresser.location && (
+                <div className="flex items-center text-gray-600">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  <span className="text-sm">{hairdresser.location}</span>
+                </div>
+              )}
             </div>
             
             <div className="flex flex-wrap gap-2">
-              {hairdresser.specialties.map((specialty) => (
+              {hairdresser.specialties.slice(0, 3).map((specialty) => (
                 <Badge 
                   key={specialty} 
                   variant="secondary" 
@@ -68,6 +76,11 @@ const HairdresserCard = ({ hairdresser }: { hairdresser: HairdresserProps }) => 
                   {specialty}
                 </Badge>
               ))}
+              {hairdresser.specialties.length > 3 && (
+                <Badge variant="outline" className="text-gray-600">
+                  +{hairdresser.specialties.length - 3}
+                </Badge>
+              )}
             </div>
             
             <div className="flex items-center justify-between pt-2">
