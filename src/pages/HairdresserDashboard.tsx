@@ -14,7 +14,7 @@ import { useBookings } from '@/contexts/BookingsContext';
 const HairdresserDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { getBookingsForHairdresser, getBookingsForDate } = useBookings();
+  const { getBookingsForHairdresser, getBookingsForDate, getAllBookingsByDate } = useBookings();
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
@@ -22,7 +22,7 @@ const HairdresserDashboard = () => {
   const [isBookingDetailsModalOpen, setIsBookingDetailsModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [workingHours, setWorkingHours] = useState({ start: '09:00', end: '20:00' });
-  const [viewMode, setViewMode] = useState<'today' | 'selected' | 'week'>('today');
+  const [viewMode, setViewMode] = useState<'today' | 'selected' | 'week' | 'all'>('today');
 
   // ID du coiffeur connecté (Thomas Moreau = 1)
   const currentHairdresserId = 1;
@@ -32,6 +32,12 @@ const HairdresserDashboard = () => {
     const dateKey = date.toISOString().split('T')[0];
     return getBookingsForDate(currentHairdresserId, dateKey);
   };
+
+  // Obtenir toutes les réservations du coiffeur groupées par date
+  const allBookingsByDate = getAllBookingsByDate(currentHairdresserId);
+  const allHairdresserBookings = getBookingsForHairdresser(currentHairdresserId);
+  const selectedDateBookings = getBookingsForDateFormatted(selectedDate);
+  const todayBookings = getBookingsForDateFormatted(new Date());
 
   // Obtenir les réservations de la semaine
   const getWeekBookings = () => {
@@ -55,10 +61,11 @@ const HairdresserDashboard = () => {
     return weekBookings;
   };
 
-  const selectedDateBookings = getBookingsForDateFormatted(selectedDate);
-  const todayBookings = getBookingsForDateFormatted(new Date());
   const weekBookings = getWeekBookings();
-  const allHairdresserBookings = getBookingsForHairdresser(currentHairdresserId);
+
+  console.log('Dashboard - Toutes les réservations:', allHairdresserBookings);
+  console.log('Dashboard - Réservations par date:', allBookingsByDate);
+  console.log('Dashboard - Réservations aujourd\'hui:', todayBookings);
 
   const handleLogout = () => {
     toast({
@@ -226,22 +233,22 @@ const HairdresserDashboard = () => {
           </Card>
           <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-2">{weekBookings.length}</div>
-              <div className="text-sm text-gray-600 font-medium">Jours actifs</div>
+              <div className="text-3xl font-bold text-purple-600 mb-2">{Object.keys(allBookingsByDate).length}</div>
+              <div className="text-sm text-gray-600 font-medium">Jours avec RDV</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Modes de vue */}
         <div className="mb-6">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant={viewMode === 'today' ? 'default' : 'outline'}
               onClick={() => setViewMode('today')}
               className={viewMode === 'today' ? 'bg-gradient-gold text-white' : ''}
             >
               <CalendarIcon className="h-4 w-4 mr-2" />
-              Aujourd'hui
+              Aujourd'hui ({todayBookings.length})
             </Button>
             <Button
               variant={viewMode === 'selected' ? 'default' : 'outline'}
@@ -249,7 +256,7 @@ const HairdresserDashboard = () => {
               className={viewMode === 'selected' ? 'bg-gradient-gold text-white' : ''}
             >
               <Eye className="h-4 w-4 mr-2" />
-              Date sélectionnée
+              Date sélectionnée ({selectedDateBookings.length})
             </Button>
             <Button
               variant={viewMode === 'week' ? 'default' : 'outline'}
@@ -257,7 +264,15 @@ const HairdresserDashboard = () => {
               className={viewMode === 'week' ? 'bg-gradient-gold text-white' : ''}
             >
               <Filter className="h-4 w-4 mr-2" />
-              Vue semaine
+              Vue semaine ({weekBookings.length} jours)
+            </Button>
+            <Button
+              variant={viewMode === 'all' ? 'default' : 'outline'}
+              onClick={() => setViewMode('all')}
+              className={viewMode === 'all' ? 'bg-gradient-gold text-white' : ''}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Toutes les réservations ({totalBookings})
             </Button>
           </div>
         </div>
@@ -405,6 +420,49 @@ const HairdresserDashboard = () => {
                         <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                         <p className="font-medium">Aucune réservation cette semaine</p>
                         <p className="text-sm">Une semaine tranquille vous attend !</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {viewMode === 'all' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Users className="h-5 w-5 mr-2 text-gold-500" />
+                    Toutes mes réservations par date
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {Object.keys(allBookingsByDate).length > 0 ? (
+                      Object.entries(allBookingsByDate)
+                        .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+                        .map(([date, bookings]) => (
+                          <div key={date} className="border-l-4 border-gold-400 pl-4">
+                            <h3 className="font-bold text-lg text-gray-800 mb-3">
+                              {new Date(date).toLocaleDateString('fr-FR', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                              })}
+                              <Badge className="ml-2 bg-gold-100 text-gold-800">
+                                {bookings.length} RDV
+                              </Badge>
+                            </h3>
+                            <div className="space-y-3">
+                              {bookings.map(renderBookingCard)}
+                            </div>
+                          </div>
+                        ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                        <p className="font-medium">Aucune réservation trouvée</p>
+                        <p className="text-sm">Les nouvelles réservations apparaîtront ici</p>
                       </div>
                     )}
                   </div>
