@@ -73,7 +73,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Gender Selection - Redesigné */}
+        {/* Gender Selection - Redesigné avec de meilleures photos */}
         <section className="py-20 bg-white relative">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
@@ -86,14 +86,14 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-              {/* Coiffeur Card - Redesigné */}
+              {/* Coiffeur Card - Photo améliorée */}
               <Card className="group relative overflow-hidden border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-6 cursor-pointer bg-gradient-to-br from-blue-50 to-indigo-100">
                 <CardContent className="p-0">
                   {/* Image Section */}
                   <div className="relative h-80 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-500/30"></div>
                     <img 
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop&crop=face"
+                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=400&fit=crop&crop=face"
                       alt="Coiffeur professionnel"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -159,14 +159,14 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              {/* Coiffeuse Card - Redesigné */}
+              {/* Coiffeuse Card - Photo améliorée */}
               <Card className="group relative overflow-hidden border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-6 cursor-pointer bg-gradient-to-br from-pink-50 to-rose-100">
                 <CardContent className="p-0">
                   {/* Image Section */}
                   <div className="relative h-80 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 to-rose-500/30"></div>
                     <img 
-                      src="https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=600&h=400&fit=crop&crop=face"
+                      src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=400&fit=crop&crop=face"
                       alt="Coiffeuse professionnelle"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />

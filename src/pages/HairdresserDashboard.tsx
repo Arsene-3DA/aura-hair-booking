@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
-import { Calendar as CalendarIcon, Clock, Users, Settings, LogOut } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, Settings, LogOut, Bell, Eye } from 'lucide-react';
 import WorkingHoursModal from '../components/WorkingHoursModal';
 import BookingDetailsModal from '../components/BookingDetailsModal';
 
@@ -21,53 +21,88 @@ const HairdresserDashboard = () => {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [workingHours, setWorkingHours] = useState({ start: '09:00', end: '20:00' });
 
-  // Données simulées des réservations avec plus de détails
-  const todayAppointments = [
-    {
-      id: 1,
-      time: '09:00',
-      clientName: 'Marie Dubois',
-      phone: '06 12 34 56 78',
-      email: 'marie.dubois@email.com',
-      service: 'Coupe Femme',
-      status: 'confirmé',
-      date: 'Aujourd\'hui',
-      comments: 'Première visite, souhaite un changement de style'
-    },
-    {
-      id: 2,
-      time: '10:30',
-      clientName: 'Jean Martin',
-      phone: '06 98 76 54 32',
-      email: 'jean.martin@email.com',
-      service: 'Coupe Homme',
-      status: 'confirmé',
-      date: 'Aujourd\'hui',
-      comments: ''
-    },
-    {
-      id: 3,
-      time: '14:00',
-      clientName: 'Sophie Laurent',
-      phone: '06 11 22 33 44',
-      email: 'sophie.laurent@email.com',
-      service: 'Couleur + Coupe',
-      status: 'nouveau',
-      date: 'Aujourd\'hui',
-      comments: 'Souhaite passer au blond'
-    },
-    {
-      id: 4,
-      time: '16:00',
-      clientName: 'Alice Moreau',
-      phone: '06 55 44 33 22',
-      email: 'alice.moreau@email.com',
-      service: 'Balayage',
-      status: 'nouveau',
-      date: 'Aujourd\'hui',
-      comments: 'Référée par Marie Dubois'
-    }
-  ];
+  // Données simulées des réservations par jour avec plus de détails
+  const allBookings = {
+    '2024-12-27': [
+      {
+        id: 1,
+        time: '09:00',
+        clientName: 'Marie Dubois',
+        phone: '06 12 34 56 78',
+        email: 'marie.dubois@email.com',
+        service: 'Coupe Femme',
+        status: 'confirmé',
+        date: 'Aujourd\'hui',
+        comments: 'Première visite, souhaite un changement de style'
+      },
+      {
+        id: 2,
+        time: '10:30',
+        clientName: 'Jean Martin',
+        phone: '06 98 76 54 32',
+        email: 'jean.martin@email.com',
+        service: 'Coupe Homme',
+        status: 'confirmé',
+        date: 'Aujourd\'hui',
+        comments: ''
+      },
+      {
+        id: 3,
+        time: '14:00',
+        clientName: 'Sophie Laurent',
+        phone: '06 11 22 33 44',
+        email: 'sophie.laurent@email.com',
+        service: 'Couleur + Coupe',
+        status: 'nouveau',
+        date: 'Aujourd\'hui',
+        comments: 'Souhaite passer au blond'
+      },
+      {
+        id: 4,
+        time: '16:00',
+        clientName: 'Alice Moreau',
+        phone: '06 55 44 33 22',
+        email: 'alice.moreau@email.com',
+        service: 'Balayage',
+        status: 'nouveau',
+        date: 'Aujourd\'hui',
+        comments: 'Référée par Marie Dubois'
+      }
+    ],
+    '2024-12-28': [
+      {
+        id: 5,
+        time: '09:30',
+        clientName: 'Pierre Durand',
+        phone: '06 77 88 99 00',
+        email: 'pierre.durand@email.com',
+        service: 'Coupe + Barbe',
+        status: 'confirmé',
+        date: 'Demain',
+        comments: 'Client régulier'
+      },
+      {
+        id: 6,
+        time: '15:00',
+        clientName: 'Emma Bernard',
+        phone: '06 33 44 55 66',
+        email: 'emma.bernard@email.com',
+        service: 'Mèches',
+        status: 'nouveau',
+        date: 'Demain',
+        comments: 'Souhaite des mèches californiennes'
+      }
+    ]
+  };
+
+  // Obtenir les réservations pour la date sélectionnée
+  const getBookingsForDate = (date: Date) => {
+    const dateKey = date.toISOString().split('T')[0];
+    return allBookings[dateKey] || [];
+  };
+
+  const selectedDateBookings = getBookingsForDate(selectedDate);
+  const todayBookings = getBookingsForDate(new Date());
 
   const handleLogout = () => {
     toast({
@@ -109,7 +144,8 @@ const HairdresserDashboard = () => {
   };
 
   // Compter les nouvelles réservations
-  const newBookingsCount = todayAppointments.filter(apt => apt.status === 'nouveau').length;
+  const newBookingsCount = selectedDateBookings.filter(apt => apt.status === 'nouveau').length;
+  const totalNewBookings = Object.values(allBookings).flat().filter(apt => apt.status === 'nouveau').length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -121,7 +157,15 @@ const HairdresserDashboard = () => {
               <h1 className="text-2xl font-bold gradient-text">Dashboard Coiffeur</h1>
               <p className="text-gray-600">Bienvenue, Anna Martin</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              {totalNewBookings > 0 && (
+                <div className="relative">
+                  <Bell className="h-6 w-6 text-gold-500" />
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-[20px] h-5 flex items-center justify-center rounded-full">
+                    {totalNewBookings}
+                  </Badge>
+                </div>
+              )}
               <Button 
                 variant="outline" 
                 size="sm"
@@ -144,6 +188,43 @@ const HairdresserDashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Résumé du jour en cours */}
+        <div className="mb-8">
+          <Card className="border-gold-200 bg-gradient-to-r from-gold-50 to-orange-50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-gold-800">
+                <CalendarIcon className="h-5 w-5 mr-2" />
+                Aujourd'hui - {new Date().toLocaleDateString('fr-FR', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gold-600">{todayBookings.length}</div>
+                  <div className="text-sm text-gray-600">Rendez-vous</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {todayBookings.filter(b => b.status === 'nouveau').length}
+                  </div>
+                  <div className="text-sm text-gray-600">Nouveaux</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {todayBookings.filter(b => b.status === 'confirmé').length}
+                  </div>
+                  <div className="text-sm text-gray-600">Confirmés</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Calendrier et disponibilités */}
           <div className="lg:col-span-1">
@@ -151,7 +232,7 @@ const HairdresserDashboard = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <CalendarIcon className="h-5 w-5 mr-2 text-gold-500" />
-                  Gestion des disponibilités
+                  Calendrier des réservations
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -161,13 +242,19 @@ const HairdresserDashboard = () => {
                   onSelect={(date) => date && setSelectedDate(date)}
                   className="rounded-md border"
                   modifiers={{
-                    unavailable: unavailableDates
+                    unavailable: unavailableDates,
+                    hasBookings: Object.keys(allBookings).map(dateStr => new Date(dateStr))
                   }}
                   modifiersStyles={{
                     unavailable: { 
                       backgroundColor: '#fee2e2', 
                       color: '#dc2626',
                       textDecoration: 'line-through'
+                    },
+                    hasBookings: {
+                      backgroundColor: '#dbeafe',
+                      color: '#1d4ed8',
+                      fontWeight: 'bold'
                     }
                   }}
                 />
@@ -184,29 +271,28 @@ const HairdresserDashboard = () => {
                     ) ? 'Débloquer ce jour' : 'Bloquer ce jour'}
                   </Button>
                   
-                  <div className="text-sm text-gray-600">
-                    <p>• Cliquez sur une date pour la sélectionner</p>
-                    <p>• Bloquez vos jours d'absence</p>
-                    <p className="text-red-600">• Jours barrés = indisponible</p>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p>• <span className="inline-block w-3 h-3 bg-blue-200 rounded"></span> Jours avec RDV</p>
+                    <p>• <span className="inline-block w-3 h-3 bg-red-200 rounded"></span> Jours bloqués</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Réservations du jour */}
+          {/* Réservations du jour sélectionné */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <Clock className="h-5 w-5 mr-2 text-gold-500" />
-                    Réservations du jour
+                    <Eye className="h-5 w-5 mr-2 text-gold-500" />
+                    Réservations du {selectedDate.toLocaleDateString('fr-FR')}
                   </div>
                   <div className="flex gap-2">
                     <Badge variant="secondary">
                       <Users className="h-4 w-4 mr-1" />
-                      {todayAppointments.length} clients
+                      {selectedDateBookings.length} client{selectedDateBookings.length > 1 ? 's' : ''}
                     </Badge>
                     {newBookingsCount > 0 && (
                       <Badge className="bg-green-500 text-white">
@@ -218,7 +304,7 @@ const HairdresserDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {todayAppointments.map((appointment) => (
+                  {selectedDateBookings.map((appointment) => (
                     <div
                       key={appointment.id}
                       className={`p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer ${
@@ -246,6 +332,12 @@ const HairdresserDashboard = () => {
                             <div>✉️ {appointment.email}</div>
                             <div>✂️ {appointment.service}</div>
                           </div>
+                          
+                          {appointment.comments && (
+                            <div className="mt-2 p-2 bg-yellow-50 rounded text-sm">
+                              💬 {appointment.comments}
+                            </div>
+                          )}
                         </div>
                         
                         <div className="flex gap-2">
@@ -253,7 +345,7 @@ const HairdresserDashboard = () => {
                             Modifier
                           </Button>
                           <Button size="sm" variant="outline">
-                            Contacter
+                            Annuler
                           </Button>
                         </div>
                       </div>
@@ -261,10 +353,11 @@ const HairdresserDashboard = () => {
                   ))}
                 </div>
 
-                {todayAppointments.length === 0 && (
+                {selectedDateBookings.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                    <p>Aucune réservation pour aujourd'hui</p>
+                    <p>Aucune réservation pour cette date</p>
+                    <p className="text-sm">Sélectionnez une autre date dans le calendrier</p>
                   </div>
                 )}
               </CardContent>

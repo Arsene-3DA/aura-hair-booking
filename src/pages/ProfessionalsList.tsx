@@ -1,21 +1,21 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HairdresserCard from '@/components/HairdresserCard';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 
-// Separated hairdressers by gender
-const professionals = {
+// Separated hairdressers by gender avec possibilité d'ajouter de nouveaux
+const baseProfessionals = {
   male: [
     {
       id: 3,
       name: "Marc Rousseau",
       specialties: ["Coupe Homme", "Barbe", "Styling"],
       rating: 4.9,
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face",
       availability: "Aujourd'hui dès 16h",
       experience: "12 ans d'expérience",
       location: "Salon Premium - 15e arr.",
@@ -50,7 +50,7 @@ const professionals = {
       name: "Anna Martin",
       specialties: ["Coupe Femme", "Couleur", "Balayage"],
       rating: 4.9,
-      image: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=400&fit=crop&crop=face",
+      image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=400&fit=crop&crop=face",
       availability: "Aujourd'hui dès 14h",
       experience: "8 ans d'expérience",
       location: "Salon Premium - 16e arr.",
@@ -95,11 +95,32 @@ const professionals = {
 const ProfessionalsList = () => {
   const { gender } = useParams<{ gender: 'male' | 'female' }>();
   const navigate = useNavigate();
+  const [professionals, setProfessionals] = useState(baseProfessionals);
   
   if (!gender || !['male', 'female'].includes(gender)) {
     navigate('/');
     return null;
   }
+
+  // Charger les nouveaux professionnels ajoutés par l'admin depuis localStorage
+  useEffect(() => {
+    const loadAddedProfessionals = () => {
+      try {
+        const savedProfessionals = localStorage.getItem('addedProfessionals');
+        if (savedProfessionals) {
+          const parsed = JSON.parse(savedProfessionals);
+          setProfessionals(prev => ({
+            male: [...prev.male, ...parsed.male],
+            female: [...prev.female, ...parsed.female]
+          }));
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des professionnels:', error);
+      }
+    };
+
+    loadAddedProfessionals();
+  }, []);
 
   const currentProfessionals = professionals[gender];
   const title = gender === 'male' ? 'Nos Coiffeurs Experts' : 'Nos Coiffeuses Expertes';
