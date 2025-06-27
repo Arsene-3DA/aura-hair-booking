@@ -201,7 +201,7 @@ const ProfessionalsList = () => {
           isOpen={isBookingModalOpen}
           onClose={handleCloseBookingModal}
           hairdresser={{
-            id: selectedProfessional.id,
+            id: 1, // Utiliser un ID numérique par défaut pour compatibilité
             name: selectedProfessional.name,
             specialties: selectedProfessional.specialties,
             rating: selectedProfessional.rating,

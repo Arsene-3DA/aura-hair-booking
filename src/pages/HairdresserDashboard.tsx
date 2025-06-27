@@ -32,8 +32,8 @@ const HairdresserDashboard = () => {
   const [viewMode, setViewMode] = useState<'today' | 'selected' | 'week' | 'all'>('today');
   const [loading, setLoading] = useState(false);
 
-  // ID du coiffeur connecté (Thomas Moreau = 1) - converti en string pour Supabase
-  const currentHairdresserId = "1";
+  // ID du coiffeur connecté (Thomas Moreau = 1) - utilise le numéro pour compatibilité avec le contexte local
+  const currentHairdresserId = 1;
 
   // Forcer le rechargement des données à chaque render
   useEffect(() => {
@@ -125,8 +125,8 @@ const HairdresserDashboard = () => {
     setIsBookingDetailsModalOpen(true);
   };
 
-  const handleConfirmBooking = (bookingId: string) => {
-    updateBookingStatus(parseInt(bookingId), 'confirmé');
+  const handleConfirmBooking = (bookingId: number) => {
+    updateBookingStatus(bookingId, 'confirmé');
     toast({
       title: "Réservation confirmée",
       description: "La réservation a été confirmée avec succès"
