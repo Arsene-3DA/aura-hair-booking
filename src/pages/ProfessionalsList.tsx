@@ -68,8 +68,23 @@ const ProfessionalsList = () => {
           return;
         }
 
-        setProfessionals(data || []);
-        console.log('Professionnels chargés:', data?.length);
+        // Mapper les données Supabase vers l'interface Professional
+        const mappedProfessionals: Professional[] = (data || []).map(item => ({
+          id: item.id,
+          name: item.name,
+          specialties: item.specialties || [],
+          rating: item.rating || 0,
+          image_url: item.image_url || '',
+          experience: item.experience || '',
+          location: item.location || '',
+          gender: item.gender as 'male' | 'female',
+          email: item.email,
+          phone: item.phone || undefined,
+          is_active: item.is_active || false
+        }));
+
+        setProfessionals(mappedProfessionals);
+        console.log('Professionnels chargés:', mappedProfessionals.length);
       } catch (error) {
         console.error('Erreur:', error);
         toast({
@@ -186,7 +201,7 @@ const ProfessionalsList = () => {
           isOpen={isBookingModalOpen}
           onClose={handleCloseBookingModal}
           hairdresser={{
-            id: parseInt(selectedProfessional.id),
+            id: selectedProfessional.id,
             name: selectedProfessional.name,
             specialties: selectedProfessional.specialties,
             rating: selectedProfessional.rating,

@@ -1,10 +1,8 @@
 
 import { useSupabaseBookings } from './useSupabaseBookings';
-import { useBookings } from '@/contexts/BookingsContext';
 
 export const useBookingIntegration = () => {
   const supabaseBookings = useSupabaseBookings();
-  const localBookings = useBookings();
 
   const createBooking = async (bookingData: any) => {
     try {
@@ -18,12 +16,6 @@ export const useBookingIntegration = () => {
         booking_date: bookingData.bookingDate,
         booking_time: bookingData.time,
         comments: bookingData.comments
-      });
-
-      // Aussi créer dans le contexte local pour compatibilité
-      localBookings.createBooking({
-        ...bookingData,
-        id: parseInt(supabaseBooking.id, 16) || Date.now() // Fallback ID
       });
 
       return supabaseBooking;
