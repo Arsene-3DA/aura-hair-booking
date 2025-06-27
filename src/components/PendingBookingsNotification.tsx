@@ -154,7 +154,7 @@ const PendingBookingsNotification = ({ hairdresserId }: PendingBookingsNotificat
             </div>
           </div>
         ))}
-      </Content>
+      </CardContent>
     </Card>
   );
 };
