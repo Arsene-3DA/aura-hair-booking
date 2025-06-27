@@ -177,7 +177,16 @@ const ProfessionalsList = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {currentProfessionals.map((professional) => (
                   <div key={professional.id} className="animate-fade-in">
-                    <HairdresserCard hairdresser={professional} />
+                    <HairdresserCard 
+                      name={professional.name}
+                      photo={professional.image}
+                      tags={professional.specialties}
+                      rating={professional.rating}
+                      onChoose={() => {
+                        console.log('Professionnel choisi:', professional.name);
+                        // TODO: Implement booking logic
+                      }}
+                    />
                   </div>
                 ))}
               </div>
