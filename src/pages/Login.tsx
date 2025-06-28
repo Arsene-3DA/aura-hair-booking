@@ -17,6 +17,7 @@ const Login = () => {
     password: ''
   });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('');
 
   // Rediriger si déjà connecté
   useEffect(() => {
@@ -34,22 +35,30 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
+    setConnectionStatus('Connexion en cours...');
     
     try {
+      console.log('Tentative de connexion avec:', { email: formData.email, password: '***' });
       const result = await login(formData.email.trim(), formData.password);
       
       if (result.success) {
-        // La redirection sera gérée par useEffect
+        setConnectionStatus('Connexion réussie ! Redirection...');
+      } else {
+        setConnectionStatus(`Échec: ${result.error || 'Erreur inconnue'}`);
       }
     } catch (error) {
       console.error('Erreur de connexion:', error);
+      setConnectionStatus('Erreur de connexion');
     } finally {
       setIsLoggingIn(false);
+      setTimeout(() => setConnectionStatus(''), 3000);
     }
   };
 
   const fillTestAccount = (email: string, password: string) => {
     setFormData({ email, password });
+    setConnectionStatus('Compte de test sélectionné');
+    setTimeout(() => setConnectionStatus(''), 2000);
   };
 
   if (loading) {
@@ -73,6 +82,17 @@ const Login = () => {
           <p className="text-sm text-gray-600 mt-2">
             Connectez-vous pour accéder à votre espace
           </p>
+          {connectionStatus && (
+            <div className={`text-sm p-2 rounded mt-2 ${
+              connectionStatus.includes('réussie') 
+                ? 'bg-green-100 text-green-700' 
+                : connectionStatus.includes('Échec') || connectionStatus.includes('Erreur')
+                ? 'bg-red-100 text-red-700'
+                : 'bg-blue-100 text-blue-700'
+            }`}>
+              {connectionStatus}
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -85,6 +105,7 @@ const Login = () => {
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 required
                 placeholder="votre@email.com"
+                disabled={isLoggingIn}
               />
             </div>
 
@@ -97,6 +118,7 @@ const Login = () => {
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 required
                 placeholder="••••••••"
+                disabled={isLoggingIn}
               />
             </div>
 
@@ -121,21 +143,24 @@ const Login = () => {
                 <button 
                   type="button"
                   onClick={() => fillTestAccount('marie.dubois@client.fr', 'client123')}
-                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700"
+                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700 transition-colors"
+                  disabled={isLoggingIn}
                 >
                   marie.dubois@client.fr / client123
                 </button>
                 <button 
                   type="button"
                   onClick={() => fillTestAccount('pierre.martin@client.fr', 'client123')}
-                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700"
+                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700 transition-colors"
+                  disabled={isLoggingIn}
                 >
                   pierre.martin@client.fr / client123
                 </button>
                 <button 
                   type="button"
                   onClick={() => fillTestAccount('sophie.lefebvre@client.fr', 'client123')}
-                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700"
+                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700 transition-colors"
+                  disabled={isLoggingIn}
                 >
                   sophie.lefebvre@client.fr / client123
                 </button>
@@ -149,14 +174,16 @@ const Login = () => {
                 <button 
                   type="button"
                   onClick={() => fillTestAccount('marie.dupont@coiffeur.fr', 'coiffeur123')}
-                  className="text-left hover:bg-green-100 p-1 rounded text-green-700"
+                  className="text-left hover:bg-green-100 p-1 rounded text-green-700 transition-colors"
+                  disabled={isLoggingIn}
                 >
                   marie.dupont@coiffeur.fr / coiffeur123
                 </button>
                 <button 
                   type="button"
                   onClick={() => fillTestAccount('jean.martin@coiffeur.fr', 'coiffeur123')}
-                  className="text-left hover:bg-green-100 p-1 rounded text-green-700"
+                  className="text-left hover:bg-green-100 p-1 rounded text-green-700 transition-colors"
+                  disabled={isLoggingIn}
                 >
                   jean.martin@coiffeur.fr / coiffeur123
                 </button>
@@ -169,7 +196,8 @@ const Login = () => {
               <button 
                 type="button"
                 onClick={() => fillTestAccount('admin@salon.fr', 'admin123')}
-                className="text-left hover:bg-purple-100 p-1 rounded text-purple-700 w-full"
+                className="text-left hover:bg-purple-100 p-1 rounded text-purple-700 w-full transition-colors"
+                disabled={isLoggingIn}
               >
                 admin@salon.fr / admin123
               </button>
@@ -181,6 +209,7 @@ const Login = () => {
               variant="link"
               onClick={() => navigate('/')}
               className="text-gold-600 hover:text-gold-700"
+              disabled={isLoggingIn}
             >
               Retour à l'accueil
             </Button>
