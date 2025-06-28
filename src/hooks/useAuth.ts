@@ -81,7 +81,7 @@ export const useAuth = () => {
     try {
       console.log('Tentative de connexion pour:', email);
       
-      // D'abord, vérifier si l'utilisateur existe sans hash
+      // D'abord, vérifier si l'utilisateur existe et est actif
       let { data: user, error } = await supabase
         .from('users')
         .select('*')
@@ -89,15 +89,19 @@ export const useAuth = () => {
         .eq('is_active', true)
         .single();
 
-      if (error && error.code === 'PGRST116') {
-        // Utilisateur non trouvé
-        console.error('Utilisateur non trouvé:', error);
-        throw new Error('Email ou mot de passe incorrect');
+      if (error) {
+        console.error('Erreur lors de la recherche utilisateur:', error);
+        if (error.code === 'PGRST116') {
+          throw new Error('Email ou mot de passe incorrect');
+        }
+        throw new Error('Erreur lors de la connexion');
       }
 
       if (!user) {
         throw new Error('Email ou mot de passe incorrect');
       }
+
+      console.log('Utilisateur trouvé:', { id: user.id, email: user.email, type: user.user_type });
 
       // Vérifier le mot de passe hashé
       const { data: hashedPassword, error: hashError } = await supabase.rpc('hash_password', { password });
@@ -108,9 +112,11 @@ export const useAuth = () => {
       }
 
       if (user.password_hash !== hashedPassword) {
-        console.error('Mot de passe incorrect');
+        console.error('Mot de passe incorrect pour:', email);
         throw new Error('Email ou mot de passe incorrect');
       }
+
+      console.log('Mot de passe vérifié avec succès pour:', email);
 
       // Nettoyer les anciennes sessions de cet utilisateur
       const { error: deleteError } = await supabase
@@ -118,14 +124,18 @@ export const useAuth = () => {
         .delete()
         .eq('user_id', user.id);
 
-      console.log('Nettoyage des anciennes sessions:', deleteError || 'OK');
+      if (deleteError) {
+        console.log('Erreur lors du nettoyage des sessions (non bloquant):', deleteError);
+      }
 
       // Créer une nouvelle session
       const sessionToken = crypto.randomUUID();
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24); // 24h
 
-      // Insérer directement sans RLS pour éviter les problèmes de permissions
+      console.log('Création de session pour utilisateur:', user.id);
+
+      // Tenter d'insérer la session
       const { error: sessionError } = await supabase
         .from('user_sessions')
         .insert({
@@ -136,23 +146,10 @@ export const useAuth = () => {
 
       if (sessionError) {
         console.error('Erreur création session:', sessionError);
-        // Essayer une approche alternative si RLS bloque
-        try {
-          // Utiliser rpc pour créer la session si les politiques RLS bloquent
-          const { error: rpcError } = await supabase.rpc('create_user_session', {
-            p_user_id: user.id,
-            p_session_token: sessionToken,
-            p_expires_at: expiresAt.toISOString()
-          });
-          
-          if (rpcError) {
-            throw rpcError;
-          }
-        } catch (rpcFallbackError) {
-          console.error('Erreur avec RPC fallback:', rpcFallbackError);
-          throw new Error('Erreur lors de la création de la session');
-        }
+        throw new Error('Erreur lors de la création de la session');
       }
+
+      console.log('Session créée avec succès');
 
       localStorage.setItem('session_token', sessionToken);
 
@@ -261,7 +258,7 @@ export const useAuth = () => {
 
       return { success: true };
     } catch (error) {
-      const errorMessage = error instance of Error ? error.message : 'Erreur lors de la création du compte';
+      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la création du compte';
       toast({
         title: "❌ Erreur",
         description: errorMessage,
