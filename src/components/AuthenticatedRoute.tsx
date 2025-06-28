@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 interface AuthenticatedRouteProps {
   children: React.ReactNode;
-  requiredUserType?: 'client' | 'coiffeur' | 'admin';
+  requiredUserType?: 'client' | 'hairdresser' | 'admin';
 }
 
 const AuthenticatedRoute = ({ children, requiredUserType }: AuthenticatedRouteProps) => {
