@@ -79,63 +79,98 @@ export const useAuth = () => {
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('Tentative de connexion pour:', email);
+      console.log('=== DÉBUT DIAGNOSTIC CONNEXION ===');
+      console.log('1. Email fourni:', email);
+      console.log('2. Email nettoyé:', email.toLowerCase().trim());
       
-      // D'abord, vérifier si l'utilisateur existe et est actif
-      let { data: user, error } = await supabase
+      // Première étape : vérifier tous les utilisateurs pour diagnostic
+      console.log('3. Récupération de tous les utilisateurs pour diagnostic...');
+      const { data: allUsers, error: allUsersError } = await supabase
+        .from('users')
+        .select('email, user_type, is_active');
+      
+      if (allUsersError) {
+        console.error('Erreur récupération tous les utilisateurs:', allUsersError);
+      } else {
+        console.log('4. Tous les utilisateurs trouvés:', allUsers);
+        const userExists = allUsers?.find(u => u.email === email.toLowerCase().trim());
+        console.log('5. Utilisateur correspondant trouvé:', userExists);
+      }
+
+      // Deuxième étape : chercher l'utilisateur spécifique
+      console.log('6. Recherche utilisateur spécifique...');
+      const { data: user, error } = await supabase
         .from('users')
         .select('*')
         .eq('email', email.toLowerCase().trim())
         .eq('is_active', true)
         .single();
 
+      console.log('7. Résultat recherche utilisateur:', { user, error });
+
       if (error) {
-        console.error('Erreur lors de la recherche utilisateur:', error);
+        console.error('8. Erreur lors de la recherche utilisateur:', error);
         if (error.code === 'PGRST116') {
-          throw new Error('Email ou mot de passe incorrect');
+          throw new Error('Aucun utilisateur actif trouvé avec cet email. Vérifiez que les données de test ont été correctement insérées.');
         }
-        throw new Error('Erreur lors de la connexion');
+        throw new Error(`Erreur de base de données: ${error.message}`);
       }
 
       if (!user) {
-        throw new Error('Email ou mot de passe incorrect');
+        throw new Error('Utilisateur non trouvé après recherche');
       }
 
-      console.log('Utilisateur trouvé:', { id: user.id, email: user.email, type: user.user_type });
+      console.log('9. Utilisateur trouvé avec succès:', { 
+        id: user.id, 
+        email: user.email, 
+        type: user.user_type,
+        active: user.is_active 
+      });
 
-      // Vérifier le mot de passe hashé
+      // Troisième étape : vérifier le mot de passe
+      console.log('10. Vérification du mot de passe...');
       const { data: hashedPassword, error: hashError } = await supabase.rpc('hash_password', { password });
       
       if (hashError) {
-        console.error('Erreur de hashage:', hashError);
+        console.error('11. Erreur de hashage:', hashError);
         throw new Error('Erreur lors du traitement du mot de passe');
       }
 
+      console.log('12. Mot de passe hashé:', hashedPassword);
+      console.log('13. Hash stocké en base:', user.password_hash);
+      console.log('14. Les hash correspondent-ils?', user.password_hash === hashedPassword);
+
       if (user.password_hash !== hashedPassword) {
-        console.error('Mot de passe incorrect pour:', email);
-        throw new Error('Email ou mot de passe incorrect');
+        console.error('15. ÉCHEC: Les mots de passe ne correspondent pas');
+        throw new Error('Mot de passe incorrect');
       }
 
-      console.log('Mot de passe vérifié avec succès pour:', email);
+      console.log('16. SUCCESS: Mot de passe vérifié avec succès');
 
-      // Nettoyer les anciennes sessions de cet utilisateur
+      // Quatrième étape : nettoyer les anciennes sessions
+      console.log('17. Nettoyage des anciennes sessions...');
       const { error: deleteError } = await supabase
         .from('user_sessions')
         .delete()
         .eq('user_id', user.id);
 
       if (deleteError) {
-        console.log('Erreur lors du nettoyage des sessions (non bloquant):', deleteError);
+        console.log('18. Erreur nettoyage sessions (non bloquant):', deleteError);
+      } else {
+        console.log('18. Anciennes sessions nettoyées avec succès');
       }
 
-      // Créer une nouvelle session
+      // Cinquième étape : créer une nouvelle session
       const sessionToken = crypto.randomUUID();
       const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 24); // 24h
+      expiresAt.setHours(expiresAt.getHours() + 24);
 
-      console.log('Création de session pour utilisateur:', user.id);
+      console.log('19. Création nouvelle session...', {
+        user_id: user.id,
+        session_token: sessionToken.substring(0, 8) + '...',
+        expires_at: expiresAt.toISOString()
+      });
 
-      // Tenter d'insérer la session
       const { error: sessionError } = await supabase
         .from('user_sessions')
         .insert({
@@ -145,11 +180,11 @@ export const useAuth = () => {
         });
 
       if (sessionError) {
-        console.error('Erreur création session:', sessionError);
-        throw new Error('Erreur lors de la création de la session');
+        console.error('20. ÉCHEC création session:', sessionError);
+        throw new Error(`Erreur création session: ${sessionError.message}`);
       }
 
-      console.log('Session créée avec succès');
+      console.log('21. SUCCESS: Session créée avec succès');
 
       localStorage.setItem('session_token', sessionToken);
 
@@ -167,6 +202,9 @@ export const useAuth = () => {
         isAuthenticated: true
       });
 
+      console.log('22. SUCCESS: État utilisateur mis à jour');
+      console.log('=== FIN DIAGNOSTIC CONNEXION ===');
+
       toast({
         title: "✅ Connexion réussie",
         description: `Bienvenue ${user.first_name || user.email}!`
@@ -174,8 +212,10 @@ export const useAuth = () => {
 
       return { success: true };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion';
-      console.error('Erreur complète de connexion:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion inconnue';
+      console.error('=== ÉCHEC CONNEXION ===');
+      console.error('Erreur complète:', error);
+      console.error('Message d\'erreur:', errorMessage);
       
       toast({
         title: "❌ Erreur de connexion",
