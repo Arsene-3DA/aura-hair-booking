@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -77,6 +76,67 @@ export const useAuth = () => {
     }
   };
 
+  const createMissingTestUsers = async () => {
+    console.log('🔧 Création des utilisateurs de test manquants...');
+    
+    const testUsers = [
+      // Clients
+      { email: 'marie.dubois@client.fr', password: 'client123', type: 'client', firstName: 'Marie', lastName: 'Dubois', phone: '06 12 34 56 78' },
+      { email: 'pierre.martin@client.fr', password: 'client123', type: 'client', firstName: 'Pierre', lastName: 'Martin', phone: '06 23 45 67 89' },
+      { email: 'sophie.lefebvre@client.fr', password: 'client123', type: 'client', firstName: 'Sophie', lastName: 'Lefebvre', phone: '06 34 56 78 90' },
+      // Coiffeurs
+      { email: 'marie.dupont@coiffeur.fr', password: 'coiffeur123', type: 'coiffeur', firstName: 'Marie', lastName: 'Dupont', phone: '06 11 22 33 44' },
+      { email: 'jean.martin@coiffeur.fr', password: 'coiffeur123', type: 'coiffeur', firstName: 'Jean', lastName: 'Martin', phone: '06 22 33 44 55' },
+    ];
+
+    for (const user of testUsers) {
+      try {
+        // Vérifier si l'utilisateur existe déjà
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('email')
+          .eq('email', user.email)
+          .single();
+
+        if (existingUser) {
+          console.log(`✓ Utilisateur ${user.email} existe déjà`);
+          continue;
+        }
+
+        // Hasher le mot de passe
+        const { data: hashedPassword, error: hashError } = await supabase.rpc('hash_password', { 
+          password: user.password 
+        });
+
+        if (hashError) {
+          console.error(`❌ Erreur hashage pour ${user.email}:`, hashError);
+          continue;
+        }
+
+        // Créer l'utilisateur
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert({
+            email: user.email,
+            password_hash: hashedPassword,
+            user_type: user.type,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            phone: user.phone,
+            is_active: true
+          });
+
+        if (insertError) {
+          console.error(`❌ Erreur création ${user.email}:`, insertError);
+        } else {
+          console.log(`✅ Utilisateur ${user.email} créé avec succès`);
+        }
+      } catch (error) {
+        console.error(`❌ Erreur lors de la création de ${user.email}:`, error);
+      }
+    }
+  };
+
   const login = async (email: string, password: string) => {
     try {
       console.log('=== DÉBUT DIAGNOSTIC CONNEXION ===');
@@ -95,10 +155,22 @@ export const useAuth = () => {
         console.log('4. Tous les utilisateurs trouvés:', allUsers);
         const userExists = allUsers?.find(u => u.email === email.toLowerCase().trim());
         console.log('5. Utilisateur correspondant trouvé:', userExists);
+        
+        // Si aucun utilisateur trouvé sauf admin, créer les utilisateurs de test
+        if (allUsers.length <= 1 && !userExists) {
+          console.log('🔧 Aucun utilisateur de test trouvé, création en cours...');
+          await createMissingTestUsers();
+          
+          // Re-vérifier après création
+          const { data: updatedUsers } = await supabase
+            .from('users')
+            .select('email, user_type, is_active');
+          console.log('6. Utilisateurs après création:', updatedUsers);
+        }
       }
 
       // Deuxième étape : chercher l'utilisateur spécifique
-      console.log('6. Recherche utilisateur spécifique...');
+      console.log('7. Recherche utilisateur spécifique...');
       const { data: user, error } = await supabase
         .from('users')
         .select('*')
@@ -106,12 +178,12 @@ export const useAuth = () => {
         .eq('is_active', true)
         .single();
 
-      console.log('7. Résultat recherche utilisateur:', { user, error });
+      console.log('8. Résultat recherche utilisateur:', { user, error });
 
       if (error) {
-        console.error('8. Erreur lors de la recherche utilisateur:', error);
+        console.error('9. Erreur lors de la recherche utilisateur:', error);
         if (error.code === 'PGRST116') {
-          throw new Error('Aucun utilisateur actif trouvé avec cet email. Vérifiez que les données de test ont été correctement insérées.');
+          throw new Error('Utilisateur non trouvé. Les données de test sont en cours de création, veuillez réessayer dans quelques secondes.');
         }
         throw new Error(`Erreur de base de données: ${error.message}`);
       }
@@ -120,7 +192,7 @@ export const useAuth = () => {
         throw new Error('Utilisateur non trouvé après recherche');
       }
 
-      console.log('9. Utilisateur trouvé avec succès:', { 
+      console.log('10. Utilisateur trouvé avec succès:', { 
         id: user.id, 
         email: user.email, 
         type: user.user_type,
@@ -128,36 +200,36 @@ export const useAuth = () => {
       });
 
       // Troisième étape : vérifier le mot de passe
-      console.log('10. Vérification du mot de passe...');
+      console.log('11. Vérification du mot de passe...');
       const { data: hashedPassword, error: hashError } = await supabase.rpc('hash_password', { password });
       
       if (hashError) {
-        console.error('11. Erreur de hashage:', hashError);
+        console.error('12. Erreur de hashage:', hashError);
         throw new Error('Erreur lors du traitement du mot de passe');
       }
 
-      console.log('12. Mot de passe hashé:', hashedPassword);
-      console.log('13. Hash stocké en base:', user.password_hash);
-      console.log('14. Les hash correspondent-ils?', user.password_hash === hashedPassword);
+      console.log('13. Mot de passe hashé:', hashedPassword);
+      console.log('14. Hash stocké en base:', user.password_hash);
+      console.log('15. Les hash correspondent-ils?', user.password_hash === hashedPassword);
 
       if (user.password_hash !== hashedPassword) {
-        console.error('15. ÉCHEC: Les mots de passe ne correspondent pas');
+        console.error('16. ÉCHEC: Les mots de passe ne correspondent pas');
         throw new Error('Mot de passe incorrect');
       }
 
-      console.log('16. SUCCESS: Mot de passe vérifié avec succès');
+      console.log('17. SUCCESS: Mot de passe vérifié avec succès');
 
       // Quatrième étape : nettoyer les anciennes sessions
-      console.log('17. Nettoyage des anciennes sessions...');
+      console.log('18. Nettoyage des anciennes sessions...');
       const { error: deleteError } = await supabase
         .from('user_sessions')
         .delete()
         .eq('user_id', user.id);
 
       if (deleteError) {
-        console.log('18. Erreur nettoyage sessions (non bloquant):', deleteError);
+        console.log('19. Erreur nettoyage sessions (non bloquant):', deleteError);
       } else {
-        console.log('18. Anciennes sessions nettoyées avec succès');
+        console.log('19. Anciennes sessions nettoyées avec succès');
       }
 
       // Cinquième étape : créer une nouvelle session
@@ -165,7 +237,7 @@ export const useAuth = () => {
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24);
 
-      console.log('19. Création nouvelle session...', {
+      console.log('20. Création nouvelle session...', {
         user_id: user.id,
         session_token: sessionToken.substring(0, 8) + '...',
         expires_at: expiresAt.toISOString()
@@ -180,11 +252,11 @@ export const useAuth = () => {
         });
 
       if (sessionError) {
-        console.error('20. ÉCHEC création session:', sessionError);
+        console.error('21. ÉCHEC création session:', sessionError);
         throw new Error(`Erreur création session: ${sessionError.message}`);
       }
 
-      console.log('21. SUCCESS: Session créée avec succès');
+      console.log('22. SUCCESS: Session créée avec succès');
 
       localStorage.setItem('session_token', sessionToken);
 
@@ -202,7 +274,7 @@ export const useAuth = () => {
         isAuthenticated: true
       });
 
-      console.log('22. SUCCESS: État utilisateur mis à jour');
+      console.log('23. SUCCESS: État utilisateur mis à jour');
       console.log('=== FIN DIAGNOSTIC CONNEXION ===');
 
       toast({
