@@ -56,7 +56,7 @@ const Login = () => {
 
   const fillTestAccount = (email: string, password: string) => {
     setLoginData({ email, password });
-    setConnectionStatus('Compte de test sélectionné');
+    setConnectionStatus('Compte sélectionné');
     setTimeout(() => setConnectionStatus(''), 2000);
   };
 
@@ -132,43 +132,82 @@ const Login = () => {
 
           <div className="mt-6 space-y-3">
             <div className="text-center text-sm text-gray-600">
-              <p className="font-medium">Comptes de test disponibles :</p>
+              <p className="font-medium">Comptes disponibles :</p>
             </div>
             
-            {/* Comptes coiffeurs */}
-            <div className="space-y-2 text-xs bg-green-50 p-3 rounded-lg border border-green-200">
-              <div className="font-medium text-green-800 mb-2">✂️ Comptes Coiffeurs :</div>
-              <div className="grid grid-cols-1 gap-1">
-                <button 
-                  type="button"
-                  onClick={() => fillTestAccount('marie.dupont@coiffeur.fr', 'coiffeur123')}
-                  className="text-left hover:bg-green-100 p-1 rounded text-green-700 transition-colors"
-                  disabled={isLoggingIn}
-                >
-                  marie.dupont@coiffeur.fr / coiffeur123
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => fillTestAccount('jean.martin@coiffeur.fr', 'coiffeur123')}
-                  className="text-left hover:bg-green-100 p-1 rounded text-green-700 transition-colors"
-                  disabled={isLoggingIn}
-                >
-                  jean.martin@coiffeur.fr / coiffeur123
-                </button>
-              </div>
-            </div>
-
             {/* Compte admin */}
             <div className="space-y-2 text-xs bg-purple-50 p-3 rounded-lg border border-purple-200">
-              <div className="font-medium text-purple-800 mb-2">👑 Compte Admin :</div>
+              <div className="font-medium text-purple-800 mb-2">👑 Administrateur :</div>
               <button 
                 type="button"
-                onClick={() => fillTestAccount('admin@salon.fr', 'admin123')}
-                className="text-left hover:bg-purple-100 p-1 rounded text-purple-700 w-full transition-colors"
+                onClick={() => fillTestAccount('admin.salon@salon.fr', 'admin2024')}
+                className="text-left hover:bg-purple-100 p-2 rounded text-purple-700 w-full transition-colors text-sm"
                 disabled={isLoggingIn}
               >
-                admin@salon.fr / admin123
+                <div className="font-medium">Admin Salon</div>
+                <div className="text-xs opacity-75">admin.salon@salon.fr / admin2024</div>
               </button>
+            </div>
+
+            {/* Comptes coiffeurs */}
+            <div className="space-y-2 text-xs bg-green-50 p-3 rounded-lg border border-green-200">
+              <div className="font-medium text-green-800 mb-2">✂️ Coiffeurs :</div>
+              <div className="grid grid-cols-1 gap-2">
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('anna.martin@salon.fr', 'anna123')}
+                  className="text-left hover:bg-green-100 p-2 rounded text-green-700 transition-colors"
+                  disabled={isLoggingIn}
+                >
+                  <div className="font-medium">Anna Martin</div>
+                  <div className="text-xs opacity-75">anna.martin@salon.fr / anna123</div>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('julie.dubois@salon.fr', 'julie456')}
+                  className="text-left hover:bg-green-100 p-2 rounded text-green-700 transition-colors"
+                  disabled={isLoggingIn}
+                >
+                  <div className="font-medium">Julie Dubois</div>
+                  <div className="text-xs opacity-75">julie.dubois@salon.fr / julie456</div>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('marc.rousseau@salon.fr', 'marc789')}
+                  className="text-left hover:bg-green-100 p-2 rounded text-green-700 transition-colors"
+                  disabled={isLoggingIn}
+                >
+                  <div className="font-medium">Marc Rousseau</div>
+                  <div className="text-xs opacity-75">marc.rousseau@salon.fr / marc789</div>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('sophie.laurent@salon.fr', 'sophie321')}
+                  className="text-left hover:bg-green-100 p-2 rounded text-green-700 transition-colors"
+                  disabled={isLoggingIn}
+                >
+                  <div className="font-medium">Sophie Laurent</div>
+                  <div className="text-xs opacity-75">sophie.laurent@salon.fr / sophie321</div>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('thomas.moreau@salon.fr', 'thomas654')}
+                  className="text-left hover:bg-green-100 p-2 rounded text-green-700 transition-colors"
+                  disabled={isLoggingIn}
+                >
+                  <div className="font-medium">Thomas Moreau</div>
+                  <div className="text-xs opacity-75">thomas.moreau@salon.fr / thomas654</div>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('camille.petit@salon.fr', 'camille987')}
+                  className="text-left hover:bg-green-100 p-2 rounded text-green-700 transition-colors"
+                  disabled={isLoggingIn}
+                >
+                  <div className="font-medium">Camille Petit</div>
+                  <div className="text-xs opacity-75">camille.petit@salon.fr / camille987</div>
+                </button>
+              </div>
             </div>
           </div>
 
