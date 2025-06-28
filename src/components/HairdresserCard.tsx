@@ -1,16 +1,41 @@
 
 import { Button } from "@/components/ui/button";
 import { Star, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface HairdresserCardProps {
+  id: string;
   name: string;
   photo: string;
   tags: string[];
   rating: number;
-  onChoose: () => void;
+  experience?: string;
+  onChoose?: () => void;
 }
 
-const HairdresserCard = ({ name, photo, tags, rating, onChoose }: HairdresserCardProps) => {
+const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }: HairdresserCardProps) => {
+  const navigate = useNavigate();
+
+  const handleChooseHairdresser = () => {
+    if (onChoose) {
+      onChoose();
+    } else {
+      // Naviguer vers la page de réservation avec les données du coiffeur
+      navigate(`/reservation/${id}`, {
+        state: {
+          hairdresser: {
+            id,
+            name,
+            image_url: photo,
+            specialties: tags,
+            rating,
+            experience
+          }
+        }
+      });
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-104 transition-transform duration-200 cursor-pointer">
       {/* Photo ronde 96px */}
@@ -27,6 +52,11 @@ const HairdresserCard = ({ name, photo, tags, rating, onChoose }: HairdresserCar
 
       {/* Nom */}
       <h3 className="text-xl font-bold text-luxury-charcoal text-center mb-3">{name}</h3>
+
+      {/* Experience */}
+      {experience && (
+        <p className="text-sm text-gray-600 text-center mb-3">{experience}</p>
+      )}
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 justify-center mb-4">
@@ -52,11 +82,11 @@ const HairdresserCard = ({ name, photo, tags, rating, onChoose }: HairdresserCar
 
       {/* Bouton Choisir */}
       <Button 
-        onClick={onChoose}
+        onClick={handleChooseHairdresser}
         className="w-full bg-luxury-gold-500 hover:bg-luxury-gold-600 text-luxury-black px-6 py-3 rounded-xl font-bold transition-colors duration-200"
       >
         <User className="h-5 w-5 mr-2" />
-        Choisir
+        Réserver
       </Button>
     </div>
   );

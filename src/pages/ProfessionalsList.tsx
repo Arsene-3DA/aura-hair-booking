@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
@@ -160,11 +159,12 @@ const ProfessionalsList = () => {
                 {professionals.map((professional) => (
                   <div key={professional.id} className="animate-fade-in">
                     <HairdresserCard 
+                      id={professional.id}
                       name={professional.name}
                       photo={professional.image_url}
                       tags={professional.specialties}
                       rating={professional.rating}
-                      onChoose={() => handleChooseProfessional(professional)}
+                      experience={professional.experience}
                     />
                   </div>
                 ))}

@@ -1,379 +1,195 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from 'react-router-dom';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Users, UserPlus, Settings, LogOut, Calendar, Phone, Mail } from 'lucide-react';
-import AuthenticatedRoute from '../components/AuthenticatedRoute';
-import CreateCoiffeurModal from '../components/CreateCoiffeurModal';
-import { useAuth } from '@/hooks/useAuth';
+import { UserPlus, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Hairdresser {
   id: string;
   name: string;
   email: string;
   phone?: string;
-  specialties: string[];
-  location?: string;
-  rating: number;
+  specialties?: string[];
+  experience?: string;
+  rating?: number;
+  image_url?: string;
   is_active: boolean;
-  user_id?: string;
-}
-
-interface User {
-  id: string;
-  email: string;
-  user_type: string;
-  first_name?: string;
-  last_name?: string;
-  is_active: boolean;
-  created_at: string;
 }
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user, logout } = useAuth();
-  const [isCreateCoiffeurModalOpen, setIsCreateCoiffeurModalOpen] = useState(false);
   const [hairdressers, setHairdressers] = useState<Hairdresser[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingHairdressers, setLoadingHairdressers] = useState(true);
+  const { toast } = useToast();
+  const { createCoiffeurUser } = useAuth();
+  const [newAccountData, setNewAccountData] = useState({
+    email: '',
+    password: '',
+    first_name: '',
+    last_name: '',
+    phone: '',
+    hairdresser_id: ''
+  });
 
   useEffect(() => {
-    if (user) {
-      loadData();
-    }
-  }, [user]);
+    loadHairdressers();
+  }, []);
 
-  const loadData = async () => {
+  const loadHairdressers = async () => {
     try {
-      setLoading(true);
-      
-      // Charger les coiffeurs avec leurs profils utilisateur
-      const { data: hairdressersData, error: hairdressersError } = await supabase
+      setLoadingHairdressers(true);
+      const { data, error } = await supabase
         .from('hairdressers')
         .select(`
           *,
-          coiffeur_profiles(user_id)
-        `);
-
-      if (hairdressersError) {
-        console.error('Erreur lors du chargement des coiffeurs:', hairdressersError);
-      } else {
-        setHairdressers(hairdressersData || []);
-      }
-
-      // Charger tous les utilisateurs
-      const { data: usersData, error: usersError } = await supabase
-        .from('users')
-        .select('*')
+          coiffeur_profiles!left(
+            user_id,
+            users!inner(email, first_name, last_name, is_active)
+          )
+        `)
         .order('created_at', { ascending: false });
 
-      if (usersError) {
-        console.error('Erreur lors du chargement des utilisateurs:', usersError);
-      } else {
-        setUsers(usersData || []);
+      if (error) {
+        console.error('Erreur lors du chargement des coiffeurs:', error);
+        throw error;
       }
+
+      setHairdressers(data || []);
     } catch (error) {
-      console.error('Erreur:', error);
       toast({
         title: "❌ Erreur",
-        description: "Impossible de charger les données",
-        variant: "destructive"
+        description: "Impossible de charger les coiffeurs",
+        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoadingHairdressers(false);
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
+  const handleCreateAccount = async (hairdresser: Hairdresser) => {
+    setNewAccountData({
+      ...newAccountData,
+      hairdresser_id: hairdresser.id,
+      email: hairdresser.email,
+      first_name: hairdresser.name.split(' ')[0],
+      last_name: hairdresser.name.split(' ').slice(1).join(' ')
+    });
 
-  const toggleHairdresserStatus = async (hairdresserId: string, isActive: boolean) => {
+    const password = 'coiffeur123'; // Mot de passe par défaut
     try {
-      const { error } = await supabase
-        .from('hairdressers')
-        .update({ is_active: !isActive })
-        .eq('id', hairdresserId);
+      const result = await createCoiffeurUser({
+        ...newAccountData,
+        email: hairdresser.email,
+        password: password,
+        first_name: hairdresser.name.split(' ')[0],
+        last_name: hairdresser.name.split(' ').slice(1).join(' '),
+        hairdresser_id: hairdresser.id
+      });
 
-      if (error) {
-        throw error;
+      if (result.success) {
+        toast({
+          title: "✅ Compte coiffeur créé",
+          description: `Un compte a été créé pour ${hairdresser.name} avec le mot de passe par défaut: coiffeur123`
+        });
+        loadHairdressers(); // Actualiser la liste après la création
       }
-
-      toast({
-        title: "✅ Statut mis à jour",
-        description: `Le coiffeur a été ${!isActive ? 'activé' : 'désactivé'}`
-      });
-
-      await loadData();
     } catch (error) {
-      console.error('Erreur:', error);
-      toast({
-        title: "❌ Erreur",
-        description: "Impossible de mettre à jour le statut",
-        variant: "destructive"
-      });
+      console.error('Erreur lors de la création du compte:', error);
     }
   };
 
-  const toggleUserStatus = async (userId: string, isActive: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({ is_active: !isActive })
-        .eq('id', userId);
+  const renderHairdresserCard = (hairdresser: any) => {
+    const hasAccount = hairdresser.coiffeur_profiles && hairdresser.coiffeur_profiles.length > 0;
+    const userInfo = hasAccount ? hairdresser.coiffeur_profiles[0]?.users : null;
 
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "✅ Statut mis à jour",
-        description: `L'utilisateur a été ${!isActive ? 'activé' : 'désactivé'}`
-      });
-
-      await loadData();
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast({
-        title: "❌ Erreur",
-        description: "Impossible de mettre à jour le statut",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const userStats = {
-    total: users.length,
-    clients: users.filter(u => u.user_type === 'client').length,
-    coiffeurs: users.filter(u => u.user_type === 'coiffeur').length,
-    admins: users.filter(u => u.user_type === 'admin').length,
-    active: users.filter(u => u.is_active).length
-  };
-
-  const hairdresserStats = {
-    total: hairdressers.length,
-    active: hairdressers.filter(h => h.is_active).length,
-    withAccount: hairdressers.filter(h => h.coiffeur_profiles && h.coiffeur_profiles.length > 0).length,
-    withoutAccount: hairdressers.filter(h => !h.coiffeur_profiles || h.coiffeur_profiles.length === 0).length
-  };
-
-  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement du tableau de bord...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <AuthenticatedRoute requiredUserType="admin">
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex justify-between items-center">
+      <Card key={hairdresser.id} className="hover:shadow-lg transition-shadow">
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center space-x-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={hairdresser.image_url} alt={hairdresser.name} />
+                <AvatarFallback className="bg-gold-100 text-gold-700 text-lg font-semibold">
+                  {hairdresser.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
               <div>
-                <h1 className="text-2xl font-bold gradient-text">Dashboard Administrateur</h1>
-                <p className="text-gray-600">Bienvenue, {user?.first_name} {user?.last_name}</p>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setIsCreateCoiffeurModalOpen(true)}
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Créer un compte coiffeur
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Paramètres
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Déconnexion
-                </Button>
+                <h3 className="text-xl font-bold text-gray-900">{hairdresser.name}</h3>
+                <p className="text-gray-600">{hairdresser.email}</p>
+                {hairdresser.phone && (
+                  <p className="text-sm text-gray-500">{hairdresser.phone}</p>
+                )}
               </div>
             </div>
+            <div className="flex flex-col items-end space-y-2">
+              <Badge variant={hairdresser.is_active ? "default" : "secondary"}>
+                {hairdresser.is_active ? "Actif" : "Inactif"}
+              </Badge>
+              {hasAccount && (
+                <Badge className="bg-green-500 text-white">
+                  Compte créé
+                </Badge>
+              )}
+            </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Spécialités</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {hairdresser.specialties?.map((specialty: string, index: number) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {specialty}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Expérience</p>
+              <p className="text-sm text-gray-900">{hairdresser.experience || 'Non spécifiée'}</p>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-1">
+              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+              <span className="text-sm font-medium">{hairdresser.rating || 0}/5</span>
+            </div>
+            
+            {!hasAccount && (
+              <Button
+                onClick={() => handleCreateAccount(hairdresser)}
+                className="bg-gold-500 hover:bg-gold-600 text-white"
+                size="sm"
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Créer compte
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-6">Tableau de bord Admin</h1>
+      <h2 className="text-2xl font-semibold mb-4">Gestion des Coiffeurs</h2>
+
+      {loadingHairdressers ? (
+        <div className="text-center">Chargement des coiffeurs...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {hairdressers.map(renderHairdresserCard)}
         </div>
-
-        <div className="container mx-auto px-4 py-8">
-          {/* Statistiques */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50">
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">{userStats.total}</div>
-                <div className="text-sm text-gray-600 font-medium">Total Utilisateurs</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {userStats.active} actifs
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">{userStats.coiffeurs}</div>
-                <div className="text-sm text-gray-600 font-medium">Comptes Coiffeurs</div>
-              </CardContent>
-            </Card>
-            <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50">
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-purple-600 mb-2">{userStats.clients}</div>
-                <div className="text-sm text-gray-600 font-medium">Clients</div>
-              </CardContent>
-            </Card>
-            <Card className="border-gold-200 bg-gradient-to-br from-gold-50 to-orange-50">
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-gold-600 mb-2">{hairdresserStats.withoutAccount}</div>
-                <div className="text-sm text-gray-600 font-medium">Coiffeurs sans compte</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Liste des coiffeurs */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-gold-500" />
-                    Gestion des Coiffeurs
-                  </div>
-                  <Badge variant="secondary">{hairdressers.length}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {hairdressers.map((hairdresser) => (
-                    <div key={hairdresser.id} className="p-3 border rounded-lg">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold">{hairdresser.name}</h3>
-                            <Badge 
-                              variant={hairdresser.is_active ? "default" : "secondary"}
-                              className={hairdresser.is_active ? "bg-green-500" : "bg-gray-400"}
-                            >
-                              {hairdresser.is_active ? "Actif" : "Inactif"}
-                            </Badge>
-                            {hairdresser.coiffeur_profiles && hairdresser.coiffeur_profiles.length > 0 && (
-                              <Badge className="bg-blue-500 text-white">Compte créé</Badge>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-600 space-y-1">
-                            <div className="flex items-center">
-                              <Mail className="h-3 w-3 mr-1" />
-                              {hairdresser.email}
-                            </div>
-                            {hairdresser.phone && (
-                              <div className="flex items-center">
-                                <Phone className="h-3 w-3 mr-1" />
-                                {hairdresser.phone}
-                              </div>
-                            )}
-                            <div className="text-xs">
-                              ⭐ {hairdresser.rating} • {hairdresser.specialties?.join(', ')}
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant={hairdresser.is_active ? "destructive" : "default"}
-                          onClick={() => toggleHairdresserStatus(hairdresser.id, hairdresser.is_active)}
-                        >
-                          {hairdresser.is_active ? "Désactiver" : "Activer"}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Liste des utilisateurs */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-blue-500" />
-                    Gestion des Utilisateurs
-                  </div>
-                  <Badge variant="secondary">{users.length}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {users.map((user) => (
-                    <div key={user.id} className="p-3 border rounded-lg">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold">{user.first_name} {user.last_name}</h3>
-                            <Badge 
-                              variant={user.user_type === 'admin' ? "default" : user.user_type === 'coiffeur' ? "secondary" : "outline"}
-                              className={
-                                user.user_type === 'admin' ? "bg-red-500" : 
-                                user.user_type === 'coiffeur' ? "bg-green-500" : 
-                                "bg-blue-500"
-                              }
-                            >
-                              {user.user_type.toUpperCase()}
-                            </Badge>
-                            <Badge 
-                              variant={user.is_active ? "default" : "secondary"}
-                              className={user.is_active ? "bg-green-500" : "bg-gray-400"}
-                            >
-                              {user.is_active ? "Actif" : "Inactif"}
-                            </Badge>
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            <div className="flex items-center">
-                              <Mail className="h-3 w-3 mr-1" />
-                              {user.email}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              Créé le {new Date(user.created_at).toLocaleDateString('fr-FR')}
-                            </div>
-                          </div>
-                        </div>
-                        {user.user_type !== 'admin' && (
-                          <Button
-                            size="sm"
-                            variant={user.is_active ? "destructive" : "default"}
-                            onClick={() => toggleUserStatus(user.id, user.is_active)}
-                          >
-                            {user.is_active ? "Désactiver" : "Activer"}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Modal de création de compte coiffeur */}
-        <CreateCoiffeurModal
-          isOpen={isCreateCoiffeurModalOpen}
-          onClose={() => {
-            setIsCreateCoiffeurModalOpen(false);
-            loadData(); // Recharger les données après création
-          }}
-        />
-      </div>
-    </AuthenticatedRoute>
+      )}
+    </div>
   );
 };
 

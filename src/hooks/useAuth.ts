@@ -60,7 +60,7 @@ export const useAuth = () => {
         user: {
           id: userData.id,
           email: userData.email,
-          user_type: userData.user_type,
+          user_type: userData.user_type as 'client' | 'coiffeur' | 'admin',
           first_name: userData.first_name,
           last_name: userData.last_name,
           phone: userData.phone,
@@ -111,7 +111,7 @@ export const useAuth = () => {
         user: {
           id: user.id,
           email: user.email,
-          user_type: user.user_type,
+          user_type: user.user_type as 'client' | 'coiffeur' | 'admin',
           first_name: user.first_name,
           last_name: user.last_name,
           phone: user.phone,
