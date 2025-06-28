@@ -132,6 +132,7 @@ export const useNewSupabaseBookings = () => {
   };
 
   return {
+    getHairedresserByAuthId: getHairdresserByAuthId, // Garder l'ancienne typo pour la compatibilité
     getHairdresserByAuthId,
     getBookingsForHairdresser,
     updateBookingStatus,

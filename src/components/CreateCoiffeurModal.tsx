@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from 'react';
@@ -23,7 +23,7 @@ interface Hairdresser {
 }
 
 const CreateCoiffeurModal = ({ isOpen, onClose }: CreateCoiffeurModalProps) => {
-  const { createCoiffeurUser } = useAuth();
+  const { signUp } = useSupabaseAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [hairdressers, setHairdressers] = useState<Hairdresser[]>([]);
@@ -48,22 +48,15 @@ const CreateCoiffeurModal = ({ isOpen, onClose }: CreateCoiffeurModalProps) => {
       const { data, error } = await supabase
         .from('hairdressers')
         .select('id, name, email')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .is('auth_id', null); // Seulement les coiffeurs sans compte utilisateur
 
       if (error) {
         console.error('Erreur lors du chargement des coiffeurs:', error);
         return;
       }
 
-      // Filtrer les coiffeurs qui n'ont pas encore de compte utilisateur
-      const { data: existingProfiles } = await supabase
-        .from('coiffeur_profiles')
-        .select('hairdresser_id');
-
-      const existingHairdresserIds = existingProfiles?.map(p => p.hairdresser_id) || [];
-      const availableHairdressers = data?.filter(h => !existingHairdresserIds.includes(h.id)) || [];
-
-      setHairdressers(availableHairdressers);
+      setHairdressers(data || []);
     } catch (error) {
       console.error('Erreur:', error);
     }
@@ -92,16 +85,40 @@ const CreateCoiffeurModal = ({ isOpen, onClose }: CreateCoiffeurModalProps) => {
 
     try {
       setLoading(true);
-      const result = await createCoiffeurUser({
-        email: formData.email,
-        password: formData.password,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        phone: formData.phone,
-        hairdresser_id: formData.hairdresser_id
+      
+      // Créer le compte avec Supabase Auth
+      const result = await signUp(formData.email, formData.password, {
+        role: 'hairdresser',
+        name: `${formData.first_name} ${formData.last_name}`.trim()
       });
 
-      if (result.success) {
+      if (result.success && result.user) {
+        // Mettre à jour le profil hairdresser avec l'auth_id
+        const { error: updateError } = await supabase
+          .from('hairdressers')
+          .update({ 
+            auth_id: result.user.id,
+            name: `${formData.first_name} ${formData.last_name}`.trim(),
+            email: formData.email,
+            phone: formData.phone
+          })
+          .eq('id', formData.hairdresser_id);
+
+        if (updateError) {
+          console.error('Erreur lors de la mise à jour du profil:', updateError);
+          toast({
+            title: "❌ Erreur",
+            description: "Erreur lors de la création du profil coiffeur",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        toast({
+          title: "✅ Compte créé",
+          description: "Le compte coiffeur a été créé avec succès",
+        });
+
         setFormData({
           email: '',
           password: '',
@@ -112,7 +129,7 @@ const CreateCoiffeurModal = ({ isOpen, onClose }: CreateCoiffeurModalProps) => {
           hairdresser_id: ''
         });
         onClose();
-        loadHairdressers(); // Recharger la liste
+        loadHairdressers();
       }
     } catch (error) {
       console.error('Erreur lors de la création du compte:', error);
