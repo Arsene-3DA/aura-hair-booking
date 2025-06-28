@@ -47,9 +47,11 @@ export const useAuth = () => {
           users!inner(*)
         `)
         .eq('session_token', sessionToken)
+        .gt('expires_at', new Date().toISOString())
         .single();
 
-      if (error || !data || new Date(data.expires_at) < new Date()) {
+      if (error || !data) {
+        console.log('Session invalide ou expirée:', error);
         localStorage.removeItem('session_token');
         setAuthState({ user: null, loading: false, isAuthenticated: false });
         return;
@@ -77,33 +79,52 @@ export const useAuth = () => {
 
   const login = async (email: string, password: string) => {
     try {
-      // Hash du mot de passe côté client (même logique que la BD)
-      const { data: hashedPassword } = await supabase.rpc('hash_password', { password });
+      console.log('Tentative de connexion pour:', email);
       
+      // Hash du mot de passe côté client
+      const { data: hashedPassword, error: hashError } = await supabase.rpc('hash_password', { password });
+      
+      if (hashError) {
+        console.error('Erreur de hashage:', hashError);
+        throw new Error('Erreur lors du traitement du mot de passe');
+      }
+
       const { data: user, error } = await supabase
         .from('users')
         .select('*')
-        .eq('email', email)
+        .eq('email', email.toLowerCase().trim())
         .eq('password_hash', hashedPassword)
         .eq('is_active', true)
         .single();
 
       if (error || !user) {
+        console.error('Erreur de connexion:', error);
         throw new Error('Email ou mot de passe incorrect');
       }
 
-      // Créer une session
+      // Nettoyer les anciennes sessions de cet utilisateur
+      await supabase
+        .from('user_sessions')
+        .delete()
+        .eq('user_id', user.id);
+
+      // Créer une nouvelle session
       const sessionToken = crypto.randomUUID();
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24); // 24h
 
-      await supabase
+      const { error: sessionError } = await supabase
         .from('user_sessions')
         .insert({
           user_id: user.id,
           session_token: sessionToken,
           expires_at: expiresAt.toISOString()
         });
+
+      if (sessionError) {
+        console.error('Erreur création session:', sessionError);
+        throw new Error('Erreur lors de la création de la session');
+      }
 
       localStorage.setItem('session_token', sessionToken);
 
@@ -129,6 +150,8 @@ export const useAuth = () => {
       return { success: true };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion';
+      console.error('Erreur complète de connexion:', error);
+      
       toast({
         title: "❌ Erreur de connexion",
         description: errorMessage,

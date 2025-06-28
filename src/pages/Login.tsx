@@ -36,7 +36,7 @@ const Login = () => {
     setIsLoggingIn(true);
     
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await login(formData.email.trim(), formData.password);
       
       if (result.success) {
         // La redirection sera gérée par useEffect
@@ -46,6 +46,10 @@ const Login = () => {
     } finally {
       setIsLoggingIn(false);
     }
+  };
+
+  const fillTestAccount = (email: string, password: string) => {
+    setFormData({ email, password });
   };
 
   if (loading) {
@@ -107,18 +111,68 @@ const Login = () => {
 
           <div className="mt-6 space-y-3">
             <div className="text-center text-sm text-gray-600">
-              <p className="font-medium">Comptes de test :</p>
+              <p className="font-medium">Comptes de test disponibles :</p>
             </div>
-            <div className="space-y-2 text-xs bg-gray-50 p-3 rounded-lg">
-              <div>
-                <strong>Admin :</strong> admin@salon.fr / admin123
+            
+            {/* Comptes clients */}
+            <div className="space-y-2 text-xs bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <div className="font-medium text-blue-800 mb-2">👤 Comptes Clients :</div>
+              <div className="grid grid-cols-1 gap-1">
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('marie.dubois@client.fr', 'client123')}
+                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700"
+                >
+                  marie.dubois@client.fr / client123
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('pierre.martin@client.fr', 'client123')}
+                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700"
+                >
+                  pierre.martin@client.fr / client123
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('sophie.lefebvre@client.fr', 'client123')}
+                  className="text-left hover:bg-blue-100 p-1 rounded text-blue-700"
+                >
+                  sophie.lefebvre@client.fr / client123
+                </button>
               </div>
-              <div>
-                <strong>Coiffeurs :</strong> [email du coiffeur] / coiffeur123
+            </div>
+
+            {/* Comptes coiffeurs */}
+            <div className="space-y-2 text-xs bg-green-50 p-3 rounded-lg border border-green-200">
+              <div className="font-medium text-green-800 mb-2">✂️ Comptes Coiffeurs :</div>
+              <div className="grid grid-cols-1 gap-1">
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('marie.dupont@coiffeur.fr', 'coiffeur123')}
+                  className="text-left hover:bg-green-100 p-1 rounded text-green-700"
+                >
+                  marie.dupont@coiffeur.fr / coiffeur123
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => fillTestAccount('jean.martin@coiffeur.fr', 'coiffeur123')}
+                  className="text-left hover:bg-green-100 p-1 rounded text-green-700"
+                >
+                  jean.martin@coiffeur.fr / coiffeur123
+                </button>
               </div>
-              <div>
-                <strong>Clients :</strong> Créés automatiquement lors des réservations
-              </div>
+            </div>
+
+            {/* Compte admin */}
+            <div className="space-y-2 text-xs bg-purple-50 p-3 rounded-lg border border-purple-200">
+              <div className="font-medium text-purple-800 mb-2">👑 Compte Admin :</div>
+              <button 
+                type="button"
+                onClick={() => fillTestAccount('admin@salon.fr', 'admin123')}
+                className="text-left hover:bg-purple-100 p-1 rounded text-purple-700 w-full"
+              >
+                admin@salon.fr / admin123
+              </button>
             </div>
           </div>
 
