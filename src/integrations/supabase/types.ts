@@ -13,10 +13,10 @@ export type Database = {
         Row: {
           booking_date: string
           booking_time: string
+          client_auth_id: string | null
           client_email: string
           client_name: string
           client_phone: string
-          client_user_id: string | null
           comments: string | null
           created_at: string
           expires_at: string | null
@@ -28,10 +28,10 @@ export type Database = {
         Insert: {
           booking_date: string
           booking_time: string
+          client_auth_id?: string | null
           client_email: string
           client_name: string
           client_phone: string
-          client_user_id?: string | null
           comments?: string | null
           created_at?: string
           expires_at?: string | null
@@ -43,10 +43,10 @@ export type Database = {
         Update: {
           booking_date?: string
           booking_time?: string
+          client_auth_id?: string | null
           client_email?: string
           client_name?: string
           client_phone?: string
-          client_user_id?: string | null
           comments?: string | null
           created_at?: string
           expires_at?: string | null
@@ -57,13 +57,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "bookings_client_user_id_fkey"
-            columns: ["client_user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "bookings_hairdresser_id_fkey"
             columns: ["hairdresser_id"]
             isOneToOne: false
@@ -72,44 +65,39 @@ export type Database = {
           },
         ]
       }
-      coiffeur_profiles: {
+      clients: {
         Row: {
+          auth_id: string
           created_at: string
-          hairdresser_id: string
+          email: string | null
           id: string
-          user_id: string
+          name: string | null
+          phone: string | null
+          updated_at: string
         }
         Insert: {
+          auth_id: string
           created_at?: string
-          hairdresser_id: string
+          email?: string | null
           id?: string
-          user_id: string
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
         }
         Update: {
+          auth_id?: string
           created_at?: string
-          hairdresser_id?: string
+          email?: string | null
           id?: string
-          user_id?: string
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "coiffeur_profiles_hairdresser_id_fkey"
-            columns: ["hairdresser_id"]
-            isOneToOne: true
-            referencedRelation: "hairdressers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "coiffeur_profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       hairdressers: {
         Row: {
+          auth_id: string | null
           created_at: string
           email: string
           experience: string | null
@@ -123,9 +111,9 @@ export type Database = {
           rating: number | null
           specialties: string[] | null
           updated_at: string
-          user_id: string | null
         }
         Insert: {
+          auth_id?: string | null
           created_at?: string
           email: string
           experience?: string | null
@@ -139,9 +127,9 @@ export type Database = {
           rating?: number | null
           specialties?: string[] | null
           updated_at?: string
-          user_id?: string | null
         }
         Update: {
+          auth_id?: string | null
           created_at?: string
           email?: string
           experience?: string | null
@@ -155,78 +143,6 @@ export type Database = {
           rating?: number | null
           specialties?: string[] | null
           updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      user_sessions: {
-        Row: {
-          created_at: string
-          expires_at: string
-          id: string
-          session_token: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          expires_at: string
-          id?: string
-          session_token: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          expires_at?: string
-          id?: string
-          session_token?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      users: {
-        Row: {
-          created_at: string
-          email: string
-          first_name: string | null
-          id: string
-          is_active: boolean | null
-          last_name: string | null
-          password_hash: string
-          phone: string | null
-          updated_at: string
-          user_type: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          first_name?: string | null
-          id?: string
-          is_active?: boolean | null
-          last_name?: string | null
-          password_hash: string
-          phone?: string | null
-          updated_at?: string
-          user_type?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          first_name?: string | null
-          id?: string
-          is_active?: boolean | null
-          last_name?: string | null
-          password_hash?: string
-          phone?: string | null
-          updated_at?: string
-          user_type?: string | null
         }
         Relationships: []
       }
