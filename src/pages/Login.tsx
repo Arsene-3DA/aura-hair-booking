@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
@@ -12,11 +12,22 @@ const Login = () => {
   const navigate = useNavigate();
   const { login, user, isAuthenticated, loading } = useAuth();
   
-  const [formData, setFormData] = useState({
+  const [loginData, setLoginData] = useState({
     email: '',
     password: ''
   });
+  
+  const [signupData, setSignupData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    firstName: '',
+    lastName: '',
+    phone: ''
+  });
+  
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('');
 
   // Rediriger si déjà connecté
@@ -32,14 +43,14 @@ const Login = () => {
     }
   }, [user, isAuthenticated, loading, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
     setConnectionStatus('Connexion en cours...');
     
     try {
-      console.log('Tentative de connexion avec:', { email: formData.email, password: '***' });
-      const result = await login(formData.email.trim(), formData.password);
+      console.log('Tentative de connexion avec:', { email: loginData.email, password: '***' });
+      const result = await login(loginData.email.trim(), loginData.password);
       
       if (result.success) {
         setConnectionStatus('Connexion réussie ! Redirection...');
@@ -55,8 +66,34 @@ const Login = () => {
     }
   };
 
+  const handleSignupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSigningUp(true);
+    setConnectionStatus('Création du compte en cours...');
+    
+    if (signupData.password !== signupData.confirmPassword) {
+      setConnectionStatus('Les mots de passe ne correspondent pas');
+      setIsSigningUp(false);
+      setTimeout(() => setConnectionStatus(''), 3000);
+      return;
+    }
+    
+    try {
+      // Pour l'instant, on simule la création de compte
+      // En production, vous devriez créer une fonction pour l'inscription
+      setConnectionStatus('Fonctionnalité d\'inscription à implémenter');
+      setTimeout(() => setConnectionStatus(''), 3000);
+    } catch (error) {
+      console.error('Erreur d\'inscription:', error);
+      setConnectionStatus('Erreur lors de la création du compte');
+    } finally {
+      setIsSigningUp(false);
+      setTimeout(() => setConnectionStatus(''), 3000);
+    }
+  };
+
   const fillTestAccount = (email: string, password: string) => {
-    setFormData({ email, password });
+    setLoginData({ email, password });
     setConnectionStatus('Compte de test sélectionné');
     setTimeout(() => setConnectionStatus(''), 2000);
   };
@@ -77,10 +114,10 @@ const Login = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold gradient-text">
-            Connexion au Salon
+            Espace Client
           </CardTitle>
           <p className="text-sm text-gray-600 mt-2">
-            Connectez-vous pour accéder à votre espace
+            Connectez-vous ou créez votre compte
           </p>
           {connectionStatus && (
             <div className={`text-sm p-2 rounded mt-2 ${
@@ -95,41 +132,140 @@ const Login = () => {
           )}
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                required
-                placeholder="votre@email.com"
-                disabled={isLoggingIn}
-              />
-            </div>
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Se connecter</TabsTrigger>
+              <TabsTrigger value="signup">S'inscrire</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login" className="space-y-4">
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="login-email">Email</Label>
+                  <Input
+                    id="login-email"
+                    type="email"
+                    value={loginData.email}
+                    onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                    required
+                    placeholder="votre@email.com"
+                    disabled={isLoggingIn}
+                  />
+                </div>
 
-            <div>
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                required
-                placeholder="••••••••"
-                disabled={isLoggingIn}
-              />
-            </div>
+                <div>
+                  <Label htmlFor="login-password">Mot de passe</Label>
+                  <Input
+                    id="login-password"
+                    type="password"
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                    required
+                    placeholder="••••••••"
+                    disabled={isLoggingIn}
+                  />
+                </div>
 
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-gold text-white" 
-              disabled={isLoggingIn}
-            >
-              {isLoggingIn ? "Connexion..." : "Se connecter"}
-            </Button>
-          </form>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-gold text-white" 
+                  disabled={isLoggingIn}
+                >
+                  {isLoggingIn ? "Connexion..." : "Se connecter"}
+                </Button>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="signup" className="space-y-4">
+              <form onSubmit={handleSignupSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="signup-firstname">Prénom</Label>
+                    <Input
+                      id="signup-firstname"
+                      type="text"
+                      value={signupData.firstName}
+                      onChange={(e) => setSignupData({...signupData, firstName: e.target.value})}
+                      required
+                      placeholder="Prénom"
+                      disabled={isSigningUp}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="signup-lastname">Nom</Label>
+                    <Input
+                      id="signup-lastname"
+                      type="text"
+                      value={signupData.lastName}
+                      onChange={(e) => setSignupData({...signupData, lastName: e.target.value})}
+                      required
+                      placeholder="Nom"
+                      disabled={isSigningUp}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    value={signupData.email}
+                    onChange={(e) => setSignupData({...signupData, email: e.target.value})}
+                    required
+                    placeholder="votre@email.com"
+                    disabled={isSigningUp}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="signup-phone">Téléphone</Label>
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    value={signupData.phone}
+                    onChange={(e) => setSignupData({...signupData, phone: e.target.value})}
+                    placeholder="06 12 34 56 78"
+                    disabled={isSigningUp}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="signup-password">Mot de passe</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    value={signupData.password}
+                    onChange={(e) => setSignupData({...signupData, password: e.target.value})}
+                    required
+                    placeholder="••••••••"
+                    disabled={isSigningUp}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="signup-confirm-password">Confirmer le mot de passe</Label>
+                  <Input
+                    id="signup-confirm-password"
+                    type="password"
+                    value={signupData.confirmPassword}
+                    onChange={(e) => setSignupData({...signupData, confirmPassword: e.target.value})}
+                    required
+                    placeholder="••••••••"
+                    disabled={isSigningUp}
+                  />
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-gold text-white" 
+                  disabled={isSigningUp}
+                >
+                  {isSigningUp ? "Création..." : "Créer mon compte"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
 
           <div className="mt-6 space-y-3">
             <div className="text-center text-sm text-gray-600">
@@ -209,7 +345,7 @@ const Login = () => {
               variant="link"
               onClick={() => navigate('/')}
               className="text-gold-600 hover:text-gold-700"
-              disabled={isLoggingIn}
+              disabled={isLoggingIn || isSigningUp}
             >
               Retour à l'accueil
             </Button>
