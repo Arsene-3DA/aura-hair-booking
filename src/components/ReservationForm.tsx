@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar, Clock, User, Phone, Mail, MessageSquare } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 
 interface ReservationFormProps {
   hairdresserId: string;
@@ -36,13 +35,12 @@ const timeSlots = [
 
 const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: ReservationFormProps) => {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
-    client_name: user?.first_name || '',
-    client_email: user?.email || '',
-    client_phone: user?.phone || '',
+    client_name: '',
+    client_email: '',
+    client_phone: '',
     service: '',
     booking_date: '',
     booking_time: '',
@@ -85,7 +83,9 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
 
       // Réinitialiser le formulaire
       setFormData({
-        ...formData,
+        client_name: '',
+        client_email: '',
+        client_phone: '',
         service: '',
         booking_date: '',
         booking_time: '',

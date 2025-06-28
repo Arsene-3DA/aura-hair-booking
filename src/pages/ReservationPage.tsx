@@ -8,7 +8,6 @@ import Footer from '@/components/Footer';
 import ReservationForm from '@/components/ReservationForm';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from '@/hooks/useAuth';
 
 interface Hairdresser {
   id: string;
@@ -24,7 +23,6 @@ const ReservationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
   
   const [hairdresser, setHairdresser] = useState<Hairdresser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,18 +73,6 @@ const ReservationPage = () => {
     loadHairdresser();
   }, [hairdresserId, location.state, navigate, toast]);
 
-  // Rediriger vers login si pas authentifié
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Connexion requise",
-        description: "Vous devez être connecté pour faire une réservation",
-        variant: "destructive"
-      });
-      navigate('/login');
-    }
-  }, [authLoading, isAuthenticated, navigate, toast]);
-
   const handleReservationSuccess = () => {
     navigate('/', { 
       state: { 
@@ -95,7 +81,7 @@ const ReservationPage = () => {
     });
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
