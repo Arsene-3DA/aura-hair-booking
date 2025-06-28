@@ -64,6 +64,7 @@ const ComponentsDemo = () => {
           <h2 className="text-3xl font-bold mb-8 text-luxury-charcoal">Cartes Coiffeur</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <HairdresserCard
+              id="demo-1"
               name="Marie Dupont"
               photo="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=200&h=200&fit=crop&crop=face"
               tags={['Coupe', 'Couleur', 'Brushing']}
@@ -71,6 +72,7 @@ const ComponentsDemo = () => {
               onChoose={() => showToast('success', 'Marie Dupont sélectionnée !')}
             />
             <HairdresserCard
+              id="demo-2"
               name="Jean Martin"
               photo="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop&crop=face"
               tags={['Barbe', 'Coupe Homme']}
