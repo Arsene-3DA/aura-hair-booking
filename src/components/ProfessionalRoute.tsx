@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 interface ProfessionalRouteProps {
   children: React.ReactNode;
-  requiredUserType?: 'coiffeur' | 'admin';
+  requiredUserType?: 'hairdresser' | 'admin';
 }
 
 const ProfessionalRoute = ({ children, requiredUserType }: ProfessionalRouteProps) => {
@@ -24,8 +24,8 @@ const ProfessionalRoute = ({ children, requiredUserType }: ProfessionalRouteProp
         return;
       }
 
-      // Vérifier que l'utilisateur est bien un professionnel (coiffeur ou admin)
-      if (user?.user_type !== 'coiffeur' && user?.user_type !== 'admin') {
+      // Vérifier que l'utilisateur est bien un professionnel (hairdresser ou admin)
+      if (user?.user_type !== 'hairdresser' && user?.user_type !== 'admin') {
         navigate('/login');
         return;
       }
@@ -44,7 +44,7 @@ const ProfessionalRoute = ({ children, requiredUserType }: ProfessionalRouteProp
   }
 
   if (!isAuthenticated || (requiredUserType && user?.user_type !== requiredUserType) || 
-      (user?.user_type !== 'coiffeur' && user?.user_type !== 'admin')) {
+      (user?.user_type !== 'hairdresser' && user?.user_type !== 'admin')) {
     return null;
   }
 

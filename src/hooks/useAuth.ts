@@ -44,8 +44,7 @@ export const useAuth = () => {
         // Créer le compte avec Supabase Auth
         const result = await supabaseAuth.signUp(userData.email, userData.password, {
           role: 'hairdresser',
-          name: `${userData.first_name} ${userData.last_name || ''}`.trim(),
-          phone: userData.phone
+          name: `${userData.first_name} ${userData.last_name || ''}`.trim()
         });
 
         if (result.success) {

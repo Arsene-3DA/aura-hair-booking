@@ -296,7 +296,7 @@ const HairdresserDashboard = () => {
   }
 
   return (
-    <AuthenticatedRoute requiredUserType="coiffeur">
+    <AuthenticatedRoute requiredUserType="hairdresser">
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white shadow-sm border-b">
@@ -305,7 +305,7 @@ const HairdresserDashboard = () => {
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16 border-2 border-gold-300">
                   <AvatarImage 
-                    src={coiffeurProfile?.hairdressers?.image_url}
+                    src={coiffeurProfile?.image_url}
                     alt={user?.first_name}
                     className="object-cover"
                   />
