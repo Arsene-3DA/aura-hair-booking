@@ -146,6 +146,99 @@ export type Database = {
         }
         Relationships: []
       }
+      reservations: {
+        Row: {
+          client_id: string
+          coiffeur_id: string
+          created_at: string
+          date_reservation: string
+          heure_reservation: string
+          id: string
+          notes: string | null
+          service_demande: string
+          status: Database["public"]["Enums"]["reservation_status"] | null
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          coiffeur_id: string
+          created_at?: string
+          date_reservation: string
+          heure_reservation: string
+          id?: string
+          notes?: string | null
+          service_demande: string
+          status?: Database["public"]["Enums"]["reservation_status"] | null
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          coiffeur_id?: string
+          created_at?: string
+          date_reservation?: string
+          heure_reservation?: string
+          id?: string
+          notes?: string | null
+          service_demande?: string
+          status?: Database["public"]["Enums"]["reservation_status"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_coiffeur_id_fkey"
+            columns: ["coiffeur_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          auth_id: string | null
+          created_at: string
+          email: string
+          id: string
+          nom: string
+          prenom: string
+          role: Database["public"]["Enums"]["user_role"] | null
+          status: Database["public"]["Enums"]["user_status"] | null
+          telephone: string | null
+          updated_at: string
+        }
+        Insert: {
+          auth_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          nom: string
+          prenom: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          status?: Database["public"]["Enums"]["user_status"] | null
+          telephone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auth_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          nom?: string
+          prenom?: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          status?: Database["public"]["Enums"]["user_status"] | null
+          telephone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -155,13 +248,23 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
       hash_password: {
         Args: { password: string }
         Returns: string
       }
     }
     Enums: {
-      [_ in never]: never
+      reservation_status: "en_attente" | "confirmee" | "annulee"
+      user_role: "client" | "coiffeur" | "admin"
+      user_status: "actif" | "bloque" | "inactif"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -276,6 +379,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      reservation_status: ["en_attente", "confirmee", "annulee"],
+      user_role: ["client", "coiffeur", "admin"],
+      user_status: ["actif", "bloque", "inactif"],
+    },
   },
 } as const

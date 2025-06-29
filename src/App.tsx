@@ -5,16 +5,17 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import NewAuthenticatedRoute from "@/components/NewAuthenticatedRoute";
+import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 
 // Lazy loading des pages
 const Index = lazy(() => import("./pages/Index"));
-const AuthPage = lazy(() => import("./pages/AuthPage"));
+const RoleAuthPage = lazy(() => import("./pages/RoleAuthPage"));
 const SignupHairdresser = lazy(() => import("./pages/SignupHairdresser"));
 const ProfessionalsList = lazy(() => import("./pages/ProfessionalsList"));
 const ReservationPage = lazy(() => import("./pages/ReservationPage"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const HairdresserDashboard = lazy(() => import("./pages/HairdresserDashboard"));
+const CoiffeurDashboard = lazy(() => import("./pages/CoiffeurDashboard"));
+const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const ComponentsDemo = lazy(() => import("./pages/ComponentsDemo"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -38,23 +39,39 @@ const App = () => (
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth" element={<RoleAuthPage />} />
+            <Route path="/role-auth" element={<RoleAuthPage />} />
             <Route path="/signup-hairdresser" element={<SignupHairdresser />} />
             <Route path="/professionals/:gender" element={<ProfessionalsList />} />
             <Route path="/reservation/:hairdresserId" element={<ReservationPage />} />
+            
+            {/* Routes protégées par rôle */}
             <Route path="/admin" element={
-              <NewAuthenticatedRoute requiredRole="admin">
+              <RoleProtectedRoute allowedRoles={['admin']}>
                 <AdminDashboard />
-              </NewAuthenticatedRoute>
+              </RoleProtectedRoute>
             } />
-            <Route path="/hairdresser" element={
-              <NewAuthenticatedRoute requiredRole="hairdresser">
-                <HairdresserDashboard />
-              </NewAuthenticatedRoute>
+            <Route path="/coiffeur" element={
+              <RoleProtectedRoute allowedRoles={['coiffeur']}>
+                <CoiffeurDashboard />
+              </RoleProtectedRoute>
             } />
+            <Route path="/client" element={
+              <RoleProtectedRoute allowedRoles={['client']}>
+                <ClientDashboard />
+              </RoleProtectedRoute>
+            } />
+            
             <Route path="/components" element={<ComponentsDemo />} />
-            {/* Garder l'ancienne route login pour compatibilité */}
-            <Route path="/login" element={<AuthPage />} />
+            
+            {/* Garder les anciennes routes pour compatibilité */}
+            <Route path="/login" element={<RoleAuthPage />} />
+            <Route path="/hairdresser" element={
+              <RoleProtectedRoute allowedRoles={['coiffeur']}>
+                <CoiffeurDashboard />
+              </RoleProtectedRoute>
+            } />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
