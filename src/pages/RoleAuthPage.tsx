@@ -156,9 +156,10 @@ const RoleAuthPage = () => {
                     Comptes de test disponibles :
                   </p>
                   <div className="text-xs text-blue-700 space-y-1">
-                    <div>👑 Admin: admin@salon.com</div>
-                    <div>✂️ Coiffeur: marie@salon.com / pierre@salon.com</div>
-                    <div>👤 Client: client@email.com</div>
+                    <div>👑 Admin: admin@salon.com / admin123</div>
+                    <div>✂️ Coiffeur: marie@salon.com / marie123</div>
+                    <div>✂️ Coiffeur: pierre@salon.com / pierre123</div>
+                    <div>👤 Client: client@email.com / client123</div>
                   </div>
                   <p className="text-xs text-blue-600 mt-2">
                     💡 Utilisez le bouton "Initialiser" pour créer automatiquement ces comptes
