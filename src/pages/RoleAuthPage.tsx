@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { usePasswordPolicy } from '@/hooks/usePasswordPolicy';
 import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
+import InitializeDataButton from '@/components/InitializeDataButton';
 
 const RoleAuthPage = () => {
   const navigate = useNavigate();
@@ -94,12 +95,17 @@ const RoleAuthPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-gold-50 to-orange-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold gradient-text">
-              ✂️ Salon de Coiffure
-            </CardTitle>
-            <p className="text-sm text-gray-600 mt-2">
-              Connectez-vous ou créez votre compte
-            </p>
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-2xl font-bold gradient-text">
+                  ✂️ Salon de Coiffure
+                </CardTitle>
+                <p className="text-sm text-gray-600 mt-2">
+                  Connectez-vous ou créez votre compte
+                </p>
+              </div>
+              <InitializeDataButton />
+            </div>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
@@ -154,6 +160,9 @@ const RoleAuthPage = () => {
                     <div>✂️ Coiffeur: marie@salon.com / pierre@salon.com</div>
                     <div>👤 Client: client@email.com</div>
                   </div>
+                  <p className="text-xs text-blue-600 mt-2">
+                    💡 Utilisez le bouton "Initialiser" pour créer automatiquement ces comptes
+                  </p>
                 </div>
               </TabsContent>
 
