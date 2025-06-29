@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -74,14 +73,41 @@ export const useReservations = () => {
   const getMyReservations = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Get current user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Utilisateur non connecté');
+
+      // Get user profile to get the coiffeur_id
+      const { data: userProfile, error: profileError } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      if (!userProfile) throw new Error('Profil utilisateur non trouvé');
+
+      // For coiffeurs, filter by coiffeur_id - for others, get all
+      const query = supabase
         .from('reservations')
         .select(`
           *,
           client:client_id(nom, prenom, email, telephone),
           coiffeur:coiffeur_id(nom, prenom, email)
-        `)
-        .order('date_reservation', { ascending: true });
+        `);
+
+      // If user is a coiffeur, only show their own reservations
+      if (userProfile.role === 'coiffeur') {
+        query.eq('coiffeur_id', userProfile.id);
+      }
+      // If user is a client, only show their own reservations
+      else if (userProfile.role === 'client') {
+        query.eq('client_id', userProfile.id);
+      }
+      // Admin can see all reservations (no filter)
+
+      const { data, error } = await query.order('date_reservation', { ascending: true });
 
       if (error) throw error;
       
