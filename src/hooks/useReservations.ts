@@ -48,8 +48,16 @@ export const useReservations = () => {
         .order('date_reservation', { ascending: true });
 
       if (error) throw error;
-      setReservations(data || []);
-      return data || [];
+      
+      // Transform the data to match our interface
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        client: Array.isArray(item.client) ? item.client[0] : item.client,
+        coiffeur: Array.isArray(item.coiffeur) ? item.coiffeur[0] : item.coiffeur
+      })) as Reservation[];
+      
+      setReservations(transformedData);
+      return transformedData;
     } catch (error) {
       console.error('Erreur lors du chargement des réservations:', error);
       toast({
@@ -76,8 +84,16 @@ export const useReservations = () => {
         .order('date_reservation', { ascending: true });
 
       if (error) throw error;
-      setReservations(data || []);
-      return data || [];
+      
+      // Transform the data to match our interface
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        client: Array.isArray(item.client) ? item.client[0] : item.client,
+        coiffeur: Array.isArray(item.coiffeur) ? item.coiffeur[0] : item.coiffeur
+      })) as Reservation[];
+      
+      setReservations(transformedData);
+      return transformedData;
     } catch (error) {
       console.error('Erreur lors du chargement des réservations:', error);
       toast({
@@ -99,9 +115,26 @@ export const useReservations = () => {
     notes?: string;
   }) => {
     try {
+      // Get current user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Utilisateur non connecté');
+
+      // Get user profile to get the client_id
+      const { data: userProfile, error: profileError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      if (!userProfile) throw new Error('Profil utilisateur non trouvé');
+
       const { data, error } = await supabase
         .from('reservations')
-        .insert(reservationData)
+        .insert({
+          ...reservationData,
+          client_id: userProfile.id
+        })
         .select(`
           *,
           client:client_id(nom, prenom, email, telephone),
