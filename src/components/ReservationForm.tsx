@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,11 +63,11 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
           console.error('Erreur lors du chargement des services:', error);
           // Services par défaut en cas d'erreur
           const defaultServices: Service[] = [
-            { id: '1', name: 'Coupe Classique', price: 30, duration: 45, category: 'Coupe' },
-            { id: '2', name: 'Coupe + Brushing', price: 40, duration: 60, category: 'Coupe' },
-            { id: '3', name: 'Coloration', price: 60, duration: 90, category: 'Couleur' },
-            { id: '4', name: 'Mèches', price: 50, duration: 75, category: 'Couleur' },
-            { id: '5', name: 'Soin Capillaire', price: 25, duration: 30, category: 'Soin' }
+            { id: '1', name: 'Coupe Classique', price: 40, duration: 45, category: 'Coupe' },
+            { id: '2', name: 'Coupe + Brushing', price: 55, duration: 60, category: 'Coupe' },
+            { id: '3', name: 'Coloration', price: 80, duration: 90, category: 'Couleur' },
+            { id: '4', name: 'Mèches', price: 65, duration: 75, category: 'Couleur' },
+            { id: '5', name: 'Soin Capillaire', price: 35, duration: 30, category: 'Soin' }
           ];
           setAvailableServices(defaultServices);
           return;
@@ -81,9 +80,9 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
         console.error('Erreur:', error);
         // Services par défaut en cas d'erreur
         const defaultServices: Service[] = [
-          { id: '1', name: 'Coupe Classique', price: 30, duration: 45, category: 'Coupe' },
-          { id: '2', name: 'Coupe + Brushing', price: 40, duration: 60, category: 'Coupe' },
-          { id: '3', name: 'Coloration', price: 60, duration: 90, category: 'Couleur' }
+          { id: '1', name: 'Coupe Classique', price: 40, duration: 45, category: 'Coupe' },
+          { id: '2', name: 'Coupe + Brushing', price: 55, duration: 60, category: 'Coupe' },
+          { id: '3', name: 'Coloration', price: 80, duration: 90, category: 'Couleur' }
         ];
         setAvailableServices(defaultServices);
       } finally {
@@ -199,7 +198,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
                   type="tel"
                   value={formData.clientPhone}
                   onChange={(e) => handleInputChange('clientPhone', e.target.value)}
-                  placeholder="06 12 34 56 78"
+                  placeholder="(613) 555-0123"
                   required
                   disabled={loading}
                 />
@@ -254,7 +253,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
                     <div className="flex flex-col">
                       <span className="font-medium">{service.name}</span>
                       <span className="text-sm text-gray-500">
-                        {service.price}€ • {service.duration} min • {service.category}
+                        {service.price}$ CAD • {service.duration} min • {service.category}
                       </span>
                     </div>
                   </SelectItem>
@@ -268,7 +267,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
             <div className="mt-2 p-3 bg-gold-50 rounded-lg border border-gold-200">
               <div className="flex items-center justify-between">
                 <span className="font-medium text-gold-800">{getSelectedServiceDetails()?.name}</span>
-                <span className="text-gold-600 font-semibold">{getSelectedServiceDetails()?.price}€</span>
+                <span className="text-gold-600 font-semibold">{getSelectedServiceDetails()?.price}$ CAD</span>
               </div>
               <div className="flex items-center text-sm text-gold-600 mt-1">
                 <Clock className="h-3 w-3 mr-1" />

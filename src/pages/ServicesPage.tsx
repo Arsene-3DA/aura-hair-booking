@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Euro, Users } from 'lucide-react';
+import { Clock, DollarSign, Users } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +35,6 @@ const ServicesPage = () => {
     { key: 'Conseil', label: 'Conseils' }
   ];
 
-  // Images associées aux services par catégorie
   const getServiceImage = (serviceName: string, category: string) => {
     const imageMap: { [key: string]: string } = {
       // Coupes
@@ -93,7 +91,7 @@ const ServicesPage = () => {
               id: '1',
               name: 'Coupe Homme',
               description: 'Coupe classique pour homme avec finitions',
-              price: 25,
+              price: 35,
               duration: 30,
               category: 'Coupe',
               hairdresser_count: 5
@@ -102,7 +100,7 @@ const ServicesPage = () => {
               id: '2',
               name: 'Coupe Femme',
               description: 'Coupe moderne pour femme avec styling',
-              price: 35,
+              price: 45,
               duration: 45,
               category: 'Coupe',
               hairdresser_count: 5
@@ -111,7 +109,7 @@ const ServicesPage = () => {
               id: '3',
               name: 'Coloration',
               description: 'Coloration complète des cheveux',
-              price: 60,
+              price: 80,
               duration: 90,
               category: 'Couleur',
               hairdresser_count: 8
@@ -120,7 +118,7 @@ const ServicesPage = () => {
               id: '4',
               name: 'Barbe',
               description: 'Taille et mise en forme de la barbe',
-              price: 15,
+              price: 20,
               duration: 20,
               category: 'Barbe',
               hairdresser_count: 4
@@ -139,7 +137,6 @@ const ServicesPage = () => {
           return;
         }
 
-        // Récupérer le nombre de coiffeurs par service et ajouter les images
         const processedServices = await Promise.all(
           (servicesData || []).map(async (service: any) => {
             try {
@@ -185,10 +182,7 @@ const ServicesPage = () => {
     : services.filter(service => service.category === selectedCategory);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(price);
+    return `${price}$ CAD`;
   };
 
   const formatDuration = (minutes: number) => {
@@ -208,7 +202,6 @@ const ServicesPage = () => {
       <Header />
       
       <main>
-        {/* Header Section */}
         <section className="bg-gradient-to-br from-gold-50 via-orange-50 to-white py-16">
           <div className="container mx-auto px-4">
             <div className="text-center">
@@ -222,7 +215,6 @@ const ServicesPage = () => {
           </div>
         </section>
 
-        {/* Filtres par catégorie */}
         <section className="py-8 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap gap-2 justify-center">
@@ -286,7 +278,7 @@ const ServicesPage = () => {
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center text-gold-600">
-                            <Euro className="h-4 w-4 mr-1" />
+                            <DollarSign className="h-4 w-4 mr-1" />
                             <span className="font-semibold text-lg">
                               {formatPrice(service.price)}
                             </span>
@@ -320,7 +312,6 @@ const ServicesPage = () => {
           </div>
         </section>
 
-        {/* Call to Action */}
         <section className="py-16 bg-gradient-to-br from-gold-50 via-orange-50 to-white">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">
