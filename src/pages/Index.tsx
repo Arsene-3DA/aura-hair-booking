@@ -3,17 +3,36 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scissors, Star, Clock, MapPin } from 'lucide-react';
+import { Scissors, Star, Clock, MapPin, ArrowLeft } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
 import ServicesSection from '@/components/ServicesSection';
+import HairdresserCard from '@/components/HairdresserCard';
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
+
+interface Professional {
+  id: string;
+  name: string;
+  specialties: string[];
+  rating: number;
+  image_url: string;
+  experience: string;
+  location: string;
+  gender: 'male' | 'female';
+  email: string;
+  phone?: string;
+  is_active: boolean;
+}
 
 const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const [showExperts, setShowExperts] = useState(false);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -24,6 +43,62 @@ const Index = () => {
     }
   }, [location.state, toast]);
 
+  const handleShowExperts = async () => {
+    setLoading(true);
+    setShowExperts(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('hairdressers')
+        .select('*')
+        .eq('is_active', true)
+        .order('rating', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Erreur lors du chargement des professionnels:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les professionnels",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const mappedProfessionals: Professional[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        specialties: item.specialties || [],
+        rating: item.rating || 4.5,
+        image_url: item.image_url || '/placeholder.svg',
+        experience: item.experience || '',
+        location: item.location || '',
+        gender: item.gender as 'male' | 'female',
+        email: item.email,
+        phone: item.phone || undefined,
+        is_active: item.is_active || false
+      }));
+
+      setProfessionals(mappedProfessionals);
+
+      if (mappedProfessionals.length === 0) {
+        toast({
+          title: "Information",
+          description: "Aucun professionnel trouvé. Utilisez le bouton 'Initialiser' pour créer des comptes de test.",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGenderSelection = (gender: 'male' | 'female') => {
     navigate(`/professionals/${gender}`);
   };
@@ -31,6 +106,85 @@ const Index = () => {
   const handleProfessionalLogin = () => {
     navigate('/auth');
   };
+
+  const handleBackToHome = () => {
+    setShowExperts(false);
+    setProfessionals([]);
+  };
+
+  if (showExperts) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        
+        <main>
+          {/* Header Section */}
+          <section className="bg-gradient-to-br from-gold-50 via-orange-50 to-white py-16">
+            <div className="container mx-auto px-4">
+              <Button 
+                variant="outline" 
+                onClick={handleBackToHome}
+                className="mb-6"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Retour à l'accueil
+              </Button>
+              
+              <div className="text-center">
+                <h1 className="text-4xl font-bold mb-4">
+                  Nos <span className="gradient-text">Experts</span>
+                </h1>
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                  Découvrez nos professionnels qualifiés et réservez directement
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Professionals Grid */}
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-4">
+              {loading ? (
+                <div className="text-center py-16">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
+                  <p className="text-gray-600 text-lg">Chargement des professionnels...</p>
+                </div>
+              ) : professionals.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {professionals.map((professional) => (
+                    <div key={professional.id} className="animate-fade-in">
+                      <HairdresserCard 
+                        id={professional.id}
+                        name={professional.name}
+                        photo={professional.image_url}
+                        tags={professional.specialties}
+                        rating={professional.rating}
+                        experience={professional.experience}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <p className="text-gray-600 text-lg mb-4">
+                    Aucun professionnel trouvé.
+                  </p>
+                  <p className="text-gray-500 text-sm mb-6">
+                    Utilisez le bouton "Initialiser" sur la page de connexion pour créer des comptes de test.
+                  </p>
+                  <Button onClick={() => navigate('/auth')} className="bg-gradient-gold text-white">
+                    Aller à la page de connexion
+                  </Button>
+                </div>
+              )}
+            </div>
+          </section>
+        </main>
+        
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -50,6 +204,17 @@ const Index = () => {
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Nos professionnels spécialisés vous attendent pour une expérience sur mesure
               </p>
+            </div>
+            
+            {/* Bouton principal pour voir tous les experts */}
+            <div className="text-center mb-12">
+              <Button 
+                onClick={handleShowExperts}
+                className="bg-gradient-gold text-white text-xl px-12 py-4 rounded-xl hover:shadow-lg transition-all duration-300"
+              >
+                <Scissors className="h-6 w-6 mr-3" />
+                Voir nos Experts
+              </Button>
             </div>
             
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
