@@ -15,7 +15,6 @@ const ProfessionalsList = lazy(() => import("./pages/ProfessionalsList"));
 const ReservationPage = lazy(() => import("./pages/ReservationPage"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const CoiffeurDashboard = lazy(() => import("./pages/CoiffeurDashboard"));
-const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const ComponentsDemo = lazy(() => import("./pages/ComponentsDemo"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -38,14 +37,17 @@ const App = () => (
       <BrowserRouter>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
+            {/* Routes publiques pour les clients */}
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<RoleAuthPage />} />
-            <Route path="/role-auth" element={<RoleAuthPage />} />
-            <Route path="/signup-hairdresser" element={<SignupHairdresser />} />
             <Route path="/professionals/:gender" element={<ProfessionalsList />} />
             <Route path="/reservation/:hairdresserId" element={<ReservationPage />} />
             
-            {/* Routes protégées par rôle */}
+            {/* Routes d'authentification pour les professionnels */}
+            <Route path="/auth" element={<RoleAuthPage />} />
+            <Route path="/role-auth" element={<RoleAuthPage />} />
+            <Route path="/signup-hairdresser" element={<SignupHairdresser />} />
+            
+            {/* Routes protégées par rôle - pour professionnels seulement */}
             <Route path="/admin" element={
               <RoleProtectedRoute allowedRoles={['admin']}>
                 <AdminDashboard />
@@ -54,11 +56,6 @@ const App = () => (
             <Route path="/coiffeur" element={
               <RoleProtectedRoute allowedRoles={['coiffeur']}>
                 <CoiffeurDashboard />
-              </RoleProtectedRoute>
-            } />
-            <Route path="/client" element={
-              <RoleProtectedRoute allowedRoles={['client']}>
-                <ClientDashboard />
               </RoleProtectedRoute>
             } />
             
