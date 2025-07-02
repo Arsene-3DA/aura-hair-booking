@@ -1,11 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, User, Phone, Mail } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, Clock, User, Phone, Mail, Scissors } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 
@@ -15,9 +16,19 @@ interface ReservationFormProps {
   onSuccess: () => void;
 }
 
+interface Service {
+  id: string;
+  name: string;
+  price: number;
+  duration: number;
+  category: string;
+}
+
 const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: ReservationFormProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [availableServices, setAvailableServices] = useState<Service[]>([]);
+  const [loadingServices, setLoadingServices] = useState(true);
   
   const [formData, setFormData] = useState({
     clientName: '',
@@ -28,6 +39,59 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
     time: '',
     notes: ''
   });
+
+  // Charger les services disponibles pour ce coiffeur
+  useEffect(() => {
+    const fetchHairdresserServices = async () => {
+      try {
+        setLoadingServices(true);
+        
+        const { data, error } = await (supabase as any)
+          .from('hairdresser_services')
+          .select(`
+            services (
+              id,
+              name,
+              price,
+              duration,
+              category
+            )
+          `)
+          .eq('hairdresser_id', hairdresserId);
+
+        if (error) {
+          console.error('Erreur lors du chargement des services:', error);
+          // Services par défaut en cas d'erreur
+          const defaultServices: Service[] = [
+            { id: '1', name: 'Coupe Classique', price: 30, duration: 45, category: 'Coupe' },
+            { id: '2', name: 'Coupe + Brushing', price: 40, duration: 60, category: 'Coupe' },
+            { id: '3', name: 'Coloration', price: 60, duration: 90, category: 'Couleur' },
+            { id: '4', name: 'Mèches', price: 50, duration: 75, category: 'Couleur' },
+            { id: '5', name: 'Soin Capillaire', price: 25, duration: 30, category: 'Soin' }
+          ];
+          setAvailableServices(defaultServices);
+          return;
+        }
+
+        // Extraire les services de la réponse
+        const servicesList = data?.map((item: any) => item.services).filter(Boolean) || [];
+        setAvailableServices(servicesList);
+      } catch (error) {
+        console.error('Erreur:', error);
+        // Services par défaut en cas d'erreur
+        const defaultServices: Service[] = [
+          { id: '1', name: 'Coupe Classique', price: 30, duration: 45, category: 'Coupe' },
+          { id: '2', name: 'Coupe + Brushing', price: 40, duration: 60, category: 'Coupe' },
+          { id: '3', name: 'Coloration', price: 60, duration: 90, category: 'Couleur' }
+        ];
+        setAvailableServices(defaultServices);
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+
+    fetchHairdresserServices();
+  }, [hairdresserId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +145,11 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
       ...prev,
       [field]: value
     }));
+  };
+
+  const getSelectedServiceDetails = () => {
+    const selectedService = availableServices.find(service => service.name === formData.service);
+    return selectedService;
   };
 
   return (
@@ -143,19 +212,54 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
             />
           </div>
 
-          {/* Service demandé */}
+          {/* Service demandé avec liste déroulante */}
           <div>
-            <Label htmlFor="service">
+            <Label htmlFor="service" className="flex items-center">
+              <Scissors className="h-4 w-4 mr-2" />
               Service demandé *
             </Label>
-            <Input
-              id="service"
-              value={formData.service}
-              onChange={(e) => handleInputChange('service', e.target.value)}
-              placeholder="Ex: Coupe + Brushing, Coloration, etc."
-              required
-              disabled={loading}
-            />
+            {loadingServices ? (
+              <div className="flex items-center space-x-2 py-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gold-500"></div>
+                <span className="text-sm text-gray-600">Chargement des services...</span>
+              </div>
+            ) : (
+              <Select 
+                value={formData.service} 
+                onValueChange={(value) => handleInputChange('service', value)}
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choisissez un service" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableServices.map((service) => (
+                    <SelectItem key={service.id} value={service.name}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{service.name}</span>
+                        <span className="text-sm text-gray-500">
+                          {service.price}€ • {service.duration} min • {service.category}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            
+            {/* Afficher les détails du service sélectionné */}
+            {formData.service && getSelectedServiceDetails() && (
+              <div className="mt-2 p-3 bg-gold-50 rounded-lg border border-gold-200">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gold-800">{getSelectedServiceDetails()?.name}</span>
+                  <span className="text-gold-600 font-semibold">{getSelectedServiceDetails()?.price}€</span>
+                </div>
+                <div className="flex items-center text-sm text-gold-600 mt-1">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Durée estimée: {getSelectedServiceDetails()?.duration} minutes
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Date et heure */}
@@ -210,7 +314,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
           <Button 
             type="submit" 
             className="w-full bg-gradient-gold text-white py-3 text-lg"
-            disabled={loading}
+            disabled={loading || !formData.service}
           >
             {loading ? "Envoi en cours..." : "Envoyer la demande de réservation"}
           </Button>

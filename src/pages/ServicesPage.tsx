@@ -15,6 +15,7 @@ interface Service {
   price: number;
   duration: number;
   category: string;
+  image_url?: string;
   hairdresser_count?: number;
 }
 
@@ -34,6 +35,45 @@ const ServicesPage = () => {
     { key: 'Traitement', label: 'Traitements' },
     { key: 'Conseil', label: 'Conseils' }
   ];
+
+  // Images associées aux services par catégorie
+  const getServiceImage = (serviceName: string, category: string) => {
+    const imageMap: { [key: string]: string } = {
+      // Coupes
+      'Coupe Homme': 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=300&fit=crop',
+      'Coupe Femme': 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?w=400&h=300&fit=crop',
+      'Dégradé': 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&h=300&fit=crop',
+      
+      // Barbe
+      'Barbe': 'https://images.unsplash.com/photo-1511018797779-3bc6fb8d7db3?w=400&h=300&fit=crop',
+      'Rasage Traditionnel': 'https://images.unsplash.com/photo-1585747065706-d3d2b6b11aa6?w=400&h=300&fit=crop',
+      'Barbe Sculptée': 'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=400&h=300&fit=crop',
+      
+      // Couleur
+      'Coloration': 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=300&fit=crop',
+      'Mèches': 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400&h=300&fit=crop',
+      'Balayage': 'https://images.unsplash.com/photo-1594736797933-d0200ba5bfe1?w=400&h=300&fit=crop',
+      'Coloration Fantaisie': 'https://images.unsplash.com/photo-1596815064285-45ed8a9c0463?w=400&h=300&fit=crop',
+      
+      // Soins
+      'Soin Capillaire': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop',
+      'Massage Cuir Chevelu': 'https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=400&h=300&fit=crop',
+      
+      // Coiffage
+      'Extensions': 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=400&h=300&fit=crop',
+      'Chignon': 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=400&h=300&fit=crop',
+      'Styling': 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?w=400&h=300&fit=crop',
+      
+      // Traitements
+      'Permanente': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=300&fit=crop',
+      'Lissage': 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=300&fit=crop',
+      
+      // Conseil
+      'Relooking': 'https://images.unsplash.com/photo-1522337662859-02fbefca4702?w=400&h=300&fit=crop'
+    };
+
+    return imageMap[serviceName] || 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?w=400&h=300&fit=crop';
+  };
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -86,7 +126,12 @@ const ServicesPage = () => {
               hairdresser_count: 4
             }
           ];
-          setServices(demoServices);
+          // Ajouter les images aux services de démo
+          const servicesWithImages = demoServices.map(service => ({
+            ...service,
+            image_url: getServiceImage(service.name, service.category)
+          }));
+          setServices(servicesWithImages);
           toast({
             title: "Mode démonstration",
             description: "Affichage des services de démonstration",
@@ -94,7 +139,7 @@ const ServicesPage = () => {
           return;
         }
 
-        // Récupérer le nombre de coiffeurs par service
+        // Récupérer le nombre de coiffeurs par service et ajouter les images
         const processedServices = await Promise.all(
           (servicesData || []).map(async (service: any) => {
             try {
@@ -105,13 +150,15 @@ const ServicesPage = () => {
 
               return {
                 ...service,
-                hairdresser_count: countError ? 0 : (countData?.length || 0)
+                hairdresser_count: countError ? 0 : (countData?.length || 0),
+                image_url: getServiceImage(service.name, service.category)
               };
             } catch (error) {
               console.error('Erreur lors du comptage:', error);
               return {
                 ...service,
-                hairdresser_count: 0
+                hairdresser_count: 0,
+                image_url: getServiceImage(service.name, service.category)
               };
             }
           })
@@ -208,7 +255,20 @@ const ServicesPage = () => {
             ) : filteredServices.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredServices.map((service) => (
-                  <Card key={service.id} className="hover:shadow-lg transition-shadow duration-200">
+                  <Card key={service.id} className="hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+                    {/* Image du service */}
+                    <div className="h-48 overflow-hidden">
+                      <img 
+                        src={service.image_url}
+                        alt={service.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?w=400&h=300&fit=crop';
+                        }}
+                      />
+                    </div>
+                    
                     <CardHeader>
                       <div className="flex justify-between items-start mb-2">
                         <CardTitle className="text-xl font-bold text-gray-900">
