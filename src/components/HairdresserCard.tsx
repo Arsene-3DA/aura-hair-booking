@@ -28,36 +28,33 @@ const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }
   useEffect(() => {
     const fetchHairdresserServices = async () => {
       try {
-        // Requête avec cast explicite pour contourner les problèmes de types
-        const { data, error } = await supabase
-          .rpc('get_hairdresser_services', { hairdresser_uuid: id })
-          .returns<Array<{ id: string; name: string; price: number }>>();
+        // Requête directe pour récupérer les services du coiffeur
+        const { data, error } = await (supabase as any)
+          .from('hairdresser_services')
+          .select(`
+            services (
+              id,
+              name,
+              price
+            )
+          `)
+          .eq('hairdresser_id', id);
 
         if (error) {
           console.error('Erreur lors du chargement des services:', error);
-          // Utiliser une requête de fallback si la fonction RPC n'existe pas
-          const { data: fallbackData, error: fallbackError } = await (supabase as any)
-            .from('hairdresser_services')
-            .select(`
-              services (
-                id,
-                name,
-                price
-              )
-            `)
-            .eq('hairdresser_id', id);
-
-          if (fallbackError) {
-            console.error('Erreur fallback:', fallbackError);
-            return;
-          }
-
-          const servicesList = fallbackData?.map((item: any) => item.services).filter(Boolean) || [];
-          setServices(servicesList);
+          // En cas d'erreur, définir des services par défaut basés sur les spécialités
+          const defaultServices = tags.slice(0, 3).map((tag, index) => ({
+            id: `default-${index}`,
+            name: tag,
+            price: 25 + (index * 10)
+          }));
+          setServices(defaultServices);
           return;
         }
 
-        setServices(data || []);
+        // Extraire les services de la réponse
+        const servicesList = data?.map((item: any) => item.services).filter(Boolean) || [];
+        setServices(servicesList);
       } catch (error) {
         console.error('Erreur:', error);
         // En cas d'erreur, définir des services par défaut basés sur les spécialités
