@@ -1,9 +1,9 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HairdresserCard from '@/components/HairdresserCard';
-import BookingModal from '@/components/BookingModal';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,8 +29,6 @@ const ProfessionalsList = () => {
   const { toast } = useToast();
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   console.log('Current gender parameter:', gender);
   
@@ -50,6 +48,8 @@ const ProfessionalsList = () => {
       
       try {
         setLoading(true);
+        console.log('Loading professionals for gender:', gender);
+        
         const { data, error } = await supabase
           .from('hairdressers')
           .select('*')
@@ -67,13 +67,15 @@ const ProfessionalsList = () => {
           return;
         }
 
+        console.log('Data received from Supabase:', data);
+
         // Mapper les données Supabase vers l'interface Professional
         const mappedProfessionals: Professional[] = (data || []).map(item => ({
           id: item.id,
           name: item.name,
           specialties: item.specialties || [],
-          rating: item.rating || 0,
-          image_url: item.image_url || '',
+          rating: item.rating || 4.5,
+          image_url: item.image_url || '/placeholder.svg',
           experience: item.experience || '',
           location: item.location || '',
           gender: item.gender as 'male' | 'female',
@@ -83,7 +85,14 @@ const ProfessionalsList = () => {
         }));
 
         setProfessionals(mappedProfessionals);
-        console.log('Professionnels chargés:', mappedProfessionals.length);
+        console.log('Professionnels chargés:', mappedProfessionals.length, mappedProfessionals);
+        
+        if (mappedProfessionals.length === 0) {
+          toast({
+            title: "Information",
+            description: `Aucun ${gender === 'male' ? 'coiffeur' : 'coiffeuse'} trouvé. Utilisez le bouton 'Initialiser' pour créer des comptes de test.`,
+          });
+        }
       } catch (error) {
         console.error('Erreur:', error);
         toast({
@@ -108,17 +117,6 @@ const ProfessionalsList = () => {
   const subtitle = gender === 'male' 
     ? 'Spécialistes en coupe homme, barbe et styling masculin'
     : 'Spécialistes en coupe femme, couleur et coiffage';
-
-  const handleChooseProfessional = (professional: Professional) => {
-    console.log('Professionnel choisi:', professional.name);
-    setSelectedProfessional(professional);
-    setIsBookingModalOpen(true);
-  };
-
-  const handleCloseBookingModal = () => {
-    setIsBookingModalOpen(false);
-    setSelectedProfessional(null);
-  };
 
   return (
     <div className="min-h-screen">
@@ -152,6 +150,7 @@ const ProfessionalsList = () => {
           <div className="container mx-auto px-4">
             {loading ? (
               <div className="text-center py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
                 <p className="text-gray-600 text-lg">Chargement des professionnels...</p>
               </div>
             ) : professionals.length > 0 ? (
@@ -171,7 +170,15 @@ const ProfessionalsList = () => {
               </div>
             ) : (
               <div className="text-center py-16">
-                <p className="text-gray-600 text-lg">Aucun professionnel trouvé pour cette catégorie.</p>
+                <p className="text-gray-600 text-lg mb-4">
+                  Aucun {gender === 'male' ? 'coiffeur' : 'coiffeuse'} trouvé pour cette catégorie.
+                </p>
+                <p className="text-gray-500 text-sm mb-6">
+                  Utilisez le bouton "Initialiser" sur la page de connexion pour créer des comptes de test.
+                </p>
+                <Button onClick={() => navigate('/auth')} className="bg-gradient-gold text-white">
+                  Aller à la page de connexion
+                </Button>
               </div>
             )}
             
@@ -194,20 +201,6 @@ const ProfessionalsList = () => {
         </section>
       </main>
       <Footer />
-      
-      {/* Booking Modal */}
-      {selectedProfessional && (
-        <BookingModal
-          isOpen={isBookingModalOpen}
-          onClose={handleCloseBookingModal}
-          hairdresser={{
-            id: 1, // Utiliser un ID numérique par défaut pour compatibilité
-            name: selectedProfessional.name,
-            specialties: selectedProfessional.specialties,
-            gender: selectedProfessional.gender
-          }}
-        />
-      )}
     </div>
   );
 };

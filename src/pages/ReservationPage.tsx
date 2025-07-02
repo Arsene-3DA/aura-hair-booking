@@ -52,6 +52,7 @@ const ReservationPage = () => {
           .single();
 
         if (error || !data) {
+          console.error('Erreur lors du chargement du coiffeur:', error);
           toast({
             title: "Erreur",
             description: "Coiffeur non trouvé",
@@ -61,7 +62,14 @@ const ReservationPage = () => {
           return;
         }
 
-        setHairdresser(data);
+        setHairdresser({
+          id: data.id,
+          name: data.name,
+          image_url: data.image_url || '/placeholder.svg',
+          specialties: data.specialties || [],
+          experience: data.experience || '',
+          rating: data.rating || 4.5
+        });
       } catch (error) {
         console.error('Erreur lors du chargement du coiffeur:', error);
         navigate('/');
@@ -93,7 +101,16 @@ const ReservationPage = () => {
   }
 
   if (!hairdresser) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Coiffeur non trouvé</h2>
+          <Button onClick={() => navigate('/')} className="bg-gradient-gold text-white">
+            Retour à l'accueil
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -119,6 +136,10 @@ const ReservationPage = () => {
                   src={hairdresser.image_url} 
                   alt={hairdresser.name}
                   className="w-20 h-20 rounded-full object-cover border-4 border-gold-200"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.svg';
+                  }}
                 />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{hairdresser.name}</h1>

@@ -37,21 +37,25 @@ const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-104 transition-transform duration-200 cursor-pointer">
+    <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform duration-200 cursor-pointer border border-gray-100">
       {/* Photo ronde 96px */}
       <div className="flex justify-center mb-4">
         <div className="relative">
           <img 
             src={photo}
             alt={name}
-            className="w-24 h-24 rounded-full object-cover border-4 border-luxury-gold-200"
+            className="w-24 h-24 rounded-full object-cover border-4 border-gold-200"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/placeholder.svg';
+            }}
           />
           <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white"></div>
         </div>
       </div>
 
       {/* Nom */}
-      <h3 className="text-xl font-bold text-luxury-charcoal text-center mb-3">{name}</h3>
+      <h3 className="text-xl font-bold text-gray-900 text-center mb-3">{name}</h3>
 
       {/* Experience */}
       {experience && (
@@ -59,12 +63,18 @@ const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }
       )}
 
       {/* Tags */}
-      <div className="flex flex-wrap gap-2 justify-center mb-4">
-        {tags.map((tag, index) => (
-          <span key={index} className="px-3 py-1 bg-luxury-gold-100 text-luxury-gold-700 rounded-full text-sm font-medium">
-            {tag}
+      <div className="flex flex-wrap gap-2 justify-center mb-4 min-h-[32px]">
+        {tags && tags.length > 0 ? (
+          tags.slice(0, 3).map((tag, index) => (
+            <span key={index} className="px-3 py-1 bg-gold-100 text-gold-700 rounded-full text-sm font-medium">
+              {tag}
+            </span>
+          ))
+        ) : (
+          <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+            Coiffure générale
           </span>
-        ))}
+        )}
       </div>
 
       {/* Rating */}
@@ -73,20 +83,20 @@ const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }
           {[...Array(5)].map((_, i) => (
             <Star 
               key={i} 
-              className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+              className={`h-4 w-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
             />
           ))}
         </div>
-        <span className="text-sm text-luxury-charcoal/70 font-medium">{rating}.0</span>
+        <span className="text-sm text-gray-700 font-medium">{rating.toFixed(1)}</span>
       </div>
 
       {/* Bouton Choisir */}
       <Button 
         onClick={handleChooseHairdresser}
-        className="w-full bg-luxury-gold-500 hover:bg-luxury-gold-600 text-luxury-black px-6 py-3 rounded-xl font-bold transition-colors duration-200"
+        className="w-full bg-gradient-gold hover:bg-gold-600 text-white px-6 py-3 rounded-xl font-bold transition-colors duration-200"
       >
         <User className="h-5 w-5 mr-2" />
-        Réserver
+        Réserver maintenant
       </Button>
     </div>
   );
