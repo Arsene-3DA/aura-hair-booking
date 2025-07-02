@@ -112,22 +112,22 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-gold-400 mt-0.5" />
                 <div>
-                  <p className="text-gray-300">123 Rue de la Beauté</p>
-                  <p className="text-gray-300">75001 Paris, France</p>
+                  <p className="text-gray-300">123 Rue Somerset</p>
+                  <p className="text-gray-300">Ottawa, ON K1R 5T3, Canada</p>
                 </div>
               </div>
               
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-gold-400" />
-                <a href="tel:0123456789" className="text-gray-300 hover:text-gold-400 transition-colors">
-                  01 23 45 67 89
+                <a href="tel:6139901234" className="text-gray-300 hover:text-gold-400 transition-colors">
+                  (613) 990-1234
                 </a>
               </div>
               
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gold-400" />
-                <a href="mailto:contact@salonbook.fr" className="text-gray-300 hover:text-gold-400 transition-colors">
-                  contact@salonbook.fr
+                <a href="mailto:contact@salonottawa.ca" className="text-gray-300 hover:text-gold-400 transition-colors">
+                  contact@salonottawa.ca
                 </a>
               </div>
             </div>

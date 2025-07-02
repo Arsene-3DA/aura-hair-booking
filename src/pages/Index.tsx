@@ -315,7 +315,7 @@ const Index = () => {
                   <MapPin className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Adresse</h3>
-                <p className="text-gray-600">123 Rue de la Beauté<br />75001 Paris</p>
+                <p className="text-gray-600">123 Rue Somerset<br />Ottawa, ON K1R 5T3</p>
               </div>
               
               <div className="text-center">
@@ -331,7 +331,7 @@ const Index = () => {
                   <span className="text-2xl">📞</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Contact</h3>
-                <p className="text-gray-600">01 23 45 67 89<br />contact@salon.fr</p>
+                <p className="text-gray-600">(613) 990-1234<br />contact@salonottawa.ca</p>
               </div>
             </div>
           </div>
