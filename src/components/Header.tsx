@@ -29,6 +29,9 @@ const Header = () => {
             <Link to="/" className="text-gray-700 hover:text-gold-600 transition-colors">
               Accueil
             </Link>
+            <Link to="/services" className="text-gray-700 hover:text-gold-600 transition-colors">
+              Services
+            </Link>
             <Link to="/professionals/male" className="text-gray-700 hover:text-gold-600 transition-colors">
               Coiffeurs
             </Link>
@@ -67,6 +70,13 @@ const Header = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Accueil
+              </Link>
+              <Link 
+                to="/services" 
+                className="text-gray-700 hover:text-gold-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Services
               </Link>
               <Link 
                 to="/professionals/male" 

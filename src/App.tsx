@@ -9,6 +9,7 @@ import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 
 // Lazy loading des pages
 const Index = lazy(() => import("./pages/Index"));
+const ServicesPage = lazy(() => import("./pages/ServicesPage"));
 const RoleAuthPage = lazy(() => import("./pages/RoleAuthPage"));
 const SignupHairdresser = lazy(() => import("./pages/SignupHairdresser"));
 const ProfessionalsList = lazy(() => import("./pages/ProfessionalsList"));
@@ -39,6 +40,7 @@ const App = () => (
           <Routes>
             {/* Routes publiques pour les clients */}
             <Route path="/" element={<Index />} />
+            <Route path="/services" element={<ServicesPage />} />
             <Route path="/professionals/:gender" element={<ProfessionalsList />} />
             <Route path="/reservation/:hairdresserId" element={<ReservationPage />} />
             
