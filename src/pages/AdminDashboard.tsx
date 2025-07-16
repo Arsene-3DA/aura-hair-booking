@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import AdminStats from '@/components/AdminStats';
 import AdminUserManagement from '@/components/AdminUserManagement';
+import AdminHairdresserManagement from '@/components/AdminHairdresserManagement';
 import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
 import { usePasswordPolicy } from '@/hooks/usePasswordPolicy';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
@@ -36,6 +37,11 @@ const AdminDashboard = () => {
         </div>
 
         <AdminStats />
+        
+        <div className="mb-8">
+          <AdminHairdresserManagement />
+        </div>
+        
         <AdminUserManagement />
       </div>
 
