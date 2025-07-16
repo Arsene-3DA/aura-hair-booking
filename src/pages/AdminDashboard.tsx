@@ -1,5 +1,6 @@
 
 import { useEffect } from 'react';
+import { Button } from "@/components/ui/button";
 import AdminStats from '@/components/AdminStats';
 import AdminUserManagement from '@/components/AdminUserManagement';
 import AdminHairdresserManagement from '@/components/AdminHairdresserManagement';
@@ -8,7 +9,7 @@ import { usePasswordPolicy } from '@/hooks/usePasswordPolicy';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 
 const AdminDashboard = () => {
-  const { user } = useRoleAuth();
+  const { user, signOut } = useRoleAuth();
   const { needsPasswordChange, checkPasswordChangeRequired } = usePasswordPolicy();
 
   useEffect(() => {
@@ -17,12 +18,34 @@ const AdminDashboard = () => {
     }
   }, [user, checkPasswordChangeRequired]);
 
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = '/';
+  };
+
   return (
-    <>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div>
+              <h1 className="text-xl font-semibold gradient-text">
+                Tableau de bord Admin
+              </h1>
+              <p className="text-sm text-gray-600">
+                Gérez les utilisateurs et surveillez l'activité du salon
+              </p>
+            </div>
+            <Button variant="outline" onClick={handleLogout}>
+              Déconnexion
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto py-8 px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de bord Admin</h1>
-          <p className="text-gray-600">Gérez les utilisateurs et surveillez l'activité du salon</p>
           
           {needsPasswordChange && (
             <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
@@ -49,7 +72,7 @@ const AdminDashboard = () => {
       <AdminPasswordChangeModal 
         isOpen={needsPasswordChange}
       />
-    </>
+    </div>
   );
 };
 
