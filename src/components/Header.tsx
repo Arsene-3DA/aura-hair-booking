@@ -38,6 +38,15 @@ const Header = () => {
             <Link to="/professionals/female" className="text-gray-700 hover:text-gold-600 transition-colors">
               Coiffeuses
             </Link>
+            
+            {/* Liens de développement */}
+            <Link to="/admin" className="text-blue-600 hover:text-blue-800 transition-colors text-sm">
+              Admin
+            </Link>
+            <Link to="/coiffeur" className="text-green-600 hover:text-green-800 transition-colors text-sm">
+              Coiffeur
+            </Link>
+            
             <Button 
               onClick={handleProfessionalLogin}
               variant="outline"
@@ -92,6 +101,23 @@ const Header = () => {
               >
                 Coiffeuses
               </Link>
+              
+              {/* Liens de développement mobile */}
+              <Link 
+                to="/admin" 
+                className="text-blue-600 hover:text-blue-800 transition-colors text-sm"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Admin (Dev)
+              </Link>
+              <Link 
+                to="/coiffeur" 
+                className="text-green-600 hover:text-green-800 transition-colors text-sm"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Coiffeur (Dev)
+              </Link>
+              
               <Button 
                 onClick={() => {
                   handleProfessionalLogin();

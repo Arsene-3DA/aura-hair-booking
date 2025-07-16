@@ -49,27 +49,15 @@ const App = () => (
             <Route path="/role-auth" element={<RoleAuthPage />} />
             <Route path="/signup-hairdresser" element={<SignupHairdresser />} />
             
-            {/* Routes protégées par rôle - pour professionnels seulement */}
-            <Route path="/admin" element={
-              <RoleProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </RoleProtectedRoute>
-            } />
-            <Route path="/coiffeur" element={
-              <RoleProtectedRoute allowedRoles={['coiffeur']}>
-                <CoiffeurDashboard />
-              </RoleProtectedRoute>
-            } />
+            {/* Routes de développement - accès sans authentification */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/coiffeur" element={<CoiffeurDashboard />} />
             
             <Route path="/components" element={<ComponentsDemo />} />
             
             {/* Garder les anciennes routes pour compatibilité */}
             <Route path="/login" element={<RoleAuthPage />} />
-            <Route path="/hairdresser" element={
-              <RoleProtectedRoute allowedRoles={['coiffeur']}>
-                <CoiffeurDashboard />
-              </RoleProtectedRoute>
-            } />
+            <Route path="/hairdresser" element={<CoiffeurDashboard />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
