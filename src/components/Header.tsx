@@ -4,11 +4,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Scissors, Menu, X, Search } from 'lucide-react';
+import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useProfileRole } from '@/hooks/useProfileRole';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { profile } = useGoogleAuth();
+  const { data: role } = useProfileRole(profile?.id);
 
   const handleProfessionalLogin = () => {
     navigate('/auth');
@@ -48,6 +52,11 @@ const Header = () => {
             <Link to="/tarifs" className="text-white/90 hover:text-white transition-colors font-medium">
               Tarifs
             </Link>
+            {role === 'admin' && (
+              <Link to="/admin" className="text-yellow-300 hover:text-yellow-100 transition-colors font-medium">
+                Dashboard Admin
+              </Link>
+            )}
           </nav>
 
           {/* Search Bar */}
@@ -137,6 +146,16 @@ const Header = () => {
               >
                 Tarifs
               </Link>
+              
+              {role === 'admin' && (
+                <Link 
+                  to="/admin" 
+                  className="text-yellow-300 hover:text-yellow-100 transition-colors font-medium px-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard Admin
+                </Link>
+              )}
               
               <div className="px-2 pt-4">
                 <Button 

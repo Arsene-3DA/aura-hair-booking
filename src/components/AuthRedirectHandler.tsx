@@ -18,14 +18,14 @@ const AuthRedirectHandler = ({ children }: AuthRedirectHandlerProps) => {
       // Rediriger selon le rôle
       switch (role) {
         case 'admin':
-          navigate('/admin');
+          navigate('/admin', { replace: true });
           break;
         case 'coiffeur':
-          navigate('/stylist');
+          navigate('/stylist', { replace: true });
           break;
         case 'client':
         default:
-          navigate('/app');
+          navigate('/app', { replace: true });
           break;
       }
     }

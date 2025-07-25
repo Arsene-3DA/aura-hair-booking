@@ -40,12 +40,17 @@ import {
   Filter 
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { usePromoteToAdmin } from '@/hooks/usePromoteToAdmin';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const Users = () => {
   const { users, loading, error, promoteUser, suspendUser, resetPassword } = useAdminUsers();
+  const { promoteToAdmin } = usePromoteToAdmin();
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [emailToPromote, setEmailToPromote] = useState('');
+  const [promoteDialogOpen, setPromoteDialogOpen] = useState(false);
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -103,6 +108,16 @@ const Users = () => {
         description: 'Impossible d\'envoyer l\'email de réinitialisation',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handlePromoteByEmail = async () => {
+    if (!emailToPromote.trim()) return;
+    
+    const result = await promoteToAdmin(emailToPromote);
+    if (result.success) {
+      setEmailToPromote('');
+      setPromoteDialogOpen(false);
     }
   };
 
@@ -165,10 +180,43 @@ const Users = () => {
           <h1 className="text-3xl font-bold">Gestion des utilisateurs</h1>
           <p className="text-muted-foreground">Gérer les rôles et permissions</p>
         </div>
-        <Button>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Ajouter un utilisateur
-        </Button>
+        <div className="flex gap-2">
+          <Dialog open={promoteDialogOpen} onOpenChange={setPromoteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Shield className="w-4 h-4 mr-2" />
+                Promouvoir Admin
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Promouvoir un utilisateur en Admin</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <Input
+                  placeholder="Entrez l'email de l'utilisateur"
+                  value={emailToPromote}
+                  onChange={(e) => setEmailToPromote(e.target.value)}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setPromoteDialogOpen(false)}
+                  >
+                    Annuler
+                  </Button>
+                  <Button onClick={handlePromoteByEmail}>
+                    Promouvoir
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Ajouter un utilisateur
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
