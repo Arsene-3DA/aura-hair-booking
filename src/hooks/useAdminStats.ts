@@ -38,33 +38,45 @@ export const useAdminStats = (): AdminStats => {
         // Get today's bookings
         const { data: todayBookings, error: todayError } = await supabase
           .from('bookings')
-          .select('id')
+          .select('id, status')
           .eq('booking_date', today);
 
-        if (todayError) throw todayError;
+        if (todayError) {
+          console.error('Error fetching today bookings:', todayError);
+          throw todayError;
+        }
 
-        // Get total users
-        const { data: users, error: usersError } = await supabase
-          .from('users')
+        // Get total users from profiles table (contains all users)
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
           .select('id, role');
 
-        if (usersError) throw usersError;
+        if (profilesError) {
+          console.error('Error fetching users from profiles:', profilesError);
+          throw profilesError;
+        }
 
         // Get pending bookings
         const { data: pendingBookings, error: pendingError } = await supabase
           .from('bookings')
-          .select('id')
+          .select('id, status')
           .eq('status', 'pending');
 
-        if (pendingError) throw pendingError;
+        if (pendingError) {
+          console.error('Error fetching pending bookings:', pendingError);
+          throw pendingError;
+        }
 
         // Get bookings for last week (grouped by date)
         const { data: weekBookings, error: weekError } = await supabase
           .from('bookings')
-          .select('booking_date')
+          .select('booking_date, status')
           .gte('booking_date', lastWeek);
 
-        if (weekError) throw weekError;
+        if (weekError) {
+          console.error('Error fetching week bookings:', weekError);
+          throw weekError;
+        }
 
         // Process bookings by date
         const bookingsByDate = weekBookings?.reduce((acc: Record<string, number>, booking) => {
@@ -77,8 +89,8 @@ export const useAdminStats = (): AdminStats => {
           count: count as number,
         }));
 
-        // Process users by role
-        const usersByRole = users?.reduce((acc: Record<string, number>, user) => {
+        // Process users by role using profiles data
+        const usersByRole = profiles?.reduce((acc: Record<string, number>, user) => {
           acc[user.role] = (acc[user.role] || 0) + 1;
           return acc;
         }, {}) || {};
@@ -99,7 +111,7 @@ export const useAdminStats = (): AdminStats => {
 
         setStats({
           totalBookingsToday: todayBookings?.length || 0,
-          totalUsers: users?.length || 0,
+          totalUsers: profiles?.length || 0,
           totalRevenue: revenueLastMonth.reduce((sum, day) => sum + day.revenue, 0),
           pendingBookings: pendingBookings?.length || 0,
           bookingsLastWeek,
@@ -107,6 +119,13 @@ export const useAdminStats = (): AdminStats => {
           revenueLastMonth,
           loading: false,
           error: null,
+        });
+
+        console.log('Admin stats updated:', {
+          totalBookingsToday: todayBookings?.length || 0,
+          totalUsers: profiles?.length || 0,
+          pendingBookings: pendingBookings?.length || 0,
+          usersByRole: userRoleStats
         });
 
       } catch (error) {
@@ -124,12 +143,12 @@ export const useAdminStats = (): AdminStats => {
     // Set up real-time subscription for stats updates
     const channel = supabase
       .channel('admin-stats')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
-        console.log('Booking change detected, refreshing admin stats');
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, (payload) => {
+        console.log('Booking change detected, refreshing admin stats. Payload:', payload);
         fetchStats();
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
-        console.log('User change detected, refreshing admin stats');
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
+        console.log('Profile change detected, refreshing admin stats. Payload:', payload);
         fetchStats();
       })
       .subscribe();

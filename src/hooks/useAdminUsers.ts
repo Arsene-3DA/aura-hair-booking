@@ -22,18 +22,46 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       setLoading(true);
       setError(null);
       
-      const { data, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
+      // Récupérer les utilisateurs depuis la table profiles qui contient tous les utilisateurs
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*, user_id')
         .order('created_at', { ascending: false });
 
-      if (fetchError) {
-        console.error('Error fetching users:', fetchError);
-        setError(fetchError.message);
+      if (profilesError) {
+        console.error('Error fetching users from profiles:', profilesError);
+        setError(profilesError.message);
         return;
       }
 
-      setUsers(data || []);
+      // Récupérer aussi les données de la table users pour avoir le statut
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('*');
+
+      if (usersError) {
+        console.warn('Warning fetching users table:', usersError);
+      }
+      
+      // Transformer les données pour correspondre à l'interface User attendue
+      const transformedUsers = profilesData?.map(profile => {
+        const userRecord = usersData?.find(u => u.auth_id === profile.user_id);
+        return {
+          id: profile.id,
+          auth_id: profile.user_id,
+          email: profile.full_name || 'N/A',
+          nom: profile.full_name?.split(' ')[0] || 'N/A',
+          prenom: profile.full_name?.split(' ').slice(1).join(' ') || 'N/A',
+          role: profile.role,
+          status: userRecord?.status || 'actif',
+          created_at: profile.created_at,
+          updated_at: profile.updated_at,
+          telephone: userRecord?.telephone || null
+        };
+      }) || [];
+      
+      setUsers(transformedUsers);
+      console.log('Admin users fetched:', transformedUsers.length, 'users');
     } catch (err) {
       console.error('Unexpected error:', err);
       setError('Une erreur inattendue est survenue');
@@ -110,23 +138,18 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
   useEffect(() => {
     fetchUsers();
 
-    // Set up real-time subscription
+    // Set up real-time subscription pour les profiles
     const channel = supabase
       .channel('admin-users')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
+        console.log('Profile change detected:', payload);
+        // Refetch pour éviter les problèmes de synchronisation
+        fetchUsers();
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, (payload) => {
         console.log('User change detected:', payload);
-        
-        if (payload.eventType === 'INSERT') {
-          setUsers(prev => [payload.new as User, ...prev]);
-        } else if (payload.eventType === 'UPDATE') {
-          setUsers(prev => 
-            prev.map(user => 
-              user.id === payload.new.id ? { ...user, ...payload.new } : user
-            )
-          );
-        } else if (payload.eventType === 'DELETE') {
-          setUsers(prev => prev.filter(user => user.id !== payload.old.id));
-        }
+        // Refetch pour éviter les problèmes de synchronisation
+        fetchUsers();
       })
       .subscribe();
 
