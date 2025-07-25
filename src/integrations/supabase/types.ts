@@ -717,6 +717,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      set_super_admin: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
       set_user_role: {
         Args: { user_id: string; new_role: string }
         Returns: undefined
