@@ -1,11 +1,21 @@
 import { useEffect } from 'react';
-import { generateNonce } from '@/utils/security';
+import { generateNonce, logSecurityEvent } from '@/utils/security';
+import { validateSession } from '@/utils/securityMiddleware';
 
-// SECURITY FIX: Enhanced security headers component
+// SECURITY FIX: Enhanced security headers component with session validation
 const SecurityHeaders = () => {
   useEffect(() => {
     // Generate nonce for CSP
     const nonce = generateNonce();
+    
+    // SECURITY FIX: Validate session on component mount
+    const checkSession = async () => {
+      const isValid = await validateSession();
+      if (!isValid) {
+        await logSecurityEvent('invalid_session_detected', 'Invalid session detected on page load', {});
+      }
+    };
+    checkSession();
     
     // Set security-related meta tags and headers
     const addMetaTag = (name: string, content: string) => {
@@ -20,21 +30,22 @@ const SecurityHeaders = () => {
       }
     };
 
-    // SECURITY FIX: Enhanced Content Security Policy
+    // SECURITY FIX: Enhanced Content Security Policy with stricter rules
     const cspDirectives = [
       "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https:",
-      "connect-src 'self' https://yazsvadgmkpatqyjrzcw.supabase.co",
-      "font-src 'self' data:",
+      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://accounts.google.com`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "img-src 'self' data: https: blob:",
+      "connect-src 'self' https://yazsvadgmkpatqyjrzcw.supabase.co https://accounts.google.com https://www.googleapis.com",
+      "font-src 'self' data: https://fonts.gstatic.com",
       "object-src 'none'",
       "media-src 'self'",
-      "frame-src 'none'",
+      "frame-src 'none' https://accounts.google.com",
       "worker-src 'self'",
       "manifest-src 'self'",
       "base-uri 'self'",
-      "form-action 'self'"
+      "form-action 'self' https://accounts.google.com",
+      "upgrade-insecure-requests"
     ].join('; ');
     
     addMetaTag('Content-Security-Policy', cspDirectives);

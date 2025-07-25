@@ -9,20 +9,37 @@ export const generateNonce = (): string => {
   return btoa(String.fromCharCode(...array));
 };
 
-// Security event logging
-export const logSecurityEvent = async (eventType: string, details: Record<string, any>) => {
+// SECURITY FIX: Enhanced security event logging with overloaded signatures
+export const logSecurityEvent = async (
+  eventType: string, 
+  messageOrDetails: string | Record<string, any>,
+  metadata: Record<string, any> = {}
+): Promise<void> => {
   try {
+    // Handle both old and new function signatures
+    let message: string;
+    let details: Record<string, any>;
+    
+    if (typeof messageOrDetails === 'string') {
+      message = messageOrDetails;
+      details = metadata;
+    } else {
+      message = `Security event: ${eventType}`;
+      details = messageOrDetails;
+    }
+    
     const { data: { user } } = await supabase.auth.getUser();
     
     await supabase.from('system_logs').insert({
       event_type: `security_${eventType}`,
-      message: `Security event: ${eventType}`,
+      message,
       metadata: {
         ...details,
         user_id: user?.id,
         timestamp: new Date().toISOString(),
         user_agent: navigator.userAgent,
-        ip_address: 'client-side' // Server would populate real IP
+        ip_address: 'client-side',
+        url: window.location.href
       }
     });
   } catch (error) {
@@ -40,7 +57,7 @@ export const validateSession = async (): Promise<boolean> => {
     // Check if session is expired
     const now = Date.now() / 1000;
     if (session.expires_at && session.expires_at < now) {
-      await logSecurityEvent('session_expired', { session_id: session.access_token.substring(0, 10) });
+      await logSecurityEvent('session_expired', 'Session expired', { session_id: session.access_token.substring(0, 10) });
       return false;
     }
     
@@ -51,7 +68,7 @@ export const validateSession = async (): Promise<boolean> => {
     if (lastActivity) {
       const timeDiff = currentTime - parseInt(lastActivity);
       if (timeDiff > 24 * 60 * 60 * 1000) { // 24 hours
-        await logSecurityEvent('session_timeout', { inactive_duration: timeDiff });
+        await logSecurityEvent('session_timeout', 'Session timeout due to inactivity', { inactive_duration: timeDiff });
         return false;
       }
     }
@@ -59,7 +76,7 @@ export const validateSession = async (): Promise<boolean> => {
     localStorage.setItem('lastActivity', currentTime.toString());
     return true;
   } catch (error) {
-    await logSecurityEvent('session_validation_error', { error: error instanceof Error ? error.message : 'Unknown error' });
+    await logSecurityEvent('session_validation_error', 'Error validating session', { error: error instanceof Error ? error.message : 'Unknown error' });
     return false;
   }
 };
@@ -78,7 +95,7 @@ export const trackFailedLogin = (email: string) => {
   
   // Log if too many attempts
   if (recentAttempts.length >= 5) {
-    logSecurityEvent('brute_force_attempt', { email, attempts: recentAttempts.length });
+    logSecurityEvent('brute_force_attempt', 'Brute force login detected', { email, attempts: recentAttempts.length });
   }
   
   return recentAttempts.length;
@@ -149,7 +166,7 @@ export const checkPermission = async (requiredRole: 'admin' | 'coiffeur' | 'clie
     
     return userLevel >= requiredLevel;
   } catch (error) {
-    await logSecurityEvent('permission_check_error', { requiredRole, error: error instanceof Error ? error.message : 'Unknown error' });
+    await logSecurityEvent('permission_check_error', 'Error checking permissions', { requiredRole, error: error instanceof Error ? error.message : 'Unknown error' });
     return false;
   }
 };
