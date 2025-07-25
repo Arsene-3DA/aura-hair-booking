@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRoleAuth } from '@/hooks/useRoleAuth';
-import { useProfileRole } from '@/hooks/useProfileRole';
+import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
 
 const PostAuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, loading, isAuthenticated } = useRoleAuth();
-  const { data: profileRole } = useProfileRole(user?.id);
+  const { user, loading, isAuthenticated, profile } = useGoogleAuth();
 
   useEffect(() => {
     if (!loading) {
@@ -24,9 +22,9 @@ const PostAuthPage = () => {
         return;
       }
 
-      if (profileRole) {
+      if (profile?.role) {
         // Rediriger selon le rôle
-        switch (profileRole) {
+        switch (profile.role) {
           case 'admin':
             navigate('/admin');
             break;
@@ -38,9 +36,12 @@ const PostAuthPage = () => {
             navigate('/app');
             break;
         }
+      } else if (user) {
+        // Si profil pas encore chargé, attendre un peu plus
+        console.log('Profil en cours de chargement...');
       }
     }
-  }, [loading, isAuthenticated, profileRole, navigate, searchParams]);
+  }, [loading, isAuthenticated, profile, navigate, searchParams, user]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
