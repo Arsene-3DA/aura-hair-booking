@@ -30,10 +30,11 @@ export const useUsers = () => {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) return null;
 
+      // CORRECTION: Utiliser la table profiles au lieu de users
       const { data, error } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*')
-        .eq('auth_id', authUser.id)
+        .eq('user_id', authUser.id)
         .single();
 
       if (error) {
@@ -41,8 +42,22 @@ export const useUsers = () => {
         return null;
       }
 
-      setCurrentUser(data);
-      return data;
+      // Adapter pour compatibilité avec l'interface User
+      const adaptedUser = {
+        id: data.id,
+        auth_id: data.user_id,
+        email: authUser.email || '',
+        nom: data.full_name?.split(' ')[0] || '',
+        prenom: data.full_name?.split(' ').slice(1).join(' ') || '',
+        telephone: '',
+        role: data.role as UserRole,
+        status: 'actif' as UserStatus,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+
+      setCurrentUser(adaptedUser);
+      return adaptedUser;
     } catch (error) {
       console.error('Erreur:', error);
       return null;
@@ -52,14 +67,37 @@ export const useUsers = () => {
   const getAllUsers = async () => {
     try {
       setLoading(true);
+      // CORRECTION: Utiliser la table profiles pour obtenir tous les utilisateurs
       const { data, error } = await supabase
-        .from('users')
-        .select('*')
+        .from('profiles')
+        .select(`
+          id,
+          user_id,
+          role,
+          full_name,
+          created_at,
+          updated_at
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUsers(data || []);
-      return data || [];
+      
+      // Adapter les données pour compatibilité
+      const adaptedUsers = (data || []).map(profile => ({
+        id: profile.id,
+        auth_id: profile.user_id,
+        email: '', // L'email sera récupéré depuis auth.users si nécessaire
+        nom: profile.full_name?.split(' ')[0] || '',
+        prenom: profile.full_name?.split(' ').slice(1).join(' ') || '',
+        telephone: '',
+        role: profile.role as UserRole,
+        status: 'actif' as UserStatus,
+        created_at: profile.created_at,
+        updated_at: profile.updated_at
+      }));
+
+      setUsers(adaptedUsers);
+      return adaptedUsers;
     } catch (error) {
       console.error('Erreur lors du chargement des utilisateurs:', error);
       toast({
