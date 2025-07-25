@@ -295,6 +295,10 @@ export type Database = {
         Args: { password: string }
         Returns: string
       }
+      set_user_role: {
+        Args: { user_id: string; new_role: string }
+        Returns: undefined
+      }
     }
     Enums: {
       reservation_status: "en_attente" | "confirmee" | "annulee"

@@ -44,11 +44,12 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
 
   const promoteUser = async (userId: string, newRole: string) => {
     try {
-      // Call RPC function to set user role
-      const { error } = await supabase.rpc('set_user_role', {
-        user_id: userId,
-        new_role: newRole
-      });
+      // Update user role in profiles table directly for now
+      // The RPC function might not be available yet
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole as 'client' | 'coiffeur' | 'admin' })
+        .eq('user_id', userId);
 
       if (error) {
         console.error('Error promoting user:', error);

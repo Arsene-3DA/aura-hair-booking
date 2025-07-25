@@ -22,7 +22,15 @@ const ComponentsDemo = lazy(() => import("./pages/ComponentsDemo"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Lazy loading des layouts
+const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const ClientLayout = lazy(() => import("./layouts/ClientLayout"));
+
+// Lazy loading des pages admin
+const Overview = lazy(() => import("./pages/admin/Overview"));
+const Users = lazy(() => import("./pages/admin/Users"));
+const Bookings = lazy(() => import("./pages/admin/Bookings"));
+const PlatformSettings = lazy(() => import("./pages/admin/PlatformSettings"));
+const AuditTrail = lazy(() => import("./pages/admin/AuditTrail"));
 
 // Lazy loading des pages client
 const ClientHistory = lazy(() => import("./pages/client/History"));
@@ -72,6 +80,22 @@ const App = () => (
             {/* Routes protégées - Admin seulement */}
             <Route 
               path="/admin" 
+              element={
+                <SecureRoute allowedRoles={['admin']}>
+                  <AdminLayout />
+                </SecureRoute>
+              }
+            >
+              <Route index element={<Overview />} />
+              <Route path="users" element={<Users />} />
+              <Route path="bookings" element={<Bookings />} />
+              <Route path="settings" element={<PlatformSettings />} />
+              <Route path="audit" element={<AuditTrail />} />
+            </Route>
+            
+            {/* Legacy admin route */}
+            <Route 
+              path="/admin-dashboard" 
               element={
                 <SecureRoute allowedRoles={['admin']}>
                   <AdminDashboard />
