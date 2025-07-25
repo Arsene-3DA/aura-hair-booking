@@ -53,6 +53,7 @@ export const useSupabaseBookings = () => {
         .insert({
           hairdresser_id: bookingData.stylist_id,
           client_id: bookingData.client_id,
+          client_auth_id: bookingData.client_id, // Add the auth reference
           client_name: bookingData.client_name,
           client_email: bookingData.client_email,
           client_phone: bookingData.client_phone,

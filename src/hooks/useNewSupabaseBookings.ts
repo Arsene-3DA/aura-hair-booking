@@ -67,9 +67,9 @@ export const useNewSupabaseBookings = () => {
       }
 
       const statusMessages = {
-        'confirmé': '✅ Réservation confirmée',
-        'refusé': '❌ Réservation refusée',
-        'terminé': '✅ Réservation terminée'
+        'confirmed': '✅ Réservation confirmée',
+        'declined': '❌ Réservation refusée',  
+        'completed': '✅ Réservation terminée'
       };
 
       toast({

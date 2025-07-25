@@ -98,10 +98,14 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
     setLoading(true);
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { error } = await supabase
         .from('bookings')
         .insert({
           hairdresser_id: hairdresserId,
+          client_auth_id: user?.id,
           client_name: formData.clientName,
           client_email: formData.clientEmail,
           client_phone: formData.clientPhone,
