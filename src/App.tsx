@@ -216,6 +216,11 @@ const App = () => (
                   {React.createElement(React.lazy(() => import('./pages/ClientBookingsPage')))}
                 </Suspense>
               } />
+              <Route path="reviews" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/client/ReviewsPage')))}
+                </Suspense>
+              } />
             </Route>
             
             {/* Legacy route - redirect to new client layout */}

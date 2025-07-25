@@ -48,13 +48,24 @@ export const useReviews = (clientId?: string) => {
     if (!clientId) return;
 
     try {
+      // Get booking details to find stylist_id
+      const { data: booking, error: bookingError } = await supabase
+        .from('bookings')
+        .select('stylist_id')
+        .eq('id', bookingId)
+        .single();
+
+      if (bookingError) throw bookingError;
+
       const { data, error } = await supabase
         .from('reviews')
         .insert({
           booking_id: bookingId,
           client_id: clientId,
+          stylist_id: booking.stylist_id,
           rating,
           comment,
+          is_approved: false, // Pending moderation
         })
         .select()
         .single();
@@ -63,7 +74,7 @@ export const useReviews = (clientId?: string) => {
 
       toast({
         title: "Succès",
-        description: "Votre avis a été publié !",
+        description: "Votre avis a été publié et sera visible après modération",
       });
 
       await fetchReviews();
