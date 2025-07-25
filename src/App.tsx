@@ -8,11 +8,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import SecureRoute from "@/components/SecureRoute";
 import SecurityHeaders from "@/components/SecurityHeaders";
+import { GoogleAuthProvider } from "@/contexts/GoogleAuthContext";
+import RequireAuth from "@/components/RequireAuth";
 
 // Lazy loading des pages
 const Index = lazy(() => import("./pages/Index"));
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
 const RoleAuthPage = lazy(() => import("./pages/RoleAuthPage"));
+const GoogleLoginPage = lazy(() => import("./pages/GoogleLoginPage"));
+const PostAuthPage = lazy(() => import("./pages/PostAuthPage"));
+const AccessDeniedPage = lazy(() => import("./pages/AccessDeniedPage"));
 const SignupHairdresser = lazy(() => import("./pages/SignupHairdresser"));
 const ProfessionalsList = lazy(() => import("./pages/ProfessionalsList"));
 const ReservationPage = lazy(() => import("./pages/ReservationPage"));
@@ -60,11 +65,12 @@ const LoadingSpinner = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="beauty-salon-theme">
-      <TooltipProvider>
-        <SecurityHeaders />
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+      <GoogleAuthProvider>
+        <TooltipProvider>
+          <SecurityHeaders />
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             {/* Routes publiques */}
@@ -76,16 +82,18 @@ const App = () => (
             {/* Routes d'authentification */}
             <Route path="/auth" element={<RoleAuthPage />} />
             <Route path="/role-auth" element={<RoleAuthPage />} />
+            <Route path="/login" element={<GoogleLoginPage />} />
+            <Route path="/post-auth" element={<PostAuthPage />} />
+            <Route path="/403" element={<AccessDeniedPage />} />
             <Route path="/signup-hairdresser" element={<SignupHairdresser />} />
-            <Route path="/login" element={<RoleAuthPage />} />
             
             {/* Routes protégées - Admin seulement */}
             <Route 
               path="/admin" 
               element={
-                <SecureRoute allowedRoles={['admin']}>
+                <RequireAuth allowedRoles={['admin']}>
                   <AdminLayout />
-                </SecureRoute>
+                </RequireAuth>
               }
             >
               <Route index element={<Overview />} />
@@ -109,9 +117,9 @@ const App = () => (
             <Route 
               path="/stylist" 
               element={
-                <SecureRoute allowedRoles={['coiffeur']}>
+                <RequireAuth allowedRoles={['coiffeur', 'stylist']}>
                   <StylistLayout />
-                </SecureRoute>
+                </RequireAuth>
               }
             >
               <Route index element={<StylistDashboard />} />
@@ -143,9 +151,9 @@ const App = () => (
             <Route 
               path="/client" 
               element={
-                <SecureRoute allowedRoles={['client']}>
+                <RequireAuth allowedRoles={['client']}>
                   <ClientLayout />
-                </SecureRoute>
+                </RequireAuth>
               }
             >
               <Route index element={<div />} /> {/* Default empty route */}
@@ -166,9 +174,9 @@ const App = () => (
             <Route 
               path="/reservation/:hairdresserId" 
               element={
-                <SecureRoute requireAuth={true}>
+                <RequireAuth>
                   <ReservationPage />
-                </SecureRoute>
+                </RequireAuth>
               } 
             />
             
@@ -176,7 +184,8 @@ const App = () => (
           </Routes>
         </Suspense>
       </BrowserRouter>
-    </TooltipProvider>
+        </TooltipProvider>
+      </GoogleAuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

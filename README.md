@@ -17,11 +17,12 @@ Plateforme moderne de réservation pour salons de beauté avec architecture full
 - **Supabase** pour backend et authentification
 - **React Router** pour navigation multi-pages
 
-### ✅ Phase 2 - Authentification Multi-Rôles  
-- **3 rôles** : Client, Coiffeur/Stylist, Admin
-- **Sécurité RLS** avec Row-Level Security
+### ✅ Phase 2 - Authentification Google + Rôles  
+- **OAuth Google** intégration complète
+- **3 rôles** : Client, Stylist, Admin
+- **Sécurité RLS** avec Row-Level Security  
 - **Routes protégées** par rôle
-- **Session management** persistant
+- **Session management** automatique
 
 ### ✅ Phase 3 - Interface Client
 - **Réservation complète** : sélection pro + service + créneau
@@ -83,9 +84,9 @@ git clone https://github.com/your-username/beauty-salon.git
 cd beauty-salon
 npm install
 
-# Configuration Supabase
+# Configuration
 cp .env.example .env.local
-# Ajouter VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY
+# Voir DOCUMENTATION.md pour config Google OAuth + Supabase
 
 # Démarrage
 npm run dev
@@ -124,9 +125,21 @@ npm run type-check
 
 ## 📚 Documentation
 
+- **Google Auth** : Voir `DOCUMENTATION.md` pour config complète
 - **Storybook** : [Components docs](https://your-username.github.io/beauty-salon/)
 - **API** : Documentation Supabase intégrée  
 - **Tests** : Couverture dans `coverage/`
+
+## 🔐 Authentification Google
+
+Le système utilise **Google OAuth** avec gestion automatique des rôles :
+
+1. **Connexion** : Bouton "Se connecter avec Google"
+2. **Profil** : Création automatique dans `profiles` table
+3. **Rôles** : Attribution "client" par défaut
+4. **Promotion** : Admins peuvent upgrader vers "stylist" ou "admin"
+
+**Configuration requise** : Voir `DOCUMENTATION.md` pour setup Google Cloud + Supabase.
 
 ---
 
