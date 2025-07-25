@@ -478,6 +478,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      promote_to_admin: {
+        Args: { p_email: string }
+        Returns: undefined
+      }
       refresh_stylists_rating: {
         Args: Record<PropertyKey, never>
         Returns: undefined
