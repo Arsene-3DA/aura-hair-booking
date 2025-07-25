@@ -90,7 +90,11 @@ const App = () => (
             {/* Routes d'authentification */}
             <Route path="/auth" element={<RoleAuthPage />} />
             <Route path="/role-auth" element={<RoleAuthPage />} />
-            <Route path="/login" element={<GoogleLoginPage />} />
+            <Route path="/login" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                {React.createElement(React.lazy(() => import('./pages/LoginPage')))}
+              </Suspense>
+            } />
             <Route path="/post-auth" element={<PostAuthPage />} />
             <Route path="/403" element={<AccessDeniedPage />} />
             <Route path="/signup-hairdresser" element={<SignupHairdresser />} />

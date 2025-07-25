@@ -42,11 +42,27 @@ export function GoogleAuthProvider({ children }: GoogleAuthProviderProps) {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .maybeSingle();
 
       if (error) {
         console.error('Erreur lors du chargement du profil:', error);
+        // Créer un profil par défaut si il n'existe pas
+        if (error.code === 'PGRST116') {
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: userId,
+              role: 'client',
+              full_name: 'Nouvel utilisateur'
+            })
+            .select()
+            .single();
+
+          if (!createError) {
+            return newProfile;
+          }
+        }
         return null;
       }
 
