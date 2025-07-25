@@ -1,0 +1,106 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
+
+export interface StylistStats {
+  totalToday: number;
+  confirmed: number;
+  pending: number;
+  noShow30d: number;
+  loading: boolean;
+  error: string | null;
+}
+
+export const useStylistStats = (stylistId?: string, date: Date = new Date()): StylistStats => {
+  const [stats, setStats] = useState<StylistStats>({
+    totalToday: 0,
+    confirmed: 0,
+    pending: 0,
+    noShow30d: 0,
+    loading: true,
+    error: null,
+  });
+
+  useEffect(() => {
+    if (!stylistId) {
+      setStats(prev => ({ ...prev, loading: false }));
+      return;
+    }
+
+    const fetchStats = async () => {
+      try {
+        setStats(prev => ({ ...prev, loading: true, error: null }));
+        
+        const today = format(date, 'yyyy-MM-dd');
+        const thirtyDaysAgo = format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
+
+        // Get today's bookings
+        const { data: todayBookings, error: todayError } = await supabase
+          .from('bookings')
+          .select('status')
+          .eq('hairdresser_id', stylistId)
+          .eq('booking_date', today);
+
+        if (todayError) throw todayError;
+
+        // Get no-shows from last 30 days
+        const { data: noShowBookings, error: noShowError } = await supabase
+          .from('bookings')
+          .select('id')
+          .eq('hairdresser_id', stylistId)
+          .eq('status', 'refusé')
+          .gte('booking_date', thirtyDaysAgo);
+
+        if (noShowError) throw noShowError;
+
+        const totalToday = todayBookings?.length || 0;
+        const confirmed = todayBookings?.filter(b => b.status === 'confirmé').length || 0;
+        const pending = todayBookings?.filter(b => b.status === 'en_attente').length || 0;
+        const noShow30d = noShowBookings?.length || 0;
+
+        setStats({
+          totalToday,
+          confirmed,
+          pending,
+          noShow30d,
+          loading: false,
+          error: null,
+        });
+
+      } catch (error) {
+        console.error('Error fetching stylist stats:', error);
+        setStats(prev => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Erreur inconnue',
+        }));
+      }
+    };
+
+    fetchStats();
+
+    // Set up real-time subscription for today's bookings
+    const channel = supabase
+      .channel(`stylist-stats-${stylistId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings',
+          filter: `hairdresser_id=eq.${stylistId}`,
+        },
+        () => {
+          console.log('Booking change detected, refreshing stats');
+          fetchStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [stylistId, date]);
+
+  return stats;
+};

@@ -27,6 +27,13 @@ const ClientLayout = lazy(() => import("./layouts/ClientLayout"));
 // Lazy loading des pages client
 const ClientHistory = lazy(() => import("./pages/client/History"));
 
+// Lazy loading des layouts stylist
+const StylistLayout = lazy(() => import("./layouts/StylistLayout"));
+
+// Lazy loading des pages stylist  
+const StylistDashboard = lazy(() => import("./pages/stylist/Dashboard"));
+const BookingQueue = lazy(() => import("./components/BookingQueue"));
+
 const queryClient = new QueryClient();
 
 const LoadingSpinner = () => (
@@ -69,7 +76,20 @@ const App = () => (
               } 
             />
             
-            {/* Routes protégées - Coiffeur seulement */}
+            {/* Routes protégées - Coiffeur/Stylist seulement */}
+            <Route 
+              path="/stylist" 
+              element={
+                <SecureRoute allowedRoles={['coiffeur']}>
+                  <StylistLayout />
+                </SecureRoute>
+              }
+            >
+              <Route index element={<StylistDashboard />} />
+              <Route path="queue" element={<BookingQueue />} />
+            </Route>
+            
+            {/* Legacy routes - redirect to new stylist layout */}
             <Route 
               path="/coiffeur" 
               element={
