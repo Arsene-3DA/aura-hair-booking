@@ -36,45 +36,45 @@ describe('LanguageToggle Component', () => {
   it('opens dropdown menu when clicked', async () => {
     const user = userEvent.setup()
     
-    render(
+    const { getByRole, getByText } = render(
       <TestWrapper>
         <LanguageToggle />
       </TestWrapper>
     )
 
-    const button = screen.getByRole('button', { name: /changer la langue/i })
+    const button = getByRole('button', { name: /changer la langue/i })
     await user.click(button)
 
-    expect(screen.getByText('🇫🇷 Français')).toBeInTheDocument()
-    expect(screen.getByText('🇬🇧 English (bientôt)')).toBeInTheDocument()
+    expect(getByText('🇫🇷 Français')).toBeInTheDocument()
+    expect(getByText('🇬🇧 English (bientôt)')).toBeInTheDocument()
   })
 
   it('changes language when French is selected', async () => {
     const user = userEvent.setup()
     
-    render(
+    const { getByRole, getByText } = render(
       <TestWrapper>
         <LanguageToggle />
       </TestWrapper>
     )
 
-    const button = screen.getByRole('button', { name: /changer la langue/i })
+    const button = getByRole('button', { name: /changer la langue/i })
     await user.click(button)
 
-    const frenchOption = screen.getByText('🇫🇷 Français')
+    const frenchOption = getByText('🇫🇷 Français')
     await user.click(frenchOption)
 
     expect(mockChangeLanguage).toHaveBeenCalledWith('fr')
   })
 
   it('has proper accessibility attributes', () => {
-    render(
+    const { getByRole } = render(
       <TestWrapper>
         <LanguageToggle />
       </TestWrapper>
     )
 
-    const button = screen.getByRole('button', { name: /changer la langue/i })
+    const button = getByRole('button', { name: /changer la langue/i })
     expect(button).toHaveAttribute('aria-label', 'Changer la langue')
   })
 })

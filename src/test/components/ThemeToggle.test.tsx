@@ -77,28 +77,28 @@ describe('ThemeToggle Component', () => {
   it('opens dropdown menu when clicked', async () => {
     const user = userEvent.setup()
     
-    render(
+    const { getByRole, getByText } = render(
       <TestWrapper>
         <ThemeToggle />
       </TestWrapper>
     )
 
-    const button = screen.getByRole('button', { name: /changer le thème/i })
+    const button = getByRole('button', { name: /changer le thème/i })
     await user.click(button)
 
-    expect(screen.getByText('Clair')).toBeInTheDocument()
-    expect(screen.getByText('Sombre')).toBeInTheDocument()
-    expect(screen.getByText('Système')).toBeInTheDocument()
+    expect(getByText('Clair')).toBeInTheDocument()
+    expect(getByText('Sombre')).toBeInTheDocument()
+    expect(getByText('Système')).toBeInTheDocument()
   })
 
   it('has proper accessibility attributes', () => {
-    render(
+    const { getByRole } = render(
       <TestWrapper>
         <ThemeToggle />
       </TestWrapper>
     )
 
-    const button = screen.getByRole('button', { name: /changer le thème/i })
+    const button = getByRole('button', { name: /changer le thème/i })
     expect(button).toHaveAttribute('aria-label', 'Changer le thème')
   })
 })
