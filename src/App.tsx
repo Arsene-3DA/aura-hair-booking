@@ -45,8 +45,9 @@ const ClientHistory = lazy(() => import("./pages/client/History"));
 const StylistLayout = lazy(() => import("./layouts/StylistLayout"));
 
 // Lazy loading des pages stylist  
-const StylistDashboard = lazy(() => import("./pages/stylist/Dashboard"));
+const StylistDashboard = lazy(() => import("./pages/stylist/StylistDashboard"));
 const StylistSettings = lazy(() => import("./pages/stylist/SalonSettings"));
+const StylistsList = lazy(() => import("./pages/StylistsList"));
 const BookingQueue = lazy(() => import("./components/BookingQueue"));
 const WeeklyCalendar = lazy(() => import("./components/WeeklyCalendar"));
 const ClientChatPane = lazy(() => import("./components/ClientChatPane"));
@@ -77,6 +78,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/professionals/:gender" element={<ProfessionalsList />} />
+            <Route path="/stylists" element={<StylistsList />} />
             <Route path="/components" element={<ComponentsDemo />} />
             
             {/* Routes d'authentification */}
