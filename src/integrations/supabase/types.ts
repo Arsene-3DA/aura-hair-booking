@@ -119,6 +119,42 @@ export type Database = {
         }
         Relationships: []
       }
+      hairdresser_services: {
+        Row: {
+          created_at: string | null
+          hairdresser_id: string
+          id: string
+          service_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          hairdresser_id: string
+          id?: string
+          service_id: string
+        }
+        Update: {
+          created_at?: string | null
+          hairdresser_id?: string
+          id?: string
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hairdresser_services_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hairdresser_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hairdressers: {
         Row: {
           auth_id: string | null
@@ -436,11 +472,15 @@ export type Database = {
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
-        Returns: Database["public"]["Enums"]["user_role"]
+        Returns: string
       }
       hash_password: {
         Args: { password: string }
         Returns: string
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       refresh_stylists_rating: {
         Args: Record<PropertyKey, never>
