@@ -162,6 +162,19 @@ const App = () => (
               <Route path="history" element={<ClientHistory />} />
             </Route>
             
+            {/* Nouvelle route /app pour les clients */}
+            <Route 
+              path="/app" 
+              element={
+                <RequireAuth allowedRoles={['client']}>
+                  <ClientLayout />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<div />} /> {/* Default empty route */}
+              <Route path="history" element={<ClientHistory />} />
+            </Route>
+            
             {/* Legacy route - redirect to new client layout */}
             <Route 
               path="/client-dashboard" 

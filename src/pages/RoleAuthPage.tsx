@@ -7,13 +7,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { usePasswordPolicy } from '@/hooks/usePasswordPolicy';
+import { useProfileRole } from '@/hooks/useProfileRole';
 import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
 import InitializeDataButton from '@/components/InitializeDataButton';
+import AuthRedirectHandler from '@/components/AuthRedirectHandler';
 
 const RoleAuthPage = () => {
   const navigate = useNavigate();
-  const { signIn, signUp, loading, isAuthenticated, userRole } = useRoleAuth();
+  const { signIn, signUp, loading, isAuthenticated, user } = useRoleAuth();
   const { needsPasswordChange, checkPasswordChangeRequired } = usePasswordPolicy();
+  const { data: profileRole } = useProfileRole(user?.id);
   
   const [loginData, setLoginData] = useState({
     email: '',
@@ -30,18 +33,23 @@ const RoleAuthPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirection si déjà connecté
+  // Redirection si déjà connecté selon le rôle du profil
   useEffect(() => {
-    if (!loading && isAuthenticated && userRole) {
-      if (userRole === 'admin') {
-        navigate('/admin');
-      } else if (userRole === 'coiffeur') {
-        navigate('/coiffeur');
-      } else {
-        navigate('/client');
+    if (!loading && isAuthenticated && profileRole) {
+      switch (profileRole) {
+        case 'admin':
+          navigate('/admin');
+          break;
+        case 'stylist':
+          navigate('/stylist');
+          break;
+        case 'client':
+        default:
+          navigate('/app');
+          break;
       }
     }
-  }, [isAuthenticated, userRole, loading, navigate]);
+  }, [isAuthenticated, profileRole, loading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +99,7 @@ const RoleAuthPage = () => {
   }
 
   return (
-    <>
+    <AuthRedirectHandler>
       <div className="min-h-screen bg-gradient-to-br from-gold-50 to-orange-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
@@ -268,7 +276,7 @@ const RoleAuthPage = () => {
       <AdminPasswordChangeModal 
         isOpen={needsPasswordChange}
       />
-    </>
+    </AuthRedirectHandler>
   );
 };
 
