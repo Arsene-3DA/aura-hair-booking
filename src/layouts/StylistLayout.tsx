@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   User,
-  Scissors
+  Scissors,
+  Camera
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -35,6 +36,7 @@ const StylistLayout = () => {
     { name: 'File d\'attente', href: '/stylist/queue', icon: Clock },
     { name: 'Clients', href: '/stylist/clients', icon: User },
     { name: 'Services', href: '/stylist/services', icon: Scissors },
+    { name: 'Portfolio', href: '/stylist/portfolio', icon: Camera },
     { name: 'Messages', href: '/stylist/chat', icon: MessageSquare },
     { name: 'Paramètres', href: '/stylist/settings', icon: Settings },
   ];

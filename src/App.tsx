@@ -155,6 +155,11 @@ const App = () => (
                   {React.createElement(React.lazy(() => import('./pages/stylist/StylistServicesPage')))}
                 </Suspense>
               } />
+              <Route path="portfolio" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistPortfolioPage')))}
+                </Suspense>
+              } />
               <Route path="chat" element={<div className="p-6"><ClientChatPane /></div>} />
               <Route path="settings" element={<StylistSettings />} />
             </Route>

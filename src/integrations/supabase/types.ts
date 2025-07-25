@@ -352,6 +352,41 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio: {
+        Row: {
+          created_at: string | null
+          hairstyle_name: string | null
+          id: string
+          image_url: string | null
+          service_id: string | null
+          stylist_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          hairstyle_name?: string | null
+          id?: string
+          image_url?: string | null
+          service_id?: string | null
+          stylist_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          hairstyle_name?: string | null
+          id?: string
+          image_url?: string | null
+          service_id?: string | null
+          stylist_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
