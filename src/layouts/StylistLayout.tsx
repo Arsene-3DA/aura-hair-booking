@@ -8,7 +8,8 @@ import {
   MessageSquare,
   LogOut,
   Menu,
-  User
+  User,
+  Scissors
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -32,6 +33,8 @@ const StylistLayout = () => {
     { name: 'Dashboard', href: '/stylist', icon: LayoutDashboard },
     { name: 'Calendrier', href: '/stylist/calendar', icon: Calendar },
     { name: 'File d\'attente', href: '/stylist/queue', icon: Clock },
+    { name: 'Clients', href: '/stylist/clients', icon: User },
+    { name: 'Services', href: '/stylist/services', icon: Scissors },
     { name: 'Messages', href: '/stylist/chat', icon: MessageSquare },
     { name: 'Paramètres', href: '/stylist/settings', icon: Settings },
   ];

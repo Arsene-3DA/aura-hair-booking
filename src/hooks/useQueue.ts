@@ -1,8 +1,20 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { RealtimeBooking } from './useRealtimeBookings';
 
-export interface QueueBooking extends RealtimeBooking {
+export interface QueueBooking {
+  id: string;
+  client_name: string;
+  client_email: string;
+  client_phone: string;
+  service: string;
+  status: string;
+  scheduled_at?: string;
+  booking_date?: string;
+  booking_time?: string;
+  comments?: string;
+  stylist_id?: string;
+  hairdresser_id?: string;
+  created_at: string;
   client_user_id?: string;
 }
 
@@ -30,7 +42,7 @@ export const useQueue = (stylistId?: string): UseQueueReturn => {
       const { data, error: fetchError } = await supabase
         .from('bookings')
         .select('*')
-        .eq('hairdresser_id', stylistId)
+        .eq('stylist_id', stylistId)
         .eq('status', 'pending')
         .order('created_at', { ascending: true });
 

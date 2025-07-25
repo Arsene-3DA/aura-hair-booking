@@ -130,11 +130,29 @@ const App = () => (
                 </RequireAuth>
               }
             >
-              <Route index element={<StylistDashboard />} />
-              <Route path="calendar" element={<WeeklyCalendar />} />
+               <Route index element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistDashboardPage')))}
+                </Suspense>
+              } />
+              <Route path="calendar" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistCalendarPage')))}
+                </Suspense>
+              } />
               <Route path="queue" element={
                 <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/StylistQueuePage')))}
+                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistQueuePage')))}
+                </Suspense>
+              } />
+              <Route path="clients" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistClientsPage')))}
+                </Suspense>
+              } />
+              <Route path="services" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistServicesPage')))}
                 </Suspense>
               } />
               <Route path="chat" element={<div className="p-6"><ClientChatPane /></div>} />

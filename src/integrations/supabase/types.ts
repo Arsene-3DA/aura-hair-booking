@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      availabilities: {
+        Row: {
+          created_at: string | null
+          end_at: string
+          id: string
+          start_at: string
+          stylist_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          end_at: string
+          id?: string
+          start_at: string
+          stylist_id: string
+        }
+        Update: {
+          created_at?: string | null
+          end_at?: string
+          id?: string
+          start_at?: string
+          stylist_id?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           booking_date: string
@@ -88,6 +112,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      client_notes: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          id: string
+          note: string | null
+          stylist_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          stylist_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          stylist_id?: string
+        }
+        Relationships: []
       }
       clients: {
         Row: {
@@ -203,6 +251,33 @@ export type Database = {
           rating?: number | null
           specialties?: string[] | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          id: string
+          receiver_id: string | null
+          sender_id: string | null
+          ticket_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          receiver_id?: string | null
+          sender_id?: string | null
+          ticket_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          receiver_id?: string | null
+          sender_id?: string | null
+          ticket_id?: string | null
         }
         Relationships: []
       }
