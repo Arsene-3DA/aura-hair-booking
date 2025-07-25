@@ -265,7 +265,7 @@ const Overview = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Temps de réponse</span>
-                <span className="text-sm font-medium">< 2h</span>
+                <span className="text-sm font-medium">&lt; 2h</span>
               </div>
             </div>
           </CardContent>
