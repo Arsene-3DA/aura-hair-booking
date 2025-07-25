@@ -32,7 +32,10 @@ const StylistLayout = lazy(() => import("./layouts/StylistLayout"));
 
 // Lazy loading des pages stylist  
 const StylistDashboard = lazy(() => import("./pages/stylist/Dashboard"));
+const StylistSettings = lazy(() => import("./pages/stylist/SalonSettings"));
 const BookingQueue = lazy(() => import("./components/BookingQueue"));
+const WeeklyCalendar = lazy(() => import("./components/WeeklyCalendar"));
+const ClientChatPane = lazy(() => import("./components/ClientChatPane"));
 
 const queryClient = new QueryClient();
 
@@ -86,7 +89,10 @@ const App = () => (
               }
             >
               <Route index element={<StylistDashboard />} />
+              <Route path="calendar" element={<WeeklyCalendar />} />
               <Route path="queue" element={<BookingQueue />} />
+              <Route path="chat" element={<div className="p-6"><ClientChatPane /></div>} />
+              <Route path="settings" element={<StylistSettings />} />
             </Route>
             
             {/* Legacy routes - redirect to new stylist layout */}

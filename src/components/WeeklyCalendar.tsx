@@ -9,10 +9,10 @@ interface Appointment {
 }
 
 interface WeeklyCalendarProps {
-  appointments: Appointment[];
+  appointments?: Appointment[];
 }
 
-const WeeklyCalendar = ({ appointments }: WeeklyCalendarProps) => {
+const WeeklyCalendar = ({ appointments = [] }: WeeklyCalendarProps) => {
   const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   const hours = Array.from({ length: 10 }, (_, i) => `${9 + i}:00`);
 
