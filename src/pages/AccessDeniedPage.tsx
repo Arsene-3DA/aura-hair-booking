@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,18 @@ import { AlertTriangle } from 'lucide-react';
 
 const AccessDeniedPage = () => {
   const navigate = useNavigate();
-  const { profile, signOut } = useGoogleAuth();
+  const { profile, signOut, loading, isAuthenticated } = useGoogleAuth();
+
+  // SECURITY FIX: Debug logging pour comprendre le problème d'accès
+  useEffect(() => {
+    console.log('=== ACCESS DENIED PAGE DEBUG ===');
+    console.log('Loading:', loading);
+    console.log('IsAuthenticated:', isAuthenticated);
+    console.log('Profile:', profile);
+    console.log('Current URL:', window.location.href);
+    console.log('Previous page:', document.referrer);
+    console.log('================================');
+  }, [loading, isAuthenticated, profile]);
 
   const handleGoHome = () => {
     if (profile) {
