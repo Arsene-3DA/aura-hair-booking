@@ -21,6 +21,12 @@ const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const ComponentsDemo = lazy(() => import("./pages/ComponentsDemo"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+// Lazy loading des layouts
+const ClientLayout = lazy(() => import("./layouts/ClientLayout"));
+
+// Lazy loading des pages client
+const ClientHistory = lazy(() => import("./pages/client/History"));
+
 const queryClient = new QueryClient();
 
 const LoadingSpinner = () => (
@@ -84,6 +90,19 @@ const App = () => (
             {/* Routes protégées - Client seulement */}
             <Route 
               path="/client" 
+              element={
+                <SecureRoute allowedRoles={['client']}>
+                  <ClientLayout />
+                </SecureRoute>
+              }
+            >
+              <Route index element={<div />} /> {/* Default empty route */}
+              <Route path="history" element={<ClientHistory />} />
+            </Route>
+            
+            {/* Legacy route - redirect to new client layout */}
+            <Route 
+              path="/client-dashboard" 
               element={
                 <SecureRoute allowedRoles={['client']}>
                   <ClientDashboard />
