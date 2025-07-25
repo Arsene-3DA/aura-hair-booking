@@ -4,13 +4,7 @@ import { registerRoute } from 'workbox-routing';
 import { StaleWhileRevalidate, NetworkFirst, CacheFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 
-declare let self: ServiceWorkerGlobalScope & {
-  skipWaiting(): void;
-  clients: ServiceWorkerGlobalScope['clients'];
-  registration: ServiceWorkerRegistration;
-  addEventListener: typeof addEventListener;
-  __WB_MANIFEST: any;
-};
+declare let self: any;
 
 // Skip waiting and claim clients immediately
 self.skipWaiting();
@@ -106,7 +100,7 @@ registerRoute(
 );
 
 // Handle push notifications
-self.addEventListener('push', (event: PushEvent) => {
+self.addEventListener('push', (event: any) => {
   console.log('📱 Push notification received:', event);
   
   if (!event.data) return;
@@ -140,7 +134,7 @@ self.addEventListener('push', (event: PushEvent) => {
 });
 
 // Handle notification click
-self.addEventListener('notificationclick', (event: NotificationEvent) => {
+self.addEventListener('notificationclick', (event: any) => {
   console.log('🔔 Notification clicked:', event);
   
   event.notification.close();
@@ -175,7 +169,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
 });
 
 // Handle background sync (future feature)
-self.addEventListener('sync', (event: SyncEvent) => {
+self.addEventListener('sync', (event: any) => {
   console.log('🔄 Background sync:', event.tag);
   
   if (event.tag === 'background-sync') {
