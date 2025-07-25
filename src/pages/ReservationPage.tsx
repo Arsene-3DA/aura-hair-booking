@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import ReservationForm from '@/components/ReservationForm';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
+import { validateId } from '@/utils/authHelper';
 
 interface Hairdresser {
   id: string;
@@ -30,7 +31,7 @@ const ReservationPage = () => {
   // Récupérer les données du coiffeur depuis les paramètres de navigation ou la BD
   useEffect(() => {
     const loadHairdresser = async () => {
-      if (!hairdresserId || hairdresserId === 'undefined' || hairdresserId.trim() === '') {
+      if (!validateId(hairdresserId)) {
         console.error('ID coiffeur invalide:', hairdresserId);
         toast({
           title: "Erreur",

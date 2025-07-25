@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EnhancedAvatar } from '@/components/EnhancedAvatar';
 import { useToast } from '@/hooks/use-toast';
+import { validateId } from '@/utils/authHelper';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { 
@@ -51,7 +52,7 @@ const StylistProfilePage = () => {
 
   useEffect(() => {
     const loadStylistProfile = async () => {
-      if (!stylistId || stylistId === 'undefined' || stylistId.trim() === '') {
+      if (!validateId(stylistId)) {
         console.error('ID stylist invalide:', stylistId);
         toast({
           title: "Erreur",

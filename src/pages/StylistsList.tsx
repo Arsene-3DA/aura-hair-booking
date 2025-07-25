@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { validateId, sanitizeSearchInput } from '@/utils/authHelper';
 import { 
   Search, 
   Filter, 
@@ -108,7 +109,7 @@ const StylistsList = () => {
   });
 
   const handleBooking = (stylistId: string) => {
-    if (!stylistId || stylistId === 'undefined' || stylistId.trim() === '') {
+    if (!validateId(stylistId)) {
       console.error('ID styliste invalide pour réservation:', stylistId);
       toast({
         title: "Erreur",
@@ -139,7 +140,7 @@ const StylistsList = () => {
   };
 
   const handleViewProfile = (stylistId: string) => {
-    if (!stylistId || stylistId === 'undefined' || stylistId.trim() === '') {
+    if (!validateId(stylistId)) {
       console.error('ID styliste invalide pour profil:', stylistId);
       toast({
         title: "Erreur",
@@ -215,7 +216,7 @@ const StylistsList = () => {
               <Input
                 placeholder="Rechercher un coiffeur..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(sanitizeSearchInput(e.target.value))}
                 className="pl-10"
               />
             </div>

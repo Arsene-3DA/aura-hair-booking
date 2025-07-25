@@ -6,10 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import SecureRoute from "@/components/SecureRoute";
+import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 import SecurityHeaders from "@/components/SecurityHeaders";
 import { GoogleAuthProvider } from "@/contexts/GoogleAuthContext";
-import RequireAuth from "@/components/RequireAuth";
+import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 
 // Lazy loading des pages
 const Index = lazy(() => import("./pages/Index"));
@@ -65,13 +65,14 @@ const LoadingSpinner = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="beauty-salon-theme">
-      <GoogleAuthProvider>
-        <TooltipProvider>
-          <SecurityHeaders />
-        <Toaster />
-        <Sonner />
+  <GlobalErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="system" storageKey="beauty-salon-theme">
+        <GoogleAuthProvider>
+          <TooltipProvider>
+            <SecurityHeaders />
+          <Toaster />
+          <Sonner />
         <BrowserRouter>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
@@ -98,9 +99,9 @@ const App = () => (
             <Route 
               path="/admin" 
               element={
-                <RequireAuth allowedRoles={['admin']}>
+                <RoleProtectedRoute allowedRoles={['admin']}>
                   <AdminLayout />
-                </RequireAuth>
+                </RoleProtectedRoute>
               }
             >
               <Route index element={<Overview />} />
@@ -115,9 +116,9 @@ const App = () => (
             <Route 
               path="/admin-dashboard" 
               element={
-                <SecureRoute allowedRoles={['admin']}>
+                <RoleProtectedRoute allowedRoles={['admin']}>
                   <AdminDashboard />
-                </SecureRoute>
+                </RoleProtectedRoute>
               } 
             />
             
@@ -125,9 +126,9 @@ const App = () => (
             <Route 
               path="/stylist" 
               element={
-                <RequireAuth allowedRoles={['coiffeur']}>
+                <RoleProtectedRoute allowedRoles={['coiffeur']}>
                   <StylistLayout />
-                </RequireAuth>
+                </RoleProtectedRoute>
               }
             >
                <Route index element={
@@ -168,17 +169,17 @@ const App = () => (
             <Route 
               path="/coiffeur" 
               element={
-                <SecureRoute allowedRoles={['coiffeur']}>
+                <RoleProtectedRoute allowedRoles={['coiffeur']}>
                   <CoiffeurDashboard />
-                </SecureRoute>
+                </RoleProtectedRoute>
               } 
             />
             <Route 
               path="/hairdresser" 
               element={
-                <SecureRoute allowedRoles={['coiffeur']}>
+                <RoleProtectedRoute allowedRoles={['coiffeur']}>
                   <CoiffeurDashboard />
-                </SecureRoute>
+                </RoleProtectedRoute>
               } 
             />
             
@@ -186,9 +187,9 @@ const App = () => (
             <Route 
               path="/client" 
               element={
-                <RequireAuth allowedRoles={['client']}>
+                <RoleProtectedRoute allowedRoles={['client']}>
                   <ClientLayout />
-                </RequireAuth>
+                </RoleProtectedRoute>
               }
             >
               <Route index element={<div />} /> {/* Default empty route */}
@@ -204,9 +205,9 @@ const App = () => (
             <Route 
               path="/app" 
               element={
-                <RequireAuth allowedRoles={['client']}>
+                <RoleProtectedRoute allowedRoles={['client']}>
                   <ClientLayout />
-                </RequireAuth>
+                </RoleProtectedRoute>
               }
             >
               <Route index element={<div />} /> {/* Default empty route */}
@@ -227,9 +228,9 @@ const App = () => (
             <Route 
               path="/client-dashboard" 
               element={
-                <SecureRoute allowedRoles={['client']}>
+                <RoleProtectedRoute allowedRoles={['client']}>
                   <ClientDashboard />
-                </SecureRoute>
+                </RoleProtectedRoute>
               } 
             />
             
@@ -237,9 +238,9 @@ const App = () => (
             <Route 
               path="/reservation/:hairdresserId" 
               element={
-                <RequireAuth>
+                <RoleProtectedRoute allowedRoles={['client', 'admin', 'coiffeur']}>
                   <ReservationPage />
-                </RequireAuth>
+                </RoleProtectedRoute>
               } 
             />
             
@@ -269,10 +270,11 @@ const App = () => (
           </Routes>
         </Suspense>
       </BrowserRouter>
-        </TooltipProvider>
-      </GoogleAuthProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+          </TooltipProvider>
+        </GoogleAuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </GlobalErrorBoundary>
 );
 
 export default App;
