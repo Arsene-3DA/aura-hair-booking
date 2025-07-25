@@ -11,11 +11,6 @@ import { DateRange } from "react-day-picker";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useCustomReport, ReportFilters } from '@/hooks/useCustomReport';
 import { cn } from "@/lib/utils";
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
-
-// Initialiser pdfMake
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const AdminReports = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -33,60 +28,73 @@ const AdminReports = () => {
 
   const { data, chartData, loading, error } = useCustomReport(filters);
 
-  const exportToPDF = () => {
-    const docDefinition = {
-      content: [
-        {
-          text: 'Rapport Administrateur',
-          style: 'header',
-          alignment: 'center',
-          margin: [0, 0, 0, 20]
-        },
-        {
-          text: `Période: ${format(filters.startDate, 'dd/MM/yyyy', { locale: fr })} - ${format(filters.endDate, 'dd/MM/yyyy', { locale: fr })}`,
-          style: 'subheader',
-          margin: [0, 0, 0, 10]
-        },
-        {
-          text: `Type de rapport: ${reportType}`,
-          style: 'subheader',
-          margin: [0, 0, 0, 20]
-        },
-        {
-          text: 'Résumé des données:',
-          style: 'subheader',
-          margin: [0, 0, 0, 10]
-        },
-        {
-          table: {
-            headerRows: 1,
-            widths: ['*', 'auto', 'auto', 'auto'],
-            body: [
-              ['Date', 'Réservations totales', 'Confirmées', 'Revenus'],
-              ...data.slice(0, 10).map(row => [
-                format(new Date(row.report_date), 'dd/MM/yyyy', { locale: fr }),
-                row.total_bookings.toString(),
-                row.confirmed_bookings.toString(),
-                `${row.total_revenue}€`
-              ])
-            ]
-          },
-          layout: 'lightHorizontalLines'
-        }
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true
-        },
-        subheader: {
-          fontSize: 14,
-          bold: true
-        }
-      }
-    };
+  const exportToPDF = async () => {
+    try {
+      // Lazy load pdfmake pour réduire la taille du bundle principal
+      const pdfMake = (await import('pdfmake/build/pdfmake')).default;
+      const pdfFonts = (await import('pdfmake/build/vfs_fonts')).default;
+      
+      // Initialiser pdfMake
+      pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-    pdfMake.createPdf(docDefinition).download(`rapport-${reportType}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+      const docDefinition = {
+        content: [
+          {
+            text: 'Rapport Administrateur',
+            style: 'header',
+            alignment: 'center',
+            margin: [0, 0, 0, 20]
+          },
+          {
+            text: `Période: ${format(filters.startDate, 'dd/MM/yyyy', { locale: fr })} - ${format(filters.endDate, 'dd/MM/yyyy', { locale: fr })}`,
+            style: 'subheader',
+            margin: [0, 0, 0, 10]
+          },
+          {
+            text: `Type de rapport: ${reportType}`,
+            style: 'subheader',
+            margin: [0, 0, 0, 20]
+          },
+          {
+            text: 'Résumé des données:',
+            style: 'subheader',
+            margin: [0, 0, 0, 10]
+          },
+          {
+            table: {
+              headerRows: 1,
+              widths: ['*', 'auto', 'auto', 'auto'],
+              body: [
+                ['Date', 'Réservations totales', 'Confirmées', 'Revenus'],
+                ...data.slice(0, 10).map(row => [
+                  format(new Date(row.report_date), 'dd/MM/yyyy', { locale: fr }),
+                  row.total_bookings.toString(),
+                  row.confirmed_bookings.toString(),
+                  `${row.total_revenue}€`
+                ])
+              ]
+            },
+            layout: 'lightHorizontalLines'
+          }
+        ],
+        styles: {
+          header: {
+            fontSize: 18,
+            bold: true
+          },
+          subheader: {
+            fontSize: 14,
+            bold: true
+          }
+        }
+      };
+
+      pdfMake.createPdf(docDefinition).download(`rapport-${reportType}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+      // Fallback: simple alert ou toast
+      alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
+    }
   };
 
   const getReportTypeLabel = (type: string) => {
