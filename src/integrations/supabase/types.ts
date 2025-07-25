@@ -20,6 +20,7 @@ export type Database = {
           booking_time: string
           client_auth_id: string | null
           client_email: string
+          client_id: string | null
           client_name: string
           client_phone: string
           comments: string | null
@@ -27,14 +28,18 @@ export type Database = {
           expires_at: string | null
           hairdresser_id: string
           id: string
+          scheduled_at: string
           service: string
-          status: string | null
+          service_id: string | null
+          status: Database["public"]["Enums"]["booking_status"] | null
+          stylist_id: string | null
         }
         Insert: {
           booking_date: string
           booking_time: string
           client_auth_id?: string | null
           client_email: string
+          client_id?: string | null
           client_name: string
           client_phone: string
           comments?: string | null
@@ -42,14 +47,18 @@ export type Database = {
           expires_at?: string | null
           hairdresser_id: string
           id?: string
+          scheduled_at: string
           service: string
-          status?: string | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          stylist_id?: string | null
         }
         Update: {
           booking_date?: string
           booking_time?: string
           client_auth_id?: string | null
           client_email?: string
+          client_id?: string | null
           client_name?: string
           client_phone?: string
           comments?: string | null
@@ -57,8 +66,11 @@ export type Database = {
           expires_at?: string | null
           hairdresser_id?: string
           id?: string
+          scheduled_at?: string
           service?: string
-          status?: string | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          stylist_id?: string | null
         }
         Relationships: [
           {
@@ -69,10 +81,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bookings_hairdresser_id_fkey"
-            columns: ["hairdresser_id"]
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
             isOneToOne: false
-            referencedRelation: "stylists_with_rating"
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
         ]
@@ -411,28 +423,7 @@ export type Database = {
       }
     }
     Views: {
-      stylists_with_rating: {
-        Row: {
-          base_rating: number | null
-          completed_bookings: number | null
-          computed_rating: number | null
-          created_at: string | null
-          email: string | null
-          experience: string | null
-          id: string | null
-          image_url: string | null
-          is_active: boolean | null
-          location: string | null
-          name: string | null
-          phone: string | null
-          review_count: number | null
-          specialties: string[] | null
-          this_month_bookings: number | null
-          total_bookings: number | null
-          updated_at: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       clean_expired_bookings: {
