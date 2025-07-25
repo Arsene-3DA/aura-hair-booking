@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -23,13 +23,13 @@ describe('LanguageToggle Component', () => {
   })
 
   it('renders language toggle button', () => {
-    render(
+    const { getByRole } = render(
       <TestWrapper>
         <LanguageToggle />
       </TestWrapper>
     )
 
-    const button = screen.getByRole('button', { name: /changer la langue/i })
+    const button = getByRole('button', { name: /changer la langue/i })
     expect(button).toBeInTheDocument()
   })
 

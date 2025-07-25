@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -64,13 +64,13 @@ describe('ThemeToggle Component', () => {
   })
 
   it('renders theme toggle button', () => {
-    render(
+    const { getByRole } = render(
       <TestWrapper>
         <ThemeToggle />
       </TestWrapper>
     )
 
-    const button = screen.getByRole('button', { name: /changer le thème/i })
+    const button = getByRole('button', { name: /changer le thème/i })
     expect(button).toBeInTheDocument()
   })
 
