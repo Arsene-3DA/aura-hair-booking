@@ -325,6 +325,33 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -352,6 +379,39 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          ends_at: string
+          id: string
+          is_active: boolean | null
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          ends_at: string
+          id?: string
+          is_active?: boolean | null
+          starts_at: string
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          ends_at?: string
+          id?: string
+          is_active?: boolean | null
+          starts_at?: string
+          title?: string
         }
         Relationships: []
       }
@@ -405,6 +465,44 @@ export type Database = {
             columns: ["coiffeur_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          booking_id: string | null
+          client_id: string | null
+          comment: string | null
+          created_at: string | null
+          id: string
+          rating: number | null
+          stylist_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          client_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          stylist_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          client_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          stylist_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
         ]
