@@ -5,7 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import RoleProtectedRoute from "@/components/RoleProtectedRoute";
+import SecureRoute from "@/components/SecureRoute";
+import SecurityHeaders from "@/components/SecurityHeaders";
 
 // Lazy loading des pages
 const Index = lazy(() => import("./pages/Index"));
@@ -16,16 +17,17 @@ const ProfessionalsList = lazy(() => import("./pages/ProfessionalsList"));
 const ReservationPage = lazy(() => import("./pages/ReservationPage"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const CoiffeurDashboard = lazy(() => import("./pages/CoiffeurDashboard"));
+const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const ComponentsDemo = lazy(() => import("./pages/ComponentsDemo"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
 const LoadingSpinner = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="min-h-screen bg-background flex items-center justify-center">
     <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
-      <p className="text-gray-600">Chargement...</p>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+      <p className="text-muted-foreground">Chargement...</p>
     </div>
   </div>
 );
@@ -33,31 +35,71 @@ const LoadingSpinner = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <SecurityHeaders />
       <Toaster />
       <Sonner />
       <BrowserRouter>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
-            {/* Routes publiques pour les clients */}
+            {/* Routes publiques */}
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/professionals/:gender" element={<ProfessionalsList />} />
-            <Route path="/reservation/:hairdresserId" element={<ReservationPage />} />
+            <Route path="/components" element={<ComponentsDemo />} />
             
-            {/* Routes d'authentification pour les professionnels */}
+            {/* Routes d'authentification */}
             <Route path="/auth" element={<RoleAuthPage />} />
             <Route path="/role-auth" element={<RoleAuthPage />} />
             <Route path="/signup-hairdresser" element={<SignupHairdresser />} />
-            
-            {/* Routes de développement - accès sans authentification */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/coiffeur" element={<CoiffeurDashboard />} />
-            
-            <Route path="/components" element={<ComponentsDemo />} />
-            
-            {/* Garder les anciennes routes pour compatibilité */}
             <Route path="/login" element={<RoleAuthPage />} />
-            <Route path="/hairdresser" element={<CoiffeurDashboard />} />
+            
+            {/* Routes protégées - Admin seulement */}
+            <Route 
+              path="/admin" 
+              element={
+                <SecureRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </SecureRoute>
+              } 
+            />
+            
+            {/* Routes protégées - Coiffeur seulement */}
+            <Route 
+              path="/coiffeur" 
+              element={
+                <SecureRoute allowedRoles={['coiffeur']}>
+                  <CoiffeurDashboard />
+                </SecureRoute>
+              } 
+            />
+            <Route 
+              path="/hairdresser" 
+              element={
+                <SecureRoute allowedRoles={['coiffeur']}>
+                  <CoiffeurDashboard />
+                </SecureRoute>
+              } 
+            />
+            
+            {/* Routes protégées - Client seulement */}
+            <Route 
+              path="/client" 
+              element={
+                <SecureRoute allowedRoles={['client']}>
+                  <ClientDashboard />
+                </SecureRoute>
+              } 
+            />
+            
+            {/* Routes protégées - Utilisateurs authentifiés */}
+            <Route 
+              path="/reservation/:hairdresserId" 
+              element={
+                <SecureRoute requireAuth={true}>
+                  <ReservationPage />
+                </SecureRoute>
+              } 
+            />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
