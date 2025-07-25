@@ -30,7 +30,13 @@ const ReservationPage = () => {
   // Récupérer les données du coiffeur depuis les paramètres de navigation ou la BD
   useEffect(() => {
     const loadHairdresser = async () => {
-      if (!hairdresserId) {
+      if (!hairdresserId || hairdresserId === 'undefined' || hairdresserId.trim() === '') {
+        console.error('ID coiffeur invalide:', hairdresserId);
+        toast({
+          title: "Erreur",
+          description: "ID du coiffeur manquant ou invalide",
+          variant: "destructive"
+        });
         navigate('/');
         return;
       }

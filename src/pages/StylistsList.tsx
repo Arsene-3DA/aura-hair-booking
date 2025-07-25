@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { StylistCard } from '@/components/StylistCard';
 import { Input } from '@/components/ui/input';
@@ -42,6 +43,7 @@ const StylistsList = () => {
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
   const [selectedLocation, setSelectedLocation] = useState<string>('');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Mock services data - you can later create a services table
   const mockServices = [
@@ -106,19 +108,36 @@ const StylistsList = () => {
   });
 
   const handleBooking = (stylistId: string) => {
-    toast({
-      title: "Réservation",
-      description: "Redirection vers la page de réservation...",
+    if (!stylistId) {
+      toast({
+        title: "Erreur",
+        description: "ID du coiffeur manquant",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Trouver les données du coiffeur pour les passer en state
+    const stylist = hairdressers.find(h => h.id === stylistId);
+    
+    navigate(`/reservation/${stylistId}`, {
+      state: { 
+        hairdresser: stylist 
+      }
     });
-    // Navigate to booking page with stylistId
   };
 
   const handleViewProfile = (stylistId: string) => {
-    toast({
-      title: "Profil",
-      description: "Affichage du profil détaillé...",
-    });
-    // Navigate to stylist profile page
+    if (!stylistId) {
+      toast({
+        title: "Erreur",
+        description: "ID du coiffeur manquant",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    navigate(`/stylist/${stylistId}`);
   };
 
   const clearFilters = () => {
