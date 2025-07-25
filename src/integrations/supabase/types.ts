@@ -709,6 +709,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      log_security_event: {
+        Args: {
+          event_type: string
+          event_message: string
+          user_id?: string
+          metadata?: Json
+        }
+        Returns: undefined
+      }
       promote_to_admin: {
         Args: { p_email: string }
         Returns: undefined
