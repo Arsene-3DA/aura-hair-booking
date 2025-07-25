@@ -8,8 +8,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { EnhancedAvatar } from '@/components/EnhancedAvatar';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useState } from 'react';
 
@@ -77,15 +77,11 @@ export const HeaderClient = ({ onNewBookingClick, pendingNotifications = 0 }: He
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage 
-                    src={userProfile?.avatar_url} 
-                    alt={userProfile?.full_name || user?.email} 
-                  />
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
+                <EnhancedAvatar 
+                  src={userProfile?.avatar_url}
+                  name={userProfile?.full_name || user?.email}
+                  size="md"
+                />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>

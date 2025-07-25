@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { PhotoUpload } from '@/components/PhotoUpload';
+import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
 import { 
   Clock, 
   Plus, 
@@ -41,6 +43,7 @@ interface GalleryImage {
 
 const SalonSettings = () => {
   const { toast } = useToast();
+  const { profile, refreshProfile } = useGoogleAuth();
   
   // Working Hours State
   const [workingHours, setWorkingHours] = useState<WorkingHour[]>([
@@ -168,12 +171,21 @@ const SalonSettings = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="hours" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="profile">Profil</TabsTrigger>
           <TabsTrigger value="hours">Horaires</TabsTrigger>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="gallery">Galerie</TabsTrigger>
         </TabsList>
+
+        {/* Profile Tab */}
+        <TabsContent value="profile" className="space-y-4">
+          <PhotoUpload 
+            currentAvatarUrl={profile?.avatar_url}
+            onAvatarUpdate={refreshProfile}
+          />
+        </TabsContent>
 
         {/* Working Hours Tab */}
         <TabsContent value="hours" className="space-y-4">
