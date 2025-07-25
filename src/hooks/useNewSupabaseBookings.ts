@@ -107,7 +107,7 @@ export const useNewSupabaseBookings = () => {
         .insert({
           ...bookingData,
           expires_at: expiresAt.toISOString(),
-          status: 'en_attente'
+          status: 'pending'
         })
         .select()
         .single();

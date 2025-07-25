@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export interface Booking {
+export interface NewBooking {
   id: string;
   client_id: string;
   stylist_id: string;
@@ -26,13 +26,16 @@ export const useBookings = () => {
   const createBooking = async (bookingData: CreateBookingData) => {
     setLoading(true);
     try {
+      const { data: userData } = await supabase.auth.getUser();
+      
       const { data, error } = await supabase
-        .from('bookings')
+        .from('new_reservations')
         .insert({
-          client_id: (await supabase.auth.getUser()).data.user?.id,
-          stylist_id: bookingData.stylist_id,
+          client_user_id: userData.user?.id,
+          stylist_user_id: bookingData.stylist_id,
           service_id: bookingData.service_id,
-          scheduled_at: bookingData.scheduled_at
+          scheduled_at: bookingData.scheduled_at,
+          status: 'pending'
         })
         .select()
         .single();
@@ -61,11 +64,11 @@ export const useBookings = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('bookings')
+        .from('new_reservations')
         .select(`
           *,
           services (name, price, duration),
-          profiles!stylist_id (full_name)
+          profiles!stylist_user_id (full_name)
         `)
         .order('scheduled_at', { ascending: true });
 
@@ -87,11 +90,11 @@ export const useBookings = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('bookings')
+        .from('new_reservations')
         .select(`
           *,
           services (name, price, duration),
-          profiles!client_id (full_name)
+          profiles!client_user_id (full_name)
         `)
         .order('scheduled_at', { ascending: true });
 
@@ -113,7 +116,7 @@ export const useBookings = () => {
     setLoading(true);
     try {
       const { error } = await supabase
-        .from('bookings')
+        .from('new_reservations')
         .update({ status })
         .eq('id', bookingId);
 

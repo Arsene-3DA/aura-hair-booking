@@ -39,7 +39,7 @@ const PendingBookingsNotification = ({ hairdresserId }: PendingBookingsNotificat
           .from('bookings')
           .select('*')
           .eq('hairdresser_id', hairdresserId)
-          .eq('status', 'en_attente')
+          .eq('status', 'pending')
           .order('created_at', { ascending: false });
 
         if (error) {

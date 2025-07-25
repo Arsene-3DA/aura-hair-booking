@@ -31,7 +31,7 @@ export const useQueue = (stylistId?: string): UseQueueReturn => {
         .from('bookings')
         .select('*')
         .eq('hairdresser_id', stylistId)
-        .eq('status', 'en_attente')
+        .eq('status', 'pending')
         .order('created_at', { ascending: true });
 
       if (fetchError) {
@@ -53,7 +53,7 @@ export const useQueue = (stylistId?: string): UseQueueReturn => {
     try {
       const { error } = await supabase
         .from('bookings')
-        .update({ status: 'confirmé' })
+        .update({ status: 'confirmed' })
         .eq('id', bookingId);
 
       if (error) {
@@ -72,7 +72,7 @@ export const useQueue = (stylistId?: string): UseQueueReturn => {
     try {
       const { error } = await supabase
         .from('bookings')
-        .update({ status: 'refusé' })
+        .update({ status: 'declined' })
         .eq('id', bookingId);
 
       if (error) {
@@ -110,18 +110,18 @@ export const useQueue = (stylistId?: string): UseQueueReturn => {
         (payload) => {
           console.log('Queue change detected:', payload);
           
-          if (payload.eventType === 'INSERT' && payload.new.status === 'en_attente') {
+          if (payload.eventType === 'INSERT' && payload.new.status === 'pending') {
             setQueue(prev => [...prev, payload.new as QueueBooking]);
           } else if (payload.eventType === 'UPDATE') {
             const updatedBooking = payload.new as QueueBooking;
-            if (updatedBooking.status === 'en_attente') {
+            if (updatedBooking.status === 'pending') {
               setQueue(prev => 
                 prev.map(booking => 
                   booking.id === updatedBooking.id ? updatedBooking : booking
                 )
               );
             } else {
-              // Remove from queue if status changed from en_attente
+              // Remove from queue if status changed from pending
               setQueue(prev => 
                 prev.filter(booking => booking.id !== updatedBooking.id)
               );

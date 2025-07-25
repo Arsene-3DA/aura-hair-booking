@@ -48,14 +48,14 @@ export const useStylistStats = (stylistId?: string, date: Date = new Date()): St
           .from('bookings')
           .select('id')
           .eq('hairdresser_id', stylistId)
-          .eq('status', 'refusé')
+          .eq('status', 'declined')
           .gte('booking_date', thirtyDaysAgo);
 
         if (noShowError) throw noShowError;
 
         const totalToday = todayBookings?.length || 0;
-        const confirmed = todayBookings?.filter(b => b.status === 'confirmé').length || 0;
-        const pending = todayBookings?.filter(b => b.status === 'en_attente').length || 0;
+        const confirmed = todayBookings?.filter(b => b.status === 'confirmed').length || 0;
+        const pending = todayBookings?.filter(b => b.status === 'pending').length || 0;
         const noShow30d = noShowBookings?.length || 0;
 
         setStats({

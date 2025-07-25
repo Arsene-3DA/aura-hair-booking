@@ -54,7 +54,7 @@ export const useAdminStats = (): AdminStats => {
         const { data: pendingBookings, error: pendingError } = await supabase
           .from('bookings')
           .select('id')
-          .eq('status', 'en_attente');
+          .eq('status', 'pending');
 
         if (pendingError) throw pendingError;
 

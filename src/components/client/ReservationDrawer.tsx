@@ -67,7 +67,7 @@ export const ReservationDrawer = ({
     try {
       const { error } = await supabase
         .from('bookings')
-        .update({ status: 'refusé' })
+        .update({ status: 'declined' })
         .eq('id', booking.id);
 
       if (error) {
