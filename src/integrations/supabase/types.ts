@@ -242,6 +242,36 @@ export type Database = {
           },
         ]
       }
+      services: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration: number
+          id: string
+          name: string
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration: number
+          id?: string
+          name: string
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number
+          id?: string
+          name?: string
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       system_logs: {
         Row: {
           created_at: string | null
@@ -387,6 +417,7 @@ export type Database = {
       }
     }
     Enums: {
+      booking_status: "pending" | "confirmed" | "declined" | "completed"
       reservation_status: "en_attente" | "confirmee" | "annulee"
       user_role: "client" | "coiffeur" | "admin"
       user_status: "actif" | "bloque" | "inactif"
@@ -517,6 +548,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      booking_status: ["pending", "confirmed", "declined", "completed"],
       reservation_status: ["en_attente", "confirmee", "annulee"],
       user_role: ["client", "coiffeur", "admin"],
       user_status: ["actif", "bloque", "inactif"],
