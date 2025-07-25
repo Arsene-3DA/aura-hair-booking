@@ -1,1 +1,4 @@
 project_id = "yazsvadgmkpatqyjrzcw"
+
+[functions.proxy-latest-message]
+verify_jwt = false
