@@ -45,6 +45,20 @@
 
     --radius: 0.75rem;
 
+    /* Système de couleurs Luxury Gold */
+    --luxury-black: 0 0% 6%;
+    --luxury-charcoal: 0 0% 15%;
+    --luxury-gold-50: 45 100% 97%;
+    --luxury-gold-100: 45 100% 94%;
+    --luxury-gold-200: 45 100% 87%;
+    --luxury-gold-300: 45 100% 77%;
+    --luxury-gold-400: 45 100% 65%;
+    --luxury-gold-500: 45 95% 55%;
+    --luxury-gold-600: 45 90% 50%;
+    --luxury-gold-700: 45 85% 45%;
+    --luxury-gold-800: 45 80% 40%;
+    --luxury-gold-900: 45 75% 35%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -116,6 +130,26 @@
 }
 
 @layer components {
+  /* Gradients et styles gold */
+  .bg-gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--luxury-gold-400)) 0%, hsl(var(--luxury-gold-600)) 100%);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--luxury-gold-500)) 0%, hsl(var(--luxury-gold-700)) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .shadow-luxury {
+    box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.3), 0 0 40px rgba(255, 212, 59, 0.2);
+  }
+
+  .shadow-gold {
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+  }
+
   /* Composants principaux */
   .luxury-card {
     @apply bg-white/95 backdrop-blur-sm border border-gray-100 rounded-2xl shadow-luxury hover:shadow-gold transition-all duration-500;

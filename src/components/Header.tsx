@@ -27,7 +27,11 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 shadow-lg sticky top-0 z-50">
+    <header className="bg-gradient-to-r from-luxury-gold-500 via-luxury-gold-600 to-luxury-gold-700 shadow-luxury sticky top-0 z-50"
+      style={{
+        background: 'linear-gradient(135deg, hsl(45, 100%, 60%) 0%, hsl(45, 95%, 55%) 50%, hsl(45, 90%, 50%) 100%)'
+      }}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -102,7 +106,11 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-white/20 bg-purple-700">
+          <div className="md:hidden py-4 border-t border-white/20"
+            style={{
+              background: 'linear-gradient(135deg, hsl(45, 95%, 55%) 0%, hsl(45, 90%, 50%) 100%)'
+            }}
+          >
             <nav className="flex flex-col space-y-4">
               {/* Mobile Search */}
               <div className="px-2 mb-4">

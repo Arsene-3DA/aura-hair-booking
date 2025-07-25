@@ -11,10 +11,11 @@ import { useProfileRole } from '@/hooks/useProfileRole';
 import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
 import InitializeDataButton from '@/components/InitializeDataButton';
 import AuthRedirectHandler from '@/components/AuthRedirectHandler';
+import ScissorsTransition from '@/components/ScissorsTransition';
 
 const RoleAuthPage = () => {
   const navigate = useNavigate();
-  const { signIn, signUp, loading, isAuthenticated, user } = useRoleAuth();
+  const { signIn, signUp, loading, isAuthenticated, user, showTransition, handleTransitionComplete } = useRoleAuth();
   const { needsPasswordChange, checkPasswordChangeRequired } = usePasswordPolicy();
   const { data: profileRole } = useProfileRole(user?.id);
   
@@ -275,6 +276,12 @@ const RoleAuthPage = () => {
       {/* Modal de changement de mot de passe obligatoire */}
       <AdminPasswordChangeModal 
         isOpen={needsPasswordChange}
+      />
+
+      {/* Animation de transition avec ciseaux */}
+      <ScissorsTransition 
+        isActive={showTransition}
+        onComplete={handleTransitionComplete}
       />
     </AuthRedirectHandler>
   );

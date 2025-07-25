@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 import { useUsers, UserRole } from './useUsers';
 
 interface AuthState {
@@ -12,6 +13,7 @@ interface AuthState {
   isAuthenticated: boolean;
   userProfile: any | null;
   userRole: UserRole | null;
+  showTransition: boolean;
 }
 
 export const useRoleAuth = () => {
@@ -21,9 +23,11 @@ export const useRoleAuth = () => {
     loading: true,
     isAuthenticated: false,
     userProfile: null,
-    userRole: null
+    userRole: null,
+    showTransition: false
   });
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { getCurrentUser } = useUsers();
 
   useEffect(() => {
@@ -135,6 +139,9 @@ export const useRoleAuth = () => {
 
       if (error) throw error;
 
+      // Déclencher l'animation de transition
+      setAuthState(prev => ({ ...prev, showTransition: true }));
+
       toast({
         title: "✅ Connexion réussie",
         description: `Bienvenue !`
@@ -177,6 +184,19 @@ export const useRoleAuth = () => {
     return authState.userRole ? roles.includes(authState.userRole) : false;
   };
 
+  const handleTransitionComplete = () => {
+    setAuthState(prev => ({ ...prev, showTransition: false }));
+    
+    // Redirection selon le rôle
+    if (authState.userRole === 'admin') {
+      navigate('/admin');
+    } else if (authState.userRole === 'coiffeur') {
+      navigate('/stylist');
+    } else {
+      navigate('/app');
+    }
+  };
+
   return {
     ...authState,
     signUp,
@@ -184,6 +204,7 @@ export const useRoleAuth = () => {
     signOut,
     hasRole,
     hasAnyRole,
-    loadUserProfile
+    loadUserProfile,
+    handleTransitionComplete
   };
 };

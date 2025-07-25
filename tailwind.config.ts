@@ -63,7 +63,22 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Palette professionnelle noir, blanc, or
+				// Palette professionnelle noir, blanc, or avec variables CSS
+				'luxury-black': 'hsl(var(--luxury-black))',
+				'luxury-charcoal': 'hsl(var(--luxury-charcoal))',
+				'luxury-gold': {
+					50: 'hsl(var(--luxury-gold-50))',
+					100: 'hsl(var(--luxury-gold-100))',
+					200: 'hsl(var(--luxury-gold-200))',
+					300: 'hsl(var(--luxury-gold-300))',
+					400: 'hsl(var(--luxury-gold-400))',
+					500: 'hsl(var(--luxury-gold-500))',
+					600: 'hsl(var(--luxury-gold-600))',
+					700: 'hsl(var(--luxury-gold-700))',
+					800: 'hsl(var(--luxury-gold-800))',
+					900: 'hsl(var(--luxury-gold-900))',
+				},
+				// Palette de compatibilité (à garder pour les anciens composants)
 				luxury: {
 					black: '#0a0a0a',
 					charcoal: '#1a1a1a', 
