@@ -190,7 +190,7 @@ export const useSupabaseAuth = () => {
     }
   };
 
-  const updateBookingStatus = async (bookingId: string, status: 'confirmé' | 'refusé' | 'terminé') => {
+  const updateBookingStatus = async (bookingId: string, status: 'confirmed' | 'declined' | 'completed') => {
     try {
       const { error } = await supabase
         .from('bookings')

@@ -4,29 +4,29 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
 interface CreateBookingData {
-  hairdresser_id: string;
+  stylist_id: string;
+  client_id?: string;
   client_name: string;
   client_email: string;
   client_phone: string;
   service: string;
-  booking_date: string;
-  booking_time: string;
+  scheduled_at: string;
   comments?: string;
 }
 
 interface Booking {
   id: string;
-  hairdresser_id: string;
+  stylist_id: string;
+  client_id?: string;
   client_name: string;
   client_email: string;
   client_phone: string;
   service: string;
-  booking_date: string;
-  booking_time: string;
-  status: 'en_attente' | 'confirmé' | 'refusé' | 'terminé';
+  scheduled_at: string;
+  status: 'pending' | 'confirmed' | 'declined';
   comments?: string;
   created_at: string;
-  expires_at?: string;
+  updated_at: string;
 }
 
 export const useSupabaseBookings = () => {
@@ -44,9 +44,15 @@ export const useSupabaseBookings = () => {
       const { data, error } = await supabase
         .from('bookings')
         .insert({
-          ...bookingData,
-          expires_at: expiresAt.toISOString(),
-          status: 'en_attente'
+          stylist_id: bookingData.stylist_id,
+          client_id: bookingData.client_id,
+          client_name: bookingData.client_name,
+          client_email: bookingData.client_email,
+          client_phone: bookingData.client_phone,
+          service: bookingData.service,
+          scheduled_at: bookingData.scheduled_at,
+          comments: bookingData.comments,
+          status: 'pending'
         })
         .select()
         .single();
