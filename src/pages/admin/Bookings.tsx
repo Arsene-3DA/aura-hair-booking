@@ -74,7 +74,7 @@ const Bookings = () => {
     }
   };
 
-  const updateBookingStatus = async (bookingId: string, newStatus: string) => {
+  const updateBookingStatus = async (bookingId: string, newStatus: 'pending' | 'confirmed' | 'declined' | 'completed') => {
     try {
       const { error } = await supabase
         .from('bookings')
@@ -394,17 +394,17 @@ const Bookings = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem 
-                          onClick={() => updateBookingStatus(booking.id, 'confirmee')}
+                          onClick={() => updateBookingStatus(booking.id, 'confirmed')}
                         >
                           Confirmer
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          onClick={() => updateBookingStatus(booking.id, 'terminee')}
+                          onClick={() => updateBookingStatus(booking.id, 'completed')}
                         >
                           Marquer terminée
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          onClick={() => updateBookingStatus(booking.id, 'annulee')}
+                          onClick={() => updateBookingStatus(booking.id, 'declined')}
                         >
                           Annuler
                         </DropdownMenuItem>

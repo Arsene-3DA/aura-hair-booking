@@ -101,13 +101,14 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
       const { error } = await supabase
         .from('bookings')
         .insert({
-          stylist_id: hairdresserId,
+          hairdresser_id: hairdresserId,
           client_name: formData.clientName,
           client_email: formData.clientEmail,
           client_phone: formData.clientPhone,
           service: formData.service,
           booking_date: formData.date,
           booking_time: formData.time,
+          scheduled_at: `${formData.date}T${formData.time}:00`,
           comments: formData.notes || null,
           status: 'pending'
         });

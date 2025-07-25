@@ -8,13 +8,12 @@ export const useBookingIntegration = () => {
     try {
       // Créer dans Supabase
       const supabaseBooking = await supabaseBookings.createBooking({
-        hairdresser_id: bookingData.hairdresserId.toString(),
+        stylist_id: bookingData.hairdresserId.toString(),
         client_name: bookingData.clientName,
         client_email: bookingData.email,
         client_phone: bookingData.phone,
         service: bookingData.service,
-        booking_date: bookingData.bookingDate,
-        booking_time: bookingData.time,
+        scheduled_at: `${bookingData.bookingDate}T${bookingData.time}:00`,
         comments: bookingData.comments
       });
 

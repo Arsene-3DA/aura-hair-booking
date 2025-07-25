@@ -49,7 +49,7 @@ const CoiffeurDashboard = () => {
     window.location.href = '/';
   };
 
-  const handleStatusUpdate = async (bookingId: string, status: 'confirmé' | 'refusé') => {
+  const handleStatusUpdate = async (bookingId: string, status: 'confirmed' | 'declined') => {
     await updateBookingStatus(bookingId, status);
     
     // Recharger les réservations
@@ -200,7 +200,7 @@ const CoiffeurDashboard = () => {
                     <div className="flex gap-2">
                       <Button
                         size="sm"
-                        onClick={() => handleStatusUpdate(booking.id, 'confirmé')}
+                        onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
                         className="bg-green-500 hover:bg-green-600 text-white"
                       >
                         <Check className="h-4 w-4 mr-1" />
@@ -209,7 +209,7 @@ const CoiffeurDashboard = () => {
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => handleStatusUpdate(booking.id, 'refusé')}
+                        onClick={() => handleStatusUpdate(booking.id, 'declined')}
                       >
                         <X className="h-4 w-4 mr-1" />
                         Refuser

@@ -100,7 +100,7 @@ const PendingBookingsNotification = ({ hairdresserId }: PendingBookingsNotificat
 
   const handleAcceptBooking = async (bookingId: string, clientName: string) => {
     try {
-      await updateBookingStatus(bookingId, 'confirmé');
+      await updateBookingStatus(bookingId, 'confirmed');
       // Actualiser la liste après la mise à jour
       setPendingBookings(prev => prev.filter(booking => booking.id !== bookingId));
     } catch (error) {
@@ -110,7 +110,7 @@ const PendingBookingsNotification = ({ hairdresserId }: PendingBookingsNotificat
 
   const handleRejectBooking = async (bookingId: string, clientName: string) => {
     try {
-      await updateBookingStatus(bookingId, 'refusé');
+      await updateBookingStatus(bookingId, 'declined');
       // Actualiser la liste après la mise à jour
       setPendingBookings(prev => prev.filter(booking => booking.id !== bookingId));
     } catch (error) {

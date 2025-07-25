@@ -45,7 +45,7 @@ const StylistBookingsPage = () => {
         .order('scheduled_at', { ascending: true });
       
       if (error) throw error;
-      return data as BookingWithDetails[];
+      return data as any[];
     },
     enabled: !!user?.id,
   });

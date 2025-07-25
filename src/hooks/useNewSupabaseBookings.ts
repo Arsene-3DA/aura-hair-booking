@@ -98,15 +98,19 @@ export const useNewSupabaseBookings = () => {
     client_auth_id?: string;
   }) => {
     try {
-      // Calculer la date d'expiration (30 minutes)
-      const expiresAt = new Date();
-      expiresAt.setMinutes(expiresAt.getMinutes() + 30);
-
       const { data, error } = await supabase
         .from('bookings')
         .insert({
-          ...bookingData,
-          expires_at: expiresAt.toISOString(),
+          hairdresser_id: bookingData.hairdresser_id,
+          client_name: bookingData.client_name,
+          client_email: bookingData.client_email,
+          client_phone: bookingData.client_phone,
+          service: bookingData.service,
+          booking_date: bookingData.booking_date,
+          booking_time: bookingData.booking_time,
+          scheduled_at: `${bookingData.booking_date}T${bookingData.booking_time}:00`,
+          comments: bookingData.comments,
+          client_auth_id: bookingData.client_auth_id,
           status: 'pending'
         })
         .select()

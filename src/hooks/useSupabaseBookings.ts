@@ -16,14 +16,17 @@ interface CreateBookingData {
 
 interface Booking {
   id: string;
-  stylist_id: string;
+  hairdresser_id: string;
+  stylist_id?: string;
   client_id?: string;
   client_name: string;
   client_email: string;
   client_phone: string;
   service: string;
+  booking_date: string;
+  booking_time: string;
   scheduled_at: string;
-  status: 'pending' | 'confirmed' | 'declined';
+  status: 'pending' | 'confirmed' | 'declined' | 'completed';
   comments?: string;
   created_at: string;
   updated_at: string;
@@ -41,15 +44,21 @@ export const useSupabaseBookings = () => {
       const expiresAt = new Date();
       expiresAt.setMinutes(expiresAt.getMinutes() + 30);
 
+      const scheduledDate = new Date(bookingData.scheduled_at);
+      const bookingDate = scheduledDate.toISOString().split('T')[0];
+      const bookingTime = scheduledDate.toTimeString().slice(0, 8);
+
       const { data, error } = await supabase
         .from('bookings')
         .insert({
-          stylist_id: bookingData.stylist_id,
+          hairdresser_id: bookingData.stylist_id,
           client_id: bookingData.client_id,
           client_name: bookingData.client_name,
           client_email: bookingData.client_email,
           client_phone: bookingData.client_phone,
           service: bookingData.service,
+          booking_date: bookingDate,
+          booking_time: bookingTime,
           scheduled_at: bookingData.scheduled_at,
           comments: bookingData.comments,
           status: 'pending'
@@ -99,7 +108,7 @@ export const useSupabaseBookings = () => {
         throw error;
       }
 
-      return data as Booking[];
+      return data;
     } catch (error) {
       toast({
         title: "❌ Erreur",
@@ -110,7 +119,7 @@ export const useSupabaseBookings = () => {
     }
   };
 
-  const updateBookingStatus = async (bookingId: string, status: 'confirmé' | 'refusé' | 'terminé') => {
+  const updateBookingStatus = async (bookingId: string, status: 'confirmed' | 'declined' | 'completed') => {
     try {
       const { error } = await supabase
         .from('bookings')
@@ -123,9 +132,9 @@ export const useSupabaseBookings = () => {
       }
 
       const statusMessages = {
-        'confirmé': '✅ Réservation confirmée',
-        'refusé': '❌ Réservation refusée',
-        'terminé': '✅ Réservation terminée'
+        'confirmed': '✅ Réservation confirmée',
+        'declined': '❌ Réservation refusée',
+        'completed': '✅ Réservation terminée'
       };
 
       toast({

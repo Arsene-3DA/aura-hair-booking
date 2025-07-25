@@ -162,7 +162,7 @@ const HairdresserDashboard = () => {
 
   const handleConfirmBooking = async (bookingId: string) => {
     try {
-      await updateBookingStatus(bookingId, 'confirmé');
+      await updateBookingStatus(bookingId, 'confirmed');
       await loadBookings();
     } catch (error) {
       console.error('Erreur lors de la confirmation:', error);
@@ -171,7 +171,7 @@ const HairdresserDashboard = () => {
 
   const handleRejectBooking = async (bookingId: string) => {
     try {
-      await updateBookingStatus(bookingId, 'refusé');
+      await updateBookingStatus(bookingId, 'declined');
       await loadBookings();
     } catch (error) {
       console.error('Erreur lors du refus:', error);
