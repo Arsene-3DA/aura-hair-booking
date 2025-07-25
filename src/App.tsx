@@ -130,7 +130,7 @@ const App = () => (
             <Route 
               path="/stylist" 
               element={
-                <RoleProtectedRoute allowedRoles={['coiffeur']}>
+                <RoleProtectedRoute allowedRoles={['coiffeur', 'stylist']}>
                   <StylistLayout />
                 </RoleProtectedRoute>
               }
@@ -173,7 +173,7 @@ const App = () => (
             <Route 
               path="/coiffeur" 
               element={
-                <RoleProtectedRoute allowedRoles={['coiffeur']}>
+                <RoleProtectedRoute allowedRoles={['coiffeur', 'stylist', 'admin']}>
                   <CoiffeurDashboard />
                 </RoleProtectedRoute>
               } 
@@ -181,7 +181,7 @@ const App = () => (
             <Route 
               path="/hairdresser" 
               element={
-                <RoleProtectedRoute allowedRoles={['coiffeur']}>
+                <RoleProtectedRoute allowedRoles={['coiffeur', 'stylist', 'admin']}>
                   <CoiffeurDashboard />
                 </RoleProtectedRoute>
               } 
@@ -191,7 +191,7 @@ const App = () => (
             <Route 
               path="/client" 
               element={
-                <RoleProtectedRoute allowedRoles={['client']}>
+                <RoleProtectedRoute allowedRoles={['client', 'admin']}>
                   <ClientLayout />
                 </RoleProtectedRoute>
               }
@@ -209,7 +209,7 @@ const App = () => (
             <Route 
               path="/app" 
               element={
-                <RoleProtectedRoute allowedRoles={['client']}>
+                <RoleProtectedRoute allowedRoles={['client', 'admin']}>
                   <ClientLayout />
                 </RoleProtectedRoute>
               }
