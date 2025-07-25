@@ -8,9 +8,17 @@ const PostAuthPage = () => {
   const { user, loading, isAuthenticated, profile } = useGoogleAuth();
 
   useEffect(() => {
+    console.log('🔍 PostAuthPage - État auth:', { 
+      loading, 
+      isAuthenticated, 
+      userId: user?.id, 
+      profileRole: profile?.role,
+      userEmail: user?.email 
+    });
+
     if (!loading) {
       if (!isAuthenticated) {
-        // Si pas authentifié, rediriger vers auth
+        console.log('❌ Pas authentifié, redirection vers /auth');
         navigate('/auth');
         return;
       }
@@ -18,27 +26,33 @@ const PostAuthPage = () => {
       // Vérifier s'il y a un paramètre next
       const nextUrl = searchParams.get('next');
       if (nextUrl) {
+        console.log('🔀 Redirection vers nextUrl:', nextUrl);
         navigate(nextUrl, { replace: true });
         return;
       }
 
       if (profile?.role) {
+        console.log('✅ Profil trouvé, rôle:', profile.role);
         // Rediriger selon le rôle
         switch (profile.role) {
           case 'admin':
+            console.log('🚀 Redirection vers /admin');
             navigate('/admin');
             break;
           case 'coiffeur':
+            console.log('🚀 Redirection vers /stylist');
             navigate('/stylist');
             break;
           case 'client':
           default:
+            console.log('🚀 Redirection vers /app');
             navigate('/app');
             break;
         }
       } else if (user) {
-        // Si profil pas encore chargé, attendre un peu plus
-        console.log('Profil en cours de chargement...');
+        console.log('⏳ Utilisateur connecté mais profil en cours de chargement...');
+      } else {
+        console.log('🔄 En attente des données utilisateur...');
       }
     }
   }, [loading, isAuthenticated, profile, navigate, searchParams, user]);
