@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Star } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { useReviews } from '@/hooks/useReviews';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -19,6 +21,7 @@ export const ReviewModal = ({ isOpen, onClose, bookingId, stylistId, stylistName
   const [comment, setComment] = useState('');
   const [hoveredStar, setHoveredStar] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   
   const { user } = useAuth();
   const { createReview } = useReviews(user?.id);
@@ -28,6 +31,31 @@ export const ReviewModal = ({ isOpen, onClose, bookingId, stylistId, stylistName
     
     setIsSubmitting(true);
     try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) throw new Error('Utilisateur non connecté');
+
+      // Récupérer les infos du booking pour obtenir le stylist_id
+      const { data: booking } = await supabase
+        .from('bookings')
+        .select('stylist_id')
+        .eq('id', bookingId)
+        .single();
+
+      if (!booking) throw new Error('Réservation non trouvée');
+
+      const { error } = await supabase
+        .from('reviews')
+        .insert({
+          booking_id: bookingId,
+          client_id: authUser.id,
+          stylist_id: booking.stylist_id,
+          rating,
+          comment: comment.trim() || null,
+          is_approved: false // Nécessite une modération
+        });
+
+      if (error) throw error;
+
       await createReview(bookingId, rating, comment || undefined);
       onClose();
       setRating(0);

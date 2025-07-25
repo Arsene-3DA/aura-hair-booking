@@ -433,7 +433,7 @@ const StylistDashboard = () => {
 
         {/* Reviews Tab */}
         <TabsContent value="reviews" className="space-y-4">
-          <StylistReviewsSection stylistId={profile?.id || ''} />
+          <StylistReviewsSection />
         </TabsContent>
 
         {/* Photo Tab */}
