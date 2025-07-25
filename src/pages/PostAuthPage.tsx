@@ -1,61 +1,121 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const PostAuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, loading, isAuthenticated, profile } = useGoogleAuth();
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    console.log('🔍 PostAuthPage - État auth:', { 
-      loading, 
-      isAuthenticated, 
-      userId: user?.id, 
-      profileRole: profile?.role,
-      userEmail: user?.email 
-    });
+    const handleAuthCallback = async () => {
+      try {
+        // Obtenir la session actuelle
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Erreur session:', sessionError);
+          toast({
+            title: "Erreur d'authentification",
+            description: sessionError.message,
+            variant: "destructive"
+          });
+          navigate('/auth');
+          return;
+        }
 
-    if (!loading) {
-      if (!isAuthenticated) {
-        console.log('❌ Pas authentifié, redirection vers /auth');
-        navigate('/auth');
-        return;
-      }
+        if (!session) {
+          console.log('❌ Pas de session, redirection vers /auth');
+          navigate('/auth');
+          return;
+        }
 
-      // Vérifier s'il y a un paramètre next
-      const nextUrl = searchParams.get('next');
-      if (nextUrl) {
-        console.log('🔀 Redirection vers nextUrl:', nextUrl);
-        navigate(nextUrl, { replace: true });
-        return;
-      }
+        console.log('✅ Session trouvée:', session.user.email);
 
-      if (profile?.role) {
-        console.log('✅ Profil trouvé, rôle:', profile.role);
+        // Obtenir le profil utilisateur
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role, full_name, avatar_url')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Erreur profil:', profileError);
+          // Si le profil n'existe pas, le créer
+          if (profileError.code === 'PGRST116') {
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                user_id: session.user.id,
+                full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
+                role: 'client'
+              });
+
+            if (insertError) {
+              console.error('Erreur création profil:', insertError);
+              toast({
+                title: "Erreur",
+                description: "Impossible de créer votre profil",
+                variant: "destructive"
+              });
+              navigate('/auth');
+              return;
+            }
+            
+            // Profil créé avec rôle client par défaut
+            navigate('/app', { replace: true });
+            return;
+          }
+          
+          toast({
+            title: "Erreur",
+            description: "Impossible de récupérer votre profil",
+            variant: "destructive"
+          });
+          navigate('/auth');
+          return;
+        }
+
+        // Vérifier s'il y a un paramètre next
+        const nextUrl = searchParams.get('next');
+        if (nextUrl) {
+          console.log('🔀 Redirection vers nextUrl:', nextUrl);
+          navigate(nextUrl, { replace: true });
+          return;
+        }
+
         // Rediriger selon le rôle
+        console.log('🚀 Redirection selon le rôle:', profile.role);
         switch (profile.role) {
           case 'admin':
-            console.log('🚀 Redirection vers /admin');
-            navigate('/admin');
+            navigate('/admin', { replace: true });
             break;
           case 'coiffeur':
-            console.log('🚀 Redirection vers /stylist');
-            navigate('/stylist');
+            navigate('/stylist', { replace: true });
             break;
           case 'client':
           default:
-            console.log('🚀 Redirection vers /app');
-            navigate('/app');
+            navigate('/app', { replace: true });
             break;
         }
-      } else if (user) {
-        console.log('⏳ Utilisateur connecté mais profil en cours de chargement...');
-      } else {
-        console.log('🔄 En attente des données utilisateur...');
+
+      } catch (error) {
+        console.error('Erreur inattendue:', error);
+        toast({
+          title: "Erreur",
+          description: "Une erreur inattendue s'est produite",
+          variant: "destructive"
+        });
+        navigate('/auth');
+      } finally {
+        setLoading(false);
       }
-    }
-  }, [loading, isAuthenticated, profile, navigate, searchParams, user]);
+    };
+
+    handleAuthCallback();
+  }, [navigate, searchParams, toast]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
