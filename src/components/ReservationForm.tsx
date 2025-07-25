@@ -101,27 +101,57 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       
-      const { error } = await supabase
-        .from('bookings')
-        .insert({
-          hairdresser_id: hairdresserId,
-          client_auth_id: user?.id,
-          client_name: formData.clientName,
-          client_email: formData.clientEmail,
-          client_phone: formData.clientPhone,
-          service: formData.service,
-          booking_date: formData.date,
-          booking_time: formData.time,
-          scheduled_at: `${formData.date}T${formData.time}:00`,
-          comments: formData.notes || null,
-          status: 'pending'
+      console.log('🔍 Debug - Tentative de création de réservation:', {
+        hairdresserId,
+        user: user?.id,
+        formData
+      });
+      
+      // Vérifier que l'utilisateur est connecté
+      if (!user) {
+        toast({
+          title: "Erreur d'authentification",
+          description: "Vous devez être connecté pour faire une réservation.",
+          variant: "destructive"
         });
+        return;
+      }
+
+      const bookingData = {
+        hairdresser_id: hairdresserId,
+        client_id: user.id,  // Changé: utilise client_id au lieu de client_auth_id
+        client_auth_id: user.id,
+        client_name: formData.clientName,
+        client_email: formData.clientEmail,
+        client_phone: formData.clientPhone,
+        service: formData.service,
+        booking_date: formData.date,
+        booking_time: formData.time,
+        scheduled_at: `${formData.date}T${formData.time}:00`,
+        comments: formData.notes || null,
+        status: 'pending' as const
+      };
+
+      console.log('📝 Données à insérer:', bookingData);
+      
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert(bookingData)
+        .select();
+
+      console.log('📊 Résultat de l\'insertion:', { data, error });
 
       if (error) {
-        console.error('Erreur lors de la réservation:', error);
+        console.error('❌ Erreur détaillée lors de la réservation:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        
         toast({
           title: "Erreur",
-          description: "Impossible de créer la réservation. Veuillez réessayer.",
+          description: `Impossible de créer la réservation: ${error.message}`,
           variant: "destructive"
         });
         return;
