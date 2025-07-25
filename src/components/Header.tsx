@@ -12,8 +12,31 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-  const { profile } = useGoogleAuth();
+  const { profile, loading } = useGoogleAuth();
   const { data: role } = useProfileRole(profile?.id);
+
+  // Handle loading state to prevent context errors
+  if (loading) {
+    return (
+      <header className="bg-gradient-to-r from-luxury-gold-500 via-luxury-gold-600 to-luxury-gold-700 shadow-luxury sticky top-0 z-50"
+        style={{
+          background: 'linear-gradient(135deg, hsl(45, 100%, 60%) 0%, hsl(45, 95%, 55%) 50%, hsl(45, 90%, 50%) 100%)'
+        }}
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30">
+                <Scissors className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold text-white">Aura</span>
+            </div>
+            <div className="animate-pulse w-32 h-8 bg-white/20 rounded"></div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   const handleProfessionalLogin = () => {
     navigate('/auth');
