@@ -77,27 +77,31 @@ const PhotoUploadWrapper = ({ currentAvatarUrl: initialUrl, ...props }: any) => 
 export const Default: Story = {
   render: (args) => <PhotoUploadWrapper {...args} />,
   args: {
-    currentAvatarUrl: null
+    currentAvatarUrl: null,
+    onAvatarUpdate: () => {}
   }
 };
 
 export const WithExistingPhoto: Story = {
   render: (args) => <PhotoUploadWrapper {...args} />,
   args: {
-    currentAvatarUrl: 'https://ui-avatars.com/api/?name=Sophie+Martin&background=6366f1&color=ffffff&size=400&bold=true&format=png'
+    currentAvatarUrl: 'https://ui-avatars.com/api/?name=Sophie+Martin&background=6366f1&color=ffffff&size=400&bold=true&format=png',
+    onAvatarUpdate: () => {}
   }
 };
 
 export const WithRealPhoto: Story = {
   render: (args) => <PhotoUploadWrapper {...args} />,
   args: {
-    currentAvatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face'
+    currentAvatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
+    onAvatarUpdate: () => {}
   }
 };
 
 export const EmptyState: Story = {
   render: (args) => <PhotoUploadWrapper {...args} />,
   args: {
-    currentAvatarUrl: ''
+    currentAvatarUrl: '',
+    onAvatarUpdate: () => {}
   }
 };

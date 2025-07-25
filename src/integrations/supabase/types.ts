@@ -68,6 +68,13 @@ export type Database = {
             referencedRelation: "hairdressers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bookings_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "stylists_with_rating"
+            referencedColumns: ["id"]
+          },
         ]
       }
       clients: {
@@ -235,6 +242,30 @@ export type Database = {
           },
         ]
       }
+      system_logs: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: number
+          message: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: number
+          message?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: number
+          message?: string | null
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           auth_id: string | null
@@ -276,7 +307,28 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      stylists_with_rating: {
+        Row: {
+          base_rating: number | null
+          completed_bookings: number | null
+          computed_rating: number | null
+          created_at: string | null
+          email: string | null
+          experience: string | null
+          id: string | null
+          image_url: string | null
+          is_active: boolean | null
+          location: string | null
+          name: string | null
+          phone: string | null
+          review_count: number | null
+          specialties: string[] | null
+          this_month_bookings: number | null
+          total_bookings: number | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       clean_expired_bookings: {
@@ -294,6 +346,10 @@ export type Database = {
       hash_password: {
         Args: { password: string }
         Returns: string
+      }
+      refresh_stylists_rating: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       set_user_role: {
         Args: { user_id: string; new_role: string }
