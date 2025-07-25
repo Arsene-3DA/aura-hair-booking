@@ -42,14 +42,7 @@ const ReservePage = () => {
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [notes, setNotes] = useState('');
 
-  // Rediriger vers login si non authentifié
-  if (!isAuthenticated) {
-    const nextUrl = `/reserve/${serviceId}${stylistId ? `?stylist=${stylistId}` : ''}`;
-    navigate(`/auth?next=${encodeURIComponent(nextUrl)}`);
-    return null;
-  }
-
-  // Récupérer le service
+  // Récupérer le service (TOUS LES HOOKS DOIVENT ÊTRE APPELÉS AVANT TOUT RETURN)
   const { data: service, isLoading: serviceLoading } = useQuery({
     queryKey: ['service', serviceId],
     queryFn: async () => {
@@ -113,6 +106,14 @@ const ReservePage = () => {
       console.error('Erreur réservation:', error);
     },
   });
+
+  // Rediriger vers login si non authentifié (APRÈS tous les hooks)
+  if (!isAuthenticated) {
+    const nextUrl = `/reserve/${serviceId}${stylistId ? `?stylist=${stylistId}` : ''}`;
+    navigate(`/auth?next=${encodeURIComponent(nextUrl)}`);
+    return null;
+  }
+
 
   const handleSubmit = () => {
     if (!selectedDate || !selectedTime || !stylistId || !serviceId) {
