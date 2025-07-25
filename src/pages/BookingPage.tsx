@@ -27,7 +27,7 @@ interface Stylist {
   avatar_url: string | null;
 }
 
-export const BookingPage = () => {
+const BookingPage = () => {
   const { serviceId, stylistId } = useParams();
   const navigate = useNavigate();
   const { createBooking, loading } = useBookings();
@@ -206,3 +206,5 @@ export const BookingPage = () => {
     </div>
   );
 };
+
+export default BookingPage;

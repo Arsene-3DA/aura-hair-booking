@@ -214,16 +214,40 @@ const App = () => (
                 </RoleProtectedRoute>
               }
             >
-              <Route index element={<div />} /> {/* Default empty route */}
-              <Route path="history" element={<ClientHistory />} />
+              <Route index element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/client/ClientDashboard')))}
+                </Suspense>
+              } />
               <Route path="bookings" element={
                 <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/ClientBookingsPage')))}
+                  {React.createElement(React.lazy(() => import('./pages/client/BookingsPage')))}
+                </Suspense>
+              } />
+              <Route path="history" element={<ClientHistory />} />
+              <Route path="profile" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/client/ProfilePage')))}
+                </Suspense>
+              } />
+              <Route path="notifications" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/client/NotificationCenter')))}
                 </Suspense>
               } />
               <Route path="reviews" element={
                 <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/client/ReviewsPage')))}
+                  {React.createElement(React.lazy(() => import('./pages/client/MyReviewsPage')))}
+                </Suspense>
+              } />
+              <Route path="support" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/client/SupportPage')))}
+                </Suspense>
+              } />
+              <Route path="booking" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/BookingPage')))}
                 </Suspense>
               } />
             </Route>
