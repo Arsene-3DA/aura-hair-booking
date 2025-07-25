@@ -43,15 +43,24 @@ const Header = () => {
   };
 
   const handleGoogleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/post-auth`
-      }
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/post-auth`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
 
-    if (error) {
-      console.error('Erreur Google OAuth:', error);
+      if (error) {
+        console.error('Erreur Google OAuth:', error);
+        // Pas de toast ici car on redirige vers Google
+      }
+    } catch (error) {
+      console.error('Erreur lors de la connexion Google:', error);
     }
   };
 
