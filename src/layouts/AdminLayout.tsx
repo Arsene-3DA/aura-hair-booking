@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   User,
-  Shield
+  Shield,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -34,6 +35,7 @@ const AdminLayout = () => {
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Utilisateurs', href: '/admin/users', icon: Users },
     { name: 'Réservations', href: '/admin/bookings', icon: Calendar },
+    { name: 'Rapports', href: '/admin/reports', icon: FileText },
     { name: 'Audit Trail', href: '/admin/audit', icon: Activity },
     { name: 'Paramètres', href: '/admin/settings', icon: Settings },
   ];

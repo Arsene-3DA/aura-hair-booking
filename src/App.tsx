@@ -35,6 +35,7 @@ const ClientLayout = lazy(() => import("./layouts/ClientLayout"));
 const Overview = lazy(() => import("./pages/admin/Overview"));
 const Users = lazy(() => import("./pages/admin/Users"));
 const Bookings = lazy(() => import("./pages/admin/Bookings"));
+const Reports = lazy(() => import("./pages/admin/Reports"));
 const PlatformSettings = lazy(() => import("./pages/admin/PlatformSettings"));
 const AuditTrail = lazy(() => import("./pages/admin/AuditTrail"));
 
@@ -105,6 +106,7 @@ const App = () => (
               <Route index element={<Overview />} />
               <Route path="users" element={<Users />} />
               <Route path="bookings" element={<Bookings />} />
+              <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<PlatformSettings />} />
               <Route path="audit" element={<AuditTrail />} />
             </Route>
