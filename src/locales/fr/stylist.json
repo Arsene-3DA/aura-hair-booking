@@ -1,0 +1,65 @@
+{
+  "dashboard": {
+    "title": "Tableau de bord stylist",
+    "welcome": "Bonjour, {{name}}",
+    "todaySchedule": "Planning d'aujourd'hui",
+    "upcomingAppointments": "Prochains rendez-vous",
+    "stats": {
+      "todayAppointments": "RDV aujourd'hui",
+      "weekRevenue": "Revenus semaine",
+      "monthlyClients": "Clients ce mois",
+      "satisfaction": "Satisfaction"
+    }
+  },
+  "calendar": {
+    "title": "Planning",
+    "weekView": "Vue semaine",
+    "dayView": "Vue jour",
+    "monthView": "Vue mois",
+    "addAppointment": "Ajouter un RDV",
+    "blockTime": "Bloquer un créneau",
+    "workingHours": "Horaires de travail"
+  },
+  "queue": {
+    "title": "File d'attente",
+    "pending": "En attente",
+    "inProgress": "En cours",
+    "completed": "Terminés",
+    "actions": {
+      "start": "Commencer",
+      "complete": "Terminer",
+      "reschedule": "Reprogrammer",
+      "cancel": "Annuler"
+    }
+  },
+  "chat": {
+    "title": "Chat clients",
+    "noMessages": "Aucun message",
+    "typeMessage": "Tapez votre message...",
+    "send": "Envoyer",
+    "online": "En ligne",
+    "offline": "Hors ligne"
+  },
+  "settings": {
+    "title": "Paramètres du salon",
+    "profile": "Profil professionnel",
+    "services": "Services proposés",
+    "schedule": "Horaires",
+    "pricing": "Tarifs",
+    "notifications": "Notifications",
+    "availability": "Disponibilités",
+    "workingHours": {
+      "title": "Horaires de travail",
+      "monday": "Lundi",
+      "tuesday": "Mardi", 
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche",
+      "closed": "Fermé",
+      "from": "De",
+      "to": "À"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "dashboard": {
+    "title": "Tableau de bord",
+    "welcome": "Bienvenue, {{name}}",
+    "nextAppointment": "Prochain rendez-vous",
+    "noAppointments": "Aucun rendez-vous à venir",
+    "bookNew": "Réserver maintenant"
+  },
+  "booking": {
+    "title": "Réservation",
+    "selectProfessional": "Choisir un professionnel",
+    "selectService": "Choisir un service",
+    "selectDate": "Choisir une date",
+    "selectTime": "Choisir un horaire",
+    "confirmBooking": "Confirmer la réservation",
+    "bookingConfirmed": "Réservation confirmée",
+    "services": {
+      "haircut": "Coupe de cheveux",
+      "coloring": "Coloration",
+      "styling": "Coiffage",
+      "treatment": "Soin",
+      "highlights": "Mèches",
+      "perm": "Permanente"
+    },
+    "form": {
+      "specialRequests": "Demandes spéciales",
+      "specialRequestsPlaceholder": "Décrivez vos attentes...",
+      "phone": "Téléphone",
+      "email": "Email",
+      "name": "Nom complet"
+    }
+  },
+  "history": {
+    "title": "Historique des rendez-vous",
+    "noHistory": "Aucun historique de rendez-vous",
+    "status": {
+      "pending": "En attente",
+      "confirmed": "Confirmé",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "actions": {
+      "reschedule": "Reprogrammer",
+      "cancel": "Annuler",
+      "review": "Laisser un avis"
+    }
+  },
+  "profile": {
+    "title": "Mon profil",
+    "personalInfo": "Informations personnelles",
+    "preferences": "Préférences",
+    "notifications": "Notifications",
+    "privacy": "Confidentialité"
+  }
+}

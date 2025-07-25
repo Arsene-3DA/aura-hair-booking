@@ -1,0 +1,122 @@
+{
+  "title": "Administration",
+  "overview": {
+    "title": "Vue d'ensemble",
+    "subtitle": "Tableau de bord administrateur",
+    "stats": {
+      "bookingsToday": "Réservations aujourd'hui",
+      "totalUsers": "Total utilisateurs",
+      "revenue": "Revenus (30j)",
+      "pending": "En attente"
+    },
+    "charts": {
+      "bookingsWeek": "Réservations (7 derniers jours)",
+      "usersDistribution": "Répartition des utilisateurs",
+      "revenueEvolution": "Évolution des revenus (30 derniers jours)"
+    },
+    "systemStatus": {
+      "title": "État du système",
+      "database": "Base de données",
+      "api": "API Supabase",
+      "realtime": "Temps réel",
+      "operational": "Opérationnel",
+      "active": "Actif"
+    }
+  },
+  "users": {
+    "title": "Gestion des utilisateurs",
+    "subtitle": "Gérer les rôles et permissions",
+    "addUser": "Ajouter un utilisateur",
+    "actions": {
+      "promoteAdmin": "Promouvoir Admin",
+      "makeHairdresser": "Rendre Coiffeur", 
+      "makeClient": "Rendre Client",
+      "resetPassword": "Reset Password",
+      "suspend": "Suspendre"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher par nom, email...",
+      "allRoles": "Tous les rôles",
+      "allStatuses": "Tous les statuts"
+    },
+    "confirmSuspend": "Êtes-vous sûr de vouloir suspendre {{name}} ? Cette action peut être annulée."
+  },
+  "bookings": {
+    "title": "Gestion des réservations",
+    "subtitle": "Toutes les réservations de la plateforme",
+    "export": "Exporter CSV",
+    "filters": {
+      "searchPlaceholder": "Rechercher par client, service...",
+      "allStatuses": "Tous les statuts",
+      "allDates": "Toutes les dates",
+      "today": "Aujourd'hui",
+      "tomorrow": "Demain",
+      "thisWeek": "Cette semaine"
+    },
+    "actions": {
+      "confirm": "Confirmer",
+      "markCompleted": "Marquer terminée",
+      "cancel": "Annuler"
+    }
+  },
+  "settings": {
+    "title": "Paramètres de la plateforme",
+    "subtitle": "Configuration générale et système",
+    "general": {
+      "title": "Paramètres généraux",
+      "siteName": "Nom du site",
+      "description": "Description",
+      "contactEmail": "Email de contact",
+      "maintenanceMode": "Mode maintenance",
+      "maintenanceDescription": "Désactiver l'accès public au site"
+    },
+    "booking": {
+      "title": "Paramètres de réservation", 
+      "maxPerDay": "Réservations max par jour",
+      "advanceDays": "Jours d'avance maximum",
+      "guestBookings": "Réservations invités",
+      "guestDescription": "Autoriser les réservations sans compte"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "email": "Notifications email",
+      "emailDescription": "Envoyer des emails automatiques",
+      "sms": "Notifications SMS",
+      "smsDescription": "Envoyer des SMS automatiques"
+    },
+    "quotas": {
+      "title": "Quotas Supabase",
+      "dbRequests": "Requêtes DB",
+      "dbStorage": "Stockage DB", 
+      "authUsers": "Auth Users",
+      "realtime": "Realtime"
+    }
+  },
+  "audit": {
+    "title": "Journal d'audit",
+    "subtitle": "Historique des actions sur la plateforme",
+    "stats": {
+      "totalEvents": "Total événements",
+      "critical": "Critiques",
+      "high": "Élevés",
+      "lastHour": "Dernière heure"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher par utilisateur, action...",
+      "allSeverities": "Toutes",
+      "allActions": "Toutes",
+      "severities": {
+        "low": "Faible",
+        "medium": "Moyenne", 
+        "high": "Élevée",
+        "critical": "Critique"
+      },
+      "actionTypes": {
+        "users": "Utilisateurs",
+        "bookings": "Réservations",
+        "system": "Système",
+        "auth": "Authentification"
+      }
+    }
+  }
+}
