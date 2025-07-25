@@ -71,6 +71,7 @@ export const StylistCard = ({
       )}
       role="article"
       aria-labelledby={`stylist-name-${id}`}
+      data-testid="stylist-card"
     >
       <CardHeader className="pb-4">
         <div className="flex items-start space-x-4">

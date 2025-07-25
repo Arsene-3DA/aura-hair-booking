@@ -108,18 +108,29 @@ const StylistsList = () => {
   });
 
   const handleBooking = (stylistId: string) => {
-    if (!stylistId) {
+    if (!stylistId || stylistId === 'undefined' || stylistId.trim() === '') {
+      console.error('ID styliste invalide pour réservation:', stylistId);
       toast({
         title: "Erreur",
-        description: "ID du coiffeur manquant",
+        description: "ID du coiffeur manquant ou invalide",
         variant: "destructive"
       });
       return;
     }
     
-    // Trouver les données du coiffeur pour les passer en state
+    // Vérifier que le styliste existe dans nos données
     const stylist = hairdressers.find(h => h.id === stylistId);
+    if (!stylist) {
+      console.error('Styliste non trouvé dans les données:', stylistId);
+      toast({
+        title: "Erreur", 
+        description: "Coiffeur non trouvé",
+        variant: "destructive"
+      });
+      return;
+    }
     
+    console.log('Navigation vers réservation:', { stylistId, stylist: stylist.name });
     navigate(`/reservation/${stylistId}`, {
       state: { 
         hairdresser: stylist 
@@ -128,15 +139,29 @@ const StylistsList = () => {
   };
 
   const handleViewProfile = (stylistId: string) => {
-    if (!stylistId) {
+    if (!stylistId || stylistId === 'undefined' || stylistId.trim() === '') {
+      console.error('ID styliste invalide pour profil:', stylistId);
       toast({
         title: "Erreur",
-        description: "ID du coiffeur manquant",
+        description: "ID du coiffeur manquant ou invalide",
         variant: "destructive"
       });
       return;
     }
     
+    // Vérifier que le styliste existe
+    const stylist = hairdressers.find(h => h.id === stylistId);
+    if (!stylist) {
+      console.error('Styliste non trouvé pour profil:', stylistId);
+      toast({
+        title: "Erreur",
+        description: "Coiffeur non trouvé", 
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    console.log('Navigation vers profil:', { stylistId, stylist: stylist.name });
     navigate(`/stylist/${stylistId}`);
   };
 

@@ -243,6 +243,16 @@ const App = () => (
               } 
             />
             
+            {/* Route profil stylist */}
+            <Route 
+              path="/stylist/:stylistId" 
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/StylistProfilePage')))}
+                </Suspense>
+              } 
+            />
+            
             
             {/* Route de réservation */}
             <Route 
