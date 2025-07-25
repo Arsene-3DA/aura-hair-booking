@@ -511,6 +511,7 @@ export type Database = {
           comment: string | null
           created_at: string | null
           id: string
+          is_approved: boolean | null
           rating: number | null
           stylist_id: string | null
         }
@@ -520,6 +521,7 @@ export type Database = {
           comment?: string | null
           created_at?: string | null
           id?: string
+          is_approved?: boolean | null
           rating?: number | null
           stylist_id?: string | null
         }
@@ -529,6 +531,7 @@ export type Database = {
           comment?: string | null
           created_at?: string | null
           id?: string
+          is_approved?: boolean | null
           rating?: number | null
           stylist_id?: string | null
         }
