@@ -14,8 +14,9 @@ export const validateFrenchPhone = (phone: string): boolean => {
 export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
-  if (password.length < 8) {
-    errors.push('Le mot de passe doit contenir au moins 8 caractères');
+  // SECURITY FIX: Enhanced password validation
+  if (password.length < 12) {
+    errors.push('Le mot de passe doit contenir au moins 12 caractères');
   }
   
   if (!/[A-Z]/.test(password)) {
@@ -28,6 +29,26 @@ export const validatePassword = (password: string): { isValid: boolean; errors: 
   
   if (!/[0-9]/.test(password)) {
     errors.push('Le mot de passe doit contenir au moins un chiffre');
+  }
+  
+  // SECURITY FIX: Require special characters
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push('Le mot de passe doit contenir au moins un caractère spécial');
+  }
+  
+  // SECURITY FIX: Check for common weak patterns
+  const weakPatterns = [
+    /^(.)\1+$/, // All same character
+    /123456|password|admin|qwerty/i, // Common weak passwords
+    /^[a-zA-Z]+$/, // Only letters
+    /^[0-9]+$/, // Only numbers
+  ];
+  
+  for (const pattern of weakPatterns) {
+    if (pattern.test(password)) {
+      errors.push('Le mot de passe est trop prévisible');
+      break;
+    }
   }
   
   return {
@@ -97,7 +118,47 @@ export const validateBookingData = (data: {
 };
 
 export const sanitizeInput = (input: string): string => {
-  return input.trim().replace(/[<>]/g, '');
+  // SECURITY FIX: Enhanced input sanitization
+  return input
+    .trim()
+    .replace(/[<>]/g, '') // Remove potential XSS tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/on\w+=/gi, '') // Remove event handlers
+    .replace(/&/g, '&amp;') // Escape ampersands
+    .replace(/"/g, '&quot;') // Escape quotes
+    .replace(/'/g, '&#x27;') // Escape single quotes
+    .slice(0, 1000); // Limit length to prevent buffer overflow
+};
+
+// SECURITY FIX: Add CSRF token generation and validation
+export const generateCSRFToken = (): string => {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+};
+
+export const validateCSRFToken = (token: string, expectedToken: string): boolean => {
+  if (!token || !expectedToken) return false;
+  return token === expectedToken;
+};
+
+// SECURITY FIX: Add rate limiting helper
+export const checkRateLimit = (key: string, maxAttempts: number, windowMs: number): boolean => {
+  const now = Date.now();
+  const attempts = JSON.parse(localStorage.getItem(`rateLimit_${key}`) || '[]');
+  
+  // Remove old attempts outside the window
+  const validAttempts = attempts.filter((timestamp: number) => now - timestamp < windowMs);
+  
+  if (validAttempts.length >= maxAttempts) {
+    return false; // Rate limit exceeded
+  }
+  
+  // Add current attempt
+  validAttempts.push(now);
+  localStorage.setItem(`rateLimit_${key}`, JSON.stringify(validAttempts));
+  
+  return true; // Within rate limit
 };
 
 export const validateName = (name: string): boolean => {

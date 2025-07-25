@@ -34,6 +34,20 @@ export const usePasswordPolicy = () => {
   const updatePassword = async (newPassword: string) => {
     setLoading(true);
     try {
+      // SECURITY FIX: Validate password strength client-side
+      const { validatePassword } = await import('@/utils/validation');
+      const validation = validatePassword(newPassword);
+      
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(', '));
+      }
+
+      // SECURITY FIX: Check rate limiting
+      const { checkRateLimit } = await import('@/utils/validation');
+      if (!checkRateLimit('passwordUpdate', 3, 3600000)) { // Max 3 updates per hour
+        throw new Error('Trop de changements de mot de passe récents. Veuillez patienter.');
+      }
+
       // Mettre à jour le mot de passe avec Supabase Auth
       const { error: authError } = await supabase.auth.updateUser({
         password: newPassword
