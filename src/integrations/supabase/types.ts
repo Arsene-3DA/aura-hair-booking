@@ -158,6 +158,50 @@ export type Database = {
         }
         Relationships: []
       }
+      new_reservations: {
+        Row: {
+          client_user_id: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          scheduled_at: string
+          service_id: string | null
+          status: Database["public"]["Enums"]["booking_status"]
+          stylist_user_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          client_user_id: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          scheduled_at: string
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          stylist_user_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          client_user_id?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          scheduled_at?: string
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          stylist_user_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "new_reservations_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
