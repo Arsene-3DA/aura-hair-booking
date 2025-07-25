@@ -40,7 +40,7 @@ const RoleAuthPage = () => {
         case 'admin':
           navigate('/admin');
           break;
-        case 'stylist':
+        case 'coiffeur':
           navigate('/stylist');
           break;
         case 'client':

@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
 
 const PostAuthPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { profile, loading, isAuthenticated } = useGoogleAuth();
 
   useEffect(() => {
@@ -11,6 +12,13 @@ const PostAuthPage = () => {
       if (!isAuthenticated) {
         // Si pas authentifié, rediriger vers login
         navigate('/login');
+        return;
+      }
+
+      // Vérifier s'il y a un paramètre next
+      const nextUrl = searchParams.get('next');
+      if (nextUrl) {
+        navigate(nextUrl, { replace: true });
         return;
       }
 

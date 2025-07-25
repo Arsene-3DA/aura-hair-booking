@@ -76,7 +76,11 @@ const App = () => (
           <Routes>
             {/* Routes publiques */}
             <Route path="/" element={<Index />} />
-            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                {React.createElement(React.lazy(() => import('./pages/ServicesListPage')))}
+              </Suspense>
+            } />
             <Route path="/professionals/:gender" element={<ProfessionalsList />} />
             <Route path="/stylists" element={<StylistsList />} />
             <Route path="/components" element={<ComponentsDemo />} />
@@ -119,14 +123,18 @@ const App = () => (
             <Route 
               path="/stylist" 
               element={
-                <RequireAuth allowedRoles={['coiffeur', 'stylist']}>
+                <RequireAuth allowedRoles={['coiffeur']}>
                   <StylistLayout />
                 </RequireAuth>
               }
             >
               <Route index element={<StylistDashboard />} />
               <Route path="calendar" element={<WeeklyCalendar />} />
-              <Route path="queue" element={<BookingQueue />} />
+              <Route path="queue" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/StylistQueuePage')))}
+                </Suspense>
+              } />
               <Route path="chat" element={<div className="p-6"><ClientChatPane /></div>} />
               <Route path="settings" element={<StylistSettings />} />
             </Route>
@@ -160,6 +168,11 @@ const App = () => (
             >
               <Route index element={<div />} /> {/* Default empty route */}
               <Route path="history" element={<ClientHistory />} />
+              <Route path="bookings" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/ClientBookingsPage')))}
+                </Suspense>
+              } />
             </Route>
             
             {/* Nouvelle route /app pour les clients */}
@@ -173,6 +186,11 @@ const App = () => (
             >
               <Route index element={<div />} /> {/* Default empty route */}
               <Route path="history" element={<ClientHistory />} />
+              <Route path="bookings" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/ClientBookingsPage')))}
+                </Suspense>
+              } />
             </Route>
             
             {/* Legacy route - redirect to new client layout */}
@@ -194,6 +212,18 @@ const App = () => (
                 </RequireAuth>
               } 
             />
+            
+            
+            {/* Route de réservation */}
+            <Route 
+              path="/reserve/:serviceId" 
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/ReservePage')))}
+                </Suspense>
+              } 
+            />
+            
             
             <Route path="*" element={<NotFound />} />
           </Routes>
