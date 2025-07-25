@@ -5,6 +5,7 @@ import AdminStats from '@/components/AdminStats';
 import AdminUserManagement from '@/components/AdminUserManagement';
 import AdminHairdresserManagement from '@/components/AdminHairdresserManagement';
 import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
+import { AdminReviewsManagement } from '@/components/AdminReviewsManagement';
 import { usePasswordPolicy } from '@/hooks/usePasswordPolicy';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 
@@ -63,6 +64,10 @@ const AdminDashboard = () => {
         
         <div className="mb-8">
           <AdminHairdresserManagement />
+        </div>
+        
+        <div className="mb-8">
+          <AdminReviewsManagement />
         </div>
         
         <AdminUserManagement />

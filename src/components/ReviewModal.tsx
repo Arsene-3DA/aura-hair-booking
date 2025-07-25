@@ -11,9 +11,10 @@ interface ReviewModalProps {
   onClose: () => void;
   bookingId: string;
   stylistId: string;
+  stylistName?: string;
 }
 
-export const ReviewModal = ({ isOpen, onClose, bookingId, stylistId }: ReviewModalProps) => {
+export const ReviewModal = ({ isOpen, onClose, bookingId, stylistId, stylistName }: ReviewModalProps) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [hoveredStar, setHoveredStar] = useState(0);
@@ -42,7 +43,9 @@ export const ReviewModal = ({ isOpen, onClose, bookingId, stylistId }: ReviewMod
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md" data-cy="review-modal">
         <DialogHeader>
-          <DialogTitle>Évaluez votre prestation</DialogTitle>
+          <DialogTitle>
+            {stylistName ? `Évaluer ${stylistName}` : 'Évaluez votre prestation'}
+          </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">

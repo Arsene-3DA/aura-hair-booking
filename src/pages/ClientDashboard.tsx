@@ -8,6 +8,7 @@ import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useReservations } from '@/hooks/useReservations';
 import { useUsers } from '@/hooks/useUsers';
 import { useNavigate } from 'react-router-dom';
+import { ClientReviewPrompt } from '@/components/ClientReviewPrompt';
 
 const ClientDashboard = () => {
   const { signOut, userProfile } = useRoleAuth();
@@ -73,7 +74,12 @@ const ClientDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Mes réservations */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Section pour évaluer les prestations terminées */}
+            <ClientReviewPrompt />
+            
+            {/* Mes réservations */}
+            <div>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center">
@@ -146,6 +152,7 @@ const ClientDashboard = () => {
                 )}
               </CardContent>
             </Card>
+            </div>
           </div>
 
           {/* Sidebar - Coiffeurs disponibles */}

@@ -23,6 +23,7 @@ import {
   Trash2,
   Star
 } from 'lucide-react';
+import { StylistReviewsSection } from '@/components/StylistReviewsSection';
 
 interface HairdresserProfile {
   id: string;
@@ -264,9 +265,10 @@ const StylistDashboard = () => {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile">Mon Profil</TabsTrigger>
           <TabsTrigger value="services">Mes Services</TabsTrigger>
+          <TabsTrigger value="reviews">Mes Avis</TabsTrigger>
           <TabsTrigger value="photo">Photo de Profil</TabsTrigger>
         </TabsList>
 
@@ -427,6 +429,11 @@ const StylistDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Reviews Tab */}
+        <TabsContent value="reviews" className="space-y-4">
+          <StylistReviewsSection stylistId={profile?.id || ''} />
         </TabsContent>
 
         {/* Photo Tab */}
