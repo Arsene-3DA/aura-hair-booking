@@ -159,6 +159,29 @@ export const useRoleAuth = () => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/post-auth`
+        }
+      });
+
+      if (error) throw error;
+
+      return { success: true, data };
+    } catch (error: any) {
+      const errorMessage = error.message || 'Erreur de connexion avec Google';
+      toast({
+        title: "❌ Erreur de connexion Google",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -201,6 +224,7 @@ export const useRoleAuth = () => {
     ...authState,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     hasRole,
     hasAnyRole,

@@ -1,17 +1,19 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
+import { useProfileRole } from '@/hooks/useProfileRole';
 
 const PostAuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { profile, loading, isAuthenticated } = useGoogleAuth();
+  const { user, loading, isAuthenticated } = useRoleAuth();
+  const { data: profileRole } = useProfileRole(user?.id);
 
   useEffect(() => {
     if (!loading) {
       if (!isAuthenticated) {
-        // Si pas authentifié, rediriger vers login
-        navigate('/login');
+        // Si pas authentifié, rediriger vers auth
+        navigate('/auth');
         return;
       }
 
@@ -22,23 +24,23 @@ const PostAuthPage = () => {
         return;
       }
 
-      if (profile) {
+      if (profileRole) {
         // Rediriger selon le rôle
-        switch (profile.role) {
+        switch (profileRole) {
           case 'admin':
             navigate('/admin');
             break;
-          case 'stylist':
+          case 'coiffeur':
             navigate('/stylist');
             break;
           case 'client':
           default:
-            navigate('/client');
+            navigate('/app');
             break;
         }
       }
     }
-  }, [loading, isAuthenticated, profile, navigate]);
+  }, [loading, isAuthenticated, profileRole, navigate, searchParams]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
