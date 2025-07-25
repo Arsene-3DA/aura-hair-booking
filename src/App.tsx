@@ -224,6 +224,11 @@ const App = () => (
                   {React.createElement(React.lazy(() => import('./pages/client/BookingsPage')))}
                 </Suspense>
               } />
+              <Route path="bookings/new" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  {React.createElement(React.lazy(() => import('./pages/client/NewBookingPage')))}
+                </Suspense>
+              } />
               <Route path="history" element={<ClientHistory />} />
               <Route path="profile" element={
                 <Suspense fallback={<LoadingSpinner />}>

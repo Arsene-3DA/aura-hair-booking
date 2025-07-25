@@ -212,9 +212,9 @@ export default function NotificationCenter() {
               ) : (
                 <>
                   <BellOff className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-medium mb-2">Aucune notification</h3>
+                  <h3 className="text-lg font-medium mb-2">Aucune notification pour l'instant</h3>
                   <p className="text-muted-foreground">
-                    Vous n'avez pas encore reçu de notifications
+                    Vos notifications apparaîtront ici lorsque vous en recevrez
                   </p>
                 </>
               )}

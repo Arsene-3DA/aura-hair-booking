@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useRealtimeBookings, RealtimeBooking } from '@/hooks/useRealtimeBookings';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useNotifications } from '@/hooks/useNotifications';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Home, 
   Calendar, 
@@ -13,7 +14,8 @@ import {
   Star, 
   Bell, 
   HelpCircle,
-  Plus
+  Plus,
+  LogOut
 } from 'lucide-react';
 
 const ClientLayout = () => {
@@ -33,6 +35,10 @@ const ClientLayout = () => {
     { path: '/app/support', label: 'Aide', icon: HelpCircle },
   ];
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -44,7 +50,7 @@ const ClientLayout = () => {
             </div>
             <div className="flex items-center gap-4">
               <Button asChild size="sm">
-                <Link to="/app/booking">
+                <Link to="/app/bookings/new">
                   <Plus className="h-4 w-4 mr-2" />
                   Nouveau RDV
                 </Link>
@@ -59,8 +65,8 @@ const ClientLayout = () => {
 
       <div className="flex min-h-[calc(100vh-4rem)]">
         {/* Sidebar Navigation */}
-        <nav className="w-64 border-r bg-card/50 p-6">
-          <div className="space-y-2">
+        <nav className="w-[220px] border-r bg-primary/90 p-6 flex flex-col">
+          <div className="space-y-2 flex-1">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -69,21 +75,33 @@ const ClientLayout = () => {
                 <Button
                   key={item.path}
                   asChild
-                  variant={isActive ? "default" : "ghost"}
-                  className="w-full justify-start"
+                  variant={isActive ? "secondary" : "ghost"}
+                  className="w-full justify-start text-primary-foreground hover:text-primary hover:bg-primary-foreground/90"
                 >
                   <Link to={item.path}>
                     <Icon className="h-4 w-4 mr-3" />
                     {item.label}
-                    {item.badge && item.badge > 0 && (
-                      <Badge variant="secondary" className="ml-auto">
-                        {item.badge}
+                    {item.path === '/app/notifications' && unreadCount > 0 && (
+                      <Badge variant="destructive" className="ml-auto h-5 px-2 text-xs">
+                        {unreadCount}
                       </Badge>
                     )}
                   </Link>
                 </Button>
               );
             })}
+          </div>
+          
+          {/* Logout Button */}
+          <div className="mt-6 pt-6 border-t border-primary-foreground/20">
+            <Button 
+              variant="ghost" 
+              onClick={handleLogout}
+              className="w-full justify-start text-primary-foreground hover:text-primary hover:bg-primary-foreground/90"
+            >
+              <LogOut className="h-4 w-4 mr-3" />
+              Déconnexion
+            </Button>
           </div>
         </nav>
 

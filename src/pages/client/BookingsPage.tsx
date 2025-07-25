@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EditBookingModal } from '@/components/client/EditBookingModal';
 import { 
   Calendar, 
   Clock, 
@@ -36,12 +37,14 @@ const BookingCard = ({
   booking, 
   isUpcoming = false, 
   onCancel,
-  onReview 
+  onReview,
+  onEdit
 }: { 
   booking: any; 
   isUpcoming?: boolean;
   onCancel?: (id: string) => void;
   onReview?: (booking: any) => void;
+  onEdit?: (booking: any) => void;
 }) => (
   <Card className="hover:shadow-md transition-shadow">
     <CardContent className="p-4">
@@ -89,7 +92,7 @@ const BookingCard = ({
       <div className="flex gap-2 mt-4">
         {isUpcoming && booking.status !== 'cancelled' && (
           <>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => onEdit?.(booking)}>
               <Edit className="h-4 w-4 mr-2" />
               Modifier
             </Button>
@@ -147,6 +150,8 @@ export default function BookingsPage() {
   
   const [selectedBookingForReview, setSelectedBookingForReview] = useState<any>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedBookingForEdit, setSelectedBookingForEdit] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleCancelBooking = async (bookingId: string) => {
     await cancelBooking(bookingId);
@@ -157,10 +162,20 @@ export default function BookingsPage() {
     setIsReviewModalOpen(true);
   };
 
+  const handleEditBooking = (booking: any) => {
+    setSelectedBookingForEdit(booking);
+    setIsEditModalOpen(true);
+  };
+
   const handleReviewSubmitted = () => {
     setIsReviewModalOpen(false);
     setSelectedBookingForReview(null);
     // Optionnel: rafraîchir les données
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setSelectedBookingForEdit(null);
   };
 
   return (
@@ -174,9 +189,9 @@ export default function BookingsPage() {
           </p>
         </div>
         <Button asChild>
-          <Link to="/app/booking">
+          <Link to="/app/bookings/new">
             <Plus className="h-4 w-4 mr-2" />
-            Nouveau rendez-vous
+            Nouvelle réservation
           </Link>
         </Button>
       </div>
@@ -209,6 +224,7 @@ export default function BookingsPage() {
                       booking={booking} 
                       isUpcoming={true}
                       onCancel={handleCancelBooking}
+                      onEdit={handleEditBooking}
                     />
                   ))}
                 </div>
@@ -220,7 +236,7 @@ export default function BookingsPage() {
                     Prenez votre premier rendez-vous dès maintenant
                   </p>
                   <Button asChild>
-                    <Link to="/app/booking">
+                    <Link to="/app/bookings/new">
                       <Plus className="h-4 w-4 mr-2" />
                       Prendre rendez-vous
                     </Link>
@@ -298,6 +314,15 @@ export default function BookingsPage() {
           bookingId={selectedBookingForReview.id}
           stylistId={selectedBookingForReview.stylist_id}
           stylistName={selectedBookingForReview.stylist_profile?.full_name || selectedBookingForReview.stylist_name}
+        />
+      )}
+
+      {/* Edit Booking Modal */}
+      {selectedBookingForEdit && (
+        <EditBookingModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          booking={selectedBookingForEdit}
         />
       )}
     </div>

@@ -70,9 +70,9 @@ export default function MyReviewsPage() {
           <Card>
             <CardContent className="p-12 text-center">
               <Star className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-medium mb-2">Aucun avis</h3>
+              <h3 className="text-lg font-medium mb-2">Vous n'avez pas encore laissé d'avis</h3>
               <p className="text-muted-foreground">
-                Vos avis apparaîtront ici après vos prestations
+                Vos avis apparaîtront ici après vos prestations terminées
               </p>
             </CardContent>
           </Card>
