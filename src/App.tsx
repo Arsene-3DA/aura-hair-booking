@@ -83,6 +83,11 @@ const App = () => (
                 {React.createElement(React.lazy(() => import('./pages/ServicesListPage')))}
               </Suspense>
             } />
+            <Route path="/tarifs" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                {React.createElement(React.lazy(() => import('./pages/TarifsPage')))}
+              </Suspense>
+            } />
             <Route path="/professionals/:gender" element={<ProfessionalsList />} />
             <Route path="/stylists" element={<StylistsList />} />
             <Route path="/components" element={<ComponentsDemo />} />
