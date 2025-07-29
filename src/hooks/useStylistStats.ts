@@ -11,7 +11,7 @@ export interface StylistStats {
   error: string | null;
 }
 
-export const useStylistStats = (stylistId?: string, date: Date = new Date()): StylistStats => {
+export const useStylistStats = (stylistId?: string): StylistStats => {
   const [stats, setStats] = useState<StylistStats>({
     totalToday: 0,
     confirmed: 0,
@@ -27,11 +27,14 @@ export const useStylistStats = (stylistId?: string, date: Date = new Date()): St
       return;
     }
 
+    let isMounted = true;
+
     const fetchStats = async () => {
       try {
+        if (!isMounted) return;
         setStats(prev => ({ ...prev, loading: true, error: null }));
         
-        const today = format(date, 'yyyy-MM-dd');
+        const today = format(new Date(), 'yyyy-MM-dd');
         const thirtyDaysAgo = format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
 
         // Get today's bookings
@@ -58,22 +61,26 @@ export const useStylistStats = (stylistId?: string, date: Date = new Date()): St
         const pending = todayBookings?.filter(b => b.status === 'pending').length || 0;
         const noShow30d = noShowBookings?.length || 0;
 
-        setStats({
-          totalToday,
-          confirmed,
-          pending,
-          noShow30d,
-          loading: false,
-          error: null,
-        });
+        if (isMounted) {
+          setStats({
+            totalToday,
+            confirmed,
+            pending,
+            noShow30d,
+            loading: false,
+            error: null,
+          });
+        }
 
       } catch (error) {
         console.error('Error fetching stylist stats:', error);
-        setStats(prev => ({
-          ...prev,
-          loading: false,
-          error: error instanceof Error ? error.message : 'Erreur inconnue',
-        }));
+        if (isMounted) {
+          setStats(prev => ({
+            ...prev,
+            loading: false,
+            error: error instanceof Error ? error.message : 'Erreur inconnue',
+          }));
+        }
       }
     };
 
@@ -91,16 +98,19 @@ export const useStylistStats = (stylistId?: string, date: Date = new Date()): St
           filter: `hairdresser_id=eq.${stylistId}`,
         },
         () => {
-          console.log('Booking change detected, refreshing stats');
-          fetchStats();
+          if (isMounted) {
+            console.log('Booking change detected, refreshing stats');
+            fetchStats();
+          }
         }
       )
       .subscribe();
 
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
     };
-  }, [stylistId, date]);
+  }, [stylistId]);
 
   return stats;
 };

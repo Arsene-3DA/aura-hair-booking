@@ -60,11 +60,21 @@ const StylistLayout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       {/* Sidebar */}
       <div className={cn(
         "bg-card border-r border-border transition-all duration-300 flex flex-col",
-        sidebarOpen ? "w-64" : "w-16"
+        "fixed lg:static inset-y-0 left-0 z-50 lg:z-auto",
+        sidebarOpen ? "w-64" : "w-16 lg:w-16",
+        "lg:translate-x-0",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         {/* Header */}
         <div className="p-4 border-b border-border">
@@ -169,7 +179,28 @@ const StylistLayout = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-auto">
+        {/* Header mobile avec bouton de déconnexion */}
+        <div className="lg:hidden bg-card border-b border-border p-4 flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <h1 className="font-semibold">Espace Pro</h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSignOut}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Déconnexion</span>
+          </Button>
+        </div>
+        
+        <main className="flex-1 overflow-auto p-4 md:p-6">
           <Outlet />
         </main>
       </div>
