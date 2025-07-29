@@ -24,11 +24,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
+import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
 
 const StylistLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { signOut, user, userProfile } = useRoleAuth();
   const location = useLocation();
+  useRealtimeRoleSync(); // Synchronisation en temps réel des rôles
 
   const navigation = [
     { name: 'Dashboard', href: '/stylist', icon: LayoutDashboard },

@@ -25,11 +25,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
+import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { signOut, user, userProfile } = useRoleAuth();
   const location = useLocation();
+  useRealtimeRoleSync(); // Synchronisation en temps réel des rôles
 
   const navigation = [
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },

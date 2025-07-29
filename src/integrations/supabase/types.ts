@@ -696,8 +696,16 @@ export type Database = {
       }
     }
     Functions: {
+      change_user_role: {
+        Args: { target_user_id: string; new_role: string }
+        Returns: Json
+      }
       clean_expired_bookings: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      force_user_logout: {
+        Args: { target_user_id: string }
         Returns: undefined
       }
       get_current_user_id: {

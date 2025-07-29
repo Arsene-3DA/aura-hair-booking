@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
+import { useDynamicRoleManagement } from '@/hooks/useDynamicRoleManagement';
+import RoleChangeModal from '@/components/RoleChangeModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,13 +46,16 @@ import { usePromoteToAdmin } from '@/hooks/usePromoteToAdmin';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const Users = () => {
-  const { users, loading, error, promoteUser, suspendUser, resetPassword } = useAdminUsers();
+  const { users, loading, error, promoteUser, suspendUser, resetPassword, refetch } = useAdminUsers();
   const { promoteToAdmin } = usePromoteToAdmin();
+  const { changeUserRole, loading: roleChangeLoading } = useDynamicRoleManagement();
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [emailToPromote, setEmailToPromote] = useState('');
   const [promoteDialogOpen, setPromoteDialogOpen] = useState(false);
+  const [roleChangeModalOpen, setRoleChangeModalOpen] = useState(false);
+  const [selectedUserForRoleChange, setSelectedUserForRoleChange] = useState<any>(null);
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,6 +68,15 @@ const Users = () => {
     return matchesSearch && matchesRole && matchesStatus;
   });
 
+  const handleOpenRoleChangeModal = (user: any) => {
+    setSelectedUserForRoleChange(user);
+    setRoleChangeModalOpen(true);
+  };
+
+  const handleRoleChanged = () => {
+    refetch(); // Recharger la liste des utilisateurs
+  };
+
   const handlePromoteUser = async (userId: string, newRole: string) => {
     try {
       await promoteUser(userId, newRole);
@@ -70,6 +84,7 @@ const Users = () => {
         title: 'Succès',
         description: `Rôle utilisateur modifié vers ${newRole}`,
       });
+      refetch();
     } catch (error) {
       toast({
         title: 'Erreur',
@@ -316,17 +331,9 @@ const Users = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handlePromoteUser(user.id, 'admin')}>
+                        <DropdownMenuItem onClick={() => handleOpenRoleChangeModal(user)}>
                           <Shield className="w-4 h-4 mr-2" />
-                          Promouvoir Admin
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handlePromoteUser(user.id, 'coiffeur')}>
-                          <Shield className="w-4 h-4 mr-2" />
-                          Rendre Coiffeur
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handlePromoteUser(user.id, 'client')}>
-                          <Shield className="w-4 h-4 mr-2" />
-                          Rendre Client
+                          Modifier le rôle
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleResetPassword(user.id)}>
                           <RotateCcw className="w-4 h-4 mr-2" />
@@ -364,6 +371,17 @@ const Users = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modal de changement de rôle */}
+      <RoleChangeModal
+        isOpen={roleChangeModalOpen}
+        onClose={() => {
+          setRoleChangeModalOpen(false);
+          setSelectedUserForRoleChange(null);
+        }}
+        user={selectedUserForRoleChange}
+        onRoleChanged={handleRoleChanged}
+      />
     </div>
   );
 };

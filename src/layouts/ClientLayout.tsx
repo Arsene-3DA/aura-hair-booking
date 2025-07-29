@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useRealtimeBookings, RealtimeBooking } from '@/hooks/useRealtimeBookings';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Home, 
@@ -22,6 +23,7 @@ const ClientLayout = () => {
   const { user } = useRoleAuth();
   const location = useLocation();
   const { notifications } = useNotifications(user?.id);
+  useRealtimeRoleSync(); // Synchronisation en temps réel des rôles
   
   // Count unread notifications
   const unreadCount = notifications.filter(n => !n.is_read).length;
