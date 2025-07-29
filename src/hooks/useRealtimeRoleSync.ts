@@ -1,11 +1,11 @@
 import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useRoleAuth } from '@/hooks/useRoleAuth';
+import { useAuthenticationManager } from '@/hooks/useAuthenticationManager';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 export const useRealtimeRoleSync = () => {
-  const { user, userRole, loadUserProfile } = useRoleAuth();
+  const { user, userRole, loadUserProfile } = useAuthenticationManager();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -22,11 +22,14 @@ export const useRealtimeRoleSync = () => {
       description: 'Votre rôle a été modifié. Redirection en cours...',
     });
     
-    // Rediriger après un délai
-    setTimeout(() => {
-      window.location.reload(); // Force le rechargement pour appliquer les nouveaux permissions
+    // Rediriger après un délai avec navigation SPA
+    setTimeout(async () => {
+      await loadUserProfile();
+      // Le userRole sera mis à jour après loadUserProfile, on doit le récupérer différemment
+      // Naviguer selon le rôle par défaut ou rafraîchir la page
+      window.location.href = '/';
     }, 2000);
-  }, [user, loadUserProfile, toast]);
+  }, [user, loadUserProfile, toast, navigate]);
 
   // Écouter les changements dans la table profiles
   useEffect(() => {
