@@ -1,111 +1,108 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { validateUUID } from '@/utils/validateUUID';
+import { useToast } from '@/hooks/use-toast';
 
-export interface QueueBooking {
+export interface QueueItem {
   id: string;
   client_name: string;
   client_email: string;
   client_phone: string;
   service: string;
-  status: string;
-  scheduled_at?: string;
+  scheduled_at: string;
   booking_date?: string;
   booking_time?: string;
+  created_at?: string;
+  status: 'pending' | 'confirmed' | 'declined' | 'completed' | 'no_show';
   comments?: string;
-  stylist_id?: string;
-  hairdresser_id?: string;
-  created_at: string;
-  client_user_id?: string;
 }
 
-interface UseQueueReturn {
-  queue: QueueBooking[];
+export interface UseQueueReturn {
+  queue: QueueItem[];
   loading: boolean;
-  error: string | null;
+  error?: string;
+  updateBookingStatus: (bookingId: string, status: 'confirmed' | 'declined' | 'completed') => Promise<void>;
   approveBooking: (bookingId: string) => Promise<void>;
   rejectBooking: (bookingId: string) => Promise<void>;
   refetch: () => Promise<void>;
 }
 
 export const useQueue = (stylistId?: string): UseQueueReturn => {
-  const [queue, setQueue] = useState<QueueBooking[]>([]);
+  const [queue, setQueue] = useState<QueueItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>();
+  const { toast } = useToast();
 
   const fetchQueue = async () => {
-    if (!stylistId) return;
-    
+    if (!validateUUID(stylistId)) return;
+
     try {
       setLoading(true);
-      setError(null);
-      
-      const { data, error: fetchError } = await supabase
+
+      const { data, error } = await supabase
         .from('bookings')
         .select('*')
         .eq('stylist_id', stylistId)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: true });
+        .in('status', ['pending', 'confirmed'])
+        .order('scheduled_at', { ascending: true });
 
-      if (fetchError) {
-        console.error('Error fetching queue:', fetchError);
-        setError(fetchError.message);
-        return;
-      }
-
+      if (error) throw error;
       setQueue(data || []);
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      setError('Une erreur inattendue est survenue');
+    } catch (error) {
+      console.error('Error fetching queue:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger la file d'attente",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const approveBooking = async (bookingId: string) => {
-    try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status: 'confirmed' })
-        .eq('id', bookingId);
-
-      if (error) {
-        console.error('Error approving booking:', error);
-        throw new Error('Impossible d\'approuver la réservation');
-      }
-
-      // Remove from local queue immediately for optimistic update
-      setQueue(prev => prev.filter(booking => booking.id !== bookingId));
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const rejectBooking = async (bookingId: string) => {
-    try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status: 'declined' })
-        .eq('id', bookingId);
-
-      if (error) {
-        console.error('Error rejecting booking:', error);
-        throw new Error('Impossible de refuser la réservation');
-      }
-
-      // Remove from local queue immediately for optimistic update
-      setQueue(prev => prev.filter(booking => booking.id !== bookingId));
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  useEffect(() => {
-    if (!stylistId) {
-      setLoading(false);
+  const updateBookingStatus = async (bookingId: string, status: 'confirmed' | 'declined' | 'completed') => {
+    if (!validateUUID(bookingId)) {
+      toast({
+        title: "Erreur",
+        description: "ID de réservation invalide",
+        variant: "destructive",
+      });
       return;
     }
 
-    // Initial fetch
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: `Réservation ${status === 'confirmed' ? 'confirmée' : status === 'declined' ? 'refusée' : 'terminée'}`,
+      });
+
+      await fetchQueue();
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour la réservation",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const approveBooking = async (bookingId: string) => {
+    await updateBookingStatus(bookingId, 'confirmed');
+  };
+
+  const rejectBooking = async (bookingId: string) => {
+    await updateBookingStatus(bookingId, 'declined');
+  };
+
+  useEffect(() => {
     fetchQueue();
 
     // Set up real-time subscription
@@ -117,32 +114,10 @@ export const useQueue = (stylistId?: string): UseQueueReturn => {
           event: '*',
           schema: 'public',
           table: 'bookings',
-          filter: `hairdresser_id=eq.${stylistId}`,
+          filter: `stylist_id=eq.${stylistId}`,
         },
-        (payload) => {
-          console.log('Queue change detected:', payload);
-          
-          if (payload.eventType === 'INSERT' && payload.new.status === 'pending') {
-            setQueue(prev => [...prev, payload.new as QueueBooking]);
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedBooking = payload.new as QueueBooking;
-            if (updatedBooking.status === 'pending') {
-              setQueue(prev => 
-                prev.map(booking => 
-                  booking.id === updatedBooking.id ? updatedBooking : booking
-                )
-              );
-            } else {
-              // Remove from queue if status changed from pending
-              setQueue(prev => 
-                prev.filter(booking => booking.id !== updatedBooking.id)
-              );
-            }
-          } else if (payload.eventType === 'DELETE') {
-            setQueue(prev => 
-              prev.filter(booking => booking.id !== payload.old.id)
-            );
-          }
+        () => {
+          fetchQueue();
         }
       )
       .subscribe();
@@ -156,6 +131,7 @@ export const useQueue = (stylistId?: string): UseQueueReturn => {
     queue,
     loading,
     error,
+    updateBookingStatus,
     approveBooking,
     rejectBooking,
     refetch: fetchQueue,

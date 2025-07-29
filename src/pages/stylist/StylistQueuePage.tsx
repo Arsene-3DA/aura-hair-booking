@@ -3,13 +3,14 @@ import { useQueue } from '@/hooks/useQueue';
 import { BookingDrawer } from '@/components/stylist/BookingDrawer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, User, Scissors, CalendarClock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, User, Scissors, CalendarClock, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 const StylistQueuePage = () => {
   const { userProfile } = useRoleAuth();
-  const { queue, loading, refetch } = useQueue(userProfile?.user_id);
+  const { queue, loading, updateBookingStatus, refetch } = useQueue(userProfile?.user_id);
 
   if (loading) {
     return (

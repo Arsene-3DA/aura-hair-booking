@@ -17,27 +17,22 @@ import {
 } from '@/components/ui/sheet';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useStylistClients } from '@/hooks/useStylistClients';
 
 const StylistClientsPage = () => {
   const { userProfile } = useRoleAuth();
+  const { clients, loading } = useStylistClients(userProfile?.user_id);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [newNote, setNewNote] = useState('');
-  const { bookings, notes, loading, addNote } = useClientHistory(
+  const { bookings, notes, loading: historyLoading, addNote } = useClientHistory(
     userProfile?.user_id,
     selectedClientId
   );
 
-  // Mock clients data - In real app, fetch from bookings table
-  const clients = [
-    { id: '1', name: 'Marie Dupont', email: 'marie@example.com', lastVisit: '2024-01-15', totalVisits: 5 },
-    { id: '2', name: 'Sophie Martin', email: 'sophie@example.com', lastVisit: '2024-01-10', totalVisits: 3 },
-    { id: '3', name: 'Lucie Bernard', email: 'lucie@example.com', lastVisit: '2024-01-08', totalVisits: 8 },
-  ];
-
   const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase())
+    client.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddNote = async () => {
@@ -92,7 +87,7 @@ const StylistClientsPage = () => {
                 onClick={() => setSelectedClientId(client.id)}
               >
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">{client.name}</CardTitle>
+                  <CardTitle className="text-lg">{client.full_name}</CardTitle>
                   <p className="text-sm text-muted-foreground">{client.email}</p>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -100,12 +95,12 @@ const StylistClientsPage = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Dernière visite</p>
                       <p className="text-sm font-medium">
-                        {format(new Date(client.lastVisit), 'd MMM yyyy', { locale: fr })}
+                        {client.last_booking_date ? format(new Date(client.last_booking_date), 'd MMM yyyy', { locale: fr }) : 'Jamais'}
                       </p>
                     </div>
                     <div className="text-center">
                       <p className="text-sm text-muted-foreground">Total visites</p>
-                      <p className="text-lg font-bold text-primary">{client.totalVisits}</p>
+                      <p className="text-lg font-bold text-primary">{client.total_bookings}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -113,7 +108,7 @@ const StylistClientsPage = () => {
             </SheetTrigger>
             <SheetContent className="w-[400px] sm:w-[540px]">
               <SheetHeader>
-                <SheetTitle>{client.name}</SheetTitle>
+                <SheetTitle>{client.full_name}</SheetTitle>
                 <SheetDescription>
                   Historique et notes du client
                 </SheetDescription>
@@ -126,8 +121,8 @@ const StylistClientsPage = () => {
                     <Calendar className="h-5 w-5" />
                     Historique des rendez-vous
                   </h3>
-                  {loading ? (
-                    <p className="text-muted-foreground">Chargement...</p>
+                   {historyLoading ? (
+                     <p className="text-muted-foreground">Chargement...</p>
                   ) : bookings.length === 0 ? (
                     <p className="text-muted-foreground">Aucun rendez-vous trouvé</p>
                   ) : (
@@ -172,8 +167,8 @@ const StylistClientsPage = () => {
                   </div>
 
                   {/* Liste des notes */}
-                  {loading ? (
-                    <p className="text-muted-foreground">Chargement...</p>
+                   {historyLoading ? (
+                     <p className="text-muted-foreground">Chargement...</p>
                   ) : notes.length === 0 ? (
                     <p className="text-muted-foreground">Aucune note pour ce client</p>
                   ) : (
