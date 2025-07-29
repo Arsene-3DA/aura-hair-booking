@@ -6,7 +6,6 @@ import {
   Clock, 
   Settings, 
   MessageSquare,
-  LogOut,
   Menu,
   User,
   Scissors,
@@ -25,10 +24,11 @@ import {
 import { cn } from '@/lib/utils';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
+import LogoutButton from '@/components/LogoutButton';
 
 const StylistLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { signOut, user, userProfile } = useRoleAuth();
+  const { user, userProfile } = useRoleAuth();
   const location = useLocation();
   useRealtimeRoleSync(); // Synchronisation en temps réel des rôles
 
@@ -43,9 +43,6 @@ const StylistLayout = () => {
     { name: 'Paramètres', href: '/stylist/settings', icon: Settings },
   ];
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
 
   const getInitials = () => {
     if (userProfile?.full_name) {
@@ -119,61 +116,36 @@ const StylistLayout = () => {
           </ul>
         </nav>
 
-        {/* User Profile */}
-        <div className="p-4 border-t border-border">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className={cn(
-                  "w-full justify-start h-auto p-2",
-                  !sidebarOpen && "justify-center"
-                )}
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage 
-                    src={userProfile?.avatar_url} 
-                    alt={userProfile?.full_name || user?.email} 
-                  />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
-                {sidebarOpen && (
-                  <div className="ml-3 text-left">
-                    <p className="text-sm font-medium">
-                      {userProfile?.full_name || 'Styliste'}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {user?.email}
-                    </p>
-                  </div>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">
-                    {userProfile?.full_name || 'Styliste'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {user?.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Mon Profil</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Se déconnecter</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/* User Profile & Logout */}
+        <div className="p-4 border-t border-border space-y-3">
+          {sidebarOpen && (
+            <div className="flex items-center gap-3 p-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage 
+                  src={userProfile?.avatar_url} 
+                  alt={userProfile?.full_name || user?.email} 
+                />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {userProfile?.full_name || 'Styliste'}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user?.email}
+                </p>
+              </div>
+            </div>
+          )}
+          
+          <LogoutButton 
+            variant="outline" 
+            size={sidebarOpen ? "default" : "icon"}
+            showText={sidebarOpen}
+            className="w-full"
+          />
         </div>
       </div>
 
@@ -189,15 +161,11 @@ const StylistLayout = () => {
             <Menu className="h-5 w-5" />
           </Button>
           <h1 className="font-semibold">Espace Pro</h1>
-          <Button
-            variant="outline"
+          <LogoutButton 
+            variant="outline" 
             size="sm"
-            onClick={handleSignOut}
-            className="flex items-center gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Déconnexion</span>
-          </Button>
+            showText={false}
+          />
         </div>
         
         <main className="flex-1 overflow-auto p-4 md:p-6">

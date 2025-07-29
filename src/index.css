@@ -264,6 +264,43 @@
   --fc-event-text-color: hsl(var(--primary-foreground));
 }
 
+/* Availability status colors */
+.fc-event-available {
+  background-color: #28C76F !important;
+  border-color: #28C76F !important;
+  color: white !important;
+}
+
+.fc-event-busy {
+  background-color: #EA5455 !important;
+  border-color: #EA5455 !important;
+  color: white !important;
+}
+
+.fc-event-booking {
+  background-color: hsl(var(--primary)) !important;
+  border-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+/* Mobile responsive calendar */
+@media (max-width: 640px) {
+  .fc-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .fc-button-group .fc-button {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
 .fc-theme-standard .fc-scrollgrid {
   border: 1px solid hsl(var(--border));
 }

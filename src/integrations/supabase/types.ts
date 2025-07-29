@@ -20,6 +20,7 @@ export type Database = {
           end_at: string
           id: string
           start_at: string
+          status: Database["public"]["Enums"]["availability_status"] | null
           stylist_id: string
         }
         Insert: {
@@ -27,6 +28,7 @@ export type Database = {
           end_at: string
           id?: string
           start_at: string
+          status?: Database["public"]["Enums"]["availability_status"] | null
           stylist_id: string
         }
         Update: {
@@ -34,6 +36,7 @@ export type Database = {
           end_at?: string
           id?: string
           start_at?: string
+          status?: Database["public"]["Enums"]["availability_status"] | null
           stylist_id?: string
         }
         Relationships: []
@@ -747,6 +750,7 @@ export type Database = {
       }
     }
     Enums: {
+      availability_status: "available" | "busy"
       booking_status:
         | "pending"
         | "confirmed"
@@ -883,6 +887,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      availability_status: ["available", "busy"],
       booking_status: [
         "pending",
         "confirmed",

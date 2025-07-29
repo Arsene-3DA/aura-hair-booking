@@ -7,12 +7,19 @@ export interface Availability {
   stylist_id: string;
   start_at: string;
   end_at: string;
+  status: 'available' | 'busy';
   created_at: string;
 }
 
 export interface CreateAvailabilityData {
   start_at: string;
   end_at: string;
+  status?: 'available' | 'busy';
+}
+
+export interface UpdateAvailabilityData {
+  id: string;
+  status: 'available' | 'busy';
 }
 
 export const useAvailability = (stylistId?: string) => {
@@ -53,6 +60,7 @@ export const useAvailability = (stylistId?: string) => {
           stylist_id: stylistId,
           start_at: data.start_at,
           end_at: data.end_at,
+          status: data.status || 'available',
         });
 
       if (error) throw error;
@@ -68,6 +76,31 @@ export const useAvailability = (stylistId?: string) => {
       toast({
         title: "Erreur",
         description: "Impossible de créer la disponibilité",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateAvailability = async (data: UpdateAvailabilityData) => {
+    try {
+      const { error } = await supabase
+        .from('availabilities')
+        .update({ status: data.status })
+        .eq('id', data.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: `Statut mis à jour: ${data.status === 'available' ? 'Disponible' : 'Occupé'}`,
+      });
+
+      await fetchAvailabilities();
+    } catch (error) {
+      console.error('Error updating availability:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour la disponibilité",
         variant: "destructive",
       });
     }
@@ -106,6 +139,7 @@ export const useAvailability = (stylistId?: string) => {
     availabilities,
     loading,
     createAvailability,
+    updateAvailability,
     deleteAvailability,
     refetch: fetchAvailabilities,
   };
