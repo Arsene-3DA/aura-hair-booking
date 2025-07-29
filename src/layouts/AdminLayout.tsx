@@ -24,12 +24,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { useAuthenticationManager } from '@/hooks/useAuthenticationManager';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { signOut, user, profile: userProfile } = useAuthenticationManager();
+  const { signOut, user, userProfile } = useRoleAuth();
   const location = useLocation();
   useRealtimeRoleSync(); // Synchronisation en temps réel des rôles
 

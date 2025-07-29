@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Scissors, Menu, X, Search } from 'lucide-react';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useProfileRole } from '@/hooks/useProfileRole';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -12,8 +12,8 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-  const { profile, loading } = useGoogleAuth();
-  const { data: role } = useProfileRole(profile?.id);
+  const { user, loading } = useRoleAuth();
+  const { data: role } = useProfileRole(user?.id);
 
   // Handle loading state to prevent context errors
   if (loading) {

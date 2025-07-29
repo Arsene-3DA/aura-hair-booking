@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 
 interface RequireAuthProps {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({
   allowedRoles = [], 
   redirectTo = '/login' 
 }) => {
-  const { isAuthenticated, profile, loading } = useGoogleAuth();
+  const { isAuthenticated, userProfile: profile, loading } = useRoleAuth();
   const navigate = useNavigate();
 
   useEffect(() => {

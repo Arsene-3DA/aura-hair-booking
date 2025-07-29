@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthenticationManager, UserRole } from '@/hooks/useAuthenticationManager';
+import { useRoleAuth, UserRole } from '@/hooks/useRoleAuth';
 
 interface UnifiedProtectedRouteProps {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ const UnifiedProtectedRoute = ({
   requireAuth = true,
   redirectTo = '/auth' 
 }: UnifiedProtectedRouteProps) => {
-  const { loading, isAuthenticated, userRole, hasAnyRole } = useAuthenticationManager();
+  const { loading, isAuthenticated, userRole, hasAnyRole } = useRoleAuth();
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-
 import React, { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 import SecurityHeaders from "@/components/SecurityHeaders";
-import { GoogleAuthProvider } from "@/contexts/GoogleAuthContext";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 
 // Lazy loading des pages
@@ -68,248 +66,44 @@ const App = () => (
   <GlobalErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="beauty-salon-theme">
-        <GoogleAuthProvider>
-          <TooltipProvider>
-            <SecurityHeaders />
+        <TooltipProvider>
+          <SecurityHeaders />
           <Toaster />
           <Sonner />
-        <BrowserRouter>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            {/* Routes publiques */}
-            <Route path="/" element={<Index />} />
-            <Route path="/services" element={
-              <Suspense fallback={<LoadingSpinner />}>
-                {React.createElement(React.lazy(() => import('./pages/ServicesListPage')))}
-              </Suspense>
-            } />
-            <Route path="/tarifs" element={
-              <Suspense fallback={<LoadingSpinner />}>
-                {React.createElement(React.lazy(() => import('./pages/TarifsPage')))}
-              </Suspense>
-            } />
-            <Route path="/professionals/:gender" element={<ProfessionalsList />} />
-            <Route path="/stylists" element={<StylistsList />} />
-            <Route path="/components" element={<ComponentsDemo />} />
-            
-            {/* Routes d'authentification */}
-            <Route path="/auth" element={<RoleAuthPage />} />
-            <Route path="/role-auth" element={<RoleAuthPage />} />
-            <Route path="/login" element={
-              <Suspense fallback={<LoadingSpinner />}>
-                {React.createElement(React.lazy(() => import('./pages/LoginPage')))}
-              </Suspense>
-            } />
-            <Route path="/post-auth" element={<PostAuthPage />} />
-            <Route path="/403" element={<AccessDeniedPage />} />
-            <Route path="/signup-hairdresser" element={<SignupHairdresser />} />
-            
-            {/* Routes protégées - Admin seulement */}
-            <Route 
-              path="/admin" 
-              element={
-                <RoleProtectedRoute allowedRoles={['admin']}>
-                  <AdminLayout />
-                </RoleProtectedRoute>
-              }
-            >
-              <Route index element={<Overview />} />
-              <Route path="users" element={<Users />} />
-              <Route path="bookings" element={<Bookings />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="settings" element={<PlatformSettings />} />
-              <Route path="audit" element={<AuditTrail />} />
-            </Route>
-            
-            {/* Legacy admin route */}
-            <Route 
-              path="/admin-dashboard" 
-              element={
-                <RoleProtectedRoute allowedRoles={['admin']}>
-                  <AdminDashboard />
-                </RoleProtectedRoute>
-              } 
-            />
-            
-            {/* Routes protégées - Coiffeur/Stylist seulement */}
-            <Route 
-              path="/stylist" 
-              element={
-                <RoleProtectedRoute allowedRoles={['coiffeur', 'stylist']}>
-                  <StylistLayout />
-                </RoleProtectedRoute>
-              }
-            >
-               <Route index element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistDashboardPage')))}
-                </Suspense>
-              } />
-              <Route path="calendar" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistCalendarPage')))}
-                </Suspense>
-              } />
-              <Route path="queue" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistQueuePage')))}
-                </Suspense>
-              } />
-              <Route path="clients" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistClientsPage')))}
-                </Suspense>
-              } />
-              <Route path="services" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistServicesPage')))}
-                </Suspense>
-              } />
-              <Route path="portfolio" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/stylist/StylistPortfolioPage')))}
-                </Suspense>
-              } />
-              <Route path="chat" element={<div className="p-6"><ClientChatPane /></div>} />
-              <Route path="settings" element={<StylistSettings />} />
-            </Route>
-            
-            {/* Legacy routes - redirect to new stylist layout */}
-            <Route 
-              path="/coiffeur" 
-              element={
-                <RoleProtectedRoute allowedRoles={['coiffeur', 'stylist', 'admin']}>
-                  <CoiffeurDashboard />
-                </RoleProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/hairdresser" 
-              element={
-                <RoleProtectedRoute allowedRoles={['coiffeur', 'stylist', 'admin']}>
-                  <CoiffeurDashboard />
-                </RoleProtectedRoute>
-              } 
-            />
-            
-            {/* Routes protégées - Client seulement */}
-            <Route 
-              path="/client" 
-              element={
-                <RoleProtectedRoute allowedRoles={['client', 'admin']}>
-                  <ClientLayout />
-                </RoleProtectedRoute>
-              }
-            >
-              <Route index element={<div />} /> {/* Default empty route */}
-              <Route path="history" element={<ClientHistory />} />
-              <Route path="bookings" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/ClientBookingsPage')))}
-                </Suspense>
-              } />
-            </Route>
-            
-            {/* Nouvelle route /app pour les clients */}
-            <Route 
-              path="/app" 
-              element={
-                <RoleProtectedRoute allowedRoles={['client', 'admin']}>
-                  <ClientLayout />
-                </RoleProtectedRoute>
-              }
-            >
-              <Route index element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/client/ClientDashboard')))}
-                </Suspense>
-              } />
-              <Route path="bookings" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/client/BookingsPage')))}
-                </Suspense>
-              } />
-              <Route path="bookings/new" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/client/NewBookingPage')))}
-                </Suspense>
-              } />
-              <Route path="history" element={<ClientHistory />} />
-              <Route path="profile" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/client/ProfilePage')))}
-                </Suspense>
-              } />
-              <Route path="notifications" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/client/NotificationCenter')))}
-                </Suspense>
-              } />
-              <Route path="reviews" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/client/MyReviewsPage')))}
-                </Suspense>
-              } />
-              <Route path="support" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/client/SupportPage')))}
-                </Suspense>
-              } />
-              <Route path="booking" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/BookingPage')))}
-                </Suspense>
-              } />
-            </Route>
-            
-            {/* Legacy route - redirect to new client layout */}
-            <Route 
-              path="/client-dashboard" 
-              element={
-                <RoleProtectedRoute allowedRoles={['client']}>
-                  <ClientDashboard />
-                </RoleProtectedRoute>
-              } 
-            />
-            
-            {/* Routes protégées - Utilisateurs authentifiés */}
-            <Route 
-              path="/reservation/:hairdresserId" 
-              element={
-                <RoleProtectedRoute allowedRoles={['client', 'admin', 'coiffeur']}>
-                  <ReservationPage />
-                </RoleProtectedRoute>
-              } 
-            />
-            
-            {/* Route profil stylist */}
-            <Route 
-              path="/stylist/:stylistId" 
-              element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/StylistProfilePage')))}
-                </Suspense>
-              } 
-            />
-            
-            
-            {/* Route de réservation */}
-            <Route 
-              path="/reserve/:serviceId" 
-              element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  {React.createElement(React.lazy(() => import('./pages/ReservePage')))}
-                </Suspense>
-              } 
-            />
-            
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-          </TooltipProvider>
-        </GoogleAuthProvider>
+          <BrowserRouter>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                {/* Routes publiques */}
+                <Route path="/" element={<Index />} />
+                <Route path="/services" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {React.createElement(React.lazy(() => import('./pages/ServicesListPage')))}
+                  </Suspense>
+                } />
+                <Route path="/auth" element={<RoleAuthPage />} />
+                <Route path="/admin" element={
+                  <RoleProtectedRoute allowedRoles={['admin']}>
+                    <AdminLayout />
+                  </RoleProtectedRoute>
+                }>
+                  <Route index element={<Overview />} />
+                  <Route path="users" element={<Users />} />
+                </Route>
+                <Route path="/stylist" element={
+                  <RoleProtectedRoute allowedRoles={['coiffeur', 'stylist']}>
+                    <StylistLayout />
+                  </RoleProtectedRoute>
+                } />
+                <Route path="/app" element={
+                  <RoleProtectedRoute allowedRoles={['client', 'admin']}>
+                    <ClientLayout />
+                  </RoleProtectedRoute>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </GlobalErrorBoundary>

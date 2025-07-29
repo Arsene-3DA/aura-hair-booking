@@ -53,7 +53,7 @@ export class GlobalErrorBoundary extends React.Component<Props, State> {
               )}
               <div className="flex gap-2">
                 <Button 
-                  onClick={() => window.location.reload()}
+                  onClick={() => window.location.href = '/'}
                   className="flex-1"
                 >
                   Recharger

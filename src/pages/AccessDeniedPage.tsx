@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { AlertTriangle } from 'lucide-react';
 
 const AccessDeniedPage = () => {
   const navigate = useNavigate();
-  const { profile, signOut, loading, isAuthenticated } = useGoogleAuth();
+  const { userProfile: profile, signOut, loading, isAuthenticated } = useRoleAuth();
 
   // SECURITY FIX: Debug logging pour comprendre le problème d'accès
   useEffect(() => {
@@ -27,7 +27,7 @@ const AccessDeniedPage = () => {
         case 'admin':
           navigate('/admin');
           break;
-        case 'stylist':
+        case 'coiffeur':
           navigate('/stylist');
           break;
         case 'client':

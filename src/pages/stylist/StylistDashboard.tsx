@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PhotoUpload } from '@/components/PhotoUpload';
@@ -46,7 +46,7 @@ interface Service {
 }
 
 const StylistDashboard = () => {
-  const { profile, refreshProfile } = useGoogleAuth();
+  const { userProfile: profile, loadUserProfile: refreshProfile } = useRoleAuth();
   const { toast } = useToast();
   
   const [hairdresserProfile, setHairdresserProfile] = useState<HairdresserProfile | null>(null);

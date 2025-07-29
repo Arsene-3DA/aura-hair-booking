@@ -2,13 +2,13 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { FaGoogle } from 'react-icons/fa';
 import { Loader2, User, Shield, UserCheck } from 'lucide-react';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { signInWithGoogle, loading, isAuthenticated } = useGoogleAuth();
+  const { signInWithGoogle, loading, isAuthenticated } = useRoleAuth();
 
   // Rediriger si déjà connecté
   React.useEffect(() => {

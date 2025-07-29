@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { PhotoUpload } from '@/components/PhotoUpload';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { 
   Clock, 
   Plus, 
@@ -43,7 +43,7 @@ interface GalleryImage {
 
 const SalonSettings = () => {
   const { toast } = useToast();
-  const { profile, refreshProfile } = useGoogleAuth();
+  const { userProfile: profile, loadUserProfile: refreshProfile } = useRoleAuth();
   
   // Working Hours State
   const [workingHours, setWorkingHours] = useState<WorkingHour[]>([

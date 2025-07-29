@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useGoogleAuth } from '@/contexts/GoogleAuthContext';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 
 interface PhotoUploadProps {
   currentAvatarUrl?: string | null;
@@ -14,7 +14,7 @@ interface PhotoUploadProps {
 export const PhotoUpload = ({ currentAvatarUrl, onAvatarUpdate }: PhotoUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
-  const { profile } = useGoogleAuth();
+  const { userProfile } = useRoleAuth();
 
   const generateSlug = (name: string) => {
     return name
@@ -26,13 +26,13 @@ export const PhotoUpload = ({ currentAvatarUrl, onAvatarUpdate }: PhotoUploadPro
   };
 
   const uploadPhoto = async (file: File) => {
-    if (!profile) return;
+    if (!userProfile) return;
 
     try {
       setUploading(true);
       
-      const slug = generateSlug(profile.full_name || 'stylist');
-      const fileName = `${profile.id}/${slug}.jpg`;
+      const slug = generateSlug(userProfile.full_name || 'stylist');
+      const fileName = `${userProfile.id}/${slug}.jpg`;
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
@@ -53,7 +53,7 @@ export const PhotoUpload = ({ currentAvatarUrl, onAvatarUpdate }: PhotoUploadPro
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
-        .eq('id', profile.id);
+        .eq('id', userProfile.id);
 
       if (updateError) throw updateError;
 
@@ -76,13 +76,13 @@ export const PhotoUpload = ({ currentAvatarUrl, onAvatarUpdate }: PhotoUploadPro
   };
 
   const deletePhoto = async () => {
-    if (!profile || !currentAvatarUrl) return;
+    if (!userProfile || !currentAvatarUrl) return;
 
     try {
       setUploading(true);
       
-      const slug = generateSlug(profile.full_name || 'stylist');
-      const fileName = `${profile.id}/${slug}.jpg`;
+      const slug = generateSlug(userProfile.full_name || 'stylist');
+      const fileName = `${userProfile.id}/${slug}.jpg`;
 
       // Delete from Supabase Storage
       const { error } = await supabase.storage
@@ -95,7 +95,7 @@ export const PhotoUpload = ({ currentAvatarUrl, onAvatarUpdate }: PhotoUploadPro
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: null })
-        .eq('id', profile.id);
+        .eq('id', userProfile.id);
 
       if (updateError) throw updateError;
 
