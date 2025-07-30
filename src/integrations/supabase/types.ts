@@ -395,6 +395,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           full_name: string | null
+          gender: Database["public"]["Enums"]["gender_type"] | null
           id: string
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
@@ -404,6 +405,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
+          gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -413,6 +415,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
+          gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -610,6 +613,7 @@ export type Database = {
           auth_id: string | null
           created_at: string
           email: string
+          gender: Database["public"]["Enums"]["gender_type"] | null
           id: string
           nom: string
           prenom: string
@@ -622,6 +626,7 @@ export type Database = {
           auth_id?: string | null
           created_at?: string
           email: string
+          gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           nom: string
           prenom: string
@@ -634,6 +639,7 @@ export type Database = {
           auth_id?: string | null
           created_at?: string
           email?: string
+          gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           nom?: string
           prenom?: string
@@ -757,8 +763,9 @@ export type Database = {
         | "declined"
         | "completed"
         | "no_show"
+      gender_type: "homme" | "femme" | "autre" | "non_specifie"
       reservation_status: "en_attente" | "confirmee" | "annulee"
-      user_role: "client" | "coiffeur" | "admin"
+      user_role: "client" | "coiffeur" | "admin" | "cosmetique"
       user_status: "actif" | "bloque" | "inactif"
     }
     CompositeTypes: {
@@ -895,8 +902,9 @@ export const Constants = {
         "completed",
         "no_show",
       ],
+      gender_type: ["homme", "femme", "autre", "non_specifie"],
       reservation_status: ["en_attente", "confirmee", "annulee"],
-      user_role: ["client", "coiffeur", "admin"],
+      user_role: ["client", "coiffeur", "admin", "cosmetique"],
       user_status: ["actif", "bloque", "inactif"],
     },
   },

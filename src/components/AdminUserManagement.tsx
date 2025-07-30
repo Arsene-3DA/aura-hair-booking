@@ -110,7 +110,8 @@ const AdminUserManagement = () => {
     const colors = {
       'admin': 'bg-red-500',
       'coiffeur': 'bg-blue-500',
-      'client': 'bg-green-500'
+      'client': 'bg-green-500',
+      'cosmetique': 'bg-purple-500'
     };
     
     return <Badge className={`${colors[role]} text-white`}>{role}</Badge>;
@@ -198,6 +199,7 @@ const AdminUserManagement = () => {
                   <SelectContent>
                     <SelectItem value="client">Client</SelectItem>
                     <SelectItem value="coiffeur">Coiffeur</SelectItem>
+                    <SelectItem value="cosmetique">Cosmétique</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
@@ -214,8 +216,9 @@ const AdminUserManagement = () => {
       </div>
 
       <Tabs defaultValue="coiffeurs" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="coiffeurs">Coiffeurs ({coiffeurs.length})</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="coiffeurs">Expert Coiffeur ({coiffeurs.length})</TabsTrigger>
+          <TabsTrigger value="cosmetique">Cosmétique ({users.filter(user => user.role === 'cosmetique').length})</TabsTrigger>
           <TabsTrigger value="clients">Clients ({clients.length})</TabsTrigger>
           <TabsTrigger value="admins">Admins ({admins.length})</TabsTrigger>
         </TabsList>
@@ -322,6 +325,69 @@ const AdminUserManagement = () => {
           </div>
         </TabsContent>
 
+        <TabsContent value="cosmetique" className="space-y-4">
+          <div className="grid gap-4">
+            {users.filter(user => user.role === 'cosmetique').map((user) => (
+              <Card key={user.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <Avatar>
+                        <AvatarFallback className="bg-purple-100 text-purple-700">
+                          {user.prenom.charAt(0)}{user.nom.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold">{user.prenom} {user.nom}</h3>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Mail className="h-4 w-4" />
+                          <span>{user.email}</span>
+                        </div>
+                        {user.telephone && (
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Phone className="h-4 w-4" />
+                            <span>{user.telephone}</span>
+                          </div>
+                        )}
+                        {user.gender && user.gender !== 'non_specifie' && (
+                          <div className="text-sm text-gray-500 capitalize">
+                            Genre: {user.gender}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {getRoleBadge(user.role)}
+                      {getStatusBadge(user.status)}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingUser(user)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant={user.status === 'bloque' ? 'default' : 'destructive'}
+                        size="sm"
+                        onClick={() => handleToggleUserStatus(user)}
+                      >
+                        {user.status === 'bloque' ? <CheckCircle className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
         <TabsContent value="admins" className="space-y-4">
           <div className="grid gap-4">
             {admins.map((user) => (
@@ -412,6 +478,7 @@ const AdminUserManagement = () => {
                   <SelectContent>
                     <SelectItem value="client">Client</SelectItem>
                     <SelectItem value="coiffeur">Coiffeur</SelectItem>
+                    <SelectItem value="cosmetique">Cosmétique</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>

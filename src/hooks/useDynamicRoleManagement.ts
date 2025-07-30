@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export type UserRole = 'client' | 'coiffeur' | 'admin';
+export type UserRole = 'client' | 'coiffeur' | 'admin' | 'cosmetique';
 
 interface RoleChangeResult {
   success: boolean;
@@ -93,6 +93,17 @@ export const useDynamicRoleManagement = () => {
         canChat: true,
       },
       coiffeur: {
+        canBook: true,
+        canManageProfile: true,
+        canViewBookings: true,
+        canReview: true,
+        canChat: true,
+        canManageSchedule: true,
+        canViewClientInfo: true,
+        canManageServices: true,
+        canViewEarnings: true,
+      },
+      cosmetique: {
         canBook: true,
         canManageProfile: true,
         canViewBookings: true,

@@ -5,7 +5,7 @@ import { useRoleAuth } from '@/hooks/useRoleAuth';
 
 interface RoleProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles: ('client' | 'admin' | 'coiffeur' | 'stylist')[];
+  allowedRoles: ('client' | 'admin' | 'coiffeur' | 'stylist' | 'cosmetique')[];
   redirectTo?: string;
 }
 

@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Shield, User, Scissors, Crown } from 'lucide-react';
+import { Shield, User, Scissors, Crown, Sparkles } from 'lucide-react';
 import { useDynamicRoleManagement, UserRole } from '@/hooks/useDynamicRoleManagement';
 
 interface User {
@@ -58,6 +58,13 @@ const RoleChangeModal: React.FC<RoleChangeModalProps> = ({
       icon: Scissors,
       color: 'bg-blue-100 text-blue-800',
       description: 'Peut gérer son agenda et servir les clients',
+    },
+    {
+      value: 'cosmetique' as UserRole,
+      label: 'Cosmétique',
+      icon: Sparkles,
+      color: 'bg-purple-100 text-purple-800',
+      description: 'Spécialiste en soins cosmétiques et esthétiques',
     },
     {
       value: 'admin' as UserRole,

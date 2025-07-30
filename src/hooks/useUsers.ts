@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
-export type UserRole = 'client' | 'coiffeur' | 'admin';
+export type UserRole = 'client' | 'coiffeur' | 'admin' | 'cosmetique';
 export type UserStatus = 'actif' | 'bloque' | 'inactif';
+export type Gender = 'homme' | 'femme' | 'autre' | 'non_specifie';
 
 export interface User {
   id: string;
@@ -12,11 +13,12 @@ export interface User {
   email: string;
   nom: string;
   prenom: string;
-  telephone?: string;
+  telephone?: string | null;
   role: UserRole;
   status: UserStatus;
   created_at: string;
   updated_at: string;
+  gender?: Gender;
 }
 
 export const useUsers = () => {

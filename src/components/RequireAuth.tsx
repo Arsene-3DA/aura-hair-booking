@@ -4,7 +4,7 @@ import { useRoleAuth } from '@/hooks/useRoleAuth';
 
 interface RequireAuthProps {
   children: React.ReactNode;
-  allowedRoles?: ('client' | 'stylist' | 'admin' | 'coiffeur')[];
+  allowedRoles?: ('client' | 'stylist' | 'admin' | 'coiffeur' | 'cosmetique')[];
   redirectTo?: string;
 }
 
