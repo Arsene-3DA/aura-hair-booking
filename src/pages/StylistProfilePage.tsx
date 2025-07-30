@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { validateId } from '@/utils/authHelper';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { usePortfolio } from '@/hooks/usePortfolio';
+import { useStylistReviews } from '@/hooks/useStylistReviews';
 import { 
   ArrowLeft, 
   Star, 
@@ -17,7 +19,10 @@ import {
   Mail, 
   Clock,
   Euro,
-  Loader2 
+  Loader2,
+  Camera,
+  MessageCircle,
+  BarChart3
 } from 'lucide-react';
 
 interface StylistProfile {
@@ -49,6 +54,10 @@ const StylistProfilePage = () => {
   const [stylist, setStylist] = useState<StylistProfile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Load portfolio and reviews
+  const { portfolio, loading: portfolioLoading } = usePortfolio(stylistId);
+  const { reviews, stats, loading: reviewsLoading } = useStylistReviews(stylistId);
 
   useEffect(() => {
     const loadStylistProfile = async () => {
@@ -152,10 +161,13 @@ const StylistProfilePage = () => {
     loadStylistProfile();
   }, [stylistId, navigate, toast]);
 
-  const handleBooking = () => {
+  const handleBooking = (preselectedService?: string) => {
     if (stylist?.id) {
       navigate(`/reservation/${stylist.id}`, {
-        state: { hairdresser: stylist }
+        state: { 
+          hairdresser: stylist,
+          preselectedService 
+        }
       });
     }
   };
@@ -249,7 +261,7 @@ const StylistProfilePage = () => {
                       </div>
                       
                       <Button 
-                        onClick={handleBooking}
+                        onClick={() => handleBooking()}
                         size="lg"
                         className="animate-fade-in"
                       >
@@ -334,12 +346,167 @@ const StylistProfilePage = () => {
                         </div>
                         
                         {service.description && (
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground mb-3">
                             {service.description}
                           </p>
                         )}
+                        
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleBooking(service.name)}
+                          className="w-full"
+                        >
+                          Réserver ce service
+                        </Button>
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Portfolio */}
+            {portfolio.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-lg">
+                    <Camera className="h-5 w-5 mr-2" />
+                    Portfolio ({portfolio.length} réalisations)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {portfolio.map((item, index) => (
+                      <div 
+                        key={item.id}
+                        className="relative group rounded-lg overflow-hidden border animate-fade-in hover:shadow-lg transition-all duration-300"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <img
+                          src={item.image_url}
+                          alt={item.hairstyle_name || 'Réalisation'}
+                          className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder.svg';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+                        {item.hairstyle_name && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                            <p className="text-white text-xs font-medium truncate">
+                              {item.hairstyle_name}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Avis clients */}
+            {!reviewsLoading && stats.totalReviews > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-lg">
+                    <MessageCircle className="h-5 w-5 mr-2" />
+                    Avis clients ({stats.totalReviews})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Statistiques des avis */}
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                          <span className="text-2xl font-bold">{stats.averageRating}</span>
+                        </div>
+                        <span className="text-muted-foreground">sur 5</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <BarChart3 className="h-4 w-4" />
+                        <span>{stats.totalReviews} avis</span>
+                      </div>
+                    </div>
+                    
+                    {/* Distribution des notes */}
+                    <div className="space-y-2">
+                      {[5, 4, 3, 2, 1].map(rating => {
+                        const count = stats.ratingDistribution[rating as keyof typeof stats.ratingDistribution];
+                        const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+                        
+                        return (
+                          <div key={rating} className="flex items-center gap-2 text-sm">
+                            <span className="w-3">{rating}</span>
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <div className="flex-1 bg-border rounded-full h-2">
+                              <div 
+                                className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                            <span className="w-8 text-right text-muted-foreground">{count}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Derniers avis */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Derniers avis</h4>
+                    {reviews.slice(0, 3).map((review, index) => (
+                      <div 
+                        key={review.id}
+                        className="border rounded-lg p-4 animate-fade-in"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i}
+                                  className={`h-4 w-4 ${
+                                    i < review.rating 
+                                      ? 'fill-yellow-400 text-yellow-400' 
+                                      : 'text-muted-foreground'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm font-medium">
+                              {review.booking?.client_name?.split(' ')[0] || 'Client'}
+                            </span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(review.created_at).toLocaleDateString('fr-FR')}
+                          </span>
+                        </div>
+                        
+                        {review.comment && (
+                          <p className="text-sm text-muted-foreground mb-2">
+                            "{review.comment}"
+                          </p>
+                        )}
+                        
+                        {review.booking?.service && (
+                          <div className="text-xs text-muted-foreground">
+                            Service: {review.booking.service}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    
+                    {reviews.length > 3 && (
+                      <p className="text-center text-sm text-muted-foreground">
+                        Et {reviews.length - 3} autres avis...
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -355,7 +522,7 @@ const StylistProfilePage = () => {
                   Réservez votre créneau avec {stylist.name} en quelques clics
                 </p>
                 <Button 
-                  onClick={handleBooking}
+                  onClick={() => handleBooking()}
                   size="lg"
                   className="hover-scale"
                 >

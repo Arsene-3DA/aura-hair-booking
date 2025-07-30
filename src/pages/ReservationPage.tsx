@@ -180,6 +180,7 @@ const ReservationPage = () => {
               hairdresserId={hairdresser.id}
               hairdresserName={hairdresser.name}
               onSuccess={handleReservationSuccess}
+              preselectedService={location.state?.preselectedService}
             />
           </div>
         </div>

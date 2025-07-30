@@ -14,6 +14,7 @@ interface ReservationFormProps {
   hairdresserId: string;
   hairdresserName: string;
   onSuccess: () => void;
+  preselectedService?: string;
 }
 
 interface Service {
@@ -24,7 +25,7 @@ interface Service {
   category: string;
 }
 
-const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: ReservationFormProps) => {
+const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselectedService }: ReservationFormProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [availableServices, setAvailableServices] = useState<Service[]>([]);
@@ -34,7 +35,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
     clientName: '',
     clientEmail: '',
     clientPhone: '',
-    service: '',
+    service: preselectedService || '',
     date: '',
     time: '',
     notes: ''
@@ -76,6 +77,16 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
         // Extraire les services de la réponse
         const servicesList = data?.map((item: any) => item.services).filter(Boolean) || [];
         setAvailableServices(servicesList);
+        
+        // Pré-sélectionner le service si spécifié
+        if (preselectedService && servicesList.length > 0) {
+          const matchingService = servicesList.find((service: Service) => 
+            service.name.toLowerCase().includes(preselectedService.toLowerCase())
+          );
+          if (matchingService) {
+            setFormData(prev => ({ ...prev, service: matchingService.name }));
+          }
+        }
       } catch (error) {
         console.error('Erreur:', error);
         // Services par défaut en cas d'erreur
@@ -91,7 +102,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess }: Reservat
     };
 
     fetchHairdresserServices();
-  }, [hairdresserId]);
+  }, [hairdresserId, preselectedService]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
