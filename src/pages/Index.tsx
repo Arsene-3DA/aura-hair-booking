@@ -82,6 +82,8 @@ const Index = () => {
         .in('role', category ? [category] : ['coiffeur', 'coiffeuse', 'cosmetique'])
         .order('created_at', { ascending: false });
 
+      console.log('Query result:', { data, error, category });
+
       if (error) {
         console.error('Erreur lors du chargement des professionnels:', error);
         toast({
