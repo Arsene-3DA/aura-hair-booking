@@ -72,24 +72,26 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
 
   const promoteUser = async (userId: string, newRole: string) => {
     try {
-      // Update user role in profiles table directly for now
-      // The RPC function might not be available yet
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole as 'client' | 'coiffeur' | 'admin' })
-        .eq('user_id', userId);
+      // SECURITY FIX: Use the secure role change function
+      const { data, error } = await supabase.rpc('secure_change_user_role', {
+        target_user_id: userId,
+        new_role: newRole
+      });
 
       if (error) {
         console.error('Error promoting user:', error);
-        throw new Error('Impossible de modifier le rôle de l\'utilisateur');
+        throw new Error(error.message || 'Impossible de modifier le rôle de l\'utilisateur');
       }
 
-      // Update local state optimistically
-      setUsers(prev => 
-        prev.map(user => 
-          user.id === userId ? { ...user, role: newRole as any } : user
-        )
-      );
+      const result = data as { success: boolean; message?: string; error?: string };
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Changement de rôle échoué');
+      }
+
+      // Refetch data to ensure consistency
+      await fetchUsers();
+      
     } catch (error) {
       throw error;
     }

@@ -58,9 +58,8 @@ const Users = () => {
   const [selectedUserForRoleChange, setSelectedUserForRoleChange] = useState<any>(null);
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.prenom.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchableText = `${user.email} ${user.nom} ${user.prenom}`.toLowerCase();
+    const matchesSearch = searchableText.includes(searchTerm.toLowerCase());
     
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
