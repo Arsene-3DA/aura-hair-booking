@@ -777,7 +777,7 @@ export type Database = {
         | "no_show"
       gender_type: "homme" | "femme" | "autre" | "non_specifie"
       reservation_status: "en_attente" | "confirmee" | "annulee"
-      user_role: "client" | "coiffeur" | "admin" | "cosmetique"
+      user_role: "client" | "coiffeur" | "admin" | "cosmetique" | "coiffeuse"
       user_status: "actif" | "bloque" | "inactif"
     }
     CompositeTypes: {
@@ -916,7 +916,7 @@ export const Constants = {
       ],
       gender_type: ["homme", "femme", "autre", "non_specifie"],
       reservation_status: ["en_attente", "confirmee", "annulee"],
-      user_role: ["client", "coiffeur", "admin", "cosmetique"],
+      user_role: ["client", "coiffeur", "admin", "cosmetique", "coiffeuse"],
       user_status: ["actif", "bloque", "inactif"],
     },
   },

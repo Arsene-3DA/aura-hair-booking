@@ -43,4 +43,4 @@ export const isValidDate = (date: string): boolean => {
   return selectedDate >= today;
 };
 
-export type UserRole = 'client' | 'admin' | 'coiffeur' | 'stylist';
+export type UserRole = 'client' | 'coiffeur' | 'coiffeuse' | 'cosmetique' | 'admin';

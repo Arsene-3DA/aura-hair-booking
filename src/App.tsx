@@ -90,7 +90,7 @@ const App = () => (
                   <Route path="users" element={<Users />} />
                 </Route>
                 <Route path="/stylist" element={
-                  <RoleProtectedRoute allowedRoles={['coiffeur', 'stylist']}>
+                  <RoleProtectedRoute allowedRoles={['coiffeur', 'coiffeuse']}>
                     <StylistLayout />
                   </RoleProtectedRoute>
                 }>

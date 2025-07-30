@@ -7,7 +7,7 @@ import { validateSecureInput, logSecurityEvent, trackFailedLogin, clearFailedLog
 import { validateSecurityRequirements, generateCSRFToken } from '@/utils/securityMiddleware';
 import { useToast } from '@/hooks/use-toast';
 
-export type UserRole = 'client' | 'coiffeur' | 'admin';
+export type UserRole = 'client' | 'coiffeur' | 'coiffeuse' | 'cosmetique' | 'admin';
 
 interface SecureAuthState {
   user: User | null;

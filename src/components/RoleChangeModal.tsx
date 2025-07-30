@@ -60,6 +60,13 @@ const RoleChangeModal: React.FC<RoleChangeModalProps> = ({
       description: 'Peut gérer son agenda et servir les clients',
     },
     {
+      value: 'coiffeuse' as UserRole,
+      label: 'Coiffeuse',
+      icon: Scissors,
+      color: 'bg-pink-100 text-pink-800',
+      description: 'Peut gérer son agenda et servir les clients',
+    },
+    {
       value: 'cosmetique' as UserRole,
       label: 'Cosmétique',
       icon: Sparkles,

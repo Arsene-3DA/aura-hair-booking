@@ -139,6 +139,7 @@ const Users = () => {
     switch (role) {
       case 'admin': return 'bg-red-100 text-red-800';
       case 'coiffeur': return 'bg-blue-100 text-blue-800';
+      case 'coiffeuse': return 'bg-pink-100 text-pink-800';
       case 'client': return 'bg-green-100 text-green-800';
       case 'cosmetique': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
@@ -263,6 +264,7 @@ const Users = () => {
                 <SelectItem value="all">Tous les rôles</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="coiffeur">Coiffeur</SelectItem>
+                <SelectItem value="coiffeuse">Coiffeuse</SelectItem>
                 <SelectItem value="client">Client</SelectItem>
                 <SelectItem value="cosmetique">Cosmétique</SelectItem>
               </SelectContent>

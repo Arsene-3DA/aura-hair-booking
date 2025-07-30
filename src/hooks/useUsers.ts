@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
-export type UserRole = 'client' | 'coiffeur' | 'admin' | 'cosmetique';
+export type UserRole = 'client' | 'coiffeur' | 'coiffeuse' | 'cosmetique' | 'admin';
 export type UserStatus = 'actif' | 'bloque' | 'inactif';
 export type Gender = 'homme' | 'femme' | 'autre' | 'non_specifie';
 
