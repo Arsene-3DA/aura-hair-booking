@@ -746,6 +746,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      secure_change_user_role: {
+        Args: { target_user_id: string; new_role: string; csrf_token?: string }
+        Returns: Json
+      }
       set_super_admin: {
         Args: { user_email: string }
         Returns: undefined
@@ -753,6 +757,14 @@ export type Database = {
       set_user_role: {
         Args: { user_id: string; new_role: string }
         Returns: undefined
+      }
+      validate_password_strength: {
+        Args: { password: string }
+        Returns: Json
+      }
+      validate_session_security: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
     }
     Enums: {
