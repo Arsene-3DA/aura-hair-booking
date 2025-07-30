@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scissors, Star, Clock, MapPin, ArrowLeft } from 'lucide-react';
+import { Scissors, Star, Clock, MapPin, ArrowLeft, Sparkles } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
@@ -20,10 +20,11 @@ interface Professional {
   image_url: string;
   experience: string;
   location: string;
-  gender: 'male' | 'female';
+  gender: 'homme' | 'femme' | 'autre' | 'non_specifie';
   email: string;
   phone?: string;
   is_active: boolean;
+  role: 'coiffeur' | 'cosmetique';
 }
 
 const Index = () => {
@@ -33,6 +34,7 @@ const Index = () => {
   const [showExperts, setShowExperts] = useState(false);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<'coiffeur' | 'cosmetique' | null>(null);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -43,17 +45,26 @@ const Index = () => {
     }
   }, [location.state, toast]);
 
-  const handleShowExperts = async () => {
+  const handleShowExperts = async (category?: 'coiffeur' | 'cosmetique') => {
     setLoading(true);
     setShowExperts(true);
+    setSelectedCategory(category || null);
     
     try {
+      // Récupérer depuis la table profiles pour avoir accès au rôle et genre
       const { data, error } = await supabase
-        .from('hairdressers')
-        .select('*')
-        .eq('is_active', true)
-        .order('rating', { ascending: false })
-        .limit(10);
+        .from('profiles')
+        .select(`
+          id,
+          user_id,
+          full_name,
+          role,
+          gender,
+          avatar_url,
+          created_at
+        `)
+        .in('role', category ? [category] : ['coiffeur', 'cosmetique'])
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Erreur lors du chargement des professionnels:', error);
@@ -67,16 +78,17 @@ const Index = () => {
 
       const mappedProfessionals: Professional[] = (data || []).map(item => ({
         id: item.id,
-        name: item.name,
-        specialties: item.specialties || [],
-        rating: item.rating || 4.5,
-        image_url: item.image_url || '/placeholder.svg',
-        experience: item.experience || '',
-        location: item.location || '',
-        gender: item.gender as 'male' | 'female',
-        email: item.email,
-        phone: item.phone || undefined,
-        is_active: item.is_active || false
+        name: item.full_name || 'Nom non défini',
+        specialties: item.role === 'cosmetique' ? ['Soins esthétiques', 'Cosmétique'] : ['Coiffure', 'Styling'],
+        rating: 4.5, // Default rating
+        image_url: item.avatar_url || '/placeholder.svg',
+        experience: 'Professionnel expérimenté',
+        location: 'Ottawa, ON',
+        gender: item.gender as 'homme' | 'femme' | 'autre' | 'non_specifie',
+        email: '', // Not exposed from profiles
+        phone: '',
+        is_active: true,
+        role: item.role as 'coiffeur' | 'cosmetique'
       }));
 
       setProfessionals(mappedProfessionals);
@@ -84,7 +96,7 @@ const Index = () => {
       if (mappedProfessionals.length === 0) {
         toast({
           title: "Information",
-          description: "Aucun professionnel trouvé. Utilisez le bouton 'Initialiser' pour créer des comptes de test.",
+          description: `Aucun professionnel ${category || ''} trouvé.`,
         });
       }
     } catch (error) {
@@ -99,8 +111,8 @@ const Index = () => {
     }
   };
 
-  const handleGenderSelection = (gender: 'male' | 'female') => {
-    navigate(`/professionals/${gender}`);
+  const handleCategorySelection = (category: 'coiffeur' | 'cosmetique', gender?: 'homme' | 'femme') => {
+    handleShowExperts(category);
   };
 
   const handleProfessionalLogin = () => {
@@ -110,6 +122,7 @@ const Index = () => {
   const handleBackToHome = () => {
     setShowExperts(false);
     setProfessionals([]);
+    setSelectedCategory(null);
   };
 
   if (showExperts) {
@@ -132,10 +145,20 @@ const Index = () => {
               
               <div className="text-center">
                 <h1 className="text-4xl font-bold mb-4">
-                  Nos <span className="gradient-text">Experts</span>
+                  {selectedCategory === 'coiffeur' 
+                    ? <>Nos <span className="gradient-text">Coiffeurs</span></>
+                    : selectedCategory === 'cosmetique'
+                    ? <>Nos Experts <span className="gradient-text">Cosmétique</span></>
+                    : <>Nos <span className="gradient-text">Experts</span></>
+                  }
                 </h1>
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                  Découvrez nos professionnels qualifiés et réservez directement
+                  {selectedCategory === 'coiffeur' 
+                    ? 'Découvrez nos coiffeurs qualifiés et réservez directement'
+                    : selectedCategory === 'cosmetique'
+                    ? 'Découvrez nos experts en cosmétique et soins esthétiques'
+                    : 'Découvrez nos professionnels qualifiés et réservez directement'
+                  }
                 </p>
               </div>
             </div>
@@ -209,24 +232,24 @@ const Index = () => {
             {/* Bouton principal pour voir tous les experts */}
             <div className="text-center mb-12">
               <Button 
-                onClick={handleShowExperts}
+                onClick={() => handleShowExperts()}
                 className="bg-gradient-gold text-white text-xl px-12 py-4 rounded-xl hover:shadow-lg transition-all duration-300"
               >
                 <Scissors className="h-6 w-6 mr-3" />
-                Voir nos Experts
+                Voir tous nos Experts
               </Button>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Coiffeurs Hommes */}
               <Card className="group hover:scale-105 transition-all duration-300 cursor-pointer border-2 hover:border-gold-300 hover:shadow-xl" 
-                    onClick={() => handleGenderSelection('male')}>
+                    onClick={() => handleCategorySelection('coiffeur', 'homme')}>
                 <CardHeader className="text-center pb-4">
                   <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                     <Scissors className="h-10 w-10 text-white" />
                   </div>
                   <CardTitle className="text-2xl font-bold text-gray-900">
-                    Coiffeurs Experts
+                    Voir nos coiffeurs
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
@@ -251,13 +274,13 @@ const Index = () => {
 
               {/* Coiffeuses Femmes */}
               <Card className="group hover:scale-105 transition-all duration-300 cursor-pointer border-2 hover:border-gold-300 hover:shadow-xl" 
-                    onClick={() => handleGenderSelection('female')}>
+                    onClick={() => handleCategorySelection('coiffeur', 'femme')}>
                 <CardHeader className="text-center pb-4">
                   <div className="w-20 h-20 mx-auto mb-4 bg-gradient-gold rounded-full flex items-center justify-center">
                     <Scissors className="h-10 w-10 text-white" />
                   </div>
                   <CardTitle className="text-2xl font-bold text-gray-900">
-                    Coiffeuses Expertes
+                    Voir nos coiffeuses
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
@@ -276,6 +299,37 @@ const Index = () => {
                   </div>
                   <Button className="w-full bg-gradient-gold hover:bg-gold-600 text-white">
                     Voir nos coiffeuses
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Cosmétique */}
+              <Card className="group hover:scale-105 transition-all duration-300 cursor-pointer border-2 hover:border-gold-300 hover:shadow-xl" 
+                    onClick={() => handleCategorySelection('cosmetique')}>
+                <CardHeader className="text-center pb-4">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <Sparkles className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold text-gray-900">
+                    Cosmétique
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-gray-600 mb-6">
+                    Spécialistes en soins esthétiques et cosmétiques
+                  </p>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center justify-center text-sm text-gray-600">
+                      <Star className="h-4 w-4 text-yellow-400 mr-2" />
+                      Experts certifiés
+                    </div>
+                    <div className="flex items-center justify-center text-sm text-gray-600">
+                      <Clock className="h-4 w-4 text-green-500 mr-2" />
+                      Disponibles aujourd'hui
+                    </div>
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white">
+                    Voir nos experts
                   </Button>
                 </CardContent>
               </Card>
