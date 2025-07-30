@@ -11,11 +11,35 @@ export const validateFrenchPhone = (phone: string): boolean => {
   return phoneRegex.test(phone.replace(/\s/g, ''));
 };
 
-export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+// SECURITY FIX: Enhanced validation with server-side integration
+import { supabase } from "@/integrations/supabase/client";
+
+export const validatePassword = async (password: string): Promise<{ isValid: boolean; errors: string[] }> => {
+  try {
+    // Use server-side validation for enhanced security
+    const { data, error } = await supabase.rpc('validate_password_strength', { password });
+    
+    if (error) {
+      console.error('Server password validation failed:', error);
+      // Fallback to client-side validation
+      return validatePasswordClient(password);
+    }
+    
+    return {
+      isValid: (data as any)?.valid || false,
+      errors: (data as any)?.errors || []
+    };
+  } catch (error) {
+    console.error('Password validation error:', error);
+    return validatePasswordClient(password);
+  }
+};
+
+// Client-side fallback validation
+const validatePasswordClient = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
-  // SECURITY FIX: Enhanced password validation
-  if (password.length < 12) {
+  if (!password || password.length < 12) {
     errors.push('Le mot de passe doit contenir au moins 12 caractères');
   }
   
@@ -27,28 +51,16 @@ export const validatePassword = (password: string): { isValid: boolean; errors: 
     errors.push('Le mot de passe doit contenir au moins une minuscule');
   }
   
-  if (!/[0-9]/.test(password)) {
+  if (!/\d/.test(password)) {
     errors.push('Le mot de passe doit contenir au moins un chiffre');
   }
   
-  // SECURITY FIX: Require special characters
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
     errors.push('Le mot de passe doit contenir au moins un caractère spécial');
   }
   
-  // SECURITY FIX: Check for common weak patterns
-  const weakPatterns = [
-    /^(.)\1+$/, // All same character
-    /123456|password|admin|qwerty/i, // Common weak passwords
-    /^[a-zA-Z]+$/, // Only letters
-    /^[0-9]+$/, // Only numbers
-  ];
-  
-  for (const pattern of weakPatterns) {
-    if (pattern.test(password)) {
-      errors.push('Le mot de passe est trop prévisible');
-      break;
-    }
+  if (/password|123456|qwerty|admin|user/i.test(password)) {
+    errors.push('Le mot de passe ne doit pas contenir de motifs courants');
   }
   
   return {

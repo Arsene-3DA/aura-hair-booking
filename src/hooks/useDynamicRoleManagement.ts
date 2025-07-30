@@ -19,9 +19,9 @@ export const useDynamicRoleManagement = () => {
   const changeUserRole = async (targetUserId: string, newRole: UserRole): Promise<RoleChangeResult> => {
     setLoading(true);
     try {
-      // Appeler la fonction sécurisée de changement de rôle
+      // SECURITY FIX: Use the new secure role change function
       const { data, error } = await supabase
-        .rpc('change_user_role', {
+        .rpc('secure_change_user_role', {
           target_user_id: targetUserId,
           new_role: newRole
         });

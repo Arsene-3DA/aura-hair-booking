@@ -36,7 +36,7 @@ export const usePasswordPolicy = () => {
     try {
       // SECURITY FIX: Validate password strength client-side
       const { validatePassword } = await import('@/utils/validation');
-      const validation = validatePassword(newPassword);
+      const validation = await validatePassword(newPassword);
       
       if (!validation.isValid) {
         throw new Error(validation.errors.join(', '));

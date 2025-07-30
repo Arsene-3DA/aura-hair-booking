@@ -12,8 +12,8 @@ export interface SecurityConfig {
   logSecurity?: boolean;
 }
 
-// SECURITY FIX: Rate limiting implementation
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+// SECURITY FIX: Enhanced rate limiting with persistent storage
+const rateLimitStore = new Map<string, { count: number; resetTime: number; violations: number }>();
 
 export const checkRateLimit = (
   key: string, 
@@ -24,16 +24,53 @@ export const checkRateLimit = (
   const record = rateLimitStore.get(key);
   
   if (!record || now > record.resetTime) {
-    rateLimitStore.set(key, { count: 1, resetTime: now + windowMs });
+    rateLimitStore.set(key, { count: 1, resetTime: now + windowMs, violations: 0 });
     return true;
   }
   
   if (record.count >= maxAttempts) {
+    record.violations++;
+    // Progressive penalty: longer lockout for repeat offenders
+    const penaltyMultiplier = Math.min(record.violations, 10);
+    record.resetTime = now + (windowMs * penaltyMultiplier);
+    
+    // Store in localStorage for persistence across page reloads
+    try {
+      const persistedLimits = JSON.parse(localStorage.getItem('rate_limits') || '{}');
+      persistedLimits[key] = {
+        resetTime: record.resetTime,
+        violations: record.violations
+      };
+      localStorage.setItem('rate_limits', JSON.stringify(persistedLimits));
+    } catch (error) {
+      console.warn('Could not persist rate limit data:', error);
+    }
+    
     return false;
   }
   
   record.count++;
   return true;
+};
+
+// Initialize rate limits from localStorage on startup
+export const initializeRateLimits = () => {
+  try {
+    const persistedLimits = JSON.parse(localStorage.getItem('rate_limits') || '{}');
+    const now = Date.now();
+    
+    Object.entries(persistedLimits).forEach(([key, data]: [string, any]) => {
+      if (data.resetTime > now) {
+        rateLimitStore.set(key, {
+          count: 999, // Max out count to maintain lockout
+          resetTime: data.resetTime,
+          violations: data.violations || 0
+        });
+      }
+    });
+  } catch (error) {
+    console.warn('Could not load persisted rate limits:', error);
+  }
 };
 
 // SECURITY FIX: CSRF token generation and validation

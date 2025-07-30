@@ -24,7 +24,11 @@ export const usePromoteToAdmin = () => {
       // SECURITY FIX: Log promotion attempt
       await logSecurityEvent('admin_promotion_attempt', `Attempting to promote: ${email}`, {});
 
-      const { error } = await supabase.rpc('promote_to_admin', { p_email: validation.sanitized });
+      // SECURITY FIX: Use the original promote_to_admin function for now
+      // TODO: Later implement user lookup via profiles table
+      const { error } = await supabase.rpc('promote_to_admin', { 
+        p_email: validation.sanitized 
+      });
       
       if (error) {
         await logSecurityEvent('admin_promotion_failed', `Failed to promote ${email}: ${error.message}`, {});
