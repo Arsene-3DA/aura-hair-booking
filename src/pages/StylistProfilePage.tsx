@@ -66,13 +66,41 @@ const StylistProfilePage = () => {
       try {
         setLoading(true);
         
-        // Charger le profil du styliste
-        const { data: stylistData, error: stylistError } = await supabase
-          .from('hairdressers')
+        // Charger le profil du styliste depuis profiles et hairdressers
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
           .select('*')
-          .eq('id', stylistId)
-          .eq('is_active', true)
+          .eq('user_id', stylistId)
+          .in('role', ['coiffeur', 'coiffeuse', 'cosmetique'])
           .single();
+
+        let stylistData = null;
+        
+        if (profileData) {
+          // Essayer de récupérer des infos supplémentaires depuis hairdressers
+          const { data: hairdresserData } = await supabase
+            .from('hairdressers')
+            .select('*')
+            .eq('auth_id', stylistId)
+            .single();
+
+          // Combiner les données du profil avec celles du coiffeur
+          stylistData = {
+            id: profileData.user_id,
+            name: profileData.full_name,
+            email: hairdresserData?.email || '',
+            phone: hairdresserData?.phone || '',
+            location: hairdresserData?.location || 'Ottawa, ON',
+            specialties: hairdresserData?.specialties || ['Coiffure'],
+            experience: hairdresserData?.experience || 'Professionnel expérimenté',
+            image_url: profileData.avatar_url || hairdresserData?.image_url || '/placeholder.svg',
+            rating: hairdresserData?.rating || 4.5,
+            is_active: hairdresserData?.is_active ?? true,
+            role: profileData.role
+          };
+        }
+
+        const stylistError = profileError;
 
         if (stylistError || !stylistData) {
           console.error('Erreur lors du chargement du styliste:', stylistError);

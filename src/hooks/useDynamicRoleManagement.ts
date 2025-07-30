@@ -44,6 +44,11 @@ export const useDynamicRoleManagement = () => {
           detail: { userId: targetUserId, newRole, oldRole: result.oldRole }
         }));
         
+        // Déclencher également un événement pour rafraîchir les listes de professionnels
+        window.dispatchEvent(new CustomEvent('refreshProfessionals', {
+          detail: { userId: targetUserId, newRole, oldRole: result.oldRole }
+        }));
+        
         return result;
       } else {
         throw new Error(result.error || 'Erreur inconnue');

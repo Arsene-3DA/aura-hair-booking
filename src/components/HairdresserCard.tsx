@@ -91,6 +91,10 @@ const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }
     }
   };
 
+  const handleViewProfile = () => {
+    navigate(`/stylist/${id}`);
+  };
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform duration-200 cursor-pointer border border-gray-100">
       {/* Photo ronde 96px */}
@@ -170,14 +174,24 @@ const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }
         <span className="text-sm text-gray-700 font-medium">{rating.toFixed(1)}</span>
       </div>
 
-      {/* Bouton Choisir */}
-      <Button 
-        onClick={handleChooseHairdresser}
-        className="w-full bg-gradient-gold hover:bg-gold-600 text-white px-6 py-3 rounded-xl font-bold transition-colors duration-200"
-      >
-        <User className="h-5 w-5 mr-2" />
-        Réserver maintenant
-      </Button>
+      {/* Boutons d'action */}
+      <div className="space-y-3">
+        <Button 
+          onClick={handleViewProfile}
+          variant="outline"
+          className="w-full border-gold-300 text-gold-700 hover:bg-gold-50 px-6 py-3 rounded-xl font-bold transition-colors duration-200"
+        >
+          <User className="h-5 w-5 mr-2" />
+          Voir le profil
+        </Button>
+        <Button 
+          onClick={handleChooseHairdresser}
+          className="w-full bg-gradient-gold hover:bg-gold-600 text-white px-6 py-3 rounded-xl font-bold transition-colors duration-200"
+        >
+          <User className="h-5 w-5 mr-2" />
+          Réserver maintenant
+        </Button>
+      </div>
     </div>
   );
 };

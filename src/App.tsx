@@ -81,6 +81,13 @@ const App = () => (
                   </Suspense>
                 } />
                 <Route path="/auth" element={<RoleAuthPage />} />
+                <Route path="/stylists" element={<StylistsList />} />
+                <Route path="/stylist/:stylistId" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {React.createElement(React.lazy(() => import('./pages/StylistProfilePage')))}
+                  </Suspense>
+                } />
+                <Route path="/reservation/:stylistId" element={<ReservationPage />} />
                 <Route path="/admin" element={
                   <RoleProtectedRoute allowedRoles={['admin']}>
                     <AdminLayout />

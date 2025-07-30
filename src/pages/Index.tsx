@@ -24,7 +24,7 @@ interface Professional {
   email: string;
   phone?: string;
   is_active: boolean;
-  role: 'coiffeur' | 'cosmetique';
+  role: 'coiffeur' | 'coiffeuse' | 'cosmetique';
 }
 
 const Index = () => {
@@ -34,7 +34,7 @@ const Index = () => {
   const [showExperts, setShowExperts] = useState(false);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<'coiffeur' | 'cosmetique' | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<'coiffeur' | 'coiffeuse' | 'cosmetique' | null>(null);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -45,7 +45,23 @@ const Index = () => {
     }
   }, [location.state, toast]);
 
-  const handleShowExperts = async (category?: 'coiffeur' | 'cosmetique') => {
+  // Écouter les changements de rôles pour rafraîchir automatiquement
+  useEffect(() => {
+    const handleRefreshProfessionals = () => {
+      if (showExperts) {
+        // Rafraîchir la liste actuelle si on est sur l'affichage des experts
+        handleShowExperts(selectedCategory || undefined);
+      }
+    };
+
+    window.addEventListener('refreshProfessionals', handleRefreshProfessionals);
+    
+    return () => {
+      window.removeEventListener('refreshProfessionals', handleRefreshProfessionals);
+    };
+  }, [showExperts, selectedCategory]);
+
+  const handleShowExperts = async (category?: 'coiffeur' | 'coiffeuse' | 'cosmetique') => {
     setLoading(true);
     setShowExperts(true);
     setSelectedCategory(category || null);
@@ -63,7 +79,7 @@ const Index = () => {
           avatar_url,
           created_at
         `)
-        .in('role', category ? [category] : ['coiffeur', 'cosmetique'])
+        .in('role', category ? [category] : ['coiffeur', 'coiffeuse', 'cosmetique'])
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -77,7 +93,7 @@ const Index = () => {
       }
 
       const mappedProfessionals: Professional[] = (data || []).map(item => ({
-        id: item.id,
+        id: item.user_id, // Utiliser user_id pour être cohérent avec la navigation
         name: item.full_name || 'Nom non défini',
         specialties: item.role === 'cosmetique' ? ['Soins esthétiques', 'Cosmétique'] : ['Coiffure', 'Styling'],
         rating: 4.5, // Default rating
@@ -88,7 +104,7 @@ const Index = () => {
         email: '', // Not exposed from profiles
         phone: '',
         is_active: true,
-        role: item.role as 'coiffeur' | 'cosmetique'
+        role: item.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
       }));
 
       setProfessionals(mappedProfessionals);
@@ -111,7 +127,7 @@ const Index = () => {
     }
   };
 
-  const handleCategorySelection = (category: 'coiffeur' | 'cosmetique', gender?: 'homme' | 'femme') => {
+  const handleCategorySelection = (category: 'coiffeur' | 'coiffeuse' | 'cosmetique') => {
     handleShowExperts(category);
   };
 
@@ -147,6 +163,8 @@ const Index = () => {
                 <h1 className="text-4xl font-bold mb-4">
                   {selectedCategory === 'coiffeur' 
                     ? <>Nos <span className="gradient-text">Coiffeurs</span></>
+                    : selectedCategory === 'coiffeuse'
+                    ? <>Nos <span className="gradient-text">Coiffeuses</span></>
                     : selectedCategory === 'cosmetique'
                     ? <>Nos Experts <span className="gradient-text">Cosmétique</span></>
                     : <>Nos <span className="gradient-text">Experts</span></>
@@ -155,6 +173,8 @@ const Index = () => {
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                   {selectedCategory === 'coiffeur' 
                     ? 'Découvrez nos coiffeurs qualifiés et réservez directement'
+                    : selectedCategory === 'coiffeuse'
+                    ? 'Découvrez nos coiffeuses qualifiées et réservez directement'
                     : selectedCategory === 'cosmetique'
                     ? 'Découvrez nos experts en cosmétique et soins esthétiques'
                     : 'Découvrez nos professionnels qualifiés et réservez directement'
@@ -241,9 +261,9 @@ const Index = () => {
             </div>
             
             <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {/* Coiffeurs Hommes */}
+              {/* Coiffeurs */}
               <Card className="group hover:scale-105 transition-all duration-300 cursor-pointer border-2 hover:border-gold-300 hover:shadow-xl" 
-                    onClick={() => handleCategorySelection('coiffeur', 'homme')}>
+                    onClick={() => handleCategorySelection('coiffeur')}>
                 <CardHeader className="text-center pb-4">
                   <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                     <Scissors className="h-10 w-10 text-white" />
@@ -254,7 +274,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent className="text-center">
                   <p className="text-gray-600 mb-6">
-                    Spécialistes en coupe homme, barbe et styling masculin
+                    Spécialistes en coupe, barbe et styling masculin
                   </p>
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center justify-center text-sm text-gray-600">
@@ -272,9 +292,9 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              {/* Coiffeuses Femmes */}
+              {/* Coiffeuses */}
               <Card className="group hover:scale-105 transition-all duration-300 cursor-pointer border-2 hover:border-gold-300 hover:shadow-xl" 
-                    onClick={() => handleCategorySelection('coiffeur', 'femme')}>
+                    onClick={() => handleCategorySelection('coiffeuse')}>
                 <CardHeader className="text-center pb-4">
                   <div className="w-20 h-20 mx-auto mb-4 bg-gradient-gold rounded-full flex items-center justify-center">
                     <Scissors className="h-10 w-10 text-white" />
@@ -285,7 +305,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent className="text-center">
                   <p className="text-gray-600 mb-6">
-                    Spécialistes en coupe femme, couleur et coiffage
+                    Spécialistes en coupe, couleur et coiffage féminin
                   </p>
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center justify-center text-sm text-gray-600">
