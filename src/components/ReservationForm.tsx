@@ -37,6 +37,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     clientEmail: '',
     clientPhone: '',
     service: preselectedService || '',
+    serviceId: '',
     date: '',
     time: '',
     notes: ''
@@ -85,7 +86,11 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
             service.name.toLowerCase().includes(preselectedService.toLowerCase())
           );
           if (matchingService) {
-            setFormData(prev => ({ ...prev, service: matchingService.name }));
+            setFormData(prev => ({ 
+              ...prev, 
+              service: matchingService.name,
+              serviceId: matchingService.id 
+            }));
           }
         }
       } catch (error) {
@@ -129,14 +134,25 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
         return;
       }
 
+      // Validation : si des services existent pour ce pro, un service doit être sélectionné
+      if (availableServices.length > 0 && !formData.service) {
+        toast({
+          title: "Service requis",
+          description: "Veuillez choisir un service avant de confirmer.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const bookingData = {
         hairdresser_id: hairdresserId,
-        client_id: user.id,  // Changé: utilise client_id au lieu de client_auth_id
+        client_id: user.id,
         client_auth_id: user.id,
         client_name: formData.clientName,
         client_email: formData.clientEmail,
         client_phone: formData.clientPhone,
-        service: formData.service,
+        service: formData.service || null,
+        service_id: formData.serviceId || null,
         booking_date: formData.date,
         booking_time: formData.time,
         scheduled_at: `${formData.date}T${formData.time}:00`,
@@ -208,13 +224,19 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
   };
 
   const isFormValid = () => {
-    // Tous les champs sont obligatoires, y compris le service
-    return formData.clientName && 
-           formData.clientEmail && 
-           formData.clientPhone && 
-           formData.service && 
-           formData.date && 
-           formData.time;
+    const hasRequiredFields = formData.clientName && 
+                              formData.clientEmail && 
+                              formData.clientPhone && 
+                              formData.date && 
+                              formData.time;
+    
+    // Si des services existent pour ce pro, en sélectionner un est obligatoire
+    if (availableServices.length > 0) {
+      return hasRequiredFields && formData.service;
+    }
+    
+    // Si aucun service spécifique, les champs de base suffisent
+    return hasRequiredFields;
   };
 
   return (
@@ -300,7 +322,14 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
           ) : (
             <Select 
               value={formData.service} 
-              onValueChange={(value) => handleInputChange('service', value)}
+              onValueChange={(value) => {
+                const selectedService = availableServices.find(s => s.name === value);
+                setFormData(prev => ({
+                  ...prev,
+                  service: value,
+                  serviceId: selectedService?.id || ''
+                }));
+              }}
               disabled={loading}
             >
               <SelectTrigger>

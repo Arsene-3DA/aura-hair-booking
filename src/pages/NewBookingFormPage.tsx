@@ -18,7 +18,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 
 const bookingSchema = z.object({
-  service: z.string().min(1, 'Veuillez sélectionner un service'),
+  service: z.string().optional(),
+  service_id: z.string().optional(),
   scheduled_at: z.string().min(1, 'Veuillez sélectionner une date et heure'),
   comments: z.string().optional()
 });
@@ -108,12 +109,20 @@ const NewBookingFormPage = () => {
         throw new Error('Utilisateur ou expert non défini');
       }
 
+      // Validation : si des services existent pour ce pro, un service doit être sélectionné
+      if (expert?.services && expert.services.length > 0 && !data.service) {
+        throw new Error('service_required');
+      }
+
+      const selectedService = expert?.services?.find(s => s.name === data.service);
+
       const { error } = await supabase
         .from('bookings')
         .insert({
           client_id: user.id,
           stylist_id: expertId,
-          service: data.service,
+          service: data.service || null,
+          service_id: selectedService?.id || null,
           scheduled_at: data.scheduled_at,
           comments: data.comments || null,
           status: 'pending',
@@ -136,11 +145,15 @@ const NewBookingFormPage = () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       navigate('/app/bookings');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Erreur lors de la création:', error);
+      const errorMessage = error.message === 'service_required' 
+        ? 'Veuillez choisir un service avant de confirmer.'
+        : 'Impossible d\'envoyer votre demande. Veuillez réessayer.';
+      
       toast({
         title: "Erreur",
-        description: "Impossible d'envoyer votre demande. Veuillez réessayer.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -184,6 +197,16 @@ const NewBookingFormPage = () => {
   const timeSlots = generateTimeSlots();
 
   const onSubmit = (data: BookingFormData) => {
+    // Validation côté client : si des services existent, un service doit être sélectionné
+    if (expert?.services && expert.services.length > 0 && !data.service) {
+      toast({
+        title: "Service requis",
+        description: "Veuillez choisir un service avant de confirmer.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     createBookingMutation.mutate(data);
   };
 
