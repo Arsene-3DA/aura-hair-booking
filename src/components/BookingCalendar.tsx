@@ -94,11 +94,15 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
 
   const isDateDisabled = (date: Date) => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
     const maxDate = addDays(today, 60); // Réservation jusqu'à 2 mois à l'avance
     
+    const dateToCheck = new Date(date);
+    dateToCheck.setHours(0, 0, 0, 0);
+    
     return (
-      isBefore(date, today) || 
-      isAfter(date, maxDate) ||
+      isBefore(dateToCheck, today) || 
+      isAfter(dateToCheck, maxDate) ||
       date.getDay() === 0 // Dimanche fermé
     );
   };

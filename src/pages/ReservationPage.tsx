@@ -89,11 +89,12 @@ const ReservationPage = () => {
   }, [stylistId, location.state, navigate, toast]);
 
   const handleReservationSuccess = () => {
-    navigate('/', { 
-      state: { 
-        message: 'Votre demande de réservation a été envoyée avec succès!' 
-      }
-    });
+    // Essayer de retourner à la page précédente ou à la liste des coiffeurs par défaut
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigate('/stylists');
+    }
   };
 
   if (loading) {
@@ -128,7 +129,14 @@ const ReservationPage = () => {
         <div className="container mx-auto px-4">
           <Button 
             variant="outline" 
-            onClick={() => window.history.back()}
+            onClick={() => {
+              // Navigation intelligente selon la catégorie du coiffeur
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                navigate('/stylists');
+              }
+            }}
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

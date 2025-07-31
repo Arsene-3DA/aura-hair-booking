@@ -207,6 +207,18 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     return selectedService;
   };
 
+  const isFormValid = () => {
+    const hasRequiredFields = formData.clientName && formData.clientEmail && formData.clientPhone && formData.date && formData.time;
+    
+    // Si des services sont disponibles, en sélectionner un est obligatoire
+    if (availableServices.length > 0) {
+      return hasRequiredFields && formData.service;
+    }
+    
+    // Si aucun service disponible, on peut continuer sans service sélectionné
+    return hasRequiredFields;
+  };
+
   return (
     <div className="space-y-8">
       {/* Guide d'aide */}
@@ -391,7 +403,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
           <Button 
             onClick={handleSubmit}
             className="w-full bg-gradient-gold text-white py-3 text-lg"
-            disabled={loading || !formData.service || !formData.date || !formData.time}
+            disabled={loading || !isFormValid()}
           >
             {loading ? "Envoi en cours..." : "Confirmer la réservation"}
           </Button>

@@ -218,7 +218,14 @@ const StylistProfilePage = () => {
         <div className="container mx-auto px-4">
           <Button 
             variant="outline" 
-            onClick={() => window.history.back()}
+            onClick={() => {
+              // Navigation intelligente selon la catégorie du coiffeur
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                navigate('/stylists');
+              }
+            }}
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
