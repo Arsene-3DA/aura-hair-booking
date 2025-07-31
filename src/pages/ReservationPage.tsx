@@ -70,7 +70,7 @@ const ReservationPage = () => {
         }
 
         setHairdresser({
-          id: data.id,
+          id: data.auth_id, // Utiliser auth_id qui correspond à profiles.id
           name: data.name,
           image_url: data.image_url || '/placeholder.svg',
           specialties: data.specialties || [],

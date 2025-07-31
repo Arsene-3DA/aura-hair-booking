@@ -120,7 +120,8 @@ const NewBookingFormPage = () => {
         .from('bookings')
         .insert({
           client_id: user.id,
-          stylist_id: expertId,
+          stylist_id: expertId, // expertId est déjà l'auth_id qui correspond à profiles.id
+          hairdresser_id: expertId, // Utiliser le même ID pour hairdresser_id
           service: data.service || null,
           service_id: selectedService?.id || null,
           scheduled_at: data.scheduled_at,
@@ -130,7 +131,6 @@ const NewBookingFormPage = () => {
           client_name: user.email?.split('@')[0] || 'Client',
           client_email: user.email,
           client_phone: '', // À améliorer avec un profil utilisateur complet
-          hairdresser_id: expertId,
           booking_date: data.scheduled_at.split('T')[0],
           booking_time: data.scheduled_at.split('T')[1]
         });

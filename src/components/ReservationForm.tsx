@@ -145,7 +145,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
       }
 
       const bookingData = {
-        hairdresser_id: hairdresserId,
+        hairdresser_id: hairdresserId, // hairdresserId doit maintenant être profiles.id
         client_id: user.id,
         client_auth_id: user.id,
         client_name: formData.clientName,
