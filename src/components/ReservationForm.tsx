@@ -208,15 +208,13 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
   };
 
   const isFormValid = () => {
-    const hasRequiredFields = formData.clientName && formData.clientEmail && formData.clientPhone && formData.date && formData.time;
-    
-    // Si des services sont disponibles, en sélectionner un est obligatoire
-    if (availableServices.length > 0) {
-      return hasRequiredFields && formData.service;
-    }
-    
-    // Si aucun service disponible, on peut continuer sans service sélectionné
-    return hasRequiredFields;
+    // Tous les champs sont obligatoires, y compris le service
+    return formData.clientName && 
+           formData.clientEmail && 
+           formData.clientPhone && 
+           formData.service && 
+           formData.date && 
+           formData.time;
   };
 
   return (
@@ -321,20 +319,24 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
                   </SelectItem>
                 ))
               ) : (
-                <SelectItem value="no-services" disabled>
-                  Aucun service disponible pour ce coiffeur
-                </SelectItem>
+                <>
+                  <SelectItem value="Coupe de cheveux">Coupe de cheveux</SelectItem>
+                  <SelectItem value="Coloration">Coloration</SelectItem>
+                  <SelectItem value="Mèches">Mèches</SelectItem>
+                  <SelectItem value="Brushing">Brushing</SelectItem>
+                  <SelectItem value="Soin capillaire">Soin capillaire</SelectItem>
+                  <SelectItem value="Autre service">Autre service (à préciser en notes)</SelectItem>
+                </>
               )}
               </SelectContent>
             </Select>
           )}
           
-          {/* Message si aucun service disponible */}
+          {/* Message si aucun service spécifique disponible */}
           {!loadingServices && availableServices.length === 0 && (
-            <div className="mt-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-              <p className="text-sm text-yellow-800">
-                ℹ️ Les services pour ce coiffeur ne sont pas encore renseignés. 
-                Vous pouvez tout de même faire une demande de réservation en décrivant le service souhaité dans les notes.
+            <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800">
+                ℹ️ Services génériques disponibles. Vous pouvez préciser vos besoins spécifiques dans les notes ci-dessous.
               </p>
             </div>
           )}
