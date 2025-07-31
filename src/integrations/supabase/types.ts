@@ -730,6 +730,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      confirm_booking: {
+        Args: { p_booking_id: string }
+        Returns: undefined
+      }
       count_unread_messages: {
         Args: {
           p_stylist_id: string
@@ -737,6 +741,10 @@ export type Database = {
           p_user_type?: string
         }
         Returns: number
+      }
+      decline_booking: {
+        Args: { p_booking_id: string }
+        Returns: undefined
       }
       force_user_logout: {
         Args: { target_user_id: string }
@@ -786,6 +794,10 @@ export type Database = {
       set_user_role: {
         Args: { user_id: string; new_role: string }
         Returns: undefined
+      }
+      validate_booking_service: {
+        Args: { p_stylist_user_id: string; p_service_id: string }
+        Returns: boolean
       }
       validate_password_strength: {
         Args: { password: string }
