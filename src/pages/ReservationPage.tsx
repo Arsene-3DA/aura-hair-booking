@@ -20,7 +20,7 @@ interface Hairdresser {
 }
 
 const ReservationPage = () => {
-  const { hairdresserId } = useParams<{ hairdresserId: string }>();
+  const { stylistId } = useParams<{ stylistId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -31,8 +31,8 @@ const ReservationPage = () => {
   // Récupérer les données du coiffeur depuis les paramètres de navigation ou la BD
   useEffect(() => {
     const loadHairdresser = async () => {
-      if (!validateId(hairdresserId)) {
-        console.error('ID coiffeur invalide:', hairdresserId);
+      if (!validateId(stylistId)) {
+        console.error('ID coiffeur invalide:', stylistId);
         toast({
           title: "Erreur",
           description: "ID du coiffeur manquant ou invalide",
@@ -54,7 +54,7 @@ const ReservationPage = () => {
         const { data, error } = await supabase
           .from('hairdressers')
           .select('*')
-          .eq('id', hairdresserId)
+          .eq('id', stylistId)
           .eq('is_active', true)
           .single();
 
@@ -86,7 +86,7 @@ const ReservationPage = () => {
     };
 
     loadHairdresser();
-  }, [hairdresserId, location.state, navigate, toast]);
+  }, [stylistId, location.state, navigate, toast]);
 
   const handleReservationSuccess = () => {
     navigate('/', { 
