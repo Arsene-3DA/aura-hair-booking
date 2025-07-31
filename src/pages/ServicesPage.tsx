@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, DollarSign, Users } from 'lucide-react';
@@ -321,18 +322,18 @@ const ServicesPage = () => {
               Choisissez votre expert et réservez dès maintenant pour une expérience sur mesure
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/professionals/male"
+              <Link
+                to="/professionals/male"
                 className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
               >
                 Nos Coiffeurs Experts
-              </a>
-              <a
-                href="/professionals/female"
+              </Link>
+              <Link
+                to="/professionals/female"
                 className="bg-gradient-gold hover:bg-gold-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
               >
                 Nos Coiffeuses Expertes
-              </a>
+              </Link>
             </div>
           </div>
         </section>

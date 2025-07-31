@@ -87,7 +87,7 @@ const ClientDashboard = () => {
                   Mes réservations
                 </CardTitle>
                 <Button 
-                  onClick={() => navigate('/professionals/all')}
+                  onClick={() => navigate('/professionals')}
                   className="bg-gradient-gold text-white"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -105,7 +105,7 @@ const ClientDashboard = () => {
                     <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600">Aucune réservation trouvée</p>
                     <Button 
-                      onClick={() => navigate('/professionals/all')}
+                      onClick={() => navigate('/professionals')}
                       className="mt-4 bg-gradient-gold text-white"
                     >
                       Prendre rendez-vous

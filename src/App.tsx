@@ -80,6 +80,13 @@ const App = () => (
                     {React.createElement(React.lazy(() => import('./pages/ServicesListPage')))}
                   </Suspense>
                 } />
+                <Route path="/tarifs" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {React.createElement(React.lazy(() => import('./pages/TarifsPage')))}
+                  </Suspense>
+                } />
+                <Route path="/professionals" element={<StylistsList />} />
+                <Route path="/professionals/:gender" element={<ProfessionalsList />} />
                 <Route path="/auth" element={<RoleAuthPage />} />
                 <Route path="/stylists" element={<StylistsList />} />
                 <Route path="/stylist/:stylistId" element={
@@ -144,6 +151,11 @@ const App = () => (
                 </Route>
                 <Route path="/app" element={
                   <RoleProtectedRoute allowedRoles={['client', 'admin']}>
+                    <ClientLayout />
+                  </RoleProtectedRoute>
+                } />
+                <Route path="/client" element={
+                  <RoleProtectedRoute allowedRoles={['client']}>
                     <ClientLayout />
                   </RoleProtectedRoute>
                 } />
