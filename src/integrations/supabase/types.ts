@@ -260,29 +260,46 @@ export type Database = {
       messages: {
         Row: {
           body: string | null
+          booking_id: string | null
           created_at: string | null
           id: string
+          is_read: boolean | null
+          message_type: string | null
           receiver_id: string | null
           sender_id: string | null
           ticket_id: string | null
         }
         Insert: {
           body?: string | null
+          booking_id?: string | null
           created_at?: string | null
           id?: string
+          is_read?: boolean | null
+          message_type?: string | null
           receiver_id?: string | null
           sender_id?: string | null
           ticket_id?: string | null
         }
         Update: {
           body?: string | null
+          booking_id?: string | null
           created_at?: string | null
           id?: string
+          is_read?: boolean | null
+          message_type?: string | null
           receiver_id?: string | null
           sender_id?: string | null
           ticket_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       new_reservations: {
         Row: {
@@ -713,6 +730,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      count_unread_messages: {
+        Args: {
+          p_stylist_id: string
+          p_client_id: string
+          p_user_type?: string
+        }
+        Returns: number
+      }
       force_user_logout: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -736,6 +761,10 @@ export type Database = {
           user_id?: string
           metadata?: Json
         }
+        Returns: undefined
+      }
+      mark_messages_as_read: {
+        Args: { p_stylist_id: string; p_client_id: string }
         Returns: undefined
       }
       promote_to_admin: {
