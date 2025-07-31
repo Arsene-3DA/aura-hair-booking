@@ -84,6 +84,18 @@ const ReservePage = () => {
         throw new Error('Vous devez être connecté pour faire une réservation');
       }
 
+      // Vérifier que le styliste existe dans profiles
+      const { data: stylistProfile } = await supabase
+        .from('profiles')
+        .select('user_id, role')
+        .eq('user_id', data.stylist_user_id)
+        .eq('role', 'coiffeur')
+        .single();
+
+      if (!stylistProfile) {
+        throw new Error('Styliste non trouvé ou inactif');
+      }
+
       const { error } = await supabase
         .from('new_reservations')
         .insert({
