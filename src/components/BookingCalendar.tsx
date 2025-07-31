@@ -4,7 +4,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Calendar as CalendarIcon, CheckCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Clock, Calendar as CalendarIcon, CheckCircle, Info } from 'lucide-react';
 import { format, addDays, isSameDay, isAfter, isBefore } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -102,8 +103,14 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
     );
   };
 
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return isSameDay(date, today);
+  };
+
   return (
-    <div className="space-y-6">
+    <TooltipProvider>
+      <div className="space-y-6">
       {/* Calendrier */}
       <Card>
         <CardHeader>
@@ -111,6 +118,21 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
             <CalendarIcon className="h-5 w-5 mr-2 text-gold-500" />
             Choisissez une date
           </CardTitle>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-1">
+                  <p>• La date d'aujourd'hui est mise en évidence en orange</p>
+                  <p>• Les dimanches sont fermés</p>
+                  <p>• Réservations possibles jusqu'à 2 mois à l'avance</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+            <span>Cliquez sur l'icône pour plus d'informations</span>
+          </div>
         </CardHeader>
         <CardContent>
           <Calendar
@@ -120,6 +142,17 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
             disabled={isDateDisabled}
             locale={fr}
             className="rounded-md border"
+            modifiers={{
+              today: (date) => isToday(date)
+            }}
+            modifiersStyles={{
+              today: { 
+                backgroundColor: '#fbbf24', 
+                color: 'white',
+                fontWeight: 'bold',
+                borderRadius: '50%'
+              }
+            }}
           />
           
           {selectedCalendarDate && (
@@ -135,12 +168,27 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
       {/* Créneaux horaires */}
       {selectedCalendarDate && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg">
-              <Clock className="h-5 w-5 mr-2 text-gold-500" />
-              Créneaux disponibles
-            </CardTitle>
-          </CardHeader>
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <Clock className="h-5 w-5 mr-2 text-gold-500" />
+            Créneaux disponibles
+          </CardTitle>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-1">
+                  <p>• Vert : Créneaux disponibles</p>
+                  <p>• Orange : Créneau sélectionné</p>
+                  <p>• Gris : Créneaux occupés ou passés</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+            <span>Cliquez sur un créneau disponible pour le sélectionner</span>
+          </div>
+        </CardHeader>
           <CardContent>
             {loadingSlots ? (
               <div className="flex items-center justify-center py-8">
@@ -218,7 +266,8 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </TooltipProvider>
   );
 };
 

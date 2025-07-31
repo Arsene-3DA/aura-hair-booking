@@ -9,6 +9,7 @@ import { User, Phone, Mail, Scissors, Clock } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import BookingCalendar from './BookingCalendar';
+import BookingHelp from './BookingHelp';
 
 interface ReservationFormProps {
   hairdresserId: string;
@@ -208,6 +209,8 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
 
   return (
     <div className="space-y-8">
+      {/* Guide d'aide */}
+      <BookingHelp />
       {/* Informations client */}
       <Card>
         <CardHeader>
@@ -294,7 +297,8 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
                 <SelectValue placeholder="Choisissez un service" />
               </SelectTrigger>
               <SelectContent>
-                {availableServices.map((service) => (
+              {availableServices.length > 0 ? (
+                availableServices.map((service) => (
                   <SelectItem key={service.id} value={service.name}>
                     <div className="flex flex-col">
                       <span className="font-medium">{service.name}</span>
@@ -303,9 +307,24 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
                       </span>
                     </div>
                   </SelectItem>
-                ))}
+                ))
+              ) : (
+                <SelectItem value="no-services" disabled>
+                  Aucun service disponible pour ce coiffeur
+                </SelectItem>
+              )}
               </SelectContent>
             </Select>
+          )}
+          
+          {/* Message si aucun service disponible */}
+          {!loadingServices && availableServices.length === 0 && (
+            <div className="mt-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <p className="text-sm text-yellow-800">
+                ℹ️ Les services pour ce coiffeur ne sont pas encore renseignés. 
+                Vous pouvez tout de même faire une demande de réservation en décrivant le service souhaité dans les notes.
+              </p>
+            </div>
           )}
           
           {/* Afficher les détails du service sélectionné */}
@@ -330,6 +349,9 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
           <CardTitle className="text-xl">
             Choisissez votre créneau
           </CardTitle>
+          <p className="text-sm text-gray-600 mt-2">
+            💡 Sélectionnez d'abord une date sur le calendrier, puis choisissez un horaire disponible
+          </p>
         </CardHeader>
         <CardContent>
           <BookingCalendar

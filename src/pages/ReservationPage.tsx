@@ -128,7 +128,7 @@ const ReservationPage = () => {
         <div className="container mx-auto px-4">
           <Button 
             variant="outline" 
-            onClick={() => navigate(-1)}
+            onClick={() => window.history.back()}
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

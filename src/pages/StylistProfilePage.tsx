@@ -218,11 +218,11 @@ const StylistProfilePage = () => {
         <div className="container mx-auto px-4">
           <Button 
             variant="outline" 
-            onClick={() => navigate('/stylists')}
+            onClick={() => window.history.back()}
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Retour aux stylistes
+            Retour
           </Button>
           
           <div className="max-w-4xl mx-auto space-y-6">
@@ -319,12 +319,12 @@ const StylistProfilePage = () => {
             )}
 
             {/* Services */}
-            {services.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Services proposés</CardTitle>
-                </CardHeader>
-                <CardContent>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Services proposés</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {services.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {services.map((service, index) => (
                       <div 
@@ -362,9 +362,24 @@ const StylistProfilePage = () => {
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">
+                      ℹ️ Les services pour ce styliste ne sont pas encore renseignés.
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Vous pouvez tout de même faire une demande de réservation en décrivant le service souhaité dans les notes.
+                    </p>
+                    <Button 
+                      onClick={() => handleBooking()}
+                      variant="outline"
+                    >
+                      Faire une demande de réservation
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Portfolio */}
             {portfolio.length > 0 && (
