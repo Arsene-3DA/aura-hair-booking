@@ -78,10 +78,16 @@ const ReservePage = () => {
       scheduled_at: string;
       notes?: string;
     }) => {
+      // Vérifier la session au moment de l'appel
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Vous devez être connecté pour faire une réservation');
+      }
+
       const { error } = await supabase
         .from('new_reservations')
         .insert({
-          client_user_id: user!.id,
+          client_user_id: session.user.id,
           stylist_user_id: data.stylist_user_id,
           service_id: data.service_id,
           scheduled_at: data.scheduled_at,
