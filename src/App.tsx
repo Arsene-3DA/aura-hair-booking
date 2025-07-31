@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import RoleProtectedRoute from "@/components/RoleProtectedRoute";
+import AuthenticatedRoute from "@/components/AuthenticatedRoute";
 import SecurityHeaders from "@/components/SecurityHeaders";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 
@@ -46,6 +47,11 @@ const ReviewsPage = lazy(() => import("./pages/client/ReviewsPage"));
 const NotificationCenter = lazy(() => import("./pages/client/NotificationCenter"));
 const SupportPage = lazy(() => import("./pages/client/SupportPage"));
 const ClientHistory = lazy(() => import("./pages/client/History"));
+
+// Lazy loading des pages expertsHere's the updated content for the file src/App.tsx:
+const ExpertsPage = lazy(() => import("./pages/ExpertsPage"));
+const ExpertDetailPage = lazy(() => import("./pages/ExpertDetailPage"));
+const NewBookingFormPage = lazy(() => import("./pages/NewBookingFormPage"));
 
 // Lazy loading des layouts stylist
 const StylistLayout = lazy(() => import("./layouts/StylistLayout"));
@@ -181,6 +187,16 @@ const App = () => (
                 }>
                   <Route index element={<ClientDashboardPage />} />
                 </Route>
+
+                {/* Routes publiques pour les experts et réservations */}
+                <Route path="/experts" element={<ExpertsPage />} />
+                <Route path="/experts/:expertId" element={<ExpertDetailPage />} />
+                <Route path="/bookings/new" element={
+                  <AuthenticatedRoute>
+                    <NewBookingFormPage />
+                  </AuthenticatedRoute>
+                } />
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
