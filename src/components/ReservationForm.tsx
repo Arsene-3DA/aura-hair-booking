@@ -145,25 +145,18 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
       }
 
       const bookingData = {
-        hairdresser_id: hairdresserId, // hairdresserId doit maintenant être profiles.id
-        client_id: user.id,
-        client_auth_id: user.id,
-        client_name: formData.clientName,
-        client_email: formData.clientEmail,
-        client_phone: formData.clientPhone,
-        service: formData.service || null,
+        client_user_id: user.id,
+        stylist_user_id: hairdresserId, // hairdresserId doit maintenant être profiles.user_id
         service_id: formData.serviceId || null,
-        booking_date: formData.date,
-        booking_time: formData.time,
         scheduled_at: `${formData.date}T${formData.time}:00`,
-        comments: formData.notes || null,
+        notes: formData.notes || null,
         status: 'pending' as const
       };
 
       console.log('📝 Données à insérer:', bookingData);
       
       const { data, error } = await supabase
-        .from('bookings')
+        .from('new_reservations')
         .insert(bookingData)
         .select();
 
