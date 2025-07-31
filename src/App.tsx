@@ -38,6 +38,13 @@ const PlatformSettings = lazy(() => import("./pages/admin/PlatformSettings"));
 const AuditTrail = lazy(() => import("./pages/admin/AuditTrail"));
 
 // Lazy loading des pages client
+const ClientDashboardPage = lazy(() => import("./pages/client/ClientDashboard"));
+const BookingsPage = lazy(() => import("./pages/client/BookingsPage"));
+const NewBookingPage = lazy(() => import("./pages/client/NewBookingPage"));
+const ProfilePage = lazy(() => import("./pages/client/ProfilePage"));
+const ReviewsPage = lazy(() => import("./pages/client/ReviewsPage"));
+const NotificationCenter = lazy(() => import("./pages/client/NotificationCenter"));
+const SupportPage = lazy(() => import("./pages/client/SupportPage"));
 const ClientHistory = lazy(() => import("./pages/client/History"));
 
 // Lazy loading des layouts stylist
@@ -102,6 +109,10 @@ const App = () => (
                 }>
                   <Route index element={<Overview />} />
                   <Route path="users" element={<Users />} />
+                  <Route path="bookings" element={<Bookings />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="audit" element={<AuditTrail />} />
+                  <Route path="settings" element={<PlatformSettings />} />
                 </Route>
                 <Route path="/stylist" element={
                   <RoleProtectedRoute allowedRoles={['coiffeur', 'coiffeuse']}>
@@ -153,12 +164,23 @@ const App = () => (
                   <RoleProtectedRoute allowedRoles={['client', 'admin']}>
                     <ClientLayout />
                   </RoleProtectedRoute>
-                } />
+                }>
+                  <Route index element={<ClientDashboardPage />} />
+                  <Route path="bookings" element={<BookingsPage />} />
+                  <Route path="bookings/new" element={<NewBookingPage />} />
+                  <Route path="profile" element={<ProfilePage />} />
+                  <Route path="reviews" element={<ReviewsPage />} />
+                  <Route path="notifications" element={<NotificationCenter />} />
+                  <Route path="support" element={<SupportPage />} />
+                  <Route path="history" element={<ClientHistory />} />
+                </Route>
                 <Route path="/client" element={
                   <RoleProtectedRoute allowedRoles={['client']}>
                     <ClientLayout />
                   </RoleProtectedRoute>
-                } />
+                }>
+                  <Route index element={<ClientDashboardPage />} />
+                </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
