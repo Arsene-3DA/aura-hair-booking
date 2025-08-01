@@ -25,6 +25,7 @@ const CoiffeurDashboard = lazy(() => import("./pages/CoiffeurDashboard"));
 const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const ComponentsDemo = lazy(() => import("./pages/ComponentsDemo"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ServicesListPage = lazy(() => import("./pages/ServicesListPage"));
 
 // Lazy loading des layouts
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
@@ -88,11 +89,7 @@ const App = () => (
               <Routes>
                 {/* Routes publiques */}
                 <Route path="/" element={<Index />} />
-                <Route path="/services" element={
-                  <Suspense fallback={<LoadingSpinner />}>
-                    {React.createElement(React.lazy(() => import('./pages/ServicesListPage')))}
-                  </Suspense>
-                } />
+                <Route path="/services" element={<ServicesListPage />} />
                 <Route path="/tarifs" element={
                   <Suspense fallback={<LoadingSpinner />}>
                     {React.createElement(React.lazy(() => import('./pages/TarifsPage')))}
