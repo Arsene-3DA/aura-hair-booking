@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, User } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import '@/styles/fullcalendar-override.css';
+import '@/styles/simple-calendar.css';
 
 interface InteractiveCalendarProps {
   stylistId: string;

@@ -1,0 +1,174 @@
+/* CALENDRIER SIMPLE ET VISIBLE */
+
+/* Reset de base - fond blanc partout */
+.fc,
+.fc * {
+  background: white !important;
+  color: #000 !important;
+}
+
+/* Container principal avec bordures épaisses */
+.fc-theme-standard .fc-scrollgrid {
+  background: white !important;
+  border: 4px solid #000 !important;
+  border-radius: 8px !important;
+}
+
+/* Headers des jours - gris clair avec bordures noires */
+.fc-col-header-cell {
+  background: #f0f0f0 !important;
+  color: #000 !important;
+  font-weight: bold !important;
+  font-size: 16px !important;
+  border: 2px solid #000 !important;
+  padding: 15px !important;
+  text-align: center !important;
+}
+
+/* Toutes les cellules avec bordures visibles */
+.fc-theme-standard td, 
+.fc-theme-standard th {
+  border: 1px solid #333 !important;
+  background: white !important;
+}
+
+/* Labels des heures - très visibles */
+.fc-timegrid-slot-label,
+.fc-timegrid-axis-cushion,
+.fc-timegrid-slot-label-cushion {
+  background: #f8f8f8 !important;
+  color: #000 !important;
+  font-weight: bold !important;
+  font-size: 16px !important;
+  border: 2px solid #000 !important;
+  padding: 10px !important;
+  text-align: center !important;
+  min-width: 100px !important;
+}
+
+/* Créneaux horaires avec grille visible */
+.fc-timegrid-slot {
+  background: white !important;
+  border-top: 1px solid #ccc !important;
+  border-left: 1px solid #ccc !important;
+  border-right: 1px solid #ccc !important;
+  height: 60px !important;
+}
+
+/* Lignes principales des heures */
+.fc-timegrid-slot.fc-timegrid-slot-major {
+  border-top: 3px solid #000 !important;
+  background: #fafafa !important;
+}
+
+/* COULEURS SIMPLES POUR LES ÉVÉNEMENTS */
+
+/* Vert = Disponible */
+.fc-event-available-enhanced {
+  background: #90EE90 !important;
+  color: #000 !important;
+  border: 3px solid #228B22 !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 5px !important;
+  border-radius: 5px !important;
+}
+
+/* Rouge = Réservé */
+.fc-event-booking-enhanced {
+  background: #FFB6C1 !important;
+  color: #000 !important;
+  border: 3px solid #DC143C !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 5px !important;
+  border-radius: 5px !important;
+}
+
+/* Gris = Bloqué */
+.fc-event-busy-enhanced {
+  background: #D3D3D3 !important;
+  color: #000 !important;
+  border: 3px solid #696969 !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 5px !important;
+  border-radius: 5px !important;
+}
+
+/* Jaune = En attente */
+.fc-event-pending-enhanced {
+  background: #FFFF99 !important;
+  color: #000 !important;
+  border: 3px solid #FFD700 !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 5px !important;
+  border-radius: 5px !important;
+}
+
+/* Hover simple */
+.fc-event:hover {
+  opacity: 0.8 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Sélection simple */
+.fc-highlight {
+  background: #ADD8E6 !important;
+  border: 4px dashed #0000FF !important;
+}
+
+/* Toolbar simple */
+.fc-toolbar {
+  background: white !important;
+  border: 2px solid #000 !important;
+  padding: 15px !important;
+  margin-bottom: 20px !important;
+}
+
+.fc-toolbar-title {
+  color: #000 !important;
+  font-weight: bold !important;
+  font-size: 24px !important;
+}
+
+/* Boutons simples */
+.fc-button-primary {
+  background: #4169E1 !important;
+  color: white !important;
+  border: 2px solid #000 !important;
+  font-weight: bold !important;
+  font-size: 16px !important;
+  padding: 10px 20px !important;
+  border-radius: 5px !important;
+}
+
+.fc-button-primary:hover {
+  background: #1E90FF !important;
+}
+
+/* Aujourd'hui en jaune */
+.fc-day-today {
+  background: #FFFACD !important;
+}
+
+/* Force la visibilité de tous les textes */
+.fc-event-title,
+.fc-list-event-title {
+  color: #000 !important;
+  font-weight: bold !important;
+}
+
+/* Grille principale visible */
+.fc-timegrid-col {
+  border-left: 2px solid #000 !important;
+  border-right: 2px solid #000 !important;
+}
+
+/* Axe des heures avec bordure */
+.fc-timegrid-axis {
+  border-right: 4px solid #000 !important;
+  width: 100px !important;
+  min-width: 100px !important;
+}
