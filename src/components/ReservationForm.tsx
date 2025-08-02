@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Phone, Mail, Scissors, Clock, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { validateEmail, validateFrenchPhone, validateName, sanitizeInput } from '@/utils/validation';
 import BookingCalendar from './BookingCalendar';
 import BookingHelp from './BookingHelp';
@@ -29,6 +31,9 @@ interface Service {
 
 const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselectedService }: ReservationFormProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, user } = useRoleAuth();
   const [loading, setLoading] = useState(false);
   const [availableServices, setAvailableServices] = useState<Service[]>([]);
   const [loadingServices, setLoadingServices] = useState(true);
@@ -50,6 +55,34 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     clientPhone: '',
     notes: ''
   });
+
+  // Key pour localStorage basé sur le coiffeur et l'URL actuelle
+  const storageKey = `reservation_form_${hairdresserId}_${window.location.pathname}`;
+
+  // Restaurer les données du formulaire depuis localStorage
+  useEffect(() => {
+    const savedData = localStorage.getItem(storageKey);
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setFormData(prev => ({
+          ...prev,
+          ...parsedData,
+          service: preselectedService || parsedData.service || '',
+        }));
+        
+        // Nettoyer les données sauvegardées après restauration
+        localStorage.removeItem(storageKey);
+      } catch (error) {
+        console.error('Erreur lors de la restauration des données:', error);
+      }
+    }
+  }, [storageKey, preselectedService]);
+
+  // Sauvegarder les données du formulaire
+  const saveFormData = () => {
+    localStorage.setItem(storageKey, JSON.stringify(formData));
+  };
 
   // Charger les services disponibles pour ce coiffeur
   useEffect(() => {
@@ -123,24 +156,22 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     setLoading(true);
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      // Vérifier si l'utilisateur est connecté
+      if (!isAuthenticated || !user) {
+        // Sauvegarder les données du formulaire avant de rediriger
+        saveFormData();
+        
+        // Rediriger vers la page d'authentification avec l'URL de retour
+        const returnUrl = window.location.pathname + window.location.search;
+        navigate(`/auth?returnTo=${encodeURIComponent(returnUrl)}`);
+        return;
+      }
+
       console.log('🔍 Debug - Tentative de création de réservation:', {
         hairdresserId,
         user: user?.id,
         formData
       });
-      
-      // Vérifier que l'utilisateur est connecté
-      if (!user) {
-        toast({
-          title: "Erreur d'authentification",
-          description: "Vous devez être connecté pour faire une réservation.",
-          variant: "destructive"
-        });
-        return;
-      }
 
       // Validation : si des services existent pour ce pro, un service doit être sélectionné
       if (availableServices.length > 0 && !formData.service) {
@@ -149,12 +180,13 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
           description: "Veuillez choisir un service avant de confirmer.",
           variant: "destructive"
         });
+        setLoading(false);
         return;
       }
 
       const bookingData = {
         client_user_id: user.id,
-        stylist_user_id: hairdresserId, // hairdresserId doit maintenant être profiles.user_id
+        stylist_user_id: hairdresserId,
         service_id: formData.serviceId || null,
         scheduled_at: `${formData.date}T${formData.time}:00`,
         notes: formData.notes || null,
@@ -185,6 +217,9 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
         });
         return;
       }
+
+      // Nettoyer les données sauvegardées en cas de succès
+      localStorage.removeItem(storageKey);
 
       toast({
         title: "✅ Réservation créée",

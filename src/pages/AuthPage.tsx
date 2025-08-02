@@ -1,14 +1,31 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { GoogleLoginButton } from '@/components/GoogleLoginButton';
 import { EmailAuthForm } from '@/components/EmailAuthForm';
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { isAuthenticated } = useRoleAuth();
+  
+  // Gérer la redirection après authentification
+  useEffect(() => {
+    if (isAuthenticated) {
+      const returnTo = searchParams.get('returnTo');
+      if (returnTo) {
+        // Décoder et rediriger vers l'URL de retour
+        navigate(decodeURIComponent(returnTo), { replace: true });
+      } else {
+        // Redirection par défaut vers l'accueil
+        navigate('/', { replace: true });
+      }
+    }
+  }, [isAuthenticated, navigate, searchParams]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
