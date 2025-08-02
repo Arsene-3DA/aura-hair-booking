@@ -28,7 +28,7 @@ export const usePortfolio = (stylistId?: string) => {
         .from('portfolio')
         .select(`
           *,
-          services!inner(id, name)
+          services(id, name)
         `)
         .eq('stylist_id', stylistId)
         .order('created_at', { ascending: false });
