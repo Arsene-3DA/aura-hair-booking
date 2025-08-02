@@ -6,7 +6,7 @@ import { Calendar, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, addWeeks, subWeeks } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
-import InteractiveCalendar from '@/components/InteractiveCalendar';
+import { TimeSlotGrid } from '@/components/TimeSlotGrid';
 import { validateUUID } from '@/utils/validateUUID';
 
 const StylistCalendarPage = () => {
@@ -125,7 +125,7 @@ const StylistCalendarPage = () => {
         </div>
       </div>
 
-      {/* Interactive Calendar */}
+      {/* Time Slot Grid - Identique au Dashboard */}
       <Suspense fallback={
         <div className="bg-card rounded-xl border p-8">
           <div className="animate-pulse space-y-4">
@@ -134,9 +134,9 @@ const StylistCalendarPage = () => {
           </div>
         </div>
       }>
-        <InteractiveCalendar 
+        <TimeSlotGrid 
           stylistId={userProfile.user_id} 
-          selectedWeek={selectedWeek} 
+          selectedDate={selectedWeek} 
         />
       </Suspense>
 
