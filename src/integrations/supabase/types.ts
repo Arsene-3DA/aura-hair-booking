@@ -735,7 +735,7 @@ export type Database = {
         Returns: {
           id: string
           scheduled_at: string
-          status: Database["public"]["Enums"]["booking_status"]
+          status: string
           notes: string
           created_at: string
           updated_at: string
@@ -749,7 +749,7 @@ export type Database = {
           stylist_phone: string
           stylist_specialties: string[]
           stylist_location: string
-          stylist_role: Database["public"]["Enums"]["user_role"]
+          stylist_role: string
           service_name: string
           service_description: string
           service_price: number
@@ -770,7 +770,7 @@ export type Database = {
         Returns: {
           id: string
           scheduled_at: string
-          status: Database["public"]["Enums"]["booking_status"]
+          status: string
           notes: string
           created_at: string
           updated_at: string
