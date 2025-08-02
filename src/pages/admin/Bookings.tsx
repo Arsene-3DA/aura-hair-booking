@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,97 +24,37 @@ import {
   MoreHorizontal, 
   Filter,
   Calendar,
-  Clock
+  Clock,
+  User,
+  Scissors
 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useAdminReservations } from '@/hooks/useAdminReservations';
 import Papa from 'papaparse';
 
-interface Booking {
-  id: string;
-  client_name: string;
-  client_email: string;
-  client_phone: string;
-  hairdresser_id: string;
-  booking_date: string;
-  booking_time: string;
-  service: string;
-  status: string;
-  created_at: string;
-  comments?: string;
-}
-
 const Bookings = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { reservations, loading, error, updateReservationStatus } = useAdminReservations();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<string>('all');
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
-  const fetchBookings = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setBookings(data || []);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-      setError('Erreur lors du chargement des réservations');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateBookingStatus = async (bookingId: string, newStatus: 'pending' | 'confirmed' | 'declined' | 'completed') => {
-    try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status: newStatus })
-        .eq('id', bookingId);
-
-      if (error) throw error;
-
-      setBookings(prev => 
-        prev.map(booking => 
-          booking.id === bookingId 
-            ? { ...booking, status: newStatus }
-            : booking
-        )
-      );
-
-      toast({
-        title: 'Succès',
-        description: `Statut de la réservation mis à jour`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de mettre à jour le statut',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const exportToCSV = () => {
-    const csvData = filteredBookings.map(booking => ({
-      'ID': booking.id,
-      'Client': booking.client_name,
-      'Email': booking.client_email,
-      'Téléphone': booking.client_phone,
-      'Date': booking.booking_date,
-      'Heure': booking.booking_time,
-      'Service': booking.service,
-      'Statut': booking.status,
-      'Créé le': new Date(booking.created_at).toLocaleDateString('fr-FR'),
-      'Commentaires': booking.comments || ''
+    const csvData = filteredReservations.map(reservation => ({
+      'ID': reservation.id,
+      'Client': reservation.client_name || 'N/A',
+      'Email Client': reservation.client_email || 'N/A',
+      'Téléphone Client': reservation.client_phone || 'N/A',
+      'Professionnel': reservation.stylist_name || 'N/A',
+      'Email Professionnel': reservation.stylist_email || 'N/A',
+      'Rôle': reservation.stylist_role || 'N/A',
+      'Spécialités': reservation.stylist_specialties?.join(', ') || 'N/A',
+      'Localisation': reservation.stylist_location || 'N/A',
+      'Date & Heure': new Date(reservation.scheduled_at).toLocaleString('fr-FR'),
+      'Service': reservation.service_name || 'N/A',
+      'Prix': reservation.service_price ? `${reservation.service_price}€` : 'N/A',
+      'Durée': reservation.service_duration ? `${reservation.service_duration}min` : 'N/A',
+      'Statut': reservation.status,
+      'Notes': reservation.notes || '',
+      'Créé le': new Date(reservation.created_at).toLocaleDateString('fr-FR')
     }));
 
     const csv = Papa.unparse(csvData);
@@ -123,29 +62,25 @@ const Bookings = () => {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `reservations_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `reservations_admin_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    toast({
-      title: 'Export réussi',
-      description: 'Les réservations ont été exportées en CSV',
-    });
   };
 
-  const filteredBookings = bookings.filter(booking => {
+  const filteredReservations = reservations.filter(reservation => {
     const matchesSearch = 
-      booking.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.client_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.service.toLowerCase().includes(searchTerm.toLowerCase());
+      (reservation.client_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (reservation.client_email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (reservation.stylist_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (reservation.service_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || reservation.status === statusFilter;
     
     let matchesDate = true;
     if (dateFilter !== 'all') {
-      const bookingDate = new Date(booking.booking_date);
+      const reservationDate = new Date(reservation.scheduled_at);
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -154,13 +89,13 @@ const Bookings = () => {
 
       switch (dateFilter) {
         case 'today':
-          matchesDate = bookingDate.toDateString() === today.toDateString();
+          matchesDate = reservationDate.toDateString() === today.toDateString();
           break;
         case 'tomorrow':
-          matchesDate = bookingDate.toDateString() === tomorrow.toDateString();
+          matchesDate = reservationDate.toDateString() === tomorrow.toDateString();
           break;
         case 'week':
-          matchesDate = bookingDate >= today && bookingDate <= nextWeek;
+          matchesDate = reservationDate >= today && reservationDate <= nextWeek;
           break;
       }
     }
@@ -170,11 +105,23 @@ const Bookings = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmee': return 'bg-green-100 text-green-800';
-      case 'en_attente': return 'bg-yellow-100 text-yellow-800';
-      case 'annulee': return 'bg-red-100 text-red-800';
-      case 'terminee': return 'bg-blue-100 text-blue-800';
+      case 'confirmed': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'declined': return 'bg-red-100 text-red-800';
+      case 'completed': return 'bg-blue-100 text-blue-800';
+      case 'no_show': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'Confirmée';
+      case 'pending': return 'En attente';
+      case 'declined': return 'Refusée';
+      case 'completed': return 'Terminée';
+      case 'no_show': return 'Absent';
+      default: return status;
     }
   };
 
@@ -233,7 +180,7 @@ const Bookings = () => {
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <div className="ml-2">
                 <p className="text-sm font-medium text-muted-foreground">Total</p>
-                <p className="text-2xl font-bold">{bookings.length}</p>
+                <p className="text-2xl font-bold">{reservations.length}</p>
               </div>
             </div>
           </CardContent>
@@ -245,7 +192,7 @@ const Bookings = () => {
               <div className="ml-2">
                 <p className="text-sm font-medium text-muted-foreground">En attente</p>
                 <p className="text-2xl font-bold">
-                  {bookings.filter(b => b.status === 'en_attente').length}
+                  {reservations.filter(r => r.status === 'pending').length}
                 </p>
               </div>
             </div>
@@ -258,7 +205,7 @@ const Bookings = () => {
               <div className="ml-2">
                 <p className="text-sm font-medium text-muted-foreground">Confirmées</p>
                 <p className="text-2xl font-bold">
-                  {bookings.filter(b => b.status === 'confirmee').length}
+                  {reservations.filter(r => r.status === 'confirmed').length}
                 </p>
               </div>
             </div>
@@ -271,7 +218,7 @@ const Bookings = () => {
               <div className="ml-2">
                 <p className="text-sm font-medium text-muted-foreground">Terminées</p>
                 <p className="text-2xl font-bold">
-                  {bookings.filter(b => b.status === 'terminee').length}
+                  {reservations.filter(r => r.status === 'completed').length}
                 </p>
               </div>
             </div>
@@ -306,10 +253,11 @@ const Bookings = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="en_attente">En attente</SelectItem>
-                <SelectItem value="confirmee">Confirmée</SelectItem>
-                <SelectItem value="annulee">Annulée</SelectItem>
-                <SelectItem value="terminee">Terminée</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="confirmed">Confirmée</SelectItem>
+                <SelectItem value="declined">Refusée</SelectItem>
+                <SelectItem value="completed">Terminée</SelectItem>
+                <SelectItem value="no_show">Absent</SelectItem>
               </SelectContent>
             </Select>
             <Select value={dateFilter} onValueChange={setDateFilter}>
@@ -330,13 +278,14 @@ const Bookings = () => {
       {/* Bookings Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Réservations ({filteredBookings.length})</CardTitle>
+          <CardTitle>Réservations ({filteredReservations.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Client</TableHead>
+                <TableHead>Professionnel</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Date & Heure</TableHead>
                 <TableHead>Service</TableHead>
@@ -346,44 +295,88 @@ const Bookings = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredBookings.map((booking) => (
-                <TableRow key={booking.id}>
+              {filteredReservations.map((reservation) => (
+                <TableRow key={reservation.id}>
                   <TableCell>
-                    <div>
-                      <div className="font-medium">{booking.client_name}</div>
-                      {booking.comments && (
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <div className="font-medium">{reservation.client_name || 'Client inconnu'}</div>
                         <div className="text-sm text-muted-foreground">
-                          {booking.comments}
+                          {reservation.client_email || 'Email non renseigné'}
                         </div>
+                        {reservation.client_phone && (
+                          <div className="text-sm text-muted-foreground">
+                            {reservation.client_phone}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Scissors className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <div className="font-medium">{reservation.stylist_name || 'Professionnel inconnu'}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {reservation.stylist_role && getStatusLabel(reservation.stylist_role)}
+                        </div>
+                        {reservation.stylist_location && (
+                          <div className="text-sm text-muted-foreground">
+                            📍 {reservation.stylist_location}
+                          </div>
+                        )}
+                        {reservation.stylist_specialties && reservation.stylist_specialties.length > 0 && (
+                          <div className="text-xs text-muted-foreground">
+                            {reservation.stylist_specialties.join(', ')}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm">
+                      <div>{reservation.stylist_email || 'Email non renseigné'}</div>
+                      {reservation.stylist_phone && (
+                        <div className="text-muted-foreground">{reservation.stylist_phone}</div>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div>
-                      <div className="text-sm">{booking.client_email}</div>
+                      <div className="font-medium">
+                        {new Date(reservation.scheduled_at).toLocaleDateString('fr-FR')}
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        {booking.client_phone}
+                        {new Date(reservation.scheduled_at).toLocaleTimeString('fr-FR', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium">
-                        {new Date(booking.booking_date).toLocaleDateString('fr-FR')}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {booking.booking_time}
-                      </div>
+                      <div className="font-medium">{reservation.service_name || 'Service non spécifié'}</div>
+                      {reservation.service_price && (
+                        <div className="text-sm text-muted-foreground">
+                          {reservation.service_price}€
+                        </div>
+                      )}
+                      {reservation.service_duration && (
+                        <div className="text-sm text-muted-foreground">
+                          {reservation.service_duration}min
+                        </div>
+                      )}
                     </div>
                   </TableCell>
-                  <TableCell>{booking.service}</TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(booking.status)}>
-                      {booking.status.replace('_', ' ')}
+                    <Badge className={getStatusColor(reservation.status)}>
+                      {getStatusLabel(reservation.status)}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {new Date(booking.created_at).toLocaleDateString('fr-FR')}
+                    {new Date(reservation.created_at).toLocaleDateString('fr-FR')}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -394,19 +387,28 @@ const Bookings = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem 
-                          onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                          onClick={() => updateReservationStatus(reservation.id, 'confirmed')}
+                          disabled={reservation.status === 'confirmed'}
                         >
                           Confirmer
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          onClick={() => updateBookingStatus(booking.id, 'completed')}
+                          onClick={() => updateReservationStatus(reservation.id, 'completed')}
+                          disabled={reservation.status === 'completed'}
                         >
                           Marquer terminée
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          onClick={() => updateBookingStatus(booking.id, 'declined')}
+                          onClick={() => updateReservationStatus(reservation.id, 'declined')}
+                          disabled={reservation.status === 'declined'}
                         >
-                          Annuler
+                          Refuser
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => updateReservationStatus(reservation.id, 'no_show')}
+                          disabled={reservation.status === 'no_show'}
+                        >
+                          Marquer absent
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

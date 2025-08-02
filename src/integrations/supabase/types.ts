@@ -730,6 +730,33 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      get_admin_reservations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          scheduled_at: string
+          status: Database["public"]["Enums"]["booking_status"]
+          notes: string
+          created_at: string
+          updated_at: string
+          client_name: string
+          client_avatar: string
+          client_email: string
+          client_phone: string
+          stylist_name: string
+          stylist_avatar: string
+          stylist_email: string
+          stylist_phone: string
+          stylist_specialties: string[]
+          stylist_location: string
+          stylist_role: Database["public"]["Enums"]["user_role"]
+          service_name: string
+          service_description: string
+          service_price: number
+          service_duration: number
+          service_category: string
+        }[]
+      }
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -737,6 +764,26 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_stylist_reservations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          scheduled_at: string
+          status: Database["public"]["Enums"]["booking_status"]
+          notes: string
+          created_at: string
+          updated_at: string
+          client_name: string
+          client_avatar: string
+          client_email: string
+          client_phone: string
+          service_name: string
+          service_description: string
+          service_price: number
+          service_duration: number
+          service_category: string
+        }[]
       }
       is_admin: {
         Args: Record<PropertyKey, never>
