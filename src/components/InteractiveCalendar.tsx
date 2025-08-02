@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, User } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import '@/styles/clear-calendar.css';
+import '@/styles/30min-calendar.css';
 
 interface InteractiveCalendarProps {
   stylistId: string;
@@ -100,21 +100,33 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
     setSelectedEvent(null);
   };
 
-  // Fonction pour créer des créneaux de test
+  // Fonction pour créer des créneaux de test de 30 minutes
   const createTestSlots = async () => {
     if (!stylistId) return;
     
     const today = new Date();
     const slots = [
+      // Créneaux de 30 minutes pour aujourd'hui
       {
-        start_at: new Date(today.getTime() + (9 * 60 * 60 * 1000)).toISOString(), // 9h aujourd'hui
-        end_at: new Date(today.getTime() + (11 * 60 * 60 * 1000)).toISOString(), // 11h aujourd'hui
+        start_at: new Date(today.getTime() + (9 * 60 * 60 * 1000)).toISOString(), // 9h00
+        end_at: new Date(today.getTime() + (9.5 * 60 * 60 * 1000)).toISOString(), // 9h30
         status: 'available' as const
       },
       {
-        start_at: new Date(today.getTime() + (24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000)).toISOString(), // 14h demain
-        end_at: new Date(today.getTime() + (24 * 60 * 60 * 1000) + (16 * 60 * 60 * 1000)).toISOString(), // 16h demain
+        start_at: new Date(today.getTime() + (9.5 * 60 * 60 * 1000)).toISOString(), // 9h30
+        end_at: new Date(today.getTime() + (10 * 60 * 60 * 1000)).toISOString(), // 10h00
+        status: 'available' as const
+      },
+      {
+        start_at: new Date(today.getTime() + (14 * 60 * 60 * 1000)).toISOString(), // 14h00
+        end_at: new Date(today.getTime() + (14.5 * 60 * 60 * 1000)).toISOString(), // 14h30
         status: 'busy' as const
+      },
+      // Créneaux pour demain
+      {
+        start_at: new Date(today.getTime() + (24 * 60 * 60 * 1000) + (10 * 60 * 60 * 1000)).toISOString(), // 10h00 demain
+        end_at: new Date(today.getTime() + (24 * 60 * 60 * 1000) + (10.5 * 60 * 60 * 1000)).toISOString(), // 10h30 demain
+        status: 'available' as const
       }
     ];
     
@@ -152,9 +164,9 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
           }}
           slotMinTime="09:00:00"
           slotMaxTime="22:00:00"
-          slotDuration="00:30:00"
-          snapDuration="00:15:00"
-          slotLabelInterval="01:00:00"
+          slotDuration="00:30:00"           // CRÉNEAUX DE 30 MINUTES
+          snapDuration="00:30:00"           // SNAP SUR 30 MINUTES
+          slotLabelInterval="00:30:00"      // AFFICHAGE TOUTES LES 30 MIN
           slotLabelFormat={{
             hour: '2-digit',
             minute: '2-digit',
