@@ -30,49 +30,52 @@
   letter-spacing: 0.5px !important;
 }
 
-/* HEURES TOUJOURS VISIBLES - OPTIMISÉES POUR 30 MIN */
+/* HEURES TOUJOURS VISIBLES - CONFIGURATION EXACTE */
 .fc-timegrid-axis {
   background: #ffffff !important;       /* FOND BLANC PUR */
-  width: 95px !important;               /* LARGEUR PLUS GRANDE */
+  width: 95px !important;               /* LARGEUR EXACTE 95px */
   min-width: 95px !important;
-  border-right: 4px solid #000 !important;  /* BORDURE NOIRE ÉPAISSE */
-  position: sticky !important;
+  border-right: 4px solid #000000 !important;  /* BORDURE NOIRE 4px */
+  position: sticky !important;          /* FIXE À GAUCHE */
   left: 0 !important;
-  z-index: 200 !important;              /* Z-INDEX MAXIMUM */
-  box-shadow: 3px 0 10px rgba(0,0,0,0.3) !important; /* OMBRE POUR CONTRASTE */
+  z-index: 200 !important;              /* Z-INDEX 200 */
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3) !important; /* OMBRE PORTÉE EXACTE */
 }
 
 .fc-timegrid-slot-label,
 .fc-timegrid-axis-cushion,
 .fc-timegrid-slot-label-cushion {
-  /* VISIBILITÉ MAXIMALE DES HEURES - PRIORITÉ ABSOLUE */
+  /* CONFIGURATION EXACTE SELON SPÉCIFICATIONS */
   color: #000000 !important;            /* NOIR COMPLET */
-  font-size: 16px !important;           /* TAILLE PLUS GRANDE */
-  font-weight: 700 !important;          /* EXTRA GRAS */
-  background-color: #ffffff !important; /* FOND BLANC PUR */
-  padding: 8px 12px !important;         /* PADDING GÉNÉREUX */
-  border-radius: 0 !important;
-  text-align: center !important;
-  border: none !important;
-  border-bottom: 2px solid #333 !important;
-  border-right: 3px solid #333 !important;
+  font-size: 16px !important;           /* TAILLE 16px */
+  font-weight: 700 !important;          /* EXTRA-GRAS 700 */
+  background: #ffffff !important;       /* FOND BLANC PUR */
+  padding: 8px 12px !important;         /* PADDING EXACT 8px 12px */
   
-  /* FORCE L'AFFICHAGE - AUCUN MASQUAGE POSSIBLE */
+  /* BORDURE ET STYLE */
+  border: 4px solid #000000 !important; /* BORDURE NOIRE ÉPAISSE 4px */
+  border-radius: 6px !important;        /* BORDER-RADIUS 6px */
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3) !important; /* OMBRE PORTÉE EXACTE */
+  
+  /* POSITIONNEMENT ET VISIBILITÉ */
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
   align-items: center !important;
   justify-content: center !important;
   position: relative !important;
-  z-index: 100 !important;              /* Z-INDEX TRÈS ÉLEVÉ */
-  min-height: 35px !important;          /* HAUTEUR PLUS GRANDE */
-  height: 35px !important;
-  width: 90px !important;
-  min-width: 90px !important;
+  z-index: 200 !important;              /* Z-INDEX 200 */
   
-  /* EMPÊCHER TOUT MASQUAGE */
-  box-shadow: 0 0 0 1px #000 !important;
-  text-shadow: 1px 1px 1px rgba(255,255,255,0.8) !important;
+  /* DIMENSIONS */
+  width: 95px !important;               /* LARGEUR 95px */
+  min-width: 95px !important;
+  height: 35px !important;
+  min-height: 35px !important;
+  
+  /* ALIGNEMENT AVEC CRÉNEAUX 30MIN */
+  text-align: center !important;
+  line-height: 1.2 !important;
+  margin: 1px 0 !important;             /* ESPACEMENT POUR ALIGNEMENT */
 }
 
 /* CRÉNEAUX DE 30 MINUTES - Bien délimités */
@@ -331,25 +334,28 @@
   border-right: 1px solid #e0e0e0 !important;
 }
 
-/* Axe des heures avec bordure */
-.fc-timegrid-axis {
-  border-right: 3px solid #ccc !important;
-}
+/* Configuration déjà définie plus haut - suppression de la duplication */
 
-/* Responsive - Structure maintenue pour 30min */
+/* Responsive - MAINTIENT LA VISIBILITÉ DES HEURES */
 @media (max-width: 768px) {
   .fc-timegrid-axis {
-    width: 70px !important;
-    min-width: 70px !important;
+    width: 95px !important;              /* GARDE LA LARGEUR 95px */
+    min-width: 95px !important;
   }
   
-  .fc-timegrid-slot-label {
-    font-size: 11px !important;
-    padding: 2px 6px !important;
+  .fc-timegrid-slot-label,
+  .fc-timegrid-axis-cushion,
+  .fc-timegrid-slot-label-cushion {
+    font-size: 14px !important;          /* GARDE 14px minimum */
+    padding: 6px 10px !important;        /* PADDING RÉDUIT MAIS LISIBLE */
+    width: 95px !important;
+    min-width: 95px !important;
+    border: 3px solid #000000 !important; /* BORDURE LÉGÈREMENT RÉDUITE */
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3) !important;
   }
   
   .fc-timegrid-slot {
-    height: 25px !important;
+    height: 28px !important;             /* HAUTEUR LÉGÈREMENT RÉDUITE */
   }
   
   .fc-event {
