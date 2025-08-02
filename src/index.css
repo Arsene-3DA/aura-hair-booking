@@ -251,30 +251,51 @@
 /* FullCalendar Enhanced Styles */
 .fc {
   --fc-border-color: hsl(var(--border));
-  --fc-button-text-color: hsl(var(--primary-foreground));
-  --fc-button-bg-color: hsl(var(--primary));
-  --fc-button-border-color: hsl(var(--primary));
-  --fc-button-hover-bg-color: hsl(var(--primary) / 0.9);
-  --fc-button-hover-border-color: hsl(var(--primary) / 0.9);
-  --fc-button-active-bg-color: hsl(var(--primary) / 0.8);
-  --fc-button-active-border-color: hsl(var(--primary) / 0.8);
-  --fc-today-bg-color: hsl(var(--primary) / 0.05);
+  --fc-button-text-color: hsl(var(--foreground));
+  --fc-button-bg-color: hsl(var(--background));
+  --fc-button-border-color: hsl(var(--border));
+  --fc-button-hover-bg-color: hsl(var(--muted));
+  --fc-button-hover-border-color: hsl(var(--border));
+  --fc-button-active-bg-color: hsl(var(--primary));
+  --fc-button-active-border-color: hsl(var(--primary));
+  --fc-today-bg-color: hsl(var(--muted) / 0.3);
   --fc-event-bg-color: hsl(var(--primary));
   --fc-event-border-color: hsl(var(--primary));
   --fc-event-text-color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
-/* Calendar Grid Enhancement */
+/* Calendar Container Background */
 .fc-theme-standard .fc-scrollgrid {
   border: 2px solid hsl(var(--border));
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.1);
-  background: hsl(var(--card));
+  background: hsl(var(--background)) !important;
+}
+
+.fc-view-harness {
+  background: hsl(var(--background)) !important;
+}
+
+.fc-timegrid-body {
+  background: hsl(var(--background)) !important;
 }
 
 .fc-theme-standard td, .fc-theme-standard th {
   border: 1px solid hsl(var(--border) / 0.3);
+  background: hsl(var(--background)) !important;
+}
+
+/* Force white background on all calendar elements */
+.fc-timegrid-col,
+.fc-timegrid-body,
+.fc-timegrid-slots,
+.fc-timegrid-slot,
+.fc-scrollgrid-section,
+.fc-scrollgrid {
+  background: hsl(var(--background)) !important;
 }
 
 /* Enhanced Column Headers */
