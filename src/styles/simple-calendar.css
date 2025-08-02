@@ -1,10 +1,20 @@
 /* CALENDRIER SIMPLE ET VISIBLE */
 
-/* Reset de base - fond blanc partout */
+/* Reset de base - fond blanc partout et TEXTE NOIR FORCÉ */
 .fc,
-.fc * {
+.fc *,
+.fc-event *,
+.fc-event-title,
+.fc-event-title *,
+.fc-toolbar *,
+.fc-col-header *,
+.fc-timegrid-slot-label *,
+.fc-button *,
+span,
+div {
   background: white !important;
   color: #000 !important;
+  text-shadow: none !important;
 }
 
 /* Container principal avec bordures épaisses */
@@ -153,11 +163,25 @@
   background: #FFFACD !important;
 }
 
-/* Force la visibilité de tous les textes */
+/* Force la visibilité de tous les textes EN NOIR */
 .fc-event-title,
-.fc-list-event-title {
+.fc-list-event-title,
+.fc-event-title-container,
+.fc-event-main,
+.fc-event-main-frame,
+.fc-toolbar-title,
+.fc-col-header-cell-cushion,
+.fc-timegrid-slot-label-cushion,
+.fc-button-primary,
+.fc-button-primary span,
+a,
+a span,
+.fc a,
+.fc span {
   color: #000 !important;
   font-weight: bold !important;
+  text-shadow: none !important;
+  background: inherit !important;
 }
 
 /* Grille principale visible */
