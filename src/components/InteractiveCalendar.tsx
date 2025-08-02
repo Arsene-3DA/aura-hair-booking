@@ -172,6 +172,8 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
             minute: '2-digit',
             hour12: false
           }}
+          slotLabelClassNames={() => "fc-timegrid-slot-label-enhanced"}
+          dayHeaderClassNames={() => "fc-col-header-enhanced"}
           allDaySlot={false}
           selectable={true}
           selectMirror={true}
@@ -181,16 +183,14 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
           events={calendarEvents}
           select={handleDateSelect}
           eventClick={handleEventClick}
-          height="auto"
+          height="600px"
           locale="fr"
-          expandRows={true}
+          expandRows={false}
           stickyHeaderDates={true}
           nowIndicator={true}
           scrollTime="09:00:00"
           eventDisplay="block"
           eventBackgroundColor="transparent"
-          dayHeaderClassNames="fc-col-header-enhanced"
-          slotLabelClassNames="fc-timegrid-slot-label-enhanced"
           eventClassNames={(arg) => {
             const status = arg.event.extendedProps.status;
             const type = arg.event.extendedProps.type;
@@ -207,6 +207,17 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
           eventConstraint={{
             start: '09:00',
             end: '22:00'
+          }}
+          // FORCER L'AFFICHAGE DES HEURES
+          dayHeaderContent={(arg) => {
+            return {
+              html: `<div class="fc-col-header-content">${arg.text}</div>`
+            };
+          }}
+          slotLabelContent={(arg) => {
+            return {
+              html: `<div class="fc-timegrid-slot-label-cushion fc-scrollgrid-sync-inner" style="color: #333; font-weight: 600; font-size: 14px;">${arg.text}</div>`
+            };
           }}
         />
       </div>
