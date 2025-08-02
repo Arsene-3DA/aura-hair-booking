@@ -248,7 +248,7 @@
 }
 
 
-/* FullCalendar custom styles */
+/* FullCalendar Enhanced Styles */
 .fc {
   --fc-border-color: hsl(var(--border));
   --fc-button-text-color: hsl(var(--primary-foreground));
@@ -258,76 +258,199 @@
   --fc-button-hover-border-color: hsl(var(--primary) / 0.9);
   --fc-button-active-bg-color: hsl(var(--primary) / 0.8);
   --fc-button-active-border-color: hsl(var(--primary) / 0.8);
-  --fc-today-bg-color: hsl(var(--primary) / 0.1);
+  --fc-today-bg-color: hsl(var(--primary) / 0.05);
   --fc-event-bg-color: hsl(var(--primary));
   --fc-event-border-color: hsl(var(--primary));
   --fc-event-text-color: hsl(var(--primary-foreground));
 }
 
-/* Availability status colors */
-.fc-event-available {
-  background-color: #28C76F !important;
-  border-color: #28C76F !important;
-  color: white !important;
-}
-
-.fc-event-busy {
-  background-color: #EA5455 !important;
-  border-color: #EA5455 !important;
-  color: white !important;
-}
-
-.fc-event-booking {
-  background-color: hsl(var(--primary)) !important;
-  border-color: hsl(var(--primary)) !important;
-  color: hsl(var(--primary-foreground)) !important;
-}
-
-/* Mobile responsive calendar */
-@media (max-width: 640px) {
-  .fc-toolbar {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .fc-toolbar-chunk {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .fc-button-group .fc-button {
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem;
-  }
-}
-
+/* Calendar Grid Enhancement */
 .fc-theme-standard .fc-scrollgrid {
-  border: 1px solid hsl(var(--border));
+  border: 2px solid hsl(var(--border));
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.1);
+  background: hsl(var(--card));
 }
 
 .fc-theme-standard td, .fc-theme-standard th {
-  border: 1px solid hsl(var(--border));
+  border: 1px solid hsl(var(--border) / 0.3);
 }
 
+/* Enhanced Column Headers */
 .fc-col-header-cell {
-  background-color: hsl(var(--muted));
-  font-weight: 600;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--secondary) / 0.04));
+  font-weight: 700;
+  color: hsl(var(--primary));
+  padding: 16px 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-size: 0.9rem;
+  border-bottom: 2px solid hsl(var(--primary) / 0.2);
+}
+
+/* Enhanced Day Cells */
+.fc-daygrid-day {
+  min-height: 120px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.fc-daygrid-day:hover {
+  background-color: hsl(var(--primary) / 0.02);
 }
 
 .fc-daygrid-day-number {
   color: hsl(var(--foreground));
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 8px;
+  margin: 6px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.fc-daygrid-day-number:hover {
+  background-color: hsl(var(--primary) / 0.1);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+}
+
+/* Today Highlight */
+.fc-day-today {
+  background: radial-gradient(circle at center, hsl(var(--primary) / 0.08), transparent 70%);
+  position: relative;
+}
+
+.fc-day-today::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.6));
 }
 
 .fc-day-today .fc-daygrid-day-number {
-  background-color: hsl(var(--primary));
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
   color: hsl(var(--primary-foreground));
-  border-radius: 50%;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-weight: 800;
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+}
+
+/* Enhanced Event Styling */
+.fc-event {
+  border-radius: 10px !important;
+  border: none !important;
+  padding: 6px 12px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(4px);
+}
+
+.fc-event:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.2) !important;
+}
+
+/* Status-based Event Colors */
+.fc-event-available {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: white !important;
+  border-left: 4px solid #047857 !important;
+}
+
+.fc-event-busy {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: white !important;
+  border-left: 4px solid #b91c1c !important;
+}
+
+.fc-event-booking {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-left: 4px solid hsl(var(--primary) / 0.8) !important;
+}
+
+/* Toolbar Enhancement */
+.fc-toolbar {
+  margin-bottom: 24px !important;
+  padding: 20px !important;
+  background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted) / 0.2)) !important;
+  border-radius: 16px !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.05) !important;
+}
+
+.fc-button-group .fc-button {
+  border-radius: 10px !important;
+  margin: 0 4px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.1) !important;
+}
+
+.fc-button-group .fc-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15) !important;
+}
+
+.fc-button-group .fc-button-active {
+  background: hsl(var(--primary)) !important;
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3) !important;
+}
+
+/* Mobile Responsive Enhancements */
+@media (max-width: 768px) {
+  .fc-toolbar {
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 16px !important;
+  }
+  
+  .fc-toolbar-chunk {
+    display: flex !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  .fc-button-group .fc-button {
+    font-size: 0.85rem !important;
+    padding: 8px 16px !important;
+    margin: 0 2px !important;
+  }
+  
+  .fc-daygrid-day {
+    min-height: 90px !important;
+  }
+  
+  .fc-col-header-cell {
+    padding: 12px 8px !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .fc-daygrid-day-number {
+    font-size: 0.9rem !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+  }
+  
+  .fc-event {
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+  }
 }
 
 /* Custom warning color for badges */

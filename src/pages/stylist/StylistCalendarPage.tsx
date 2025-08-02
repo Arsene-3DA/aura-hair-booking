@@ -66,24 +66,43 @@ const StylistCalendarPage = () => {
       />
 
       {/* Week Navigation */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between bg-card p-4 rounded-lg border">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-border/50 shadow-sm">
         <div className="text-center lg:text-left">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-xl font-bold text-primary">
             {format(selectedWeek, "'Semaine du' d MMMM yyyy", { locale: fr })}
           </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Gérez vos créneaux et consultez vos rendez-vous
+          </p>
         </div>
         
-        <div className="flex items-center justify-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToPreviousWeek}>
-            <ChevronLeft className="h-4 w-4" />
-            <span className="hidden sm:inline ml-1">Précédente</span>
+        <div className="flex items-center justify-center gap-3">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            onClick={goToPreviousWeek}
+            className="flex items-center gap-2 hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md hover:bg-primary/5"
+          >
+            <ChevronLeft className="h-5 w-5" />
+            <span className="hidden sm:inline">Précédente</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={goToCurrentWeek}>
-            Aujourd'hui
+          <Button 
+            variant="default" 
+            size="lg" 
+            onClick={goToCurrentWeek}
+            className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all duration-200 px-6"
+          >
+            <Calendar className="h-5 w-5" />
+            <span>Aujourd'hui</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={goToNextWeek}>
-            <span className="hidden sm:inline mr-1">Suivante</span>
-            <ChevronRight className="h-4 w-4" />
+          <Button 
+            variant="outline" 
+            size="lg" 
+            onClick={goToNextWeek}
+            className="flex items-center gap-2 hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md hover:bg-primary/5"
+          >
+            <span className="hidden sm:inline">Suivante</span>
+            <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
       </div>
@@ -104,55 +123,55 @@ const StylistCalendarPage = () => {
       </Suspense>
 
       {/* Events Summary */}
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-        <div className="bg-card p-4 rounded-lg border hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Calendar className="h-5 w-5 text-primary" />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-xl border border-primary/20 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary/20 rounded-xl">
+              <Calendar className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-muted-foreground">Rendez-vous</h3>
-              <p className="text-2xl font-bold text-primary">
+              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Rendez-vous</h3>
+              <p className="text-3xl font-bold text-primary mt-1">
                 {events.filter(e => e.type === 'booking').length}
               </p>
             </div>
           </div>
         </div>
         
-        <div className="bg-card p-4 rounded-lg border hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Plus className="h-5 w-5 text-green-600" />
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-green-100 rounded-xl">
+              <Plus className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-muted-foreground">Disponible</h3>
-              <p className="text-2xl font-bold text-green-600">
+              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Disponible</h3>
+              <p className="text-3xl font-bold text-green-600 mt-1">
                 {events.filter(e => e.type === 'availability').length}
               </p>
             </div>
           </div>
         </div>
         
-        <div className="bg-card p-4 rounded-lg border hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <Calendar className="h-5 w-5 text-red-600" />
+        <div className="bg-gradient-to-br from-red-50 to-rose-50 p-6 rounded-xl border border-red-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-red-100 rounded-xl">
+              <Calendar className="h-6 w-6 text-red-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-muted-foreground">Occupé</h3>
-              <p className="text-2xl font-bold text-red-600">0</p>
+              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Occupé</h3>
+              <p className="text-3xl font-bold text-red-600 mt-1">0</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-card p-4 rounded-lg border hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Calendar className="h-5 w-5 text-orange-600" />
+        <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-200 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-orange-100 rounded-xl">
+              <Calendar className="h-6 w-6 text-orange-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-muted-foreground">En attente</h3>
-              <p className="text-2xl font-bold text-orange-600">
+              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">En attente</h3>
+              <p className="text-3xl font-bold text-orange-600 mt-1">
                 {events.filter(e => e.status === 'pending').length}
               </p>
             </div>
