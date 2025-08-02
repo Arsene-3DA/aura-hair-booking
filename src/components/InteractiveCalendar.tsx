@@ -27,15 +27,15 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const isMobile = useIsMobile();
 
-  // Transformer les données pour FullCalendar
+  // Transformer les données pour FullCalendar avec code couleur
   const calendarEvents: EventInput[] = useMemo(() => {
     const availabilityEvents = availabilities.map((avail: Availability) => ({
       id: avail.id,
-      title: avail.status === 'available' ? 'Disponible' : 'Occupé',
+      title: avail.status === 'available' ? 'Disponible' : 'Bloqué',
       start: avail.start_at,
       end: avail.end_at,
-      backgroundColor: avail.status === 'available' ? '#28C76F' : '#EA5455',
-      borderColor: avail.status === 'available' ? '#28C76F' : '#EA5455',
+      backgroundColor: avail.status === 'available' ? '#28C76F' : '#9E9E9E',
+      borderColor: avail.status === 'available' ? '#28C76F' : '#9E9E9E',
       extendedProps: {
         type: 'availability',
         status: avail.status,
@@ -43,22 +43,49 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
       }
     }));
 
-    const bookingEvents = events
-      .filter(event => event.type === 'booking')
-      .map(event => ({
-        id: event.id,
-        title: `${event.client_name || 'Client'} - ${event.title}`,
-        start: event.start,
-        end: event.end,
-        className: 'fc-event-booking',
-        extendedProps: {
-          type: 'booking',
-          status: event.status,
-          clientName: event.client_name
-        }
-      }));
+    const eventData = events
+      .filter(event => event.type === 'booking' || event.type === 'reservation')
+      .map(event => {
+        let color = '#EA5455'; // Rouge par défaut pour les réservations
+        let title = event.title;
 
-    return [...availabilityEvents, ...bookingEvents];
+        // Code couleur selon le type et statut
+        if (event.type === 'reservation') {
+          switch (event.status) {
+            case 'confirmed':
+              color = '#FF6B6B'; // Rouge vif pour confirmé
+              title = `✅ ${event.title}`;
+              break;
+            case 'pending':
+              color = '#FFA726'; // Orange pour en attente
+              title = `⏳ ${event.title}`;
+              break;
+            case 'declined':
+              color = '#BDBDBD'; // Gris pour refusé
+              title = `❌ ${event.title}`;
+              break;
+            default:
+              color = '#FF6B6B';
+          }
+        }
+
+        return {
+          id: event.id,
+          title,
+          start: event.start,
+          end: event.end,
+          backgroundColor: color,
+          borderColor: color,
+          className: `fc-event-${event.type}`,
+          extendedProps: {
+            type: event.type,
+            status: event.status,
+            clientName: event.client_name
+          }
+        };
+      });
+
+    return [...availabilityEvents, ...eventData];
   }, [availabilities, events]);
 
   const handleDateSelect = useCallback((selectInfo: DateSelectArg) => {
