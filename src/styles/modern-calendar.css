@@ -42,15 +42,21 @@
 
 .fc-timegrid-slot-label,
 .fc-timegrid-axis-cushion,
-.fc-timegrid-slot-label-cushion {
-  background: transparent !important;
-  color: #6c757d !important;
-  font-weight: 500 !important;
-  font-size: 13px !important;
-  padding: 8px 12px !important;
+.fc-timegrid-slot-label-cushion,
+.time-label {
+  color: #333 !important;         /* Texte bien lisible */
+  font-size: 14px !important;     /* Taille raisonnable */
+  font-weight: 500 !important;    /* Un peu de contraste */
+  background-color: #fff !important; /* Contraste fond clair */
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  z-index: 2 !important;
+  position: relative !important;
   text-align: center !important;
   border: none !important;
-  display: flex !important;
+  display: flex !important;        /* FORCE L'AFFICHAGE */
+  visibility: visible !important;  /* FORCE LA VISIBILITÉ */
+  opacity: 1 !important;          /* FORCE L'OPACITÉ */
   align-items: center !important;
   justify-content: center !important;
 }
@@ -306,4 +312,27 @@
 .fc-timegrid-now-indicator-arrow {
   border-top-color: #e53e3e !important;
   border-bottom-color: #e53e3e !important;
+}
+
+/* PROTECTION CONTRE LES ÉLÉMENTS CACHÉS */
+.fc *,
+.fc-timegrid *,
+.fc-timegrid-slot-label *,
+.fc-toolbar *,
+.fc-event *,
+.fc-col-header * {
+  /* EMPÊCHE TOUT MASQUAGE */
+  display: inherit !important;     /* Force l'affichage */
+  visibility: visible !important;  /* Force la visibilité */
+  opacity: 1 !important;          /* Force l'opacité */
+}
+
+/* Classes problématiques à éviter - RESET FORCÉ */
+.hidden-label,
+.fc-timegrid-slot-label.hidden,
+.fc-event.hidden,
+.fc-toolbar.hidden {
+  display: flex !important;        /* FORCE L'AFFICHAGE même si caché */
+  visibility: visible !important;  /* FORCE LA VISIBILITÉ même si caché */
+  opacity: 1 !important;          /* FORCE L'OPACITÉ même si caché */
 }
