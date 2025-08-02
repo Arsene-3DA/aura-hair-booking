@@ -36,6 +36,8 @@ export const useClientReservations = (clientId?: string) => {
     try {
       setLoading(true);
       
+      console.log('🔍 Fetching reservations for client:', clientId);
+      
       const { data, error } = await supabase
         .from('new_reservations')
         .select(`
@@ -57,6 +59,8 @@ export const useClientReservations = (clientId?: string) => {
         `)
         .eq('client_user_id', clientId)
         .order('scheduled_at', { ascending: false });
+
+      console.log('📊 Reservations query result:', { data, error, clientId });
 
       if (error) throw error;
 

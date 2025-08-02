@@ -40,40 +40,48 @@ const KPICard = ({ title, value, subtitle, icon: Icon, color = "primary" }: {
   </Card>
 );
 
-const UpcomingBookingCard = ({ booking }: { booking: any }) => (
-  <Card className="hover:shadow-md transition-shadow">
-    <CardContent className="p-4">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <h4 className="font-medium">{booking.service}</h4>
-          <p className="text-sm text-muted-foreground">
-            {booking.stylist_profile?.full_name || 'Styliste'}
+const UpcomingBookingCard = ({ booking }: { booking: any }) => {
+  console.log('🏷️ Rendering booking card:', booking);
+  
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <h4 className="font-medium">
+              {booking.service?.name || booking.service_name || booking.service || 'Service personnalisé'}
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              {booking.stylist_profile?.full_name || booking.stylist_name || 'Professionnel'}
+            </p>
+          </div>
+          <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
+            {booking.status === 'confirmed' ? 'Confirmé' : 
+             booking.status === 'declined' ? 'Refusé' :
+             booking.status === 'pending' ? 'En attente' : booking.status}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            {format(new Date(booking.scheduled_at), 'dd MMM', { locale: fr })}
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="h-4 w-4" />
+            {format(new Date(booking.scheduled_at), 'HH:mm')}
+          </div>
+        </div>
+        
+        {booking.notes && (
+          <p className="text-sm mt-2 p-2 bg-muted/50 rounded text-muted-foreground">
+            {booking.notes}
           </p>
-        </div>
-        <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
-          {booking.status === 'confirmed' ? 'Confirmé' : 'En attente'}
-        </Badge>
-      </div>
-      
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Calendar className="h-4 w-4" />
-          {format(new Date(booking.scheduled_at), 'dd MMM', { locale: fr })}
-        </div>
-        <div className="flex items-center gap-1">
-          <Clock className="h-4 w-4" />
-          {format(new Date(booking.scheduled_at), 'HH:mm')}
-        </div>
-      </div>
-      
-      {booking.notes && (
-        <p className="text-sm mt-2 p-2 bg-muted/50 rounded text-muted-foreground">
-          {booking.notes}
-        </p>
-      )}
-    </CardContent>
-  </Card>
-);
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const RecentActionItem = ({ action }: { action: any }) => (
   <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
@@ -104,6 +112,13 @@ export default function ClientDashboard() {
     loading: reservationsLoading, 
     cancelReservation 
   } = useClientReservations(user?.id);
+
+  console.log('🎯 Dashboard Debug:', {
+    userId: user?.id,
+    upcomingReservations,
+    pastReservations,
+    reservationsLoading
+  });
 
   if (welcomeLoading) {
     return (
