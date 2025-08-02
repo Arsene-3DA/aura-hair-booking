@@ -184,11 +184,23 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
         return;
       }
 
+      // Créer la date complète avec le fuseau horaire local
+      const localDateTime = new Date(`${formData.date}T${formData.time}:00`);
+      const isoDateTime = localDateTime.toISOString();
+
+      console.log('🕐 Debug dates:', {
+        formDate: formData.date,
+        formTime: formData.time,
+        localDateTime: localDateTime.toString(),
+        isoDateTime,
+        now: new Date().toISOString()
+      });
+
       const bookingData = {
         client_user_id: user.id,
         stylist_user_id: hairdresserId,
         service_id: formData.serviceId || null,
-        scheduled_at: `${formData.date}T${formData.time}:00`,
+        scheduled_at: isoDateTime,
         notes: formData.notes || null,
         status: 'pending' as const
       };
