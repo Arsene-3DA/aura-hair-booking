@@ -172,44 +172,15 @@ export default function ClientDashboard() {
         />
       </div>
 
+      {/* Section complète des réservations */}
+      <ReservationsDisplay
+        upcomingReservations={upcomingReservations}
+        pastReservations={pastReservations}
+        loading={reservationsLoading}
+        onCancelReservation={cancelReservation}
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Prochains rendez-vous */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Prochains rendez-vous
-            </CardTitle>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/app/bookings">
-                Voir tout
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {reservationsLoading ? (
-              [...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-20" />
-              ))
-            ) : upcomingReservations.length > 0 ? (
-              upcomingReservations.slice(0, 3).map(reservation => (
-                <UpcomingBookingCard key={reservation.id} booking={reservation} />
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">Aucun rendez-vous programmé</p>
-                <Button asChild className="mt-4">
-                  <Link to="/experts">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Prendre rendez-vous
-                  </Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Actions rapides & Activité récente */}
         <div className="space-y-6">
