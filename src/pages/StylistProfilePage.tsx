@@ -372,10 +372,10 @@ const StylistProfilePage = () => {
                 ) : (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground mb-4">
-                      Les services seront ajoutés et personnalisés ultérieurement par ce professionnel.
+                      Ce professionnel n'a pas encore défini de services spécifiques.
                     </p>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Vous pouvez tout de même faire une demande de réservation en décrivant le service souhaité dans les notes.
+                      Vous pouvez faire une demande de réservation et les services seront personnalisés selon vos besoins.
                     </p>
                     <Button 
                       onClick={() => handleBooking()}
@@ -430,10 +430,10 @@ const StylistProfilePage = () => {
                   <div className="text-center py-8">
                     <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground mb-2">
-                      Ce professionnel n'a pas encore publié de portfolio.
+                      Portfolio en cours de création.
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Il sera disponible bientôt.
+                      Ce professionnel publiera bientôt ses réalisations.
                     </p>
                   </div>
                 )}
