@@ -1,6 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useWelcomeData } from '@/hooks/useWelcomeData';
-import { useUpcomingBookings } from '@/hooks/useUpcomingBookings';
+import { useClientReservations } from '@/hooks/useClientReservations';
+import { ReservationsDisplay } from '@/components/client/ReservationsDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -97,7 +98,12 @@ const RecentActionItem = ({ action }: { action: any }) => (
 export default function ClientDashboard() {
   const { user } = useAuth();
   const { data: welcomeData, loading: welcomeLoading } = useWelcomeData(user?.id);
-  const { bookings: upcomingBookings, loading: bookingsLoading } = useUpcomingBookings(user?.id);
+  const { 
+    upcomingReservations, 
+    pastReservations, 
+    loading: reservationsLoading, 
+    cancelReservation 
+  } = useClientReservations(user?.id);
 
   if (welcomeLoading) {
     return (
@@ -167,20 +173,20 @@ export default function ClientDashboard() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            {bookingsLoading ? (
+            {reservationsLoading ? (
               [...Array(3)].map((_, i) => (
                 <Skeleton key={i} className="h-20" />
               ))
-            ) : upcomingBookings.length > 0 ? (
-              upcomingBookings.map(booking => (
-                <UpcomingBookingCard key={booking.id} booking={booking} />
+            ) : upcomingReservations.length > 0 ? (
+              upcomingReservations.slice(0, 3).map(reservation => (
+                <UpcomingBookingCard key={reservation.id} booking={reservation} />
               ))
             ) : (
               <div className="text-center py-8">
                 <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground">Aucun rendez-vous programmé</p>
                 <Button asChild className="mt-4">
-                  <Link to="/app/booking">
+                  <Link to="/experts">
                     <Plus className="h-4 w-4 mr-2" />
                     Prendre rendez-vous
                   </Link>

@@ -43,6 +43,7 @@ const AuditTrail = lazy(() => import("./pages/admin/AuditTrail"));
 // Lazy loading des pages client
 const ClientDashboardPage = lazy(() => import("./pages/client/ClientDashboard"));
 const BookingsPage = lazy(() => import("./pages/client/BookingsPage"));
+const MyReservationsPage = lazy(() => import("./pages/client/MyReservationsPage"));
 const NewBookingPage = lazy(() => import("./pages/client/NewBookingPage"));
 const ProfilePage = lazy(() => import("./pages/client/ProfilePage"));
 const ReviewsPage = lazy(() => import("./pages/client/ReviewsPage"));
@@ -171,7 +172,7 @@ const App = () => (
                   </RoleProtectedRoute>
                 }>
                   <Route index element={<ClientDashboardPage />} />
-                  <Route path="bookings" element={<BookingsPage />} />
+                  <Route path="bookings" element={<MyReservationsPage />} />
                   <Route path="bookings/new" element={<NewBookingPage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="reviews" element={<ReviewsPage />} />
