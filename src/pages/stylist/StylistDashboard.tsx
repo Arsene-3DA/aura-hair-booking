@@ -24,6 +24,7 @@ import {
   Star
 } from 'lucide-react';
 import { StylistReviewsSection } from '@/components/StylistReviewsSection';
+import InteractiveCalendar from '@/components/InteractiveCalendar';
 
 interface HairdresserProfile {
   id: string;
@@ -265,9 +266,10 @@ const StylistDashboard = () => {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile">Mon Profil</TabsTrigger>
           <TabsTrigger value="services">Mes Services</TabsTrigger>
+          <TabsTrigger value="calendar">Créneaux</TabsTrigger>
           <TabsTrigger value="reviews">Mes Avis</TabsTrigger>
           <TabsTrigger value="photo">Photo de Profil</TabsTrigger>
         </TabsList>
@@ -427,6 +429,26 @@ const StylistDashboard = () => {
                   ))}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Calendar Tab */}
+        <TabsContent value="calendar" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Gestion des Créneaux
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {profile?.id && (
+                <InteractiveCalendar 
+                  stylistId={profile.id} 
+                  selectedWeek={new Date()}
+                />
+              )}
             </CardContent>
           </Card>
         </TabsContent>
