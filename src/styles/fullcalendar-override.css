@@ -1,13 +1,14 @@
-/* FullCalendar Override - Force Light Theme */
+/* FullCalendar - Design Clair et Lisible */
 
-/* Base calendar container */
+/* Base calendar container - Fond clair */
 .fc {
-  background: white !important;
-  color: #333 !important;
-  font-family: 'Inter', sans-serif !important;
+  background: #ffffff !important;
+  color: #333333 !important;
+  font-family: 'Inter', 'Roboto', 'Open Sans', sans-serif !important;
+  font-size: 14px !important;
 }
 
-/* Force white background on ALL elements */
+/* Force fond blanc sur TOUS les éléments */
 .fc *,
 .fc-theme-standard *,
 .fc-scrollgrid *,
@@ -21,179 +22,251 @@
 .fc-scrollgrid-section,
 .fc-scrollgrid-sync-table,
 .fc-scrollgrid-sync-inner {
-  background: white !important;
-  color: #333 !important;
+  background: #ffffff !important;
+  color: #333333 !important;
 }
 
-/* Calendar grid container */
+/* Container principal du calendrier */
 .fc-theme-standard .fc-scrollgrid {
-  background: white !important;
-  border: 2px solid #e9ecef !important;
+  background: #ffffff !important;
+  border: 2px solid #e0e0e0 !important;
   border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden !important;
 }
 
-/* Headers */
+/* Headers des jours - Fond gris très clair */
 .fc-col-header-cell {
-  background: #f8f9fa !important;
-  color: #495057 !important;
-  font-weight: 700 !important;
+  background: #f9f9f9 !important;
+  color: #333333 !important;
+  font-weight: 600 !important;
   font-size: 14px !important;
   padding: 16px 8px !important;
-  border: 1px solid #dee2e6 !important;
+  border: 1px solid #e0e0e0 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
 }
 
-/* Time labels */
+/* Labels des heures - Texte noir/gris foncé */
 .fc-timegrid-slot-label,
-.fc-timegrid-axis-cushion {
-  background: white !important;
-  color: #495057 !important;
+.fc-timegrid-axis-cushion,
+.fc-timegrid-slot-label-cushion {
+  background: #ffffff !important;
+  color: #333333 !important;
   font-weight: 600 !important;
-  font-size: 13px !important;
-  padding: 8px 12px !important;
-  border-right: 2px solid #dee2e6 !important;
+  font-size: 15px !important;
+  padding: 12px 16px !important;
+  border-right: 2px solid #e0e0e0 !important;
   text-align: center !important;
-  min-width: 80px !important;
+  min-width: 90px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .fc-timegrid-axis {
-  background: white !important;
-  width: 80px !important;
-  min-width: 80px !important;
+  background: #ffffff !important;
+  width: 90px !important;
+  min-width: 90px !important;
 }
 
-/* Time slots */
+/* Créneaux horaires - Grille claire */
 .fc-timegrid-slot {
-  background: white !important;
-  border-top: 1px solid #f1f3f4 !important;
-  height: 50px !important;
+  background: #ffffff !important;
+  border-top: 1px solid #f0f0f0 !important;
+  height: 60px !important;
+  padding: 4px !important;
+  margin: 2px !important;
 }
 
 .fc-timegrid-slot.fc-timegrid-slot-major {
-  border-top: 2px solid #dee2e6 !important;
-  background: #fafbfc !important;
+  border-top: 2px solid #e0e0e0 !important;
+  background: #fafafa !important;
 }
 
-/* Today highlighting */
+/* Aujourd'hui - Légèrement mis en valeur */
 .fc-day-today {
-  background: #fff9db !important;
+  background: #fffbf0 !important;
 }
 
 .fc-day-today .fc-daygrid-day-number {
-  background: #ffc107 !important;
-  color: white !important;
+  background: #ffa726 !important;
+  color: #ffffff !important;
   border-radius: 50% !important;
-  width: 28px !important;
-  height: 28px !important;
+  width: 32px !important;
+  height: 32px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   font-weight: 700 !important;
 }
 
-/* Events */
-.fc-event {
+/* === CODE COULEUR POUR LES CRÉNEAUX === */
+
+/* 🟩 Vert pâle : Disponible */
+.fc-event-available-enhanced {
+  background: #e8f5e8 !important;
+  color: #2e7d32 !important;
+  border: 2px solid #66bb6a !important;
+  border-left: 6px solid #4caf50 !important;
   border-radius: 8px !important;
   font-weight: 600 !important;
-  font-size: 13px !important;
-  padding: 4px 8px !important;
-  border: 2px solid transparent !important;
-  transition: all 0.2s ease !important;
+  padding: 8px 12px !important;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2) !important;
+  transition: all 0.3s ease !important;
 }
 
-.fc-event:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+.fc-event-available-enhanced:hover {
+  background: #c8e6c9 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3) !important;
+  border-left-width: 8px !important;
 }
 
-/* Event types with distinct colors */
-.fc-event-available-enhanced {
-  background: #28a745 !important;
-  color: white !important;
-  border-color: #1e7e34 !important;
-}
-
-.fc-event-busy-enhanced {
-  background: #dc3545 !important;
-  color: white !important;
-  border-color: #bd2130 !important;
-}
-
+/* 🟥 Rouge clair : Déjà réservé */
 .fc-event-booking-enhanced {
-  background: #007bff !important;
-  color: white !important;
-  border-color: #0056b3 !important;
+  background: #ffebee !important;
+  color: #c62828 !important;
+  border: 2px solid #ef5350 !important;
+  border-left: 6px solid #f44336 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
+  box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2) !important;
+  transition: all 0.3s ease !important;
 }
 
-/* Toolbar */
-.fc-toolbar {
-  background: white !important;
-  border: 1px solid #dee2e6 !important;
+.fc-event-booking-enhanced:hover {
+  background: #ffcdd2 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3) !important;
+  border-left-width: 8px !important;
+}
+
+/* ⬛ Gris : Bloqué par le professionnel */
+.fc-event-busy-enhanced {
+  background: #f5f5f5 !important;
+  color: #424242 !important;
+  border: 2px solid #9e9e9e !important;
+  border-left: 6px solid #757575 !important;
   border-radius: 8px !important;
-  padding: 16px !important;
-  margin-bottom: 20px !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
+  box-shadow: 0 2px 4px rgba(117, 117, 117, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.fc-event-busy-enhanced:hover {
+  background: #eeeeee !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(117, 117, 117, 0.3) !important;
+  border-left-width: 8px !important;
+}
+
+/* 🟨 Jaune/Orange : En attente de confirmation */
+.fc-event-pending-enhanced {
+  background: #fff8e1 !important;
+  color: #f57900 !important;
+  border: 2px solid #ffb74d !important;
+  border-left: 6px solid #ff9800 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.fc-event-pending-enhanced:hover {
+  background: #ffecb3 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3) !important;
+  border-left-width: 8px !important;
+}
+
+/* === INTERACTIVITÉ === */
+
+/* Hover sur les créneaux vides */
+.fc-timegrid-slot:hover {
+  background: #f8f9fa !important;
+  box-shadow: inset 0 0 0 2px #e3f2fd !important;
+  border-radius: 4px !important;
+}
+
+/* Sélection - Bleu clair */
+.fc-highlight {
+  background: #e3f2fd !important;
+  border: 3px dashed #2196f3 !important;
+  border-radius: 8px !important;
+  animation: pulse-selection 1.5s infinite !important;
+}
+
+@keyframes pulse-selection {
+  0%, 100% { 
+    background: #e3f2fd !important; 
+    opacity: 0.8;
+  }
+  50% { 
+    background: #bbdefb !important; 
+    opacity: 1;
+  }
+}
+
+/* === TOOLBAR === */
+.fc-toolbar {
+  background: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+  margin-bottom: 24px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
 }
 
 .fc-toolbar-title {
-  color: #495057 !important;
+  color: #333333 !important;
   font-weight: 700 !important;
-  font-size: 20px !important;
+  font-size: 22px !important;
 }
 
-/* Buttons */
+/* Boutons de navigation */
 .fc-button-primary {
-  background: #007bff !important;
-  border-color: #007bff !important;
-  color: white !important;
-  border-radius: 6px !important;
+  background: #2196f3 !important;
+  border-color: #2196f3 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
   font-weight: 600 !important;
-  padding: 8px 16px !important;
+  font-size: 14px !important;
+  padding: 10px 20px !important;
   transition: all 0.2s ease !important;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2) !important;
 }
 
 .fc-button-primary:hover {
-  background: #0056b3 !important;
-  border-color: #0056b3 !important;
+  background: #1976d2 !important;
+  border-color: #1976d2 !important;
   transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3) !important;
 }
 
 .fc-button-primary:not(:disabled):active,
 .fc-button-primary:not(:disabled).fc-button-active {
-  background: #004085 !important;
-  border-color: #004085 !important;
+  background: #1565c0 !important;
+  border-color: #1565c0 !important;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.4) !important;
 }
 
-.fc-button-primary:focus {
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25) !important;
-}
-
-/* Selection highlighting */
-.fc-highlight {
-  background: rgba(0, 123, 255, 0.15) !important;
-  border: 2px dashed #007bff !important;
-  border-radius: 6px !important;
-}
-
-/* Now indicator */
+/* Indicateur maintenant */
 .fc-timegrid-now-indicator-line {
-  border-color: #dc3545 !important;
-  border-width: 2px !important;
+  border-color: #f44336 !important;
+  border-width: 3px !important;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.4) !important;
 }
 
-/* Force text visibility */
-.fc-event-title,
-.fc-list-event-title {
-  color: inherit !important;
-  font-weight: 600 !important;
-}
-
-/* Mobile responsiveness */
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
   .fc-toolbar {
     flex-direction: column !important;
-    gap: 12px !important;
+    gap: 16px !important;
+    padding: 16px !important;
   }
   
   .fc-toolbar-chunk {
@@ -204,16 +277,39 @@
   }
   
   .fc-timegrid-axis {
-    width: 60px !important;
-    min-width: 60px !important;
+    width: 70px !important;
+    min-width: 70px !important;
   }
   
   .fc-timegrid-slot-label {
-    font-size: 11px !important;
-    padding: 6px 8px !important;
+    font-size: 13px !important;
+    padding: 8px 12px !important;
   }
   
   .fc-timegrid-slot {
-    height: 40px !important;
+    height: 50px !important;
   }
+  
+  .fc-event {
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+  }
+}
+
+/* Force visibility et lisibilité */
+.fc-event-title,
+.fc-list-event-title {
+  color: inherit !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+}
+
+/* Padding et margin pour les créneaux */
+.fc-timegrid-event-harness {
+  margin: 2px !important;
+}
+
+.fc-event {
+  margin: 1px !important;
+  min-height: 24px !important;
 }
