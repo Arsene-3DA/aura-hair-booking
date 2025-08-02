@@ -100,9 +100,44 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
     setSelectedEvent(null);
   };
 
+  // Fonction pour créer des créneaux de test
+  const createTestSlots = async () => {
+    if (!stylistId) return;
+    
+    const today = new Date();
+    const slots = [
+      {
+        start_at: new Date(today.getTime() + (9 * 60 * 60 * 1000)).toISOString(), // 9h aujourd'hui
+        end_at: new Date(today.getTime() + (11 * 60 * 60 * 1000)).toISOString(), // 11h aujourd'hui
+        status: 'available' as const
+      },
+      {
+        start_at: new Date(today.getTime() + (24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000)).toISOString(), // 14h demain
+        end_at: new Date(today.getTime() + (24 * 60 * 60 * 1000) + (16 * 60 * 60 * 1000)).toISOString(), // 16h demain
+        status: 'busy' as const
+      }
+    ];
+    
+    for (const slot of slots) {
+      await createAvailability(slot);
+    }
+  };
+
   return (
     <>
       <div className="bg-card rounded-xl border shadow-lg overflow-hidden">
+        {/* Bouton de test temporaire */}
+        <div className="p-4 bg-muted/50 border-b">
+          <Button 
+            onClick={createTestSlots}
+            className="mr-4 bg-green-600 hover:bg-green-700"
+          >
+            🧪 Créer des créneaux de test
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Stylist ID: {stylistId} | Events: {calendarEvents.length}
+          </span>
+        </div>
         <FullCalendar
           plugins={[timeGridPlugin, listPlugin, interactionPlugin]}
           initialView={isMobile ? 'listWeek' : 'timeGridWeek'}

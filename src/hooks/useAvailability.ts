@@ -28,8 +28,13 @@ export const useAvailability = (stylistId?: string) => {
   const { toast } = useToast();
 
   const fetchAvailabilities = async () => {
-    if (!stylistId) return;
+    if (!stylistId) {
+      console.log('❌ No stylistId provided to fetchAvailabilities');
+      return;
+    }
 
+    console.log('🔍 Fetching availabilities for stylist:', stylistId);
+    
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -38,10 +43,16 @@ export const useAvailability = (stylistId?: string) => {
         .eq('stylist_id', stylistId)
         .order('start_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase error:', error);
+        throw error;
+      }
+
+      console.log('✅ Availabilities fetched:', data?.length || 0, 'items');
+      console.log('📊 Raw availability data:', data);
       setAvailabilities(data || []);
     } catch (error) {
-      console.error('Error fetching availabilities:', error);
+      console.error('💥 Error fetching availabilities:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les disponibilités",
