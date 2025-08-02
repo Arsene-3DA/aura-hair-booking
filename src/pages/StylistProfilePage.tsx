@@ -372,7 +372,7 @@ const StylistProfilePage = () => {
                 ) : (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground mb-4">
-                      ℹ️ Les services pour ce styliste ne sont pas encore renseignés.
+                      Les services seront ajoutés et personnalisés ultérieurement par ce professionnel.
                     </p>
                     <p className="text-sm text-muted-foreground mb-4">
                       Vous pouvez tout de même faire une demande de réservation en décrivant le service souhaité dans les notes.
@@ -389,15 +389,16 @@ const StylistProfilePage = () => {
             </Card>
 
             {/* Portfolio */}
-            {portfolio.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-lg">
-                    <Camera className="h-5 w-5 mr-2" />
-                    Portfolio ({portfolio.length} réalisations)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg">
+                  <Camera className="h-5 w-5 mr-2" />
+                  Portfolio
+                  {portfolio.length > 0 && ` (${portfolio.length} réalisations)`}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {portfolio.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {portfolio.map((item, index) => (
                       <div 
@@ -425,9 +426,19 @@ const StylistProfilePage = () => {
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                ) : (
+                  <div className="text-center py-8">
+                    <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-2">
+                      Ce professionnel n'a pas encore publié de portfolio.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Il sera disponible bientôt.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Avis clients */}
             {!reviewsLoading && stats.totalReviews > 0 && (
