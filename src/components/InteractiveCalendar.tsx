@@ -101,7 +101,7 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
 
   return (
     <>
-      <div className="bg-card rounded-xl border shadow-sm">
+      <div className="bg-card rounded-xl border shadow-lg overflow-hidden">
         <FullCalendar
           plugins={[timeGridPlugin, listPlugin, interactionPlugin]}
           initialView={isMobile ? 'listWeek' : 'timeGridWeek'}
@@ -116,9 +116,18 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
           }}
           slotMinTime="09:00:00"
           slotMaxTime="22:00:00"
+          slotDuration="00:30:00"
+          snapDuration="00:15:00"
+          slotLabelInterval="01:00:00"
+          slotLabelFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }}
           allDaySlot={false}
           selectable={true}
           selectMirror={true}
+          selectOverlap={false}
           dayMaxEvents={true}
           weekends={true}
           events={calendarEvents}
@@ -126,11 +135,31 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
           eventClick={handleEventClick}
           height="auto"
           locale="fr"
-          slotDuration="01:00:00"
-          snapDuration="00:30:00"
           expandRows={true}
           stickyHeaderDates={true}
-          dayHeaderClassNames="bg-muted text-muted-foreground font-medium"
+          nowIndicator={true}
+          scrollTime="09:00:00"
+          eventDisplay="block"
+          eventBackgroundColor="transparent"
+          dayHeaderClassNames="fc-col-header-enhanced"
+          slotLabelClassNames="fc-timegrid-slot-label-enhanced"
+          eventClassNames={(arg) => {
+            const status = arg.event.extendedProps.status;
+            const type = arg.event.extendedProps.type;
+            
+            if (type === 'availability') {
+              return status === 'available' ? 'fc-event-available-enhanced' : 'fc-event-busy-enhanced';
+            }
+            return 'fc-event-booking-enhanced';
+          }}
+          selectConstraint={{
+            start: '09:00',
+            end: '22:00'
+          }}
+          eventConstraint={{
+            start: '09:00',
+            end: '22:00'
+          }}
         />
       </div>
 
