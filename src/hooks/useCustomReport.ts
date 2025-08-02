@@ -51,21 +51,31 @@ export function useCustomReport(filters: ReportFilters) {
       const startDateStr = format(filters.startDate, 'yyyy-MM-dd');
       const endDateStr = format(filters.endDate, 'yyyy-MM-dd');
 
-      let query = supabase
-        .from('v_admin_reports')
-        .select('*')
-        .gte('report_date', startDateStr)
-        .lte('report_date', endDateStr)
-        .order('report_date', { ascending: true });
-
-      const { data: reportData, error: fetchError } = await query;
+      // Query reservations data directly and aggregate it
+      const { data: reservationsData, error: fetchError } = await supabase
+        .from('new_reservations')
+        .select(`
+          id,
+          scheduled_at,
+          status,
+          created_at,
+          services (
+            name,
+            price
+          )
+        `)
+        .gte('scheduled_at', startDateStr)
+        .lte('scheduled_at', endDateStr)
+        .order('scheduled_at', { ascending: true });
 
       if (fetchError) throw fetchError;
 
-      setData(reportData || []);
+      // Process the data to match ReportData interface
+      const processedData = processReservationsData(reservationsData || []);
+      setData(processedData);
       
       // Préparer les données pour les graphiques selon le type de rapport
-      const processedChartData = processDataForChart(reportData || [], filters.type);
+      const processedChartData = processDataForChart(processedData, filters.type);
       setChartData(processedChartData);
 
     } catch (err) {
@@ -74,6 +84,66 @@ export function useCustomReport(filters: ReportFilters) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const processReservationsData = (reservations: any[]): ReportData[] => {
+    const groupedByDate = new Map<string, any>();
+
+    reservations.forEach(reservation => {
+      const date = format(new Date(reservation.scheduled_at), 'yyyy-MM-dd');
+      
+      if (!groupedByDate.has(date)) {
+        groupedByDate.set(date, {
+          report_date: date,
+          status: 'mixed',
+          service: 'Mixed Services',
+          total_bookings: 0,
+          confirmed_bookings: 0,
+          declined_bookings: 0,
+          pending_bookings: 0,
+          no_shows: 0,
+          total_revenue: 0,
+          avg_service_price: 0,
+          unique_stylists: 1,
+          unique_clients: 1,
+          year: new Date(reservation.scheduled_at).getFullYear(),
+          month: new Date(reservation.scheduled_at).getMonth() + 1,
+          week: Math.ceil(new Date(reservation.scheduled_at).getDate() / 7),
+          day_of_week: new Date(reservation.scheduled_at).getDay()
+        });
+      }
+
+      const dayData = groupedByDate.get(date);
+      dayData.total_bookings++;
+      
+      switch (reservation.status) {
+        case 'confirmed':
+          dayData.confirmed_bookings++;
+          break;
+        case 'declined':
+          dayData.declined_bookings++;
+          break;
+        case 'pending':
+          dayData.pending_bookings++;
+          break;
+        case 'no_show':
+          dayData.no_shows++;
+          break;
+      }
+
+      if (reservation.services?.price) {
+        dayData.total_revenue += Number(reservation.services.price);
+      }
+    });
+
+    // Calculate average prices
+    groupedByDate.forEach(dayData => {
+      if (dayData.total_bookings > 0) {
+        dayData.avg_service_price = dayData.total_revenue / dayData.total_bookings;
+      }
+    });
+
+    return Array.from(groupedByDate.values());
   };
 
   const processDataForChart = (data: ReportData[], type: string): ChartData[] => {

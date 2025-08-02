@@ -699,27 +699,7 @@ export type Database = {
       }
     }
     Views: {
-      v_admin_reports: {
-        Row: {
-          avg_service_price: number | null
-          confirmed_bookings: number | null
-          day_of_week: number | null
-          declined_bookings: number | null
-          month: number | null
-          no_shows: number | null
-          pending_bookings: number | null
-          report_date: string | null
-          service: string | null
-          status: Database["public"]["Enums"]["booking_status"] | null
-          total_bookings: number | null
-          total_revenue: number | null
-          unique_clients: number | null
-          unique_stylists: number | null
-          week: number | null
-          year: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       change_user_role: {

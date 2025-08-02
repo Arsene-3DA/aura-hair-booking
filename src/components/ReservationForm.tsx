@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Phone, Mail, Scissors, Clock } from 'lucide-react';
+import { User, Phone, Mail, Scissors, Clock, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
+import { validateEmail, validateFrenchPhone, validateName, sanitizeInput } from '@/utils/validation';
 import BookingCalendar from './BookingCalendar';
 import BookingHelp from './BookingHelp';
 
@@ -40,6 +41,13 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     serviceId: '',
     date: '',
     time: '',
+    notes: ''
+  });
+
+  const [validationErrors, setValidationErrors] = useState({
+    clientName: '',
+    clientEmail: '',
+    clientPhone: '',
     notes: ''
   });
 
@@ -196,10 +204,71 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     }
   };
 
+  // SECURITY FIX: Enhanced input validation with XSS protection
+  const validateInput = (field: string, value: string): string => {
+    let error = '';
+    
+    switch (field) {
+      case 'clientName':
+        if (!value.trim()) {
+          error = 'Le nom est requis';
+        } else if (!validateName(value)) {
+          error = 'Le nom doit contenir uniquement des lettres, espaces, traits d\'union et apostrophes';
+        } else if (value.length < 2) {
+          error = 'Le nom doit contenir au moins 2 caractères';
+        } else if (value.length > 100) {
+          error = 'Le nom ne peut pas dépasser 100 caractères';
+        }
+        break;
+        
+      case 'clientEmail':
+        if (!value.trim()) {
+          error = 'L\'email est requis';
+        } else if (!validateEmail(value)) {
+          error = 'Format d\'email invalide';
+        }
+        break;
+        
+      case 'clientPhone':
+        if (!value.trim()) {
+          error = 'Le téléphone est requis';
+        } else if (!validateFrenchPhone(value)) {
+          error = 'Format de téléphone invalide (ex: 613-555-0123)';
+        }
+        break;
+        
+      case 'notes':
+        if (value.length > 500) {
+          error = 'Les notes ne peuvent pas dépasser 500 caractères';
+        }
+        // Check for potential XSS patterns
+        const suspiciousPatterns = /<script|javascript:|onclick|onerror|onload/i;
+        if (suspiciousPatterns.test(value)) {
+          error = 'Contenu non autorisé détecté';
+        }
+        break;
+    }
+    
+    return error;
+  };
+
   const handleInputChange = (field: string, value: string) => {
+    // Sanitize input first
+    const sanitizedValue = sanitizeInput(value);
+    
+    // Validate the input
+    const error = validateInput(field, sanitizedValue);
+    
+    // Update form data
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: sanitizedValue
+    }));
+    
+    // Update validation errors
+    setValidationErrors(prev => ({
+      ...prev,
+      [field]: error
     }));
   };
 
@@ -259,7 +328,14 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
                   placeholder="Votre nom complet"
                   required
                   disabled={loading}
+                  className={validationErrors.clientName ? 'border-red-500' : ''}
                 />
+                {validationErrors.clientName && (
+                  <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                    <AlertTriangle className="h-3 w-3" />
+                    {validationErrors.clientName}
+                  </div>
+                )}
               </div>
               
               <div>
@@ -275,7 +351,14 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
                   placeholder="(613) 555-0123"
                   required
                   disabled={loading}
+                  className={validationErrors.clientPhone ? 'border-red-500' : ''}
                 />
+                {validationErrors.clientPhone && (
+                  <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                    <AlertTriangle className="h-3 w-3" />
+                    {validationErrors.clientPhone}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -292,7 +375,14 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
                 placeholder="votre@email.com"
                 required
                 disabled={loading}
+                className={validationErrors.clientEmail ? 'border-red-500' : ''}
               />
+              {validationErrors.clientEmail && (
+                <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                  <AlertTriangle className="h-3 w-3" />
+                  {validationErrors.clientEmail}
+                </div>
+              )}
             </div>
           </form>
         </CardContent>
@@ -417,7 +507,17 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
             placeholder="Précisez vos souhaits, allergies, etc."
             disabled={loading}
             rows={3}
+            className={validationErrors.notes ? 'border-red-500' : ''}
           />
+          {validationErrors.notes && (
+            <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
+              <AlertTriangle className="h-3 w-3" />
+              {validationErrors.notes}
+            </div>
+          )}
+          <div className="mt-1 text-xs text-gray-500">
+            {formData.notes.length}/500 caractères
+          </div>
         </CardContent>
       </Card>
 
