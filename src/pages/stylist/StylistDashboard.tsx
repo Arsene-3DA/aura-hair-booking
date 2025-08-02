@@ -24,6 +24,7 @@ import {
   Star
 } from 'lucide-react';
 import { StylistReviewsSection } from '@/components/StylistReviewsSection';
+import { TimeSlotGrid } from '@/components/TimeSlotGrid';
 
 interface HairdresserProfile {
   id: string;
@@ -265,9 +266,10 @@ const StylistDashboard = () => {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile">Mon Profil</TabsTrigger>
           <TabsTrigger value="services">Mes Services</TabsTrigger>
+          <TabsTrigger value="calendar">Créneaux</TabsTrigger>
           <TabsTrigger value="reviews">Mes Avis</TabsTrigger>
           <TabsTrigger value="photo">Photo de Profil</TabsTrigger>
         </TabsList>
@@ -429,6 +431,16 @@ const StylistDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Calendar Tab */}
+        <TabsContent value="calendar" className="space-y-4">
+          {hairdresserProfile?.id && (
+            <TimeSlotGrid 
+              stylistId={hairdresserProfile.id} 
+              selectedDate={new Date()}
+            />
+          )}
         </TabsContent>
 
         {/* Reviews Tab */}
