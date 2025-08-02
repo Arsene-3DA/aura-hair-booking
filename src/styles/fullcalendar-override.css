@@ -1,0 +1,219 @@
+/* FullCalendar Override - Force Light Theme */
+
+/* Base calendar container */
+.fc {
+  background: white !important;
+  color: #333 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Force white background on ALL elements */
+.fc *,
+.fc-theme-standard *,
+.fc-scrollgrid *,
+.fc-timegrid *,
+.fc-view *,
+.fc-view-harness,
+.fc-timegrid-body,
+.fc-timegrid-col,
+.fc-timegrid-slots,
+.fc-timegrid-slot,
+.fc-scrollgrid-section,
+.fc-scrollgrid-sync-table,
+.fc-scrollgrid-sync-inner {
+  background: white !important;
+  color: #333 !important;
+}
+
+/* Calendar grid container */
+.fc-theme-standard .fc-scrollgrid {
+  background: white !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Headers */
+.fc-col-header-cell {
+  background: #f8f9fa !important;
+  color: #495057 !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  padding: 16px 8px !important;
+  border: 1px solid #dee2e6 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Time labels */
+.fc-timegrid-slot-label,
+.fc-timegrid-axis-cushion {
+  background: white !important;
+  color: #495057 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+  border-right: 2px solid #dee2e6 !important;
+  text-align: center !important;
+  min-width: 80px !important;
+}
+
+.fc-timegrid-axis {
+  background: white !important;
+  width: 80px !important;
+  min-width: 80px !important;
+}
+
+/* Time slots */
+.fc-timegrid-slot {
+  background: white !important;
+  border-top: 1px solid #f1f3f4 !important;
+  height: 50px !important;
+}
+
+.fc-timegrid-slot.fc-timegrid-slot-major {
+  border-top: 2px solid #dee2e6 !important;
+  background: #fafbfc !important;
+}
+
+/* Today highlighting */
+.fc-day-today {
+  background: #fff9db !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background: #ffc107 !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 700 !important;
+}
+
+/* Events */
+.fc-event {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 4px 8px !important;
+  border: 2px solid transparent !important;
+  transition: all 0.2s ease !important;
+}
+
+.fc-event:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Event types with distinct colors */
+.fc-event-available-enhanced {
+  background: #28a745 !important;
+  color: white !important;
+  border-color: #1e7e34 !important;
+}
+
+.fc-event-busy-enhanced {
+  background: #dc3545 !important;
+  color: white !important;
+  border-color: #bd2130 !important;
+}
+
+.fc-event-booking-enhanced {
+  background: #007bff !important;
+  color: white !important;
+  border-color: #0056b3 !important;
+}
+
+/* Toolbar */
+.fc-toolbar {
+  background: white !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  margin-bottom: 20px !important;
+}
+
+.fc-toolbar-title {
+  color: #495057 !important;
+  font-weight: 700 !important;
+  font-size: 20px !important;
+}
+
+/* Buttons */
+.fc-button-primary {
+  background: #007bff !important;
+  border-color: #007bff !important;
+  color: white !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+.fc-button-primary:hover {
+  background: #0056b3 !important;
+  border-color: #0056b3 !important;
+  transform: translateY(-1px) !important;
+}
+
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled).fc-button-active {
+  background: #004085 !important;
+  border-color: #004085 !important;
+}
+
+.fc-button-primary:focus {
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25) !important;
+}
+
+/* Selection highlighting */
+.fc-highlight {
+  background: rgba(0, 123, 255, 0.15) !important;
+  border: 2px dashed #007bff !important;
+  border-radius: 6px !important;
+}
+
+/* Now indicator */
+.fc-timegrid-now-indicator-line {
+  border-color: #dc3545 !important;
+  border-width: 2px !important;
+}
+
+/* Force text visibility */
+.fc-event-title,
+.fc-list-event-title {
+  color: inherit !important;
+  font-weight: 600 !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .fc-toolbar {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .fc-toolbar-chunk {
+    display: flex !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  .fc-timegrid-axis {
+    width: 60px !important;
+    min-width: 60px !important;
+  }
+  
+  .fc-timegrid-slot-label {
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+  }
+  
+  .fc-timegrid-slot {
+    height: 40px !important;
+  }
+}
