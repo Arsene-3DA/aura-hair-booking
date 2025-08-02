@@ -65,44 +65,62 @@ const StylistCalendarPage = () => {
         ]}
       />
 
-      {/* Week Navigation */}
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-border/50 shadow-sm">
+      {/* Week Navigation - AMÉLIORÉE POUR LISIBILITÉ */}
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between bg-gradient-to-r from-primary/5 to-secondary/5 p-8 rounded-xl border-2 border-primary/20 shadow-lg backdrop-blur-sm">
         <div className="text-center lg:text-left">
-          <h2 className="text-xl font-bold text-primary">
-            {format(selectedWeek, "'Semaine du' d MMMM yyyy", { locale: fr })}
+          <h2 className="text-2xl font-bold text-primary mb-2 tracking-wide">
+            📅 {format(selectedWeek, "'Semaine du' d MMMM yyyy", { locale: fr })}
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Gérez vos créneaux et consultez vos rendez-vous
+          <p className="text-base text-muted-foreground font-medium">
+            Gérez vos créneaux et consultez vos rendez-vous en temps réel
           </p>
+          <div className="flex items-center justify-center lg:justify-start gap-4 mt-3">
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 bg-green-500 rounded border-2 border-green-700"></div>
+              <span className="font-medium">Disponible</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 bg-red-500 rounded border-2 border-red-700"></div>
+              <span className="font-medium">Réservé</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 bg-gray-500 rounded border-2 border-gray-700"></div>
+              <span className="font-medium">Bloqué</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 bg-orange-500 rounded border-2 border-orange-700"></div>
+              <span className="font-medium">En attente</span>
+            </div>
+          </div>
         </div>
         
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-4">
           <Button 
             variant="outline" 
             size="lg" 
             onClick={goToPreviousWeek}
-            className="flex items-center gap-2 hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md hover:bg-primary/5"
+            className="flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg hover:bg-primary/10 border-2 border-primary/30 px-6 py-3 text-base font-semibold"
           >
-            <ChevronLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">Précédente</span>
+            <ChevronLeft className="h-6 w-6" />
+            <span className="hidden sm:inline">Semaine précédente</span>
           </Button>
           <Button 
             variant="default" 
             size="lg" 
             onClick={goToCurrentWeek}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all duration-200 px-6"
+            className="flex items-center gap-3 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 text-base font-bold border-2 border-primary-foreground/20"
           >
-            <Calendar className="h-5 w-5" />
-            <span>Aujourd'hui</span>
+            <Calendar className="h-6 w-6" />
+            <span className="text-lg">📍 Aujourd'hui</span>
           </Button>
           <Button 
             variant="outline" 
             size="lg" 
             onClick={goToNextWeek}
-            className="flex items-center gap-2 hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md hover:bg-primary/5"
+            className="flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg hover:bg-primary/10 border-2 border-primary/30 px-6 py-3 text-base font-semibold"
           >
-            <span className="hidden sm:inline">Suivante</span>
-            <ChevronRight className="h-5 w-5" />
+            <span className="hidden sm:inline">Semaine suivante</span>
+            <ChevronRight className="h-6 w-6" />
           </Button>
         </div>
       </div>
