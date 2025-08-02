@@ -40,7 +40,10 @@ export const useStylistReservations = () => {
         throw error;
       }
 
-      setReservations(data || []);
+      setReservations((data || []).map(item => ({
+        ...item,
+        status: item.status as 'pending' | 'confirmed' | 'declined' | 'completed' | 'no_show'
+      })));
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors du chargement des réservations';
       setError(errorMessage);

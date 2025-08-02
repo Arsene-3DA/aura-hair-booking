@@ -533,9 +533,14 @@ export type Database = {
           client_id: string | null
           comment: string | null
           created_at: string | null
+          email_sent_at: string | null
           id: string
           is_approved: boolean | null
+          professional_id: string | null
           rating: number | null
+          reservation_id: string | null
+          review_token: string | null
+          status: string | null
           stylist_id: string | null
         }
         Insert: {
@@ -543,9 +548,14 @@ export type Database = {
           client_id?: string | null
           comment?: string | null
           created_at?: string | null
+          email_sent_at?: string | null
           id?: string
           is_approved?: boolean | null
+          professional_id?: string | null
           rating?: number | null
+          reservation_id?: string | null
+          review_token?: string | null
+          status?: string | null
           stylist_id?: string | null
         }
         Update: {
@@ -553,9 +563,14 @@ export type Database = {
           client_id?: string | null
           comment?: string | null
           created_at?: string | null
+          email_sent_at?: string | null
           id?: string
           is_approved?: boolean | null
+          professional_id?: string | null
           rating?: number | null
+          reservation_id?: string | null
+          review_token?: string | null
+          status?: string | null
           stylist_id?: string | null
         }
         Relationships: [
@@ -564,6 +579,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: true
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "new_reservations"
             referencedColumns: ["id"]
           },
         ]
@@ -765,6 +787,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_review_by_token: {
+        Args: { token: string }
+        Returns: {
+          id: string
+          reservation_id: string
+          client_id: string
+          professional_id: string
+          status: string
+          created_at: string
+          client_name: string
+          professional_name: string
+          service_name: string
+          scheduled_at: string
+        }[]
+      }
       get_stylist_reservations: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -820,6 +857,14 @@ export type Database = {
       }
       set_user_role: {
         Args: { user_id: string; new_role: string }
+        Returns: undefined
+      }
+      submit_review: {
+        Args: { token: string; rating: number; comment_text: string }
+        Returns: Json
+      }
+      update_stylist_rating_for_user: {
+        Args: { user_id: string }
         Returns: undefined
       }
       validate_booking_service: {

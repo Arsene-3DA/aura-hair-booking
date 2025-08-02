@@ -26,6 +26,7 @@ const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const ComponentsDemo = lazy(() => import("./pages/ComponentsDemo"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ServicesListPage = lazy(() => import("./pages/ServicesListPage"));
+const ReviewPage = lazy(() => import("./pages/ReviewPage"));
 
 // Lazy loading des layouts
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
@@ -105,6 +106,7 @@ const App = () => (
                   </Suspense>
                 } />
                 <Route path="/reservation/:stylistId" element={<ReservationPage />} />
+                <Route path="/review/:token" element={<ReviewPage />} />
                 <Route path="/admin" element={
                   <RoleProtectedRoute allowedRoles={['admin']}>
                     <AdminLayout />
