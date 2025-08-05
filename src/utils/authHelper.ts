@@ -31,8 +31,8 @@ export const isValidEmail = (email: string): boolean => {
 };
 
 export const isValidPhone = (phone: string): boolean => {
-  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-  return phoneRegex.test(phone.replace(/\s/g, ''));
+  const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
+  return cleanPhone.length >= 10 && /^[\+]?[1-9][\d]{9,14}$/.test(cleanPhone);
 };
 
 export const isValidDate = (date: string): boolean => {

@@ -66,9 +66,8 @@ export const validateEmail = (email: string): boolean => {
  * Valide un numéro de téléphone français
  */
 export const validatePhoneNumber = (phone: string): boolean => {
-  // Formats acceptés: 01.23.45.67.89, 01 23 45 67 89, 0123456789, +33123456789
-  const phoneRegex = /^(?:(?:\+33|0)[1-9](?:[\s.-]?\d{2}){4})$/;
-  return phoneRegex.test(phone.replace(/\s/g, ''));
+  const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
+  return cleanPhone.length >= 10 && /^[\+]?[0-9]{10,15}$/.test(cleanPhone);
 };
 
 /**

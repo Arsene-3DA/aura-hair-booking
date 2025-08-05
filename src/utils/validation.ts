@@ -6,9 +6,8 @@ export const validateEmail = (email: string): boolean => {
 };
 
 export const validateFrenchPhone = (phone: string): boolean => {
-  // French phone number format: +33 or 0 followed by 9 digits
-  const phoneRegex = /^(\+33|0)[1-9]([0-9]{8})$/;
-  return phoneRegex.test(phone.replace(/\s/g, ''));
+  const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
+  return cleanPhone.length >= 10 && /^[\+]?[0-9]{10,15}$/.test(cleanPhone);
 };
 
 // SECURITY FIX: Enhanced validation with server-side integration
