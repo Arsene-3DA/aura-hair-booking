@@ -5,51 +5,34 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Scissors, Plus, Edit, Trash2, Clock, Euro } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-  price: number;
-  isActive: boolean;
-}
+import { Scissors, Plus, Edit, Trash2, Clock, Euro, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useStylistServicesManagement, type CreateServiceData } from '@/hooks/useStylistServicesManagement';
+import { useAuth } from '@/hooks/useAuth';
+
 const StylistServicesPage = () => {
-  const [services, setServices] = useState<Service[]>([{
-    id: '1',
-    name: 'Coupe femme',
-    description: 'Coupe et brushing pour femme',
-    duration: 60,
-    price: 35,
-    isActive: true
-  }, {
-    id: '2',
-    name: 'Coloration',
-    description: 'Coloration complète avec soin',
-    duration: 120,
-    price: 85,
-    isActive: true
-  }, {
-    id: '3',
-    name: 'Mèches',
-    description: 'Mèches avec décoloration',
-    duration: 90,
-    price: 65,
-    isActive: true
-  }]);
+  const { user } = useAuth();
+  const stylistId = user?.id || '';
+  
+  // Utiliser le hook avec persistance
+  const { 
+    services, 
+    loading, 
+    addService, 
+    updateService, 
+    deleteService, 
+    toggleServiceStatus 
+  } = useStylistServicesManagement(stylistId);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
-  const [formData, setFormData] = useState({
+  const [editingService, setEditingService] = useState<any>(null);
+  const [formData, setFormData] = useState<CreateServiceData>({
     name: '',
     description: '',
     duration: 60,
     price: 0
   });
-  const {
-    toast
-  } = useToast();
+  const [submitting, setSubmitting] = useState(false);
   const handleAddService = () => {
     setEditingService(null);
     setFormData({
@@ -60,7 +43,7 @@ const StylistServicesPage = () => {
     });
     setIsDialogOpen(true);
   };
-  const handleEditService = (service: Service) => {
+  const handleEditService = (service: any) => {
     setEditingService(service);
     setFormData({
       name: service.name,
@@ -70,60 +53,60 @@ const StylistServicesPage = () => {
     });
     setIsDialogOpen(true);
   };
-  const handleSaveService = () => {
+  const handleSaveService = async () => {
     if (!formData.name.trim()) {
-      toast({
-        title: "Erreur",
-        description: "Le nom du service est requis",
-        variant: "destructive"
-      });
       return;
     }
-    if (editingService) {
-      // Update existing service
-      setServices(prev => prev.map(service => service.id === editingService.id ? {
-        ...service,
-        ...formData
-      } : service));
-      toast({
-        title: "Succès",
-        description: "Service modifié avec succès"
+
+    try {
+      setSubmitting(true);
+      
+      if (editingService) {
+        // Modifier un service existant
+        await updateService(editingService.id, formData);
+      } else {
+        // Ajouter un nouveau service
+        await addService(formData);
+      }
+      
+      // Fermer le dialog et réinitialiser le formulaire
+      setIsDialogOpen(false);
+      setEditingService(null);
+      setFormData({
+        name: '',
+        description: '',
+        duration: 60,
+        price: 0
       });
-    } else {
-      // Add new service
-      const newService: Service = {
-        id: Date.now().toString(),
-        ...formData,
-        isActive: true
-      };
-      setServices(prev => [...prev, newService]);
-      toast({
-        title: "Succès",
-        description: "Service ajouté avec succès"
-      });
+    } catch (error) {
+      // L'erreur est déjà gérée dans le hook
+    } finally {
+      setSubmitting(false);
     }
-    setIsDialogOpen(false);
-    setEditingService(null);
-    setFormData({
-      name: '',
-      description: '',
-      duration: 60,
-      price: 0
-    });
   };
-  const handleDeleteService = (serviceId: string) => {
-    setServices(prev => prev.filter(service => service.id !== serviceId));
-    toast({
-      title: "Succès",
-      description: "Service supprimé"
-    });
+  const handleDeleteService = async (serviceId: string) => {
+    try {
+      await deleteService(serviceId);
+    } catch (error) {
+      // L'erreur est déjà gérée dans le hook
+    }
   };
-  const toggleServiceStatus = (serviceId: string) => {
-    setServices(prev => prev.map(service => service.id === serviceId ? {
-      ...service,
-      isActive: !service.isActive
-    } : service));
+
+  const handleToggleServiceStatus = (serviceId: string) => {
+    toggleServiceStatus(serviceId);
   };
+  // Afficher un loader pendant le chargement initial
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+          <p className="text-muted-foreground">Chargement de vos services...</p>
+        </div>
+      </div>
+    );
+  }
+
   return <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6">
       {/* Header amélioré */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/20">
@@ -133,7 +116,7 @@ const StylistServicesPage = () => {
             Mes Services
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground mt-1">
-            Gérez vos prestations et tarifs
+            Gérez vos prestations et tarifs • Sauvegarde automatique
           </p>
         </div>
         <Button onClick={handleAddService} className="flex items-center gap-2">
@@ -174,7 +157,7 @@ const StylistServicesPage = () => {
                     <Edit className="h-3 w-3 mr-1" />
                     Modifier
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => toggleServiceStatus(service.id)} className="flex-1 hover:bg-secondary/10">
+                  <Button variant="outline" size="sm" onClick={() => handleToggleServiceStatus(service.id)} className="flex-1 hover:bg-secondary/10">
                     {service.isActive ? 'Désactiver' : 'Activer'}
                   </Button>
                 </div>
@@ -283,10 +266,11 @@ const StylistServicesPage = () => {
           </div>
           
           <div className="flex gap-2 mt-6">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 text-slate-500">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1" disabled={submitting}>
               Annuler
             </Button>
-            <Button onClick={handleSaveService} className="flex-1">
+            <Button onClick={handleSaveService} className="flex-1" disabled={submitting}>
+              {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {editingService ? 'Modifier' : 'Ajouter'}
             </Button>
           </div>
