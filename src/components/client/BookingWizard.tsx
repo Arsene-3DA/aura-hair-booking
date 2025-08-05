@@ -76,18 +76,55 @@ export const BookingWizard = () => {
     }
   };
 
-  // Load services
-  const loadServices = async () => {
+  // Load services for the selected stylist
+  const loadServices = async (stylistId?: string) => {
+    if (!stylistId) {
+      setServices([]);
+      return;
+    }
+
     setLoadingData(true);
     try {
-      const { data } = await supabase
-        .from('services')
-        .select('*')
-        .order('price', { ascending: true });
+      // D'abord récupérer l'ID du hairdresser basé sur auth_id
+      const { data: hairdresserData, error: hairdresserError } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .eq('auth_id', stylistId)
+        .eq('is_active', true)
+        .single();
+
+      if (hairdresserError || !hairdresserData) {
+        console.error('Styliste non trouvé:', hairdresserError);
+        setServices([]);
+        return;
+      }
       
-      setServices(data || []);
+      // Ensuite récupérer les services pour ce styliste
+      const { data, error } = await supabase
+        .from('hairdresser_services')
+        .select(`
+          services (
+            id,
+            name,
+            description,
+            price,
+            duration,
+            category
+          )
+        `)
+        .eq('hairdresser_id', hairdresserData.id);
+
+      if (error) {
+        console.error('Error loading services:', error);
+        setServices([]);
+      } else {
+        // Extraire les services de la réponse
+        const servicesList = data?.map((item: any) => item.services).filter(Boolean) || [];
+        setServices(servicesList);
+      }
     } catch (error) {
       console.error('Error loading services:', error);
+      setServices([]);
     } finally {
       setLoadingData(false);
     }
@@ -96,8 +133,48 @@ export const BookingWizard = () => {
   // Initialize data on mount
   useState(() => {
     loadStylists();
-    loadServices();
   });
+
+  // Load services when stylist is selected
+  const handleStylistSelection = (stylist: Stylist) => {
+    setSelectedStylist(stylist);
+    setSelectedService(null); // Reset service selection
+    loadServices(stylist.id);
+
+    // Écouter les changements en temps réel pour les services du styliste sélectionné
+    const channel = supabase
+      .channel('stylist-services-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Écouter tous les changements (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'hairdresser_services'
+        },
+        () => {
+          // Recharger les services quand il y a un changement
+          loadServices(stylist.id);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'services'
+        },
+        () => {
+          // Recharger aussi si les services sont modifiés
+          loadServices(stylist.id);
+        }
+      )
+      .subscribe();
+
+    // Nettoyer la subscription précédente s'il y en a une
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const filteredStylists = stylists.filter(stylist =>
     stylist.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -165,7 +242,7 @@ export const BookingWizard = () => {
                       "cursor-pointer transition-all hover:shadow-md",
                       selectedStylist?.id === stylist.id && "ring-2 ring-primary"
                     )}
-                    onClick={() => setSelectedStylist(stylist)}
+                    onClick={() => handleStylistSelection(stylist)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3">
