@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle, XCircle, MinusCircle } from 'lucide-react';
 import { format, addDays, subDays, isSameDay, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAvailability } from '@/hooks/useAvailability';
@@ -22,8 +23,70 @@ interface TimeSlot {
 export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [bookings, setBookings] = useState<any[]>([]);
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { availabilities, loading, createAvailability, updateAvailability, deleteAvailability } = useAvailability(stylistId);
   const { toast } = useToast();
+
+  // Charger les réservations pour la date sélectionnée
+  const fetchBookings = async () => {
+    const startDate = startOfDay(selectedDate);
+    const endDate = endOfDay(selectedDate);
+    
+    const { data, error } = await supabase
+      .from('new_reservations')
+      .select('*')
+      .eq('stylist_user_id', stylistId)
+      .eq('status', 'confirmed')
+      .gte('scheduled_at', startDate.toISOString())
+      .lte('scheduled_at', endDate.toISOString());
+
+    if (error) {
+      console.error('Erreur lors du chargement des réservations:', error);
+      return;
+    }
+
+    setBookings(data || []);
+  };
+
+  // Écouter les changements en temps réel
+  useEffect(() => {
+    const channel = supabase
+      .channel('availability-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'availabilities',
+          filter: `stylist_id=eq.${stylistId}`
+        },
+        () => {
+          // Refresh sera appelé automatiquement par useAvailability
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'new_reservations',
+          filter: `stylist_user_id=eq.${stylistId}`
+        },
+        () => {
+          fetchBookings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [stylistId]);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [selectedDate, stylistId]);
 
   // Générer les créneaux de 9h à 22h par intervalles de 30 minutes
   const generateTimeSlots = (): TimeSlot[] => {
@@ -92,69 +155,79 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
 
   const timeSlots = useMemo(() => generateTimeSlots(), [selectedDate, availabilities, bookings]);
 
-  // Charger les réservations pour la date sélectionnée
-  useEffect(() => {
-    const fetchBookings = async () => {
-      const startDate = startOfDay(selectedDate);
-      const endDate = endOfDay(selectedDate);
-      
-      const { data, error } = await supabase
-        .from('new_reservations')
-        .select('*')
-        .eq('stylist_user_id', stylistId)
-        .eq('status', 'confirmed')
-        .gte('scheduled_at', startDate.toISOString())
-        .lte('scheduled_at', endDate.toISOString());
-
-      if (error) {
-        console.error('Erreur lors du chargement des réservations:', error);
-        return;
-      }
-
-      setBookings(data || []);
-    };
-
-    fetchBookings();
-  }, [selectedDate, stylistId]);
-
-  const handleSlotClick = async (slot: TimeSlot) => {
+  const handleSlotClick = (slot: TimeSlot) => {
     if (slot.status === 'booked') {
       toast({
         title: "Créneau réservé",
-        description: "Ce créneau est déjà réservé par un client",
+        description: "Ce créneau est déjà réservé par un client et ne peut pas être modifié",
         variant: "destructive",
       });
       return;
     }
 
-    const endTime = new Date(slot.datetime);
+    // Vérifier si le créneau est dans le passé
+    const now = new Date();
+    if (slot.datetime < now) {
+      toast({
+        title: "Créneau passé",
+        description: "Impossible de modifier un créneau dans le passé",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSelectedSlot(slot);
+    setIsModalOpen(true);
+  };
+
+  const handleStatusChange = async (newStatus: 'available' | 'busy' | 'unavailable') => {
+    if (!selectedSlot) return;
+
+    const endTime = new Date(selectedSlot.datetime);
     endTime.setMinutes(endTime.getMinutes() + 30);
 
     try {
-      if (slot.status === 'unavailable') {
-        // Créer une nouvelle disponibilité
-        await createAvailability({
-          start_at: slot.datetime.toISOString(),
-          end_at: endTime.toISOString(),
-          status: 'available'
+      if (newStatus === 'unavailable') {
+        // Supprimer la disponibilité existante
+        if (selectedSlot.availabilityId) {
+          await deleteAvailability(selectedSlot.availabilityId);
+        }
+        toast({
+          title: "Créneau mis à jour",
+          description: "Le créneau a été marqué comme indisponible",
         });
-      } else if (slot.status === 'available') {
-        // Marquer comme occupé
-        if (slot.availabilityId) {
+      } else {
+        if (selectedSlot.availabilityId) {
+          // Mettre à jour la disponibilité existante
           await updateAvailability({
-            id: slot.availabilityId,
-            status: 'busy'
+            id: selectedSlot.availabilityId,
+            status: newStatus
+          });
+        } else {
+          // Créer une nouvelle disponibilité
+          await createAvailability({
+            start_at: selectedSlot.datetime.toISOString(),
+            end_at: endTime.toISOString(),
+            status: newStatus
           });
         }
-      } else if (slot.status === 'busy') {
-        // Supprimer la disponibilité (retour à indisponible)
-        if (slot.availabilityId) {
-          await deleteAvailability(slot.availabilityId);
-        }
+        
+        toast({
+          title: "Créneau mis à jour",
+          description: `Le créneau a été marqué comme ${newStatus === 'available' ? 'disponible' : 'bloqué'}`,
+        });
       }
     } catch (error) {
       console.error('Erreur lors de la modification du créneau:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier le créneau",
+        variant: "destructive",
+      });
     }
+
+    setIsModalOpen(false);
+    setSelectedSlot(null);
   };
 
   const getSlotColor = (status: TimeSlot['status']) => {
@@ -247,13 +320,75 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         <div className="mt-6 p-4 bg-muted rounded-lg text-sm text-muted-foreground">
           <p className="font-medium mb-2">Instructions :</p>
           <ul className="space-y-1">
-            <li>• Cliquez sur un créneau indisponible (⚪) pour le rendre disponible (🟢)</li>
-            <li>• Cliquez sur un créneau disponible (🟢) pour le bloquer (⚫)</li>
-            <li>• Cliquez sur un créneau bloqué (⚫) pour le rendre indisponible (⚪)</li>
+            <li>• Cliquez sur un créneau pour choisir son statut</li>
             <li>• Les créneaux réservés (🔴) ne peuvent pas être modifiés</li>
+            <li>• Les créneaux passés ne peuvent pas être modifiés</li>
           </ul>
         </div>
       </CardContent>
+
+      {/* Modal de sélection du statut */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Modifier le créneau {selectedSlot?.time}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {selectedSlot && format(selectedSlot.datetime, "EEEE d MMMM yyyy 'à' HH:mm", { locale: fr })}
+            </p>
+            
+            <div className="grid gap-3">
+              <Button
+                variant="outline"
+                size="lg"
+                className="justify-start gap-3 h-auto p-4 bg-green-50 hover:bg-green-100 border-green-200"
+                onClick={() => handleStatusChange('available')}
+              >
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <div className="text-left">
+                  <div className="font-medium text-green-700">Disponible</div>
+                  <div className="text-sm text-green-600">Les clients peuvent réserver ce créneau</div>
+                </div>
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="lg"
+                className="justify-start gap-3 h-auto p-4 bg-gray-50 hover:bg-gray-100 border-gray-200"
+                onClick={() => handleStatusChange('busy')}
+              >
+                <MinusCircle className="h-5 w-5 text-gray-600" />
+                <div className="text-left">
+                  <div className="font-medium text-gray-700">Bloqué</div>
+                  <div className="text-sm text-gray-600">Créneau occupé, indisponible pour réservation</div>
+                </div>
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="lg"
+                className="justify-start gap-3 h-auto p-4 bg-red-50 hover:bg-red-100 border-red-200"
+                onClick={() => handleStatusChange('unavailable')}
+              >
+                <XCircle className="h-5 w-5 text-red-600" />
+                <div className="text-left">
+                  <div className="font-medium text-red-700">Indisponible</div>
+                  <div className="text-sm text-red-600">Retirer ce créneau de votre planning</div>
+                </div>
+              </Button>
+            </div>
+            
+            <Button variant="outline" onClick={() => setIsModalOpen(false)} className="w-full">
+              Annuler
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
