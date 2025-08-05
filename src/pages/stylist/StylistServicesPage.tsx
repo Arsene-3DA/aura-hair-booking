@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Scissors, Plus, Edit, Trash2, Clock, Euro, Loader2 } from 'lucide-react';
+import { Scissors, Plus, Edit, Trash2, Clock, Euro, Loader2, AlertTriangle } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useStylistServicesManagement, type CreateServiceData } from '@/hooks/useStylistServicesManagement';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -39,6 +40,8 @@ const StylistServicesPage = () => {
     duration?: string;
     price?: string;
   }>({});
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
   
   // Validation du formulaire
   const validateForm = () => {
@@ -129,9 +132,18 @@ const StylistServicesPage = () => {
     }
   };
 
-  const handleDeleteService = async (serviceId: string) => {
+  const handleDeleteService = (serviceId: string) => {
+    setServiceToDelete(serviceId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteService = async () => {
+    if (!serviceToDelete) return;
+    
     try {
-      await deleteService(serviceId);
+      await deleteService(serviceToDelete);
+      setDeleteConfirmOpen(false);
+      setServiceToDelete(null);
     } catch (error) {
       // L'erreur est déjà gérée dans le hook
     }
@@ -153,16 +165,17 @@ const StylistServicesPage = () => {
     );
   }
 
-  return <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6">
+  return (
+    <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6">
       {/* Header amélioré */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/20">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-3">
             <Scissors className="h-8 w-8" />
-            Mes Services
+            Gestion de mes Services
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground mt-1">
-            Gérez vos prestations et tarifs • Sauvegarde automatique
+            Créez et gérez vos prestations • Visibles par vos clients • Sauvegarde automatique
           </p>
         </div>
         <Button onClick={handleAddService} className="flex items-center gap-2">
@@ -364,7 +377,39 @@ const StylistServicesPage = () => {
         </DialogContent>
       </Dialog>
 
-      {services.length === 0 && <Card className="border-dashed border-2">
+      {/* Confirmation de suppression */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Confirmer la suppression
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce service ? Cette action est irréversible.
+              <br />
+              <span className="font-medium text-foreground mt-2 block">
+                • Le service ne sera plus visible pour vos clients
+              </span>
+              <span className="font-medium text-foreground">
+                • Les réservations existantes ne seront pas affectées
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteService}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer définitivement
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {services.length === 0 && (
+        <Card className="border-dashed border-2">
           <CardContent className="text-center py-12">
             <Scissors className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -378,7 +423,10 @@ const StylistServicesPage = () => {
               Ajouter mon premier service
             </Button>
           </CardContent>
-        </Card>}
-    </div>;
+        </Card>
+      )}
+    </div>
+  );
 };
+
 export default StylistServicesPage;
