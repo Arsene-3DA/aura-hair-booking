@@ -626,6 +626,39 @@ export type Database = {
           },
         ]
       }
+      security_audit_logs: {
+        Row: {
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           category: string | null
@@ -909,6 +942,10 @@ export type Database = {
       }
       validate_password_strength: {
         Args: { password: string }
+        Returns: Json
+      }
+      validate_security_context: {
+        Args: Record<PropertyKey, never>
         Returns: Json
       }
       validate_session_security: {

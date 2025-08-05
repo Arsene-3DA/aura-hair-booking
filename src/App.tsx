@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 import AuthenticatedRoute from "@/components/AuthenticatedRoute";
-import { SecurityProvider } from "@/components/SecurityProvider";
+import { EnhancedSecurityProvider } from "@/components/EnhancedSecurityProvider";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { CanadianLocalizationProvider } from "@/components/CanadianLocalizationProvider";
 import "@/lib/i18n";
@@ -86,7 +86,7 @@ const App = () => (
       <ThemeProvider defaultTheme="system" storageKey="beauty-salon-theme">
         <CanadianLocalizationProvider>
           <TooltipProvider>
-            <SecurityProvider>
+            <EnhancedSecurityProvider enableStrictMode={true} showWarnings={true}>
               <Toaster />
               <Sonner />
           <BrowserRouter>
@@ -204,7 +204,7 @@ const App = () => (
               </Routes>
             </Suspense>
           </BrowserRouter>
-            </SecurityProvider>
+            </EnhancedSecurityProvider>
         </TooltipProvider>
         </CanadianLocalizationProvider>
       </ThemeProvider>
