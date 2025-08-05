@@ -92,6 +92,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
   const generateTimeSlots = (): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     const baseDate = startOfDay(selectedDate);
+    const now = new Date();
     
     for (let hour = 9; hour < 22; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
@@ -100,7 +101,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         
         const timeString = format(datetime, 'HH:mm');
         
-        // Vérifier si ce créneau est réservé
+        // RÈGLE 1: Vérifier si ce créneau est réservé par un client
         const isBooked = bookings.some(booking => {
           const bookingTime = new Date(booking.scheduled_at);
           return isSameDay(bookingTime, selectedDate) && 
@@ -111,12 +112,22 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           slots.push({
             time: timeString,
             datetime,
-            status: 'booked'
+            status: 'booked' // VIOLET 🟣 - Réservé par client
           });
           continue;
         }
 
-        // Vérifier la disponibilité
+        // RÈGLE 2: Vérifier si le créneau est dans le passé
+        if (datetime < now) {
+          slots.push({
+            time: timeString,
+            datetime,
+            status: 'busy' // GRIS ⚫ - Automatiquement bloqué (passé)
+          });
+          continue;
+        }
+
+        // RÈGLE 3: Vérifier la disponibilité définie par le professionnel
         const availability = availabilities.find(avail => {
           const startTime = new Date(avail.start_at);
           const endTime = new Date(avail.end_at);
@@ -124,30 +135,29 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         });
 
         if (availability) {
+          // Statut défini par le professionnel
+          if (availability.status === 'busy') {
+            slots.push({
+              time: timeString,
+              datetime,
+              status: 'busy', // GRIS ⚫ - Bloqué manuellement par professionnel
+              availabilityId: availability.id
+            });
+          } else if (availability.status === 'available') {
+            slots.push({
+              time: timeString,
+              datetime,
+              status: 'available', // VERT 🟢 - Disponible
+              availabilityId: availability.id
+            });
+          }
+        } else {
+          // RÈGLE 4: Par défaut, les créneaux futurs sont disponibles
           slots.push({
             time: timeString,
             datetime,
-            status: availability.status === 'available' ? 'available' : 'busy',
-            availabilityId: availability.id
+            status: 'available' // VERT 🟢 - Disponible par défaut
           });
-        } else {
-          // Créneau dans le passé = indisponible
-          const now = new Date();
-          if (datetime < now) {
-            slots.push({
-              time: timeString,
-              datetime,
-              status: 'unavailable'
-            });
-          } else {
-            // Pour les créneaux futurs sans disponibilité explicite, ils sont indisponibles par défaut
-            // (le professionnel doit activement les rendre disponibles)
-            slots.push({
-              time: timeString,
-              datetime,
-              status: 'unavailable'
-            });
-          }
         }
       }
     }
@@ -158,6 +168,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
   const timeSlots = useMemo(() => generateTimeSlots(), [selectedDate, availabilities, bookings]);
 
   const handleSlotClick = (slot: TimeSlot) => {
+    // RÈGLE: Ne pas permettre de modifier les créneaux réservés
     if (slot.status === 'booked') {
       toast({
         title: "Créneau réservé",
@@ -167,12 +178,12 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
       return;
     }
 
-    // Vérifier si le créneau est dans le passé
+    // RÈGLE: Ne pas permettre de modifier les créneaux dans le passé
     const now = new Date();
     if (slot.datetime < now) {
       toast({
         title: "Créneau passé",
-        description: "Impossible de modifier un créneau dans le passé",
+        description: "Les créneaux passés sont automatiquement bloqués et ne peuvent pas être modifiés",
         variant: "destructive",
       });
       return;
@@ -190,33 +201,49 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
 
     try {
       if (newStatus === 'unavailable') {
-        // Supprimer la disponibilité existante
+        // RÈGLE: Marquer comme indisponible = supprimer la disponibilité (ROUGE 🔴)
         if (selectedSlot.availabilityId) {
           await deleteAvailability(selectedSlot.availabilityId);
         }
         toast({
-          title: "Créneau mis à jour",
-          description: "Le créneau a été marqué comme indisponible",
+          title: "Créneau indisponible",
+          description: "Le créneau a été marqué comme indisponible (rouge)",
         });
-      } else {
+      } else if (newStatus === 'busy') {
+        // RÈGLE: Bloquer manuellement = créer/mettre à jour avec status 'busy' (GRIS ⚫)
         if (selectedSlot.availabilityId) {
-          // Mettre à jour la disponibilité existante
           await updateAvailability({
             id: selectedSlot.availabilityId,
-            status: newStatus
+            status: 'busy'
           });
         } else {
-          // Créer une nouvelle disponibilité
           await createAvailability({
             start_at: selectedSlot.datetime.toISOString(),
             end_at: endTime.toISOString(),
-            status: newStatus
+            status: 'busy'
           });
         }
-        
         toast({
-          title: "Créneau mis à jour",
-          description: `Le créneau a été marqué comme ${newStatus === 'available' ? 'disponible' : 'bloqué'}`,
+          title: "Créneau bloqué",
+          description: "Le créneau a été bloqué manuellement (gris)",
+        });
+      } else if (newStatus === 'available') {
+        // RÈGLE: Rendre disponible = créer/mettre à jour avec status 'available' (VERT 🟢)
+        if (selectedSlot.availabilityId) {
+          await updateAvailability({
+            id: selectedSlot.availabilityId,
+            status: 'available'
+          });
+        } else {
+          await createAvailability({
+            start_at: selectedSlot.datetime.toISOString(),
+            end_at: endTime.toISOString(),
+            status: 'available'
+          });
+        }
+        toast({
+          title: "Créneau disponible",
+          description: "Le créneau est maintenant disponible pour réservation (vert)",
         });
       }
     } catch (error) {
@@ -282,23 +309,23 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
       </CardHeader>
       
       <CardContent className="p-8">
-        {/* Légende avec couleurs et labels */}
+        {/* Légende avec système de couleurs automatique */}
         <div className="flex flex-wrap justify-center gap-6 mb-8 p-6 bg-muted/30 rounded-xl">
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 bg-[hsl(var(--slot-available))] rounded-full border-2 border-[hsl(var(--slot-available)/0.8)] shadow-sm"></div>
-            <span className="text-sm font-medium text-foreground">Disponible</span>
+            <span className="text-sm font-medium text-foreground">Disponible 🟢</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 bg-[hsl(var(--slot-booked))] rounded-full border-2 border-[hsl(var(--slot-booked)/0.8)] shadow-sm"></div>
-            <span className="text-sm font-medium text-foreground">Réservé</span>
+            <span className="text-sm font-medium text-foreground">Réservé 🟣</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 bg-[hsl(var(--slot-busy))] rounded-full border-2 border-[hsl(var(--slot-busy)/0.8)] shadow-sm"></div>
-            <span className="text-sm font-medium text-foreground">Bloqué</span>
+            <span className="text-sm font-medium text-foreground">Bloqué ⚫</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 bg-[hsl(var(--slot-unavailable))] rounded-full border-2 border-[hsl(var(--slot-unavailable)/0.8)] shadow-sm"></div>
-            <span className="text-sm font-medium text-foreground">Indisponible</span>
+            <span className="text-sm font-medium text-foreground">Indisponible 🔴</span>
           </div>
         </div>
 
@@ -318,10 +345,10 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           ))}
         </div>
 
-        {/* Instructions simplifiées */}
+        {/* Instructions avec règles automatiques */}
         <div className="mt-8 p-6 bg-gradient-to-r from-muted/50 to-muted/30 rounded-xl border border-primary/10">
           <p className="text-center text-muted-foreground font-medium">
-            💡 Cliquez sur un créneau pour modifier sa disponibilité
+            💡 Cliquez sur un créneau pour le modifier • Les créneaux passés sont automatiquement bloqués • Par défaut, les créneaux futurs sont disponibles
           </p>
         </div>
       </CardContent>
@@ -345,39 +372,39 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
               <Button
                 variant="outline"
                 size="lg"
-                className="justify-start gap-3 h-auto p-4 bg-green-50 hover:bg-green-100 border-green-200"
+                className="justify-start gap-3 h-auto p-4 bg-green-50 hover:bg-green-100 border-green-200 dark:bg-green-950 dark:hover:bg-green-900 dark:border-green-800"
                 onClick={() => handleStatusChange('available')}
               >
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <div className="text-left">
-                  <div className="font-medium text-green-700">Disponible</div>
-                  <div className="text-sm text-green-600">Les clients peuvent réserver ce créneau</div>
+                  <div className="font-medium text-green-700 dark:text-green-300">Disponible 🟢</div>
+                  <div className="text-sm text-green-600 dark:text-green-400">Les clients peuvent réserver ce créneau</div>
                 </div>
               </Button>
               
               <Button
                 variant="outline"
                 size="lg"
-                className="justify-start gap-3 h-auto p-4 bg-gray-50 hover:bg-gray-100 border-gray-200"
+                className="justify-start gap-3 h-auto p-4 bg-gray-50 hover:bg-gray-100 border-gray-200 dark:bg-gray-950 dark:hover:bg-gray-900 dark:border-gray-800"
                 onClick={() => handleStatusChange('busy')}
               >
-                <MinusCircle className="h-5 w-5 text-gray-600" />
+                <MinusCircle className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 <div className="text-left">
-                  <div className="font-medium text-gray-700">Bloqué</div>
-                  <div className="text-sm text-gray-600">Créneau occupé, indisponible pour réservation</div>
+                  <div className="font-medium text-gray-700 dark:text-gray-300">Bloqué ⚫</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Créneau occupé, indisponible pour réservation</div>
                 </div>
               </Button>
               
               <Button
                 variant="outline"
                 size="lg"
-                className="justify-start gap-3 h-auto p-4 bg-red-50 hover:bg-red-100 border-red-200"
+                className="justify-start gap-3 h-auto p-4 bg-red-50 hover:bg-red-100 border-red-200 dark:bg-red-950 dark:hover:bg-red-900 dark:border-red-800"
                 onClick={() => handleStatusChange('unavailable')}
               >
-                <XCircle className="h-5 w-5 text-red-600" />
+                <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
                 <div className="text-left">
-                  <div className="font-medium text-red-700">Indisponible</div>
-                  <div className="text-sm text-red-600">Retirer ce créneau de votre planning</div>
+                  <div className="font-medium text-red-700 dark:text-red-300">Indisponible 🔴</div>
+                  <div className="text-sm text-red-600 dark:text-red-400">Retirer complètement ce créneau du planning</div>
                 </div>
               </Button>
             </div>
