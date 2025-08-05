@@ -95,15 +95,15 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
   const getSlotButtonClass = (status: string) => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200';
+        return 'bg-[hsl(var(--slot-available)/0.2)] text-[hsl(var(--slot-available))] border-[hsl(var(--slot-available)/0.5)] hover:bg-[hsl(var(--slot-available)/0.3)]';
       case 'selected':
-        return 'bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200';
+        return 'bg-[hsl(var(--primary)/0.2)] text-[hsl(var(--primary))] border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.3)]';
       case 'busy':
-        return 'bg-red-100 text-red-800 border-red-300 cursor-not-allowed';
+        return 'bg-[hsl(var(--slot-busy)/0.2)] text-[hsl(var(--slot-busy))] border-[hsl(var(--slot-busy)/0.5)] cursor-not-allowed';
       case 'unavailable':
-        return 'bg-gray-700 text-gray-300 border-gray-600 cursor-not-allowed';
+        return 'bg-[hsl(var(--slot-unavailable)/0.2)] text-[hsl(var(--slot-unavailable))] border-[hsl(var(--slot-unavailable)/0.5)] cursor-not-allowed';
       default:
-        return 'bg-gray-100 text-gray-600 border-gray-300';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -135,22 +135,22 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
           ))}
         </div>
 
-        {/* Legend */}
+        {/* Legend avec système de couleurs cohérent */}
         <div className="flex flex-wrap gap-4 pt-4 border-t">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-green-500"></div>
+            <div className="w-4 h-4 rounded bg-[hsl(var(--slot-available))]"></div>
             <span className="text-sm">Disponible</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-blue-500"></div>
+            <div className="w-4 h-4 rounded bg-[hsl(var(--primary))]"></div>
             <span className="text-sm">Sélectionné</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-red-500"></div>
-            <span className="text-sm">Occupé</span>
+            <div className="w-4 h-4 rounded bg-[hsl(var(--slot-busy))]"></div>
+            <span className="text-sm">Bloqué</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-gray-700"></div>
+            <div className="w-4 h-4 rounded bg-[hsl(var(--slot-unavailable))]"></div>
             <span className="text-sm">Indisponible</span>
           </div>
         </div>

@@ -43,6 +43,16 @@
     --warning: 38 92% 50%;
     --warning-foreground: 48 96% 89%;
 
+    /* Couleurs pour les créneaux du calendrier */
+    --slot-available: 142 76% 36%;     /* Vert pour disponible */
+    --slot-available-foreground: 0 0% 98%;
+    --slot-busy: 0 0% 45%;             /* Gris pour bloqué par professionnel */
+    --slot-busy-foreground: 0 0% 98%;
+    --slot-booked: 271 81% 56%;        /* Violet pour réservé par client */
+    --slot-booked-foreground: 0 0% 98%;
+    --slot-unavailable: 0 72% 51%;     /* Rouge pour indisponible */
+    --slot-unavailable-foreground: 0 0% 98%;
+
     --radius: 0.75rem;
 
     /* Système de couleurs Luxury Gold */
@@ -99,6 +109,16 @@
     --ring: 253 67% 69%;
     --warning: 38 92% 50%;
     --warning-foreground: 48 96% 89%;
+
+    /* Couleurs pour les créneaux du calendrier - Mode sombre */
+    --slot-available: 142 69% 58%;     /* Vert plus clair pour le dark mode */
+    --slot-available-foreground: 0 0% 0%;
+    --slot-busy: 0 0% 60%;             /* Gris plus clair pour le dark mode */
+    --slot-busy-foreground: 0 0% 98%;
+    --slot-booked: 271 91% 73%;        /* Violet plus clair pour le dark mode */
+    --slot-booked-foreground: 0 0% 0%;
+    --slot-unavailable: 0 84% 60%;     /* Rouge plus clair pour le dark mode */
+    --slot-unavailable-foreground: 0 0% 98%;
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -384,23 +404,30 @@
   box-shadow: 0 6px 16px rgb(0 0 0 / 0.2) !important;
 }
 
-/* Status-based Event Colors */
+/* Status-based Event Colors - Système de couleurs cohérent */
 .fc-event-available {
-  background: linear-gradient(135deg, #10b981, #059669) !important;
-  color: white !important;
-  border-left: 4px solid #047857 !important;
+  background: hsl(var(--slot-available)) !important;
+  color: hsl(var(--slot-available-foreground)) !important;
+  border-left: 4px solid hsl(var(--slot-available) / 0.8) !important;
 }
 
 .fc-event-busy {
-  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-  color: white !important;
-  border-left: 4px solid #b91c1c !important;
+  background: hsl(var(--slot-busy)) !important;
+  color: hsl(var(--slot-busy-foreground)) !important;
+  border-left: 4px solid hsl(var(--slot-busy) / 0.8) !important;
 }
 
-.fc-event-booking {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8)) !important;
-  color: hsl(var(--primary-foreground)) !important;
-  border-left: 4px solid hsl(var(--primary) / 0.8) !important;
+.fc-event-booking,
+.fc-event-booked {
+  background: hsl(var(--slot-booked)) !important;
+  color: hsl(var(--slot-booked-foreground)) !important;
+  border-left: 4px solid hsl(var(--slot-booked) / 0.8) !important;
+}
+
+.fc-event-unavailable {
+  background: hsl(var(--slot-unavailable)) !important;
+  color: hsl(var(--slot-unavailable-foreground)) !important;
+  border-left: 4px solid hsl(var(--slot-unavailable) / 0.8) !important;
 }
 
 /* Toolbar Enhancement */

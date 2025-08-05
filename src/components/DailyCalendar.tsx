@@ -233,11 +233,11 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
 
   const getSlotColor = (status: TimeSlot['status']) => {
     switch (status) {
-      case 'available': return 'bg-green-500 hover:bg-green-600 text-white border-green-600 shadow-md';
-      case 'busy': return 'bg-gray-500 hover:bg-gray-600 text-white border-gray-600 shadow-md';
-      case 'booked': return 'bg-red-500 text-white border-red-600 cursor-not-allowed shadow-md';
-      case 'unavailable': return 'bg-orange-500 hover:bg-orange-600 text-white border-orange-600 shadow-md';
-      default: return 'bg-gray-200 shadow-md';
+      case 'available': return 'bg-[hsl(var(--slot-available))] hover:bg-[hsl(var(--slot-available)/0.8)] text-[hsl(var(--slot-available-foreground))] border-[hsl(var(--slot-available))] shadow-md';
+      case 'busy': return 'bg-[hsl(var(--slot-busy))] hover:bg-[hsl(var(--slot-busy)/0.8)] text-[hsl(var(--slot-busy-foreground))] border-[hsl(var(--slot-busy))] shadow-md';
+      case 'booked': return 'bg-[hsl(var(--slot-booked))] text-[hsl(var(--slot-booked-foreground))] border-[hsl(var(--slot-booked))] cursor-not-allowed shadow-md';
+      case 'unavailable': return 'bg-[hsl(var(--slot-unavailable))] hover:bg-[hsl(var(--slot-unavailable)/0.8)] text-[hsl(var(--slot-unavailable-foreground))] border-[hsl(var(--slot-unavailable))] shadow-md';
+      default: return 'bg-muted shadow-md';
     }
   };
 
@@ -281,19 +281,23 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
       </CardHeader>
       
       <CardContent className="p-8">
-        {/* Légende - Design simplifié comme dans l'image */}
-        <div className="flex flex-wrap justify-center gap-8 mb-8 p-4 bg-muted/30 rounded-xl">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-green-500 rounded-full border-2 border-green-700 shadow-sm"></div>
+        {/* Légende avec couleurs et labels */}
+        <div className="flex flex-wrap justify-center gap-6 mb-8 p-6 bg-muted/30 rounded-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 bg-[hsl(var(--slot-available))] rounded-full border-2 border-[hsl(var(--slot-available)/0.8)] shadow-sm"></div>
+            <span className="text-sm font-medium text-foreground">Disponible</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-red-500 rounded-full border-2 border-red-700 shadow-sm"></div>
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 bg-[hsl(var(--slot-booked))] rounded-full border-2 border-[hsl(var(--slot-booked)/0.8)] shadow-sm"></div>
+            <span className="text-sm font-medium text-foreground">Réservé</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-gray-500 rounded-full border-2 border-gray-700 shadow-sm"></div>
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 bg-[hsl(var(--slot-busy))] rounded-full border-2 border-[hsl(var(--slot-busy)/0.8)] shadow-sm"></div>
+            <span className="text-sm font-medium text-foreground">Bloqué</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-orange-500 rounded-full border-2 border-orange-700 shadow-sm"></div>
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 bg-[hsl(var(--slot-unavailable))] rounded-full border-2 border-[hsl(var(--slot-unavailable)/0.8)] shadow-sm"></div>
+            <span className="text-sm font-medium text-foreground">Indisponible</span>
           </div>
         </div>
 

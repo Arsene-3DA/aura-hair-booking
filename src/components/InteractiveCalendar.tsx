@@ -27,15 +27,19 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const isMobile = useIsMobile();
 
-  // Transformer les données pour FullCalendar avec code couleur
+  // Transformer les données pour FullCalendar avec système de couleurs cohérent
   const calendarEvents: EventInput[] = useMemo(() => {
     const availabilityEvents = availabilities.map((avail: Availability) => ({
       id: avail.id,
       title: avail.status === 'available' ? 'Disponible' : 'Bloqué',
       start: avail.start_at,
       end: avail.end_at,
-      backgroundColor: avail.status === 'available' ? '#28C76F' : '#9E9E9E',
-      borderColor: avail.status === 'available' ? '#28C76F' : '#9E9E9E',
+      backgroundColor: avail.status === 'available' 
+        ? 'hsl(var(--slot-available))' 
+        : 'hsl(var(--slot-busy))',
+      borderColor: avail.status === 'available' 
+        ? 'hsl(var(--slot-available))' 
+        : 'hsl(var(--slot-busy))',
       extendedProps: {
         type: 'availability',
         status: avail.status,
@@ -49,23 +53,23 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
         let color = '#EA5455'; // Rouge par défaut pour les réservations
         let title = event.title;
 
-        // Code couleur selon le type et statut
+        // Code couleur selon le type et statut avec système cohérent
         if (event.type === 'reservation') {
           switch (event.status) {
             case 'confirmed':
-              color = '#FF6B6B'; // Rouge vif pour confirmé
+              color = 'hsl(var(--slot-booked))'; // Violet pour réservé confirmé
               title = `✅ ${event.title}`;
               break;
             case 'pending':
-              color = '#FFA726'; // Orange pour en attente
+              color = 'hsl(var(--warning))'; // Orange pour en attente
               title = `⏳ ${event.title}`;
               break;
             case 'declined':
-              color = '#BDBDBD'; // Gris pour refusé
+              color = 'hsl(var(--slot-unavailable))'; // Rouge pour refusé
               title = `❌ ${event.title}`;
               break;
             default:
-              color = '#FF6B6B';
+              color = 'hsl(var(--slot-booked))';
           }
         }
 
