@@ -152,11 +152,11 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
             });
           }
         } else {
-          // RÈGLE 4: Par défaut, les créneaux futurs SANS disponibilité définie sont INDISPONIBLES
+          // RÈGLE 4: Par défaut, les créneaux futurs sont DISPONIBLES
           slots.push({
             time: timeString,
             datetime,
-            status: 'unavailable' // ROUGE 🔴 - Indisponible par défaut (professionnel doit les activer)
+            status: 'available' // VERT 🟢 - Disponible par défaut
           });
         }
       }
@@ -348,7 +348,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         {/* Instructions avec règles automatiques */}
         <div className="mt-8 p-6 bg-gradient-to-r from-muted/50 to-muted/30 rounded-xl border border-primary/10">
           <p className="text-center text-muted-foreground font-medium">
-            💡 Cliquez sur un créneau pour le modifier • Les créneaux passés sont automatiquement bloqués • Par défaut, les créneaux futurs sont disponibles
+            💡 Cliquez sur un créneau pour le modifier • Les créneaux passés sont automatiquement bloqués • Par défaut, les créneaux futurs sont disponibles (verts)
           </p>
         </div>
       </CardContent>
