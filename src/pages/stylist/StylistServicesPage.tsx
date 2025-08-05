@@ -142,72 +142,79 @@ const StylistServicesPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6">
+      {/* Header amélioré */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/20">
         <div>
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-3">
             <Scissors className="h-8 w-8" />
             Mes Services
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Gérez vos prestations et tarifs
           </p>
         </div>
-        <Button onClick={handleAddService}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={handleAddService} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
           Ajouter un service
         </Button>
       </div>
 
-      {/* Services Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* Services Grid - Amélioré */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {services.map((service) => (
-          <Card key={service.id} className="relative">
-            <CardHeader className="pb-3">
+          <Card key={service.id} className="relative hover:shadow-lg transition-all duration-300 group">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{service.name}</CardTitle>
+                <CardTitle className="text-lg group-hover:text-primary transition-colors">{service.name}</CardTitle>
                 <Badge variant={service.isActive ? "default" : "secondary"}>
                   {service.isActive ? "Actif" : "Inactif"}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground">{service.description}</p>
+              <p className="text-sm text-muted-foreground line-clamp-2">{service.description}</p>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{service.duration} min</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Euro className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-lg font-bold text-primary">{service.price}€</span>
+            <CardContent className="pt-0 space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{service.duration} min</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Euro className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xl font-bold text-primary">{service.price}€</span>
+                  </div>
                 </div>
               </div>
               
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEditService(service)}
-                  className="flex-1"
-                >
-                  <Edit className="h-3 w-3 mr-1" />
-                  Modifier
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => toggleServiceStatus(service.id)}
-                  className="flex-1"
-                >
-                  {service.isActive ? 'Désactiver' : 'Activer'}
-                </Button>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditService(service)}
+                    className="flex-1 hover:bg-primary/10"
+                  >
+                    <Edit className="h-3 w-3 mr-1" />
+                    Modifier
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleServiceStatus(service.id)}
+                    className="flex-1 hover:bg-secondary/10"
+                  >
+                    {service.isActive ? 'Désactiver' : 'Activer'}
+                  </Button>
+                </div>
                 <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => handleDeleteService(service.id)}
+                  className="w-full"
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Supprimer
                 </Button>
               </div>
             </CardContent>
@@ -291,19 +298,21 @@ const StylistServicesPage = () => {
       </Dialog>
 
       {services.length === 0 && (
-        <div className="text-center py-12">
-          <Scissors className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            Aucun service configuré
-          </h3>
-          <p className="text-muted-foreground mb-4">
-            Commencez par ajouter vos premiers services
-          </p>
-          <Button onClick={handleAddService}>
-            <Plus className="h-4 w-4 mr-2" />
-            Ajouter un service
-          </Button>
-        </div>
+        <Card className="border-dashed border-2">
+          <CardContent className="text-center py-12">
+            <Scissors className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              Aucun service configuré
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              Commencez par ajouter vos premiers services pour que vos clients puissent réserver
+            </p>
+            <Button onClick={handleAddService} size="lg">
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter mon premier service
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
