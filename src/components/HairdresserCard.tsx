@@ -2,8 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Star, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useProfessionalServices } from '@/hooks/useProfessionalServices';
 
 interface HairdresserCardProps {
   id: string;
@@ -15,60 +14,9 @@ interface HairdresserCardProps {
   onChoose?: () => void;
 }
 
-interface Service {
-  id: string;
-  name: string;
-  price: number;
-}
-
 const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }: HairdresserCardProps) => {
   const navigate = useNavigate();
-  const [services, setServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    const fetchHairdresserServices = async () => {
-      try {
-        // Requête directe pour récupérer les services du coiffeur
-        const { data, error } = await (supabase as any)
-          .from('hairdresser_services')
-          .select(`
-            services (
-              id,
-              name,
-              price
-            )
-          `)
-          .eq('hairdresser_id', id);
-
-        if (error) {
-          console.error('Erreur lors du chargement des services:', error);
-          // En cas d'erreur, définir des services par défaut basés sur les spécialités
-          const defaultServices = tags.slice(0, 3).map((tag, index) => ({
-            id: `default-${index}`,
-            name: tag,
-            price: 25 + (index * 10)
-          }));
-          setServices(defaultServices);
-          return;
-        }
-
-        // Extraire les services de la réponse
-        const servicesList = data?.map((item: any) => item.services).filter(Boolean) || [];
-        setServices(servicesList);
-      } catch (error) {
-        console.error('Erreur:', error);
-        // En cas d'erreur, définir des services par défaut basés sur les spécialités
-        const defaultServices = tags.slice(0, 3).map((tag, index) => ({
-          id: `default-${index}`,
-          name: tag,
-          price: 25 + (index * 10)
-        }));
-        setServices(defaultServices);
-      }
-    };
-
-    fetchHairdresserServices();
-  }, [id, tags]);
+  const { services } = useProfessionalServices(id, true);
 
   const handleChooseHairdresser = () => {
     if (onChoose) {

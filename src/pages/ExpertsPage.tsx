@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, MapPin, Calendar, Scissors, Palette, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { useProfessionalServices } from '@/hooks/useProfessionalServices';
 
 interface Professional {
   id: string;
@@ -20,6 +21,85 @@ interface Professional {
   auth_id: string;
   role: string;
 }
+
+const ProfessionalCard = ({ professional }: { professional: Professional }) => {
+  const { services } = useProfessionalServices(professional.auth_id, true);
+  
+  return (
+    <Card className="group hover:shadow-lg transition-shadow">
+      <CardHeader className="text-center pb-2">
+        <Avatar className="h-20 w-20 mx-auto mb-4">
+          <AvatarImage 
+            src={professional.image_url} 
+            alt={professional.name}
+          />
+          <AvatarFallback>
+            {professional.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <CardTitle className="text-xl">{professional.name}</CardTitle>
+        <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+          <span>{professional.rating}/5</span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {professional.experience && (
+          <p className="text-sm text-muted-foreground text-center">
+            {professional.experience}
+          </p>
+        )}
+        
+        {professional.location && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            <span>{professional.location}</span>
+          </div>
+        )}
+
+        {services.length > 0 ? (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">Services proposés:</p>
+            <div className="flex flex-wrap gap-1">
+              {services.slice(0, 3).map((service) => (
+                <Badge key={service.id} variant="secondary" className="text-xs">
+                  {service.name}
+                </Badge>
+              ))}
+              {services.length > 3 && (
+                <Badge variant="outline" className="text-xs">
+                  +{services.length - 3}
+                </Badge>
+              )}
+            </div>
+          </div>
+        ) : professional.specialties && professional.specialties.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {professional.specialties.slice(0, 3).map((specialty, index) => (
+              <Badge key={index} variant="secondary" className="text-xs">
+                {specialty}
+              </Badge>
+            ))}
+            {professional.specialties.length > 3 && (
+              <Badge variant="outline" className="text-xs">
+                +{professional.specialties.length - 3}
+              </Badge>
+            )}
+          </div>
+        )}
+
+        <div className="space-y-2 pt-2">
+          <Button asChild className="w-full">
+            <Link to={`/experts/${professional.auth_id}`}>
+              <Calendar className="h-4 w-4 mr-2" />
+              Voir profil & réserver
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const ExpertsPage = () => {
   const [selectedTab, setSelectedTab] = useState('coiffeur');
@@ -142,62 +222,7 @@ const ExpertsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProfessionals.length > 0 ? (
                 filteredProfessionals.map((professional) => (
-                  <Card key={professional.id} className="group hover:shadow-lg transition-shadow">
-                    <CardHeader className="text-center pb-2">
-                      <Avatar className="h-20 w-20 mx-auto mb-4">
-                        <AvatarImage 
-                          src={professional.image_url} 
-                          alt={professional.name}
-                        />
-                        <AvatarFallback>
-                          {professional.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <CardTitle className="text-xl">{professional.name}</CardTitle>
-                      <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{professional.rating}/5</span>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {professional.experience && (
-                        <p className="text-sm text-muted-foreground text-center">
-                          {professional.experience}
-                        </p>
-                      )}
-                      
-                      {professional.location && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
-                          <span>{professional.location}</span>
-                        </div>
-                      )}
-
-                      {professional.specialties && professional.specialties.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {professional.specialties.slice(0, 3).map((specialty, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {specialty}
-                            </Badge>
-                          ))}
-                          {professional.specialties.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{professional.specialties.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="space-y-2 pt-2">
-                        <Button asChild className="w-full">
-                          <Link to={`/experts/${professional.auth_id}`}>
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Voir profil & réserver
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ProfessionalCard key={professional.id} professional={professional} />
                 ))
               ) : (
                 <div className="col-span-full text-center py-8">
