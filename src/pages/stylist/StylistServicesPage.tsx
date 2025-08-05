@@ -247,7 +247,6 @@ const StylistServicesPage = () => {
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="ex: Coupe femme"
-                  className="bg-background/50 border-primary/20"
                 />
               </div>
               
@@ -259,7 +258,6 @@ const StylistServicesPage = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Décrivez brièvement ce service..."
                   rows={3}
-                  className="bg-background/50 border-primary/20"
                 />
               </div>
               
@@ -271,10 +269,9 @@ const StylistServicesPage = () => {
                     type="number"
                     value={formData.duration}
                     onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
-                    min="15"
-                    step="15"
-                    className="bg-background/50 border-primary/20"
-                  />
+                  min="15"
+                  step="15"
+                />
                 </div>
                 
                 <div>
@@ -284,10 +281,9 @@ const StylistServicesPage = () => {
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                    min="0"
-                    step="0.50"
-                    className="bg-background/50 border-primary/20"
-                  />
+                  min="0"
+                  step="0.50"
+                />
                 </div>
               </div>
             </div>
