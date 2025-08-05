@@ -33,6 +33,45 @@ const StylistServicesPage = () => {
     price: 0
   });
   const [submitting, setSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<{
+    name?: string;
+    description?: string;
+    duration?: string;
+    price?: string;
+  }>({});
+  
+  // Validation du formulaire
+  const validateForm = () => {
+    const errors: typeof formErrors = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'Le nom du service est requis';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'Le nom doit contenir au moins 2 caractères';
+    }
+    
+    if (!formData.description.trim()) {
+      errors.description = 'La description est requise';
+    } else if (formData.description.trim().length < 10) {
+      errors.description = 'La description doit contenir au moins 10 caractères';
+    }
+    
+    if (!formData.duration || formData.duration < 15) {
+      errors.duration = 'La durée doit être d\'au moins 15 minutes';
+    } else if (formData.duration > 480) {
+      errors.duration = 'La durée ne peut pas dépasser 8 heures (480 minutes)';
+    }
+    
+    if (!formData.price || formData.price <= 0) {
+      errors.price = 'Le prix doit être supérieur à 0';
+    } else if (formData.price > 1000) {
+      errors.price = 'Le prix ne peut pas dépasser 1000€';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleAddService = () => {
     setEditingService(null);
     setFormData({
@@ -41,6 +80,7 @@ const StylistServicesPage = () => {
       duration: 60,
       price: 0
     });
+    setFormErrors({});
     setIsDialogOpen(true);
   };
   const handleEditService = (service: any) => {
@@ -51,10 +91,12 @@ const StylistServicesPage = () => {
       duration: service.duration,
       price: service.price
     });
+    setFormErrors({});
     setIsDialogOpen(true);
   };
   const handleSaveService = async () => {
-    if (!formData.name.trim()) {
+    // Valider le formulaire avant la soumission
+    if (!validateForm()) {
       return;
     }
 
@@ -78,12 +120,15 @@ const StylistServicesPage = () => {
         duration: 60,
         price: 0
       });
+      setFormErrors({});
     } catch (error) {
-      // L'erreur est déjà gérée dans le hook
+      console.error('Erreur lors de la sauvegarde:', error);
+      // L'erreur est déjà gérée dans le hook avec un toast
     } finally {
       setSubmitting(false);
     }
   };
+
   const handleDeleteService = async (serviceId: string) => {
     try {
       await deleteService(serviceId);
@@ -95,6 +140,7 @@ const StylistServicesPage = () => {
   const handleToggleServiceStatus = (serviceId: string) => {
     toggleServiceStatus(serviceId);
   };
+
   // Afficher un loader pendant le chargement initial
   if (loading) {
     return (
@@ -186,36 +232,77 @@ const StylistServicesPage = () => {
             {/* Formulaire */}
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name" className="block mb-2 text-sm font-medium bg-slate-400">Nom du service</Label>
-                <Input id="name" value={formData.name} onChange={e => setFormData(prev => ({
-                ...prev,
-                name: e.target.value
-              }))} placeholder="ex: Coupe femme" />
+                <Label htmlFor="name" className="block mb-2 text-sm font-medium">Nom du service</Label>
+                <Input 
+                  id="name" 
+                  value={formData.name} 
+                  onChange={e => {
+                    setFormData(prev => ({ ...prev, name: e.target.value }));
+                    if (formErrors.name) setFormErrors(prev => ({ ...prev, name: undefined }));
+                  }}
+                  placeholder="ex: Coupe femme"
+                  className={formErrors.name ? "border-destructive" : ""}
+                />
+                {formErrors.name && (
+                  <p className="text-destructive text-sm mt-1">{formErrors.name}</p>
+                )}
               </div>
               
               <div>
-                <Label htmlFor="description" className="block mb-2 text-sm font-medium bg-slate-400">Description</Label>
-                <Textarea id="description" value={formData.description} onChange={e => setFormData(prev => ({
-                ...prev,
-                description: e.target.value
-              }))} placeholder="Décrivez brièvement ce service..." rows={3} />
+                <Label htmlFor="description" className="block mb-2 text-sm font-medium">Description</Label>
+                <Textarea 
+                  id="description" 
+                  value={formData.description} 
+                  onChange={e => {
+                    setFormData(prev => ({ ...prev, description: e.target.value }));
+                    if (formErrors.description) setFormErrors(prev => ({ ...prev, description: undefined }));
+                  }}
+                  placeholder="Décrivez brièvement ce service..." 
+                  rows={3}
+                  className={formErrors.description ? "border-destructive" : ""}
+                />
+                {formErrors.description && (
+                  <p className="text-destructive text-sm mt-1">{formErrors.description}</p>
+                )}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="duration" className="block mb-2 text-sm font-medium bg-slate-400">Durée (minutes)</Label>
-                  <Input id="duration" type="number" value={formData.duration} onChange={e => setFormData(prev => ({
-                  ...prev,
-                  duration: parseInt(e.target.value) || 0
-                }))} min="15" step="15" />
+                  <Label htmlFor="duration" className="block mb-2 text-sm font-medium">Durée (minutes)</Label>
+                  <Input 
+                    id="duration" 
+                    type="number" 
+                    value={formData.duration} 
+                    onChange={e => {
+                      setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }));
+                      if (formErrors.duration) setFormErrors(prev => ({ ...prev, duration: undefined }));
+                    }}
+                    min="15" 
+                    step="15"
+                    className={formErrors.duration ? "border-destructive" : ""}
+                  />
+                  {formErrors.duration && (
+                    <p className="text-destructive text-sm mt-1">{formErrors.duration}</p>
+                  )}
                 </div>
                 
                 <div>
-                  <Label htmlFor="price" className="block mb-2 text-sm font-medium bg-slate-100">$</Label>
-                  <Input id="price" type="number" value={formData.price} onChange={e => setFormData(prev => ({
-                  ...prev,
-                  price: parseFloat(e.target.value) || 0
-                }))} min="0" step="0.50" />
+                  <Label htmlFor="price" className="block mb-2 text-sm font-medium">Prix (€)</Label>
+                  <Input 
+                    id="price" 
+                    type="number" 
+                    value={formData.price} 
+                    onChange={e => {
+                      setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }));
+                      if (formErrors.price) setFormErrors(prev => ({ ...prev, price: undefined }));
+                    }}
+                    min="0" 
+                    step="0.50"
+                    className={formErrors.price ? "border-destructive" : ""}
+                  />
+                  {formErrors.price && (
+                    <p className="text-destructive text-sm mt-1">{formErrors.price}</p>
+                  )}
                 </div>
               </div>
             </div>

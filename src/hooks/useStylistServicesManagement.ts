@@ -159,11 +159,13 @@ export const useStylistServicesManagement = (stylistId: string) => {
 
       console.log('✅ Service ajouté et liste rechargée');
       return newService;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de l\'ajout du service:', error);
+      
+      const errorMessage = error?.message || 'Impossible d\'ajouter le service';
       toast({
-        title: "Erreur",
-        description: "Impossible d'ajouter le service",
+        title: "Erreur lors de l'ajout",
+        description: errorMessage,
         variant: "destructive"
       });
       throw error;
@@ -195,11 +197,13 @@ export const useStylistServicesManagement = (stylistId: string) => {
       });
 
       console.log('✅ Service modifié et liste rechargée');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la modification du service:', error);
+      
+      const errorMessage = error?.message || 'Impossible de modifier le service';
       toast({
-        title: "Erreur",
-        description: "Impossible de modifier le service",
+        title: "Erreur lors de la modification",
+        description: errorMessage,
         variant: "destructive"
       });
       throw error;
@@ -238,11 +242,13 @@ export const useStylistServicesManagement = (stylistId: string) => {
       });
 
       console.log('✅ Service supprimé et liste rechargée');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la suppression du service:', error);
+      
+      const errorMessage = error?.message || 'Impossible de supprimer le service';
       toast({
-        title: "Erreur",
-        description: "Impossible de supprimer le service",
+        title: "Erreur lors de la suppression",
+        description: errorMessage,
         variant: "destructive"
       });
       throw error;
