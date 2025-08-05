@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Euro, User } from 'lucide-react';
+import { Clock, DollarSign, User } from 'lucide-react';
 import { useClientServiceSelection, type ClientVisibleService } from '@/hooks/useClientServiceSelection';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from 'react-i18next';
+import { formatPrice } from '@/utils/priceFormatter';
 
 interface ClientServiceSelectorProps {
   stylistId?: string;
@@ -17,6 +19,7 @@ export const ClientServiceSelector = ({
   selectedServiceId 
 }: ClientServiceSelectorProps) => {
   const { services, loading } = useClientServiceSelection(stylistId);
+  const { i18n } = useTranslation();
 
   if (loading) {
     return (
@@ -106,8 +109,8 @@ export const ClientServiceSelector = ({
                   <span className="text-sm font-medium">{service.duration} min</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Euro className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-lg font-bold text-primary">{service.price}€</span>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-lg font-bold text-primary">{formatPrice(service.price, { language: i18n.language as 'fr' | 'en' })}</span>
                 </div>
               </div>
 

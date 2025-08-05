@@ -81,5 +81,9 @@
     "months": "mois",
     "year": "année",
     "years": "années"
+  },
+  "currency": {
+    "symbol": "$",
+    "format": "${amount} $ CAD"
   }
 }

@@ -9,6 +9,8 @@ import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 import AuthenticatedRoute from "@/components/AuthenticatedRoute";
 import SecurityHeaders from "@/components/SecurityHeaders";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
+import { CanadianLocalizationProvider } from "@/components/CanadianLocalizationProvider";
+import "@/lib/i18n";
 
 // Lazy loading des pages
 const Index = lazy(() => import("./pages/Index"));
@@ -82,7 +84,8 @@ const App = () => (
   <GlobalErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="beauty-salon-theme">
-        <TooltipProvider>
+        <CanadianLocalizationProvider>
+          <TooltipProvider>
           <SecurityHeaders />
           <Toaster />
           <Sonner />
@@ -202,6 +205,7 @@ const App = () => (
             </Suspense>
           </BrowserRouter>
         </TooltipProvider>
+        </CanadianLocalizationProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </GlobalErrorBoundary>

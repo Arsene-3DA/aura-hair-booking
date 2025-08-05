@@ -13,6 +13,7 @@ import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { validateEmail, validateFrenchPhone, validateName, sanitizeInput } from '@/utils/validation';
 import BookingCalendar from './BookingCalendar';
 import BookingHelp from './BookingHelp';
+import PriceDisplay from '@/components/ui/price-display';
 
 interface ReservationFormProps {
   hairdresserId: string;
@@ -518,9 +519,9 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
                   <SelectItem key={service.id} value={service.name}>
                     <div className="flex flex-col">
                       <span className="font-medium">{service.name}</span>
-                      <span className="text-sm text-gray-500">
-                        {service.price}$ CAD • {service.duration} min • {service.category}
-                      </span>
+                       <span className="text-sm text-gray-500">
+                        <PriceDisplay amount={service.price} size="sm" /> • {service.duration} min • {service.category}
+                       </span>
                     </div>
                   </SelectItem>
                 ))
@@ -552,7 +553,11 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
             <div className="mt-2 p-3 bg-gold-50 rounded-lg border border-gold-200">
               <div className="flex items-center justify-between">
                 <span className="font-medium text-gold-800">{getSelectedServiceDetails()?.name}</span>
-                <span className="text-gold-600 font-semibold">{getSelectedServiceDetails()?.price}$ CAD</span>
+                <PriceDisplay 
+                  amount={getSelectedServiceDetails()?.price} 
+                  className="text-gold-600 font-semibold" 
+                  size="md"
+                />
               </div>
               <div className="flex items-center text-sm text-gold-600 mt-1">
                 <Clock className="h-3 w-3 mr-1" />

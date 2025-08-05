@@ -1,0 +1,55 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "nextAppointment": "Next appointment",
+    "noAppointments": "No upcoming appointments",
+    "bookNew": "Book now"
+  },
+  "booking": {
+    "title": "Booking",
+    "selectProfessional": "Choose a professional",
+    "selectService": "Choose a service",
+    "selectDate": "Choose a date",
+    "selectTime": "Choose a time",
+    "confirmBooking": "Confirm booking",
+    "bookingConfirmed": "Booking confirmed",
+    "services": {
+      "haircut": "Haircut",
+      "coloring": "Coloring",
+      "styling": "Styling",
+      "treatment": "Treatment",
+      "highlights": "Highlights",
+      "perm": "Perm"
+    },
+    "form": {
+      "specialRequests": "Special requests",
+      "specialRequestsPlaceholder": "Describe your expectations...",
+      "phone": "Phone",
+      "email": "Email",
+      "name": "Full name"
+    }
+  },
+  "history": {
+    "title": "Appointment history",
+    "noHistory": "No appointment history",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "reschedule": "Reschedule",
+      "cancel": "Cancel",
+      "review": "Leave a review"
+    }
+  },
+  "profile": {
+    "title": "My profile",
+    "personalInfo": "Personal information",
+    "preferences": "Preferences",
+    "notifications": "Notifications",
+    "privacy": "Privacy"
+  }
+}

@@ -14,7 +14,7 @@ import {
   ArrowRight, 
   User, 
   Search, 
-  Euro, 
+  DollarSign, 
   Clock,
   Calendar as CalendarIcon,
   Check
@@ -22,6 +22,7 @@ import {
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import PriceDisplay from '@/components/ui/price-display';
 
 interface Stylist {
   id: string;
@@ -295,8 +296,8 @@ export const BookingWizard = () => {
                           )}
                           <div className="flex gap-2 mt-2">
                             <Badge variant="secondary" className="flex items-center gap-1">
-                              <Euro className="w-3 h-3" />
-                              {service.price}€
+                              <DollarSign className="w-3 h-3" />
+                              <PriceDisplay amount={service.price} size="sm" />
                             </Badge>
                             <Badge variant="outline" className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
@@ -386,7 +387,7 @@ export const BookingWizard = () => {
                   <div>
                     <p className="font-medium">Service</p>
                     <p className="text-sm text-muted-foreground">
-                      {selectedService?.name} - {selectedService?.price}€ ({selectedService?.duration} min)
+                      {selectedService?.name} - <PriceDisplay amount={selectedService?.price} size="sm" /> ({selectedService?.duration} min)
                     </p>
                   </div>
                 </div>

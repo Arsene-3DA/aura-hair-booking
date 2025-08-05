@@ -8,6 +8,10 @@ import clientFR from '@/locales/fr/client.json'
 import stylistFR from '@/locales/fr/stylist.json'
 import authFR from '@/locales/fr/auth.json'
 
+// Import English translations
+import commonEN from '@/locales/en/common.json'
+import clientEN from '@/locales/en/client.json'
+
 const resources = {
   fr: {
     common: commonFR,
@@ -16,13 +20,17 @@ const resources = {
     stylist: stylistFR,
     auth: authFR,
   },
+  en: {
+    common: commonEN,
+    client: clientEN,
+  },
 }
 
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'fr',
+    lng: localStorage.getItem('language') || 'fr',
     fallbackLng: 'fr',
     defaultNS: 'common',
     
