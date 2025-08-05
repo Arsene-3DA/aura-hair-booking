@@ -316,7 +316,7 @@ const Index = () => {
                 <p className="text-gray-600 mb-4">
                   Accédez à votre espace de gestion
                 </p>
-                <Button onClick={handleProfessionalLogin} variant="outline" className="border-gold-300 text-gold-700 hover:bg-gold-50">
+                <Button onClick={handleProfessionalLogin} variant="outline" className="border-gold-300 text-gold-700 hover:bg-gold-50 text-slate-400">
                   Connexion Professionnelle
                 </Button>
               </div>
