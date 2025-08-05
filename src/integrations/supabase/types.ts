@@ -407,6 +407,42 @@ export type Database = {
           },
         ]
       }
+      professional_clients: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          first_booking_date: string
+          id: string
+          last_booking_date: string | null
+          professional_id: string
+          status: string
+          total_bookings: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          first_booking_date?: string
+          id?: string
+          last_booking_date?: string | null
+          professional_id: string
+          status?: string
+          total_bookings?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          first_booking_date?: string
+          id?: string
+          last_booking_date?: string | null
+          professional_id?: string
+          status?: string
+          total_bookings?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
