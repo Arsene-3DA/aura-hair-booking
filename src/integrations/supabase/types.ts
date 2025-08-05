@@ -881,7 +881,7 @@ export type Database = {
       }
     }
     Enums: {
-      availability_status: "available" | "busy"
+      availability_status: "available" | "busy" | "unavailable"
       booking_status:
         | "pending"
         | "confirmed"
@@ -1019,7 +1019,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      availability_status: ["available", "busy"],
+      availability_status: ["available", "busy", "unavailable"],
       booking_status: [
         "pending",
         "confirmed",

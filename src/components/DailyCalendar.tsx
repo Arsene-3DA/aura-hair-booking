@@ -150,6 +150,13 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
               status: 'available', // VERT 🟢 - Disponible
               availabilityId: availability.id
             });
+          } else if (availability.status === 'unavailable') {
+            slots.push({
+              time: timeString,
+              datetime,
+              status: 'unavailable', // ROUGE 🔴 - Indisponible sur demande
+              availabilityId: availability.id
+            });
           }
         } else {
           // RÈGLE 4: Par défaut, les créneaux futurs sont DISPONIBLES
@@ -201,13 +208,22 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
 
     try {
       if (newStatus === 'unavailable') {
-        // RÈGLE: Marquer comme indisponible = supprimer la disponibilité (ROUGE 🔴)
+        // RÈGLE: Marquer comme indisponible = créer/mettre à jour avec status 'unavailable' (ROUGE 🔴)
         if (selectedSlot.availabilityId) {
-          await deleteAvailability(selectedSlot.availabilityId);
+          await updateAvailability({
+            id: selectedSlot.availabilityId,
+            status: 'unavailable'
+          });
+        } else {
+          await createAvailability({
+            start_at: selectedSlot.datetime.toISOString(),
+            end_at: endTime.toISOString(),
+            status: 'unavailable'
+          });
         }
         toast({
           title: "Créneau indisponible",
-          description: "Le créneau a été marqué comme indisponible (rouge)",
+          description: "Le créneau a été marqué comme indisponible sur votre demande (rouge)",
         });
       } else if (newStatus === 'busy') {
         // RÈGLE: Bloquer temporairement = créer/mettre à jour avec status 'busy' (GRIS ⚫)
@@ -348,7 +364,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         {/* Instructions avec règles automatiques */}
         <div className="mt-8 p-6 bg-gradient-to-r from-muted/50 to-muted/30 rounded-xl border border-primary/10">
           <p className="text-center text-muted-foreground font-medium">
-            💡 Cliquez sur un créneau pour le modifier • Les créneaux passés sont automatiquement bloqués • Par défaut, les créneaux futurs sont disponibles (verts)
+            💡 Cliquez sur un créneau pour le modifier • Les créneaux passés sont automatiquement bloqués • Par défaut, les créneaux futurs sont disponibles • "Indisponible" ne s'affiche que sur votre demande
           </p>
         </div>
       </CardContent>
@@ -404,7 +420,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
                 <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
                 <div className="text-left">
                   <div className="font-medium text-red-700 dark:text-red-300">Indisponible 🔴</div>
-                  <div className="text-sm text-red-600 dark:text-red-400">Retirer complètement ce créneau du planning</div>
+                  <div className="text-sm text-red-600 dark:text-red-400">Marquer ce créneau comme indisponible définitivement</div>
                 </div>
               </Button>
             </div>

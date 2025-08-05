@@ -7,19 +7,19 @@ export interface Availability {
   stylist_id: string;
   start_at: string;
   end_at: string;
-  status: 'available' | 'busy';
+  status: 'available' | 'busy' | 'unavailable';
   created_at: string;
 }
 
 export interface CreateAvailabilityData {
   start_at: string;
   end_at: string;
-  status?: 'available' | 'busy';
+  status?: 'available' | 'busy' | 'unavailable';
 }
 
 export interface UpdateAvailabilityData {
   id: string;
-  status: 'available' | 'busy';
+  status: 'available' | 'busy' | 'unavailable';
 }
 
 export const useAvailability = (stylistId?: string) => {
