@@ -241,7 +241,7 @@ const StylistServicesPage = () => {
             {/* Formulaire */}
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">Nom du service</Label>
+                <Label htmlFor="name" className="block mb-2 text-sm font-medium">Nom du service</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -251,7 +251,7 @@ const StylistServicesPage = () => {
               </div>
               
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="block mb-2 text-sm font-medium">Description</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -263,27 +263,27 @@ const StylistServicesPage = () => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="duration">Durée (minutes)</Label>
+                  <Label htmlFor="duration" className="block mb-2 text-sm font-medium">Durée (minutes)</Label>
                   <Input
                     id="duration"
                     type="number"
                     value={formData.duration}
                     onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
-                  min="15"
-                  step="15"
-                />
+                    min="15"
+                    step="15"
+                  />
                 </div>
                 
                 <div>
-                  <Label htmlFor="price">Prix (€)</Label>
+                  <Label htmlFor="price" className="block mb-2 text-sm font-medium">Prix (€)</Label>
                   <Input
                     id="price"
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                  min="0"
-                  step="0.50"
-                />
+                    min="0"
+                    step="0.50"
+                  />
                 </div>
               </div>
             </div>
