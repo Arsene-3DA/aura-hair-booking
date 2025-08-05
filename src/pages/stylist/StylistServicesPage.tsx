@@ -6,16 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Scissors, Plus, Edit, Trash2, Clock, Euro } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-
 interface Service {
   id: string;
   name: string;
@@ -24,125 +16,115 @@ interface Service {
   price: number;
   isActive: boolean;
 }
-
 const StylistServicesPage = () => {
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: '1',
-      name: 'Coupe femme',
-      description: 'Coupe et brushing pour femme',
-      duration: 60,
-      price: 35,
-      isActive: true,
-    },
-    {
-      id: '2',
-      name: 'Coloration',
-      description: 'Coloration complète avec soin',
-      duration: 120,
-      price: 85,
-      isActive: true,
-    },
-    {
-      id: '3',
-      name: 'Mèches',
-      description: 'Mèches avec décoloration',
-      duration: 90,
-      price: 65,
-      isActive: true,
-    },
-  ]);
-
+  const [services, setServices] = useState<Service[]>([{
+    id: '1',
+    name: 'Coupe femme',
+    description: 'Coupe et brushing pour femme',
+    duration: 60,
+    price: 35,
+    isActive: true
+  }, {
+    id: '2',
+    name: 'Coloration',
+    description: 'Coloration complète avec soin',
+    duration: 120,
+    price: 85,
+    isActive: true
+  }, {
+    id: '3',
+    name: 'Mèches',
+    description: 'Mèches avec décoloration',
+    duration: 90,
+    price: 65,
+    isActive: true
+  }]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     duration: 60,
-    price: 0,
+    price: 0
   });
-
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleAddService = () => {
     setEditingService(null);
-    setFormData({ name: '', description: '', duration: 60, price: 0 });
+    setFormData({
+      name: '',
+      description: '',
+      duration: 60,
+      price: 0
+    });
     setIsDialogOpen(true);
   };
-
   const handleEditService = (service: Service) => {
     setEditingService(service);
     setFormData({
       name: service.name,
       description: service.description,
       duration: service.duration,
-      price: service.price,
+      price: service.price
     });
     setIsDialogOpen(true);
   };
-
   const handleSaveService = () => {
     if (!formData.name.trim()) {
       toast({
         title: "Erreur",
         description: "Le nom du service est requis",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     if (editingService) {
       // Update existing service
-      setServices(prev => 
-        prev.map(service => 
-          service.id === editingService.id
-            ? { ...service, ...formData }
-            : service
-        )
-      );
+      setServices(prev => prev.map(service => service.id === editingService.id ? {
+        ...service,
+        ...formData
+      } : service));
       toast({
         title: "Succès",
-        description: "Service modifié avec succès",
+        description: "Service modifié avec succès"
       });
     } else {
       // Add new service
       const newService: Service = {
         id: Date.now().toString(),
         ...formData,
-        isActive: true,
+        isActive: true
       };
       setServices(prev => [...prev, newService]);
       toast({
         title: "Succès",
-        description: "Service ajouté avec succès",
+        description: "Service ajouté avec succès"
       });
     }
-
     setIsDialogOpen(false);
     setEditingService(null);
-    setFormData({ name: '', description: '', duration: 60, price: 0 });
+    setFormData({
+      name: '',
+      description: '',
+      duration: 60,
+      price: 0
+    });
   };
-
   const handleDeleteService = (serviceId: string) => {
     setServices(prev => prev.filter(service => service.id !== serviceId));
     toast({
       title: "Succès",
-      description: "Service supprimé",
+      description: "Service supprimé"
     });
   };
-
   const toggleServiceStatus = (serviceId: string) => {
-    setServices(prev => 
-      prev.map(service => 
-        service.id === serviceId
-          ? { ...service, isActive: !service.isActive }
-          : service
-      )
-    );
+    setServices(prev => prev.map(service => service.id === serviceId ? {
+      ...service,
+      isActive: !service.isActive
+    } : service));
   };
-
-  return (
-    <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6">
+  return <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6">
       {/* Header amélioré */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/20">
         <div>
@@ -162,8 +144,7 @@ const StylistServicesPage = () => {
 
       {/* Services Grid - Amélioré */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {services.map((service) => (
-          <Card key={service.id} className="relative hover:shadow-lg transition-all duration-300 group">
+        {services.map(service => <Card key={service.id} className="relative hover:shadow-lg transition-all duration-300 group">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg group-hover:text-primary transition-colors">{service.name}</CardTitle>
@@ -189,37 +170,21 @@ const StylistServicesPage = () => {
               
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditService(service)}
-                    className="flex-1 hover:bg-primary/10"
-                  >
+                  <Button variant="outline" size="sm" onClick={() => handleEditService(service)} className="flex-1 hover:bg-primary/10">
                     <Edit className="h-3 w-3 mr-1" />
                     Modifier
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleServiceStatus(service.id)}
-                    className="flex-1 hover:bg-secondary/10"
-                  >
+                  <Button variant="outline" size="sm" onClick={() => toggleServiceStatus(service.id)} className="flex-1 hover:bg-secondary/10">
                     {service.isActive ? 'Désactiver' : 'Activer'}
                   </Button>
                 </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDeleteService(service.id)}
-                  className="w-full"
-                >
+                <Button variant="destructive" size="sm" onClick={() => handleDeleteService(service.id)} className="w-full">
                   <Trash2 className="h-3 w-3 mr-1" />
                   Supprimer
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
       </div>
 
       {/* Add/Edit Service Dialog */}
@@ -230,10 +195,7 @@ const StylistServicesPage = () => {
               {editingService ? 'Modifier le service' : 'Ajouter un service'}
             </DialogTitle>
             <DialogDescription>
-              {editingService 
-                ? 'Modifiez les informations de votre service'
-                : 'Ajoutez un nouveau service à votre catalogue'
-              }
+              {editingService ? 'Modifiez les informations de votre service' : 'Ajoutez un nouveau service à votre catalogue'}
             </DialogDescription>
           </DialogHeader>
           
@@ -241,49 +203,36 @@ const StylistServicesPage = () => {
             {/* Formulaire */}
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name" className="block mb-2 text-sm font-medium">Nom du service</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="ex: Coupe femme"
-                />
+                <Label htmlFor="name" className="block mb-2 text-sm font-medium bg-slate-400">Nom du service</Label>
+                <Input id="name" value={formData.name} onChange={e => setFormData(prev => ({
+                ...prev,
+                name: e.target.value
+              }))} placeholder="ex: Coupe femme" />
               </div>
               
               <div>
-                <Label htmlFor="description" className="block mb-2 text-sm font-medium">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Décrivez brièvement ce service..."
-                  rows={3}
-                />
+                <Label htmlFor="description" className="block mb-2 text-sm font-medium bg-slate-400">Description</Label>
+                <Textarea id="description" value={formData.description} onChange={e => setFormData(prev => ({
+                ...prev,
+                description: e.target.value
+              }))} placeholder="Décrivez brièvement ce service..." rows={3} />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="duration" className="block mb-2 text-sm font-medium">Durée (minutes)</Label>
-                  <Input
-                    id="duration"
-                    type="number"
-                    value={formData.duration}
-                    onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
-                    min="15"
-                    step="15"
-                  />
+                  <Label htmlFor="duration" className="block mb-2 text-sm font-medium bg-slate-400">Durée (minutes)</Label>
+                  <Input id="duration" type="number" value={formData.duration} onChange={e => setFormData(prev => ({
+                  ...prev,
+                  duration: parseInt(e.target.value) || 0
+                }))} min="15" step="15" />
                 </div>
                 
                 <div>
-                  <Label htmlFor="price" className="block mb-2 text-sm font-medium">Prix (€)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                    min="0"
-                    step="0.50"
-                  />
+                  <Label htmlFor="price" className="block mb-2 text-sm font-medium bg-slate-100">$</Label>
+                  <Input id="price" type="number" value={formData.price} onChange={e => setFormData(prev => ({
+                  ...prev,
+                  price: parseFloat(e.target.value) || 0
+                }))} min="0" step="0.50" />
                 </div>
               </div>
             </div>
@@ -344,8 +293,7 @@ const StylistServicesPage = () => {
         </DialogContent>
       </Dialog>
 
-      {services.length === 0 && (
-        <Card className="border-dashed border-2">
+      {services.length === 0 && <Card className="border-dashed border-2">
           <CardContent className="text-center py-12">
             <Scissors className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -359,10 +307,7 @@ const StylistServicesPage = () => {
               Ajouter mon premier service
             </Button>
           </CardContent>
-        </Card>
-      )}
-    </div>
-  );
+        </Card>}
+    </div>;
 };
-
 export default StylistServicesPage;
