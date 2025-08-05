@@ -6,7 +6,7 @@ import { Calendar, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, addWeeks, subWeeks } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
-import { TimeSlotGrid } from '@/components/TimeSlotGrid';
+import { DailyCalendar } from '@/components/DailyCalendar';
 import { validateUUID } from '@/utils/validateUUID';
 
 const StylistCalendarPage = () => {
@@ -134,9 +134,8 @@ const StylistCalendarPage = () => {
           </div>
         </div>
       }>
-        <TimeSlotGrid 
+        <DailyCalendar 
           stylistId={userProfile.user_id} 
-          selectedDate={selectedWeek} 
         />
       </Suspense>
 
