@@ -90,7 +90,21 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
       try {
         setLoadingServices(true);
         
-        const { data, error } = await (supabase as any)
+        // D'abord récupérer l'ID du hairdresser basé sur auth_id
+        const { data: hairdresserData, error: hairdresserError } = await supabase
+          .from('hairdressers')
+          .select('id')
+          .eq('auth_id', hairdresserId)
+          .single();
+
+        if (hairdresserError || !hairdresserData) {
+          console.error('Coiffeur non trouvé:', hairdresserError);
+          setAvailableServices([]);
+          return;
+        }
+        
+        // Ensuite récupérer les services pour ce coiffeur
+        const { data, error } = await supabase
           .from('hairdresser_services')
           .select(`
             services (
@@ -101,7 +115,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
               category
             )
           `)
-          .eq('hairdresser_id', hairdresserId);
+          .eq('hairdresser_id', hairdresserData.id);
 
         if (error) {
           console.error('Erreur lors du chargement des services:', error);
@@ -149,6 +163,39 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     };
 
     fetchHairdresserServices();
+
+    // Écouter les changements en temps réel pour les services du coiffeur
+    const channel = supabase
+      .channel('hairdresser-services-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Écouter tous les changements (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'hairdresser_services'
+        },
+        () => {
+          // Recharger les services quand il y a un changement
+          fetchHairdresserServices();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'services'
+        },
+        () => {
+          // Recharger aussi si les services sont modifiés
+          fetchHairdresserServices();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [hairdresserId, preselectedService]);
 
   const handleSubmit = async (e: React.FormEvent) => {
