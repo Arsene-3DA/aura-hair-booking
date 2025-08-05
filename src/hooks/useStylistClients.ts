@@ -11,6 +11,8 @@ export interface StylistClient {
   avatar_url?: string;
   total_bookings: number;
   last_booking_date?: string;
+  first_booking_date?: string;
+  status: 'pending' | 'confirmed' | 'active';
   preferred_services?: string[];
   notes?: string;
 }
@@ -26,73 +28,57 @@ export const useStylistClients = (stylistId?: string) => {
     try {
       setLoading(true);
 
-      // Get unique clients from bookings
-      const { data: bookings, error } = await supabase
-        .from('bookings')
-        .select(`
-          client_id,
-          client_name,
-          client_email,
-          client_phone,
-          scheduled_at,
-          service,
-          status
-        `)
-        .eq('stylist_id', stylistId)
-        .order('scheduled_at', { ascending: false });
+      // Récupérer les relations client-professionnel
+      const { data: clientRelations, error } = await supabase
+        .from('professional_clients')
+        .select('*')
+        .eq('professional_id', stylistId)
+        .order('last_booking_date', { ascending: false });
 
       if (error) throw error;
 
-      // Group by client
-      const clientsMap = new Map<string, StylistClient>();
-      const clientIds = new Set<string>();
-
-      bookings?.forEach((booking) => {
-        const clientId = booking.client_id;
-        if (!clientId) return;
-
-        clientIds.add(clientId);
-        
-        if (!clientsMap.has(clientId)) {
-          clientsMap.set(clientId, {
-            id: clientId,
-            full_name: booking.client_name || 'Client',
-            email: booking.client_email,
-            phone: booking.client_phone,
-            total_bookings: 0,
-            preferred_services: [],
-          });
-        }
-
-        const client = clientsMap.get(clientId)!;
-        client.total_bookings++;
-        
-        if (!client.last_booking_date || booking.scheduled_at > client.last_booking_date) {
-          client.last_booking_date = booking.scheduled_at;
-        }
-
-        if (booking.service && !client.preferred_services?.includes(booking.service)) {
-          client.preferred_services?.push(booking.service);
-        }
-      });
-
-      // Fetch additional profile data
-      if (clientIds.size > 0) {
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, avatar_url')
-          .in('user_id', Array.from(clientIds));
-
-        profiles?.forEach((profile) => {
-          const client = clientsMap.get(profile.user_id);
-          if (client && profile.full_name) {
-            client.full_name = profile.full_name;
-            client.avatar_url = profile.avatar_url;
-          }
-        });
+      if (!clientRelations || clientRelations.length === 0) {
+        setClients([]);
+        return;
       }
 
-      setClients(Array.from(clientsMap.values()));
+      // Récupérer les profils des clients
+      const clientIds = clientRelations.map(rel => rel.client_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', clientIds);
+
+      // Mapper les données
+      const clientsWithServices = await Promise.all(
+        clientRelations.map(async (relation) => {
+          const profile = profiles?.find(p => p.user_id === relation.client_id);
+          
+          // Récupérer les services préférés pour ce client
+          const { data: bookings } = await supabase
+            .from('new_reservations')
+            .select('service_id, services(name)')
+            .eq('client_user_id', relation.client_id)
+            .eq('stylist_user_id', stylistId)
+            .not('service_id', 'is', null);
+
+          const serviceNames = bookings?.map(b => b.services?.name).filter(Boolean) || [];
+          const uniqueServices = [...new Set(serviceNames)];
+
+          return {
+            id: relation.client_id,
+            full_name: profile?.full_name || 'Client',
+            avatar_url: profile?.avatar_url,
+            total_bookings: relation.total_bookings,
+            last_booking_date: relation.last_booking_date,
+            first_booking_date: relation.first_booking_date,
+            status: relation.status as 'pending' | 'confirmed' | 'active',
+            preferred_services: uniqueServices,
+          };
+        })
+      );
+
+      setClients(clientsWithServices);
     } catch (error) {
       console.error('Error fetching clients:', error);
       toast({

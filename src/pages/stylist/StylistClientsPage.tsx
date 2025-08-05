@@ -87,8 +87,21 @@ const StylistClientsPage = () => {
                 onClick={() => setSelectedClientId(client.id)}
               >
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">{client.full_name}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{client.email}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{client.full_name}</CardTitle>
+                      <p className="text-sm text-muted-foreground">{client.email}</p>
+                    </div>
+                    <Badge variant={
+                      client.status === 'active' ? 'default' : 
+                      client.status === 'confirmed' ? 'secondary' : 
+                      'outline'
+                    }>
+                      {client.status === 'active' ? 'Client actif' : 
+                       client.status === 'confirmed' ? 'Confirmé' : 
+                       'En attente'}
+                    </Badge>
+                  </div>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="flex justify-between items-center">
