@@ -194,7 +194,7 @@ export type Database = {
             foreignKeyName: "hairdresser_services_hairdresser_id_fkey"
             columns: ["hairdresser_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "hairdressers"
             referencedColumns: ["id"]
           },
           {
