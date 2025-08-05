@@ -233,11 +233,11 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
 
   const getSlotColor = (status: TimeSlot['status']) => {
     switch (status) {
-      case 'available': return 'bg-green-500 hover:bg-green-600 text-white border-green-600';
-      case 'busy': return 'bg-gray-500 hover:bg-gray-600 text-white border-gray-600';
-      case 'booked': return 'bg-red-500 text-white border-red-600 cursor-not-allowed';
-      case 'unavailable': return 'bg-gray-200 hover:bg-gray-300 text-gray-600 border-gray-300';
-      default: return 'bg-gray-200';
+      case 'available': return 'bg-green-500 hover:bg-green-600 text-white border-green-600 shadow-md';
+      case 'busy': return 'bg-gray-500 hover:bg-gray-600 text-white border-gray-600 shadow-md';
+      case 'booked': return 'bg-red-500 text-white border-red-600 cursor-not-allowed shadow-md';
+      case 'unavailable': return 'bg-orange-500 hover:bg-orange-600 text-white border-orange-600 shadow-md';
+      default: return 'bg-gray-200 shadow-md';
     }
   };
 
@@ -258,57 +258,53 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="shadow-xl border-2 border-primary/20">
+      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-xl font-bold">
+            <Calendar className="h-6 w-6" />
             {format(selectedDate, "EEEE d MMMM yyyy", { locale: fr })}
           </CardTitle>
           
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={goToPreviousDay}>
+            <Button variant="outline" size="sm" onClick={goToPreviousDay} className="hover:scale-105 transition-transform">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="default" size="sm" onClick={goToToday}>
+            <Button variant="default" size="sm" onClick={goToToday} className="font-bold px-4">
               Aujourd'hui
             </Button>
-            <Button variant="outline" size="sm" onClick={goToNextDay}>
+            <Button variant="outline" size="sm" onClick={goToNextDay} className="hover:scale-105 transition-transform">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="p-6">
-        {/* Légende */}
-        <div className="flex flex-wrap gap-4 mb-6 text-sm">
+      <CardContent className="p-8">
+        {/* Légende - Design simplifié comme dans l'image */}
+        <div className="flex flex-wrap justify-center gap-8 mb-8 p-4 bg-muted/30 rounded-xl">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-500 rounded border-2 border-green-600"></div>
-            <span>🟢 Disponible</span>
+            <div className="w-5 h-5 bg-green-500 rounded-full border-2 border-green-700 shadow-sm"></div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-500 rounded border-2 border-red-600"></div>
-            <span>🔴 Réservé</span>
+            <div className="w-5 h-5 bg-red-500 rounded-full border-2 border-red-700 shadow-sm"></div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gray-500 rounded border-2 border-gray-600"></div>
-            <span>⚫ Bloqué</span>
+            <div className="w-5 h-5 bg-gray-500 rounded-full border-2 border-gray-700 shadow-sm"></div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gray-200 rounded border-2 border-gray-300"></div>
-            <span>⚪ Indisponible</span>
+            <div className="w-5 h-5 bg-orange-500 rounded-full border-2 border-orange-700 shadow-sm"></div>
           </div>
         </div>
 
-        {/* Grille des créneaux */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        {/* Grille des créneaux - Améliorée */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
           {timeSlots.map((slot) => (
             <Button
               key={slot.time}
               variant="outline"
-              size="sm"
-              className={`h-12 transition-all duration-200 ${getSlotColor(slot.status)}`}
+              size="lg"
+              className={`h-14 text-base font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg ${getSlotColor(slot.status)}`}
               onClick={() => handleSlotClick(slot)}
               disabled={slot.status === 'booked'}
             >
@@ -317,14 +313,11 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           ))}
         </div>
 
-        {/* Instructions */}
-        <div className="mt-6 p-4 bg-muted rounded-lg text-sm text-muted-foreground">
-          <p className="font-medium mb-2">Instructions :</p>
-          <ul className="space-y-1">
-            <li>• Cliquez sur un créneau pour choisir son statut</li>
-            <li>• Les créneaux réservés (🔴) ne peuvent pas être modifiés</li>
-            <li>• Les créneaux passés ne peuvent pas être modifiés</li>
-          </ul>
+        {/* Instructions simplifiées */}
+        <div className="mt-8 p-6 bg-gradient-to-r from-muted/50 to-muted/30 rounded-xl border border-primary/10">
+          <p className="text-center text-muted-foreground font-medium">
+            💡 Cliquez sur un créneau pour modifier sa disponibilité
+          </p>
         </div>
       </CardContent>
 

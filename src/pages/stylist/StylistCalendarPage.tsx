@@ -65,63 +65,62 @@ const StylistCalendarPage = () => {
         ]}
       />
 
-      {/* Week Navigation - AMÉLIORÉE POUR LISIBILITÉ */}
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between bg-gradient-to-r from-primary/5 to-secondary/5 p-8 rounded-xl border-2 border-primary/20 shadow-lg backdrop-blur-sm">
-        <div className="text-center lg:text-left">
-          <h2 className="text-2xl font-bold text-primary mb-2 tracking-wide">
-            📅 {format(selectedWeek, "'Semaine du' d MMMM yyyy", { locale: fr })}
-          </h2>
-          <p className="text-base text-muted-foreground font-medium">
-            Gérez vos créneaux et consultez vos rendez-vous en temps réel
-          </p>
-          <div className="flex items-center justify-center lg:justify-start gap-4 mt-3">
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 bg-green-500 rounded border-2 border-green-700"></div>
-              <span className="font-medium">Disponible</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 bg-red-500 rounded border-2 border-red-700"></div>
-              <span className="font-medium">Réservé</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 bg-gray-500 rounded border-2 border-gray-700"></div>
-              <span className="font-medium">Bloqué</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 bg-orange-500 rounded border-2 border-orange-700"></div>
-              <span className="font-medium">En attente</span>
+      {/* Week Navigation - Design exact de l'image */}
+      <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-8 rounded-2xl border border-primary/20 shadow-xl backdrop-blur-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="text-center lg:text-left">
+            <h2 className="text-2xl font-bold text-primary mb-3 tracking-wide flex items-center gap-3">
+              📅 {format(selectedWeek, "'Semaine du' d MMMM yyyy", { locale: fr })}
+            </h2>
+            <p className="text-base text-muted-foreground font-medium mb-4">
+              Gérez vos créneaux et consultez vos rendez-vous en temps réel
+            </p>
+            
+            {/* Légende des couleurs - Design exact de l'image */}
+            <div className="flex items-center justify-center lg:justify-start gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-green-700 shadow-sm"></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-red-500 rounded-full border-2 border-red-700 shadow-sm"></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-500 rounded-full border-2 border-gray-700 shadow-sm"></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-orange-500 rounded-full border-2 border-orange-700 shadow-sm"></div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="flex items-center justify-center gap-4">
-          <Button 
-            variant="outline" 
-            size="lg" 
-            onClick={goToPreviousWeek}
-            className="flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg hover:bg-primary/10 border-2 border-primary/30 px-6 py-3 text-base font-semibold"
-          >
-            <ChevronLeft className="h-6 w-6" />
-            <span className="hidden sm:inline">Semaine précédente</span>
-          </Button>
-          <Button 
-            variant="default" 
-            size="lg" 
-            onClick={goToCurrentWeek}
-            className="flex items-center gap-3 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 text-base font-bold border-2 border-primary-foreground/20"
-          >
-            <Calendar className="h-6 w-6" />
-            <span className="text-lg">📍 Aujourd'hui</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            size="lg" 
-            onClick={goToNextWeek}
-            className="flex items-center gap-3 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg hover:bg-primary/10 border-2 border-primary/30 px-6 py-3 text-base font-semibold"
-          >
-            <span className="hidden sm:inline">Semaine suivante</span>
-            <ChevronRight className="h-6 w-6" />
-          </Button>
+          
+          <div className="flex items-center justify-center gap-3">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={goToPreviousWeek}
+              className="hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg border-2 border-primary/30 px-4 py-2"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            
+            <Button 
+              variant="default" 
+              size="lg" 
+              onClick={goToCurrentWeek}
+              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-2 font-bold border-2 border-primary-foreground/20 flex items-center gap-2"
+            >
+              📍 Aujourd'hui
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={goToNextWeek}
+              className="hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg border-2 border-primary/30 px-4 py-2"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </div>
 
