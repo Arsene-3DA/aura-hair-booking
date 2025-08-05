@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Calendar, Clock, User, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
+import { useProfessionalServices } from '@/hooks/useProfessionalServices';
+import PriceDisplay from '@/components/ui/price-display';
 
 const bookingSchema = z.object({
   service: z.string().optional(),
@@ -31,12 +33,6 @@ interface ExpertData {
   name: string;
   image_url: string;
   auth_id: string;
-  services: Array<{
-    id: string;
-    name: string;
-    price: number;
-    duration: number;
-  }>;
 }
 
 const NewBookingFormPage = () => {
@@ -46,6 +42,9 @@ const NewBookingFormPage = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useRoleAuth();
+
+  // Récupérer les services du professionnel avec mises à jour temps réel
+  const { services, loading: servicesLoading } = useProfessionalServices(expertId || undefined, true);
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -76,27 +75,11 @@ const NewBookingFormPage = () => {
 
       if (error) throw error;
 
-      // Récupérer les services
-      const { data: servicesData } = await supabase
-        .from('hairdresser_services')
-        .select(`
-          services (
-            id,
-            name,
-            price,
-            duration
-          )
-        `)
-        .eq('hairdresser_id', expertData.auth_id);
-
-      const services = servicesData?.map(item => item.services).filter(Boolean) || [];
-
       return {
         id: expertData.id,
         name: expertData.name,
         image_url: expertData.image_url || '/placeholder.svg',
-        auth_id: expertData.auth_id,
-        services
+        auth_id: expertData.auth_id
       } as ExpertData;
     },
     enabled: !!expertId
@@ -110,11 +93,11 @@ const NewBookingFormPage = () => {
       }
 
       // Validation : si des services existent pour ce pro, un service doit être sélectionné
-      if (expert?.services && expert.services.length > 0 && !data.service) {
+      if (services && services.length > 0 && !data.service) {
         throw new Error('service_required');
       }
 
-      const selectedService = expert?.services?.find(s => s.name === data.service);
+      const selectedService = services?.find(s => s.name === data.service);
 
       const { error } = await supabase
         .from('bookings')
@@ -198,7 +181,7 @@ const NewBookingFormPage = () => {
 
   const onSubmit = (data: BookingFormData) => {
     // Validation côté client : si des services existent, un service doit être sélectionné
-    if (expert?.services && expert.services.length > 0 && !data.service) {
+    if (services && services.length > 0 && !data.service) {
       toast({
         title: "Service requis",
         description: "Veuillez choisir un service avant de confirmer.",
@@ -277,22 +260,32 @@ const NewBookingFormPage = () => {
                 </AvatarFallback>
               </Avatar>
               <h3 className="font-semibold text-lg">{expert.name}</h3>
-              {expert.services.length > 0 && (
+              
+              {/* Services avec état de chargement */}
+              {servicesLoading ? (
+                <div className="mt-4">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                  </div>
+                </div>
+              ) : services.length > 0 ? (
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground mb-2">Services disponibles:</p>
                   <div className="flex flex-wrap gap-1 justify-center">
-                    {expert.services.slice(0, 3).map((service) => (
+                    {services.slice(0, 3).map((service) => (
                       <Badge key={service.id} variant="outline" className="text-xs">
                         {service.name}
                       </Badge>
                     ))}
-                    {expert.services.length > 3 && (
+                    {services.length > 3 && (
                       <Badge variant="outline" className="text-xs">
-                        +{expert.services.length - 3}
+                        +{services.length - 3}
                       </Badge>
                     )}
                   </div>
                 </div>
+              ) : (
+                <p className="text-sm text-muted-foreground mt-4">Services génériques disponibles</p>
               )}
             </CardContent>
           </Card>
@@ -323,10 +316,16 @@ const NewBookingFormPage = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {expert.services.length > 0 ? (
-                              expert.services.map((service) => (
+                            {services.length > 0 ? (
+                              services.map((service) => (
                                 <SelectItem key={service.id} value={service.name}>
-                                  {service.name} - {service.price}€ ({service.duration}min)
+                                  <div className="flex items-center justify-between w-full">
+                                    <span>{service.name}</span>
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      <PriceDisplay amount={service.price} size="sm" />
+                                      <span>({service.duration}min)</span>
+                                    </div>
+                                  </div>
                                 </SelectItem>
                               ))
                             ) : (
