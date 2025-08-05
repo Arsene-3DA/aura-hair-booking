@@ -283,7 +283,7 @@ const StylistServicesPage = () => {
           </div>
           
           <div className="flex gap-2 mt-6">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 text-slate-500">
               Annuler
             </Button>
             <Button onClick={handleSaveService} className="flex-1">
