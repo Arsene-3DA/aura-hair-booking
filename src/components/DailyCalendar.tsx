@@ -131,7 +131,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
             availabilityId: availability.id
           });
         } else {
-          // Créneau dans le passé = indisponible
+          // Créneau dans le passé = indisponible, sinon disponible par défaut
           const now = new Date();
           if (datetime < now) {
             slots.push({
@@ -140,10 +140,11 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
               status: 'unavailable'
             });
           } else {
+            // Par défaut, les créneaux sont disponibles
             slots.push({
               time: timeString,
               datetime,
-              status: 'unavailable'
+              status: 'available'
             });
           }
         }
