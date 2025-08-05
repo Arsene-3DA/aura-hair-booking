@@ -149,25 +149,16 @@ export const useStylistServicesManagement = (stylistId: string) => {
 
       if (linkError) throw linkError;
 
-      // Mettre à jour l'état local
-      const newStylistService: StylistService = {
-        id: newService.id,
-        name: newService.name,
-        description: newService.description || '',
-        duration: newService.duration,
-        price: newService.price,
-        isActive: true,
-        stylist_id: stylistId
-      };
-
-      setServices(prev => [...prev, newStylistService]);
+      // Recharger complètement la liste des services pour garantir la synchronisation
+      await fetchServices();
 
       toast({
         title: "Succès",
         description: "Service ajouté avec succès"
       });
 
-      return newStylistService;
+      console.log('✅ Service ajouté et liste rechargée');
+      return newService;
     } catch (error) {
       console.error('Erreur lors de l\'ajout du service:', error);
       toast({
@@ -195,17 +186,15 @@ export const useStylistServicesManagement = (stylistId: string) => {
 
       if (error) throw error;
 
-      // Mettre à jour l'état local
-      setServices(prev => prev.map(service => 
-        service.id === serviceId 
-          ? { ...service, ...serviceData }
-          : service
-      ));
+      // Recharger complètement la liste des services pour garantir la synchronisation
+      await fetchServices();
 
       toast({
         title: "Succès",
         description: "Service modifié avec succès"
       });
+
+      console.log('✅ Service modifié et liste rechargée');
     } catch (error) {
       console.error('Erreur lors de la modification du service:', error);
       toast({
@@ -240,13 +229,15 @@ export const useStylistServicesManagement = (stylistId: string) => {
 
       if (linkError) throw linkError;
 
-      // Mettre à jour l'état local
-      setServices(prev => prev.filter(service => service.id !== serviceId));
+      // Recharger complètement la liste des services pour garantir la synchronisation
+      await fetchServices();
 
       toast({
         title: "Succès",
         description: "Service supprimé avec succès"
       });
+
+      console.log('✅ Service supprimé et liste rechargée');
     } catch (error) {
       console.error('Erreur lors de la suppression du service:', error);
       toast({
@@ -267,48 +258,95 @@ export const useStylistServicesManagement = (stylistId: string) => {
     ));
   };
 
-  // Charger les services au montage du composant
+  // Charger les services au montage du composant et à chaque focus
   useEffect(() => {
     if (stylistId) {
+      console.log('📍 Chargement initial des services pour:', stylistId);
       fetchServices();
     }
+  }, [stylistId]);
+
+  // Recharger les services quand la page reprend le focus (actualisation visible)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && stylistId) {
+        console.log('🔄 Page visible, rechargement des services...');
+        fetchServices();
+      }
+    };
+
+    const handleFocus = () => {
+      if (stylistId) {
+        console.log('🔄 Page en focus, rechargement des services...');
+        fetchServices();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [stylistId]);
 
   // Configurer l'écoute en temps réel des changements
   useEffect(() => {
     if (!stylistId) return;
 
-    const channel = supabase
-      .channel('hairdresser-services-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'hairdresser_services',
-          filter: `hairdresser_id=eq.${stylistId}`
-        },
-        () => {
-          // Recharger les services quand il y a des changements
-          fetchServices();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'services'
-        },
-        () => {
-          // Recharger les services quand la table services change
-          fetchServices();
-        }
-      )
-      .subscribe();
+    const setupRealtimeSubscription = async () => {
+      try {
+        // Récupérer l'ID du hairdresser pour l'écoute en temps réel
+        const { data: hairdresser } = await supabase
+          .from('hairdressers')
+          .select('id')
+          .eq('auth_id', stylistId)
+          .single();
 
+        if (!hairdresser) return;
+
+        const channel = supabase
+          .channel('hairdresser-services-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'hairdresser_services',
+              filter: `hairdresser_id=eq.${hairdresser.id}`
+            },
+            () => {
+              console.log('🔄 Détection de changement dans hairdresser_services, rechargement...');
+              fetchServices();
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'services'
+            },
+            () => {
+              console.log('🔄 Détection de changement dans services, rechargement...');
+              fetchServices();
+            }
+          )
+          .subscribe();
+
+        return () => {
+          supabase.removeChannel(channel);
+        };
+      } catch (error) {
+        console.error('Erreur lors de la configuration du temps réel:', error);
+      }
+    };
+
+    const cleanup = setupRealtimeSubscription();
+    
     return () => {
-      supabase.removeChannel(channel);
+      cleanup.then(cleanupFn => cleanupFn && cleanupFn());
     };
   }, [stylistId]);
 
