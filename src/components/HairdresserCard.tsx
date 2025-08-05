@@ -69,29 +69,34 @@ const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }
         <p className="text-sm text-gray-600 text-center mb-3">{experience}</p>
       )}
 
-      {/* Services disponibles */}
+      {/* Services disponibles - en forme carrée */}
       <div className="mb-4">
-        <p className="text-sm font-semibold text-gray-700 mb-2 text-center">
+        <p className="text-sm font-semibold text-gray-700 mb-3 text-center">
           Services ({services.length})
         </p>
-        <div className="flex flex-wrap gap-1 justify-center min-h-[60px]">
+        <div className="grid grid-cols-2 gap-2 min-h-[80px]">
           {services.length > 0 ? (
             services.slice(0, 4).map((service) => (
-              <span key={service.id} className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                {service.name}
-              </span>
+              <div 
+                key={service.id} 
+                className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-3 text-center hover:shadow-sm transition-shadow"
+              >
+                <p className="text-xs font-medium text-blue-800 truncate">
+                  {service.name}
+                </p>
+              </div>
             ))
           ) : (
-            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-              Services généraux
-            </span>
-          )}
-          {services.length > 4 && (
-            <span className="px-2 py-1 bg-gray-200 text-gray-600 rounded-full text-xs">
-              +{services.length - 4} autres
-            </span>
+            <div className="col-span-2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+              <span className="text-sm text-gray-600">Services généraux</span>
+            </div>
           )}
         </div>
+        {services.length > 4 && (
+          <p className="text-xs text-gray-500 text-center mt-2">
+            +{services.length - 4} autres services
+          </p>
+        )}
       </div>
 
       {/* Tags spécialités */}
@@ -109,17 +114,17 @@ const HairdresserCard = ({ id, name, photo, tags, rating, experience, onChoose }
         )}
       </div>
 
-      {/* Rating */}
+      {/* Rating - toujours 5 étoiles */}
       <div className="flex items-center justify-center mb-6">
         <div className="flex space-x-1 mr-2">
           {[...Array(5)].map((_, i) => (
             <Star 
               key={i} 
-              className={`h-4 w-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+              className="h-4 w-4 text-yellow-400 fill-yellow-400" 
             />
           ))}
         </div>
-        <span className="text-sm text-gray-700 font-medium">{rating.toFixed(1)}</span>
+        <span className="text-sm text-gray-700 font-medium">5.0</span>
       </div>
 
       {/* Boutons d'action */}

@@ -26,73 +26,111 @@ const ProfessionalCard = ({ professional }: { professional: Professional }) => {
   const { services } = useProfessionalServices(professional.auth_id, true);
   
   return (
-    <Card className="group hover:shadow-lg transition-shadow">
-      <CardHeader className="text-center pb-2">
-        <Avatar className="h-20 w-20 mx-auto mb-4">
-          <AvatarImage 
-            src={professional.image_url} 
-            alt={professional.name}
-          />
-          <AvatarFallback>
-            {professional.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <CardTitle className="text-xl">{professional.name}</CardTitle>
-        <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          <span>{professional.rating}/5</span>
+    <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
+      <CardContent className="p-6">
+        {/* Photo avec indicateur */}
+        <div className="flex justify-center mb-4">
+          <div className="relative">
+            <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
+              <AvatarImage 
+                src={professional.image_url} 
+                alt={professional.name}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-white text-lg font-bold">
+                {professional.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            {/* Indicateur vert */}
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-sm"></div>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {professional.experience && (
-          <p className="text-sm text-muted-foreground text-center">
-            {professional.experience}
-          </p>
-        )}
-        
-        {professional.location && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            <span>{professional.location}</span>
+
+        {/* Nom et titre */}
+        <div className="text-center mb-4">
+          <h3 className="text-xl font-bold text-foreground mb-1">{professional.name}</h3>
+          <p className="text-sm text-muted-foreground">Professionnel expérimenté</p>
+        </div>
+
+        {/* Services count badge */}
+        {services.length > 0 && (
+          <div className="text-center mb-4">
+            <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+              Services ({services.length})
+            </Badge>
           </div>
         )}
 
+        {/* Services en forme carrée */}
         {services.length > 0 ? (
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">Services proposés:</p>
-            <div className="flex flex-wrap gap-1">
-              {services.slice(0, 3).map((service) => (
-                <Badge key={service.id} variant="secondary" className="text-xs">
-                  {service.name}
-                </Badge>
+          <div className="mb-4">
+            <div className="grid grid-cols-2 gap-2 max-h-20 overflow-hidden">
+              {services.slice(0, 4).map((service) => (
+                <div 
+                  key={service.id} 
+                  className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-lg p-2 text-center"
+                >
+                  <p className="text-xs font-medium text-primary truncate">
+                    {service.name}
+                  </p>
+                </div>
               ))}
-              {services.length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{services.length - 3}
-                </Badge>
-              )}
             </div>
-          </div>
-        ) : professional.specialties && professional.specialties.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {professional.specialties.slice(0, 3).map((specialty, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
-                {specialty}
-              </Badge>
-            ))}
-            {professional.specialties.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{professional.specialties.length - 3}
-              </Badge>
+            {services.length > 4 && (
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                +{services.length - 4} autres services
+              </p>
             )}
           </div>
+        ) : professional.specialties && professional.specialties.length > 0 && (
+          <div className="mb-4">
+            <div className="grid grid-cols-2 gap-2">
+              {professional.specialties.slice(0, 4).map((specialty, index) => (
+                <div 
+                  key={index} 
+                  className="bg-gradient-to-r from-secondary/20 to-secondary/10 border border-secondary/30 rounded-lg p-2 text-center"
+                >
+                  <p className="text-xs font-medium text-secondary-foreground truncate">
+                    {specialty}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
-        <div className="space-y-2 pt-2">
-          <Button asChild className="w-full">
+        {/* Localisation */}
+        {professional.location && (
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+            <MapPin className="h-4 w-4" />
+            <span className="truncate">{professional.location}</span>
+          </div>
+        )}
+
+        {/* Rating - toujours 5 étoiles */}
+        <div className="flex items-center justify-center gap-1 mb-6">
+          <div className="flex space-x-1">
+            {[...Array(5)].map((_, i) => (
+              <Star 
+                key={i} 
+                className="h-4 w-4 text-yellow-400 fill-yellow-400" 
+              />
+            ))}
+          </div>
+          <span className="text-sm text-muted-foreground font-medium ml-1">5.0</span>
+        </div>
+
+        {/* Boutons d'action */}
+        <div className="space-y-2">
+          <Button variant="outline" className="w-full" asChild>
             <Link to={`/experts/${professional.auth_id}`}>
+              Voir profil
+            </Link>
+          </Button>
+          <Button className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium" asChild>
+            <Link to={`/bookings/new?expert=${professional.auth_id}`}>
               <Calendar className="h-4 w-4 mr-2" />
-              Voir profil & réserver
+              Réserver maintenant
             </Link>
           </Button>
         </div>
