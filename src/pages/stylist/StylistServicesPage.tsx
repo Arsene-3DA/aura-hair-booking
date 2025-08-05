@@ -237,52 +237,103 @@ const StylistServicesPage = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Nom du service</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="ex: Coupe femme"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Décrivez brièvement ce service..."
-                rows={3}
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Formulaire */}
+            <div className="space-y-4">
               <div>
-                <Label htmlFor="duration">Durée (minutes)</Label>
+                <Label htmlFor="name">Nom du service</Label>
                 <Input
-                  id="duration"
-                  type="number"
-                  value={formData.duration}
-                  onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
-                  min="15"
-                  step="15"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="ex: Coupe femme"
+                  className="bg-background/50 border-primary/20"
                 />
               </div>
               
               <div>
-                <Label htmlFor="price">Prix (€)</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                  min="0"
-                  step="0.50"
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Décrivez brièvement ce service..."
+                  rows={3}
+                  className="bg-background/50 border-primary/20"
                 />
               </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="duration">Durée (minutes)</Label>
+                  <Input
+                    id="duration"
+                    type="number"
+                    value={formData.duration}
+                    onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
+                    min="15"
+                    step="15"
+                    className="bg-background/50 border-primary/20"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="price">Prix (€)</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                    min="0"
+                    step="0.50"
+                    className="bg-background/50 border-primary/20"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Aperçu en temps réel */}
+            <div className="lg:sticky lg:top-4">
+              <Label className="text-sm font-medium text-muted-foreground">Aperçu du service</Label>
+              <Card className="mt-2 border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">
+                      {formData.name || 'Nom du service'}
+                    </CardTitle>
+                    <Badge variant="default">Actif</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {formData.description || 'Description du service...'}
+                  </p>
+                </CardHeader>
+                <CardContent className="pt-0 space-y-4">
+                  <div className="bg-background/60 p-4 rounded-lg border border-primary/10">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">
+                          {formData.duration || 0} min
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Euro className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xl font-bold text-primary">
+                          {formData.price || 0}€
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                    <div className="flex items-center gap-1 mb-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>Aperçu mis à jour en temps réel</span>
+                    </div>
+                    C'est ainsi que votre service apparaîtra aux clients
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
           
