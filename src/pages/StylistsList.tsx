@@ -289,7 +289,6 @@ const StylistsList = () => {
               specialties={hairdresser.specialties}
               rating={hairdresser.rating}
               experience={hairdresser.experience}
-              services={mockServices.slice(0, 3)} // Show first 3 services
               isActive={hairdresser.is_active}
               onBooking={handleBooking}
               onViewProfile={handleViewProfile}

@@ -44,9 +44,6 @@ Composant carte stylist avec accessibilité complète et données dynamiques.
     },
     specialties: {
       control: 'object'
-    },
-    services: {
-      control: 'object'
     }
   }
 } satisfies Meta<typeof StylistCard>;
@@ -74,7 +71,6 @@ export const Default: Story = {
     specialties: ['Coloration', 'Coupe Femme', 'Mèches'],
     rating: 4.8,
     experience: '8 ans d\'expérience',
-    services: mockServices.slice(0, 3),
     isActive: true,
     onBooking: (id) => alert(`Booking with stylist ${id}`),
     onViewProfile: (id) => alert(`View profile of stylist ${id}`)
@@ -106,7 +102,6 @@ export const HighRating: Story = {
     rating: 4.9,
     specialties: ['Coupe Pixie', 'Coloration Fantaisie', 'Coiffure Mariage'],
     experience: '10 ans d\'expérience',
-    services: mockServices
   }
 };
 
@@ -123,7 +118,6 @@ export const ManyServices: Story = {
   args: {
     ...Default.args,
     name: 'Expert Stylist',
-    services: mockServices,
     specialties: ['Coloration', 'Coupe', 'Balayage', 'Soins', 'Styling', 'Mariage']
   }
 };

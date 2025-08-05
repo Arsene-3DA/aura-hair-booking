@@ -16,6 +16,8 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useProfessionalServices } from '@/hooks/useProfessionalServices';
+import PriceDisplay from '@/components/ui/price-display';
 
 interface ExpertDetail {
   id: string;
@@ -29,80 +31,63 @@ interface ExpertDetail {
   location: string;
   auth_id: string;
   role: string;
-  services?: Array<{
-    id: string;
-    name: string;
-    price: number;
-    duration: number;
-  }>;
 }
 
 const ExpertDetailPage = () => {
   const { expertId } = useParams<{ expertId: string }>();
   const navigate = useNavigate();
 
+  // Récupérer les services du professionnel avec mises à jour temps réel
+  const { services, loading: servicesLoading } = useProfessionalServices(expertId, true);
+
   const { data: expert, isLoading, error } = useQuery({
     queryKey: ['expert', expertId],
     queryFn: async () => {
       if (!expertId) throw new Error('ID expert manquant');
 
-      // Récupérer les données de l'expert
+      // Récupérer les données de l'expert via auth_id
       const { data: expertData, error: expertError } = await supabase
         .from('hairdressers')
         .select(`
           id,
-          auth_id,
           name,
           email,
           phone,
           specialties,
           rating,
+          image_url,
           experience,
           location,
-          image_url,
+          auth_id,
           is_active
         `)
         .eq('auth_id', expertId)
         .eq('is_active', true)
         .single();
 
-      if (expertError) throw expertError;
-      if (!expertData) throw new Error('Expert non trouvé');
+      if (expertError) {
+        if (expertError.code === 'PGRST116') {
+          throw new Error('Expert non trouvé');
+        }
+        throw expertError;
+      }
 
-      // Récupérer les services de l'expert
-      const { data: servicesData } = await supabase
-        .from('hairdresser_services')
-        .select(`
-          services (
-            id,
-            name,
-            price,
-            duration
-          )
-        `)
-        .eq('hairdresser_id', expertData.auth_id);
-
-      const services = servicesData?.map(item => item.services).filter(Boolean) || [];
+      // Récupérer les informations de rôle depuis profiles
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', expertId)
+        .single();
 
       return {
-        id: expertData.id,
-        name: expertData.name,
-        email: expertData.email,
-        phone: expertData.phone,
-        specialties: expertData.specialties || [],
-        rating: expertData.rating || 4.5,
-        image_url: expertData.image_url || '/placeholder.svg',
-        experience: expertData.experience || '',
-        location: expertData.location || '',
-        auth_id: expertData.auth_id,
-        role: 'coiffeur', // Par défaut
-        services
+        ...expertData,
+        role: profileData?.role || 'coiffeur'
       } as ExpertDetail;
     },
     enabled: !!expertId
   });
 
-  if (isLoading) {
+  if (isLoading || servicesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -215,21 +200,28 @@ const ExpertDetailPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {expert.services && expert.services.length > 0 ? (
-                <div className="grid gap-4">
-                  {expert.services.map((service) => (
+              {/* Services du professionnel */}
+              {services && services.length > 0 ? (
+                <div className="space-y-3">
+                  {services.map((service) => (
                     <div key={service.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div>
                         <h4 className="font-medium">{service.name}</h4>
+                        {service.description && (
+                          <p className="text-sm text-muted-foreground">{service.description}</p>
+                        )}
                         <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {service.duration} min
                           </span>
+                          {service.category && (
+                            <Badge variant="outline" className="text-xs">{service.category}</Badge>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-lg">{service.price}€</p>
+                        <PriceDisplay amount={service.price} size="lg" className="font-semibold" />
                       </div>
                     </div>
                   ))}

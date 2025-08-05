@@ -1,10 +1,12 @@
 import React from 'react';
-import { Star, MapPin, Clock, Euro, Phone, Mail } from 'lucide-react';
+import { Star, MapPin, Clock, Phone, Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EnhancedAvatar } from '@/components/EnhancedAvatar';
 import { cn } from '@/lib/utils';
+import { useProfessionalServices } from '@/hooks/useProfessionalServices';
+import PriceDisplay from '@/components/ui/price-display';
 
 interface Service {
   id: string;
@@ -23,7 +25,6 @@ interface StylistCardProps {
   specialties?: string[];
   rating?: number;
   experience?: string;
-  services?: Service[];
   isActive?: boolean;
   onBooking?: (stylistId: string) => void;
   onViewProfile?: (stylistId: string) => void;
@@ -40,12 +41,14 @@ export const StylistCard = ({
   specialties = [],
   rating = 0,
   experience,
-  services = [],
   isActive = true,
   onBooking,
   onViewProfile,
   className
 }: StylistCardProps) => {
+
+  // Récupérer les services du styliste avec mises à jour temps réel
+  const { services, loading: servicesLoading } = useProfessionalServices(id, true);
   
   const handleBookingClick = () => {
     onBooking?.(id);
@@ -161,7 +164,7 @@ export const StylistCard = ({
         )}
 
         {/* Services */}
-        {services.length > 0 && (
+        {!servicesLoading && services.length > 0 && (
           <div>
             <h4 className="text-sm font-medium text-foreground mb-2">Services</h4>
             <div className="space-y-2 max-h-24 overflow-y-auto">
@@ -177,10 +180,7 @@ export const StylistCard = ({
                       <Clock className="h-3 w-3" aria-hidden="true" />
                       <span>{service.duration}min</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Euro className="h-3 w-3" aria-hidden="true" />
-                      <span>{service.price}€</span>
-                    </div>
+                    <PriceDisplay amount={service.price} size="sm" />
                   </div>
                 </div>
               ))}
@@ -190,6 +190,13 @@ export const StylistCard = ({
                 </p>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Indicateur de chargement des services */}
+        {servicesLoading && (
+          <div className="text-xs text-muted-foreground">
+            Chargement des services...
           </div>
         )}
 
