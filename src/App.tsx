@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 import AuthenticatedRoute from "@/components/AuthenticatedRoute";
-import SecurityHeaders from "@/components/SecurityHeaders";
+import { SecurityProvider } from "@/components/SecurityProvider";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { CanadianLocalizationProvider } from "@/components/CanadianLocalizationProvider";
 import "@/lib/i18n";
@@ -86,9 +86,9 @@ const App = () => (
       <ThemeProvider defaultTheme="system" storageKey="beauty-salon-theme">
         <CanadianLocalizationProvider>
           <TooltipProvider>
-          <SecurityHeaders />
-          <Toaster />
-          <Sonner />
+            <SecurityProvider>
+              <Toaster />
+              <Sonner />
           <BrowserRouter>
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
@@ -204,6 +204,7 @@ const App = () => (
               </Routes>
             </Suspense>
           </BrowserRouter>
+            </SecurityProvider>
         </TooltipProvider>
         </CanadianLocalizationProvider>
       </ThemeProvider>
