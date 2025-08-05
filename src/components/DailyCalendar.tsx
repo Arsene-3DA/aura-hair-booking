@@ -152,11 +152,11 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
             });
           }
         } else {
-          // RÈGLE 4: Par défaut, les créneaux futurs sont disponibles
+          // RÈGLE 4: Par défaut, les créneaux futurs SANS disponibilité définie sont INDISPONIBLES
           slots.push({
             time: timeString,
             datetime,
-            status: 'available' // VERT 🟢 - Disponible par défaut
+            status: 'unavailable' // ROUGE 🔴 - Indisponible par défaut (professionnel doit les activer)
           });
         }
       }
@@ -210,7 +210,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           description: "Le créneau a été marqué comme indisponible (rouge)",
         });
       } else if (newStatus === 'busy') {
-        // RÈGLE: Bloquer manuellement = créer/mettre à jour avec status 'busy' (GRIS ⚫)
+        // RÈGLE: Bloquer temporairement = créer/mettre à jour avec status 'busy' (GRIS ⚫)
         if (selectedSlot.availabilityId) {
           await updateAvailability({
             id: selectedSlot.availabilityId,
@@ -225,7 +225,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         }
         toast({
           title: "Créneau bloqué",
-          description: "Le créneau a été bloqué manuellement (gris)",
+          description: "Le créneau a été bloqué temporairement (gris)",
         });
       } else if (newStatus === 'available') {
         // RÈGLE: Rendre disponible = créer/mettre à jour avec status 'available' (VERT 🟢)
