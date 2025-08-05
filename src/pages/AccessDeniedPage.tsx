@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ArrowLeft } from 'lucide-react';
 
 const AccessDeniedPage = () => {
   const navigate = useNavigate();
@@ -73,6 +73,15 @@ const AccessDeniedPage = () => {
           )}
 
           <div className="space-y-2">
+            <Button
+              onClick={() => window.history.back()}
+              variant="outline"
+              className="w-full"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour
+            </Button>
+            
             <Button
               onClick={handleGoHome}
               className="w-full"

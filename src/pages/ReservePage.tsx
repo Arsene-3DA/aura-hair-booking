@@ -14,6 +14,7 @@ import { CalendarIcon, Clock, Euro, User, ArrowLeft } from 'lucide-react';
 import { format, addDays, setHours, setMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import PageHeader from '@/components/PageHeader';
 
 interface Service {
   id: string;
@@ -190,14 +191,12 @@ const ReservePage = () => {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto space-y-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Retour
-        </Button>
+        <PageHeader
+          title="Réserver un rendez-vous"
+          description={selectedStylist ? `Prenez rendez-vous avec ${selectedStylist.name}` : "Sélectionnez votre créneau préféré"}
+          icon={<CalendarIcon className="h-8 w-8" />}
+          showBackButton={true}
+        />
 
         <Card>
           <CardHeader>

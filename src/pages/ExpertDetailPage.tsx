@@ -18,6 +18,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useProfessionalServices } from '@/hooks/useProfessionalServices';
 import PriceDisplay from '@/components/ui/price-display';
+import PageHeader from '@/components/PageHeader';
 
 interface ExpertDetail {
   id: string;
@@ -117,15 +118,17 @@ const ExpertDetailPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Navigation */}
-      <Button 
-        variant="outline" 
-        onClick={() => navigate('/experts')}
-        className="mb-6"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Retour aux experts
-      </Button>
+      <PageHeader
+        title={expert.name}
+        description="Profil détaillé et services disponibles"
+        showBackButton={true}
+        backPath="/experts"
+        breadcrumbs={[
+          { label: 'Accueil', path: '/' },
+          { label: 'Experts', path: '/experts' },
+          { label: expert.name }
+        ]}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profil de l'expert */}

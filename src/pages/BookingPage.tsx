@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Clock, Euro } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 import { useBookings } from '@/hooks/useBookings';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
@@ -90,12 +91,12 @@ const BookingPage = () => {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <h1 className="text-2xl font-bold">Réserver un rendez-vous</h1>
-        </div>
+        <PageHeader
+          title="Réserver un rendez-vous"
+          description="Sélectionnez votre créneau préféré"
+          icon={<Calendar className="h-8 w-8" />}
+          showBackButton={true}
+        />
 
         {service && (
           <Card>

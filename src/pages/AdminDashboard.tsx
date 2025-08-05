@@ -8,6 +8,8 @@ import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
 import { AdminReviewsManagement } from '@/components/AdminReviewsManagement';
 import { usePasswordPolicy } from '@/hooks/usePasswordPolicy';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
+import PageHeader from '@/components/PageHeader';
+import { Users } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { user, signOut } = useRoleAuth();
@@ -26,26 +28,18 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div>
-              <h1 className="text-xl font-semibold gradient-text">
-                Tableau de bord Admin
-              </h1>
-              <p className="text-sm text-gray-600">
-                Gérez les utilisateurs et surveillez l'activité du salon
-              </p>
-            </div>
+      <div className="container mx-auto py-8 px-4">
+        <PageHeader
+          title="Tableau de bord Admin"
+          description="Gérez les utilisateurs et surveillez l'activité du salon"
+          icon={<Users className="h-8 w-8" />}
+          showBackButton={true}
+          actions={
             <Button variant="outline" onClick={handleLogout}>
               Déconnexion
             </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto py-8 px-4">
+          }
+        />
         <div className="mb-8">
           
           {needsPasswordChange && (

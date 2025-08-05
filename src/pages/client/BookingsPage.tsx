@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { ReviewModal } from '@/components/ReviewModal';
+import PageHeader from '@/components/PageHeader';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -180,21 +181,24 @@ export default function BookingsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Mes réservations</h1>
-          <p className="text-muted-foreground">
-            Gérez vos rendez-vous passés et à venir
-          </p>
-        </div>
-        <Button asChild>
-          <Link to="/app/bookings/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvelle réservation
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Mes réservations"
+        description="Gérez vos rendez-vous passés et à venir"
+        icon={<Calendar className="h-8 w-8" />}
+        showBackButton={true}
+        breadcrumbs={[
+          { label: 'Dashboard', path: '/client' },
+          { label: 'Mes réservations' }
+        ]}
+        actions={
+          <Button asChild>
+            <Link to="/app/bookings/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Nouvelle réservation
+            </Link>
+          </Button>
+        }
+      />
 
       {/* Tabs */}
       <Tabs defaultValue="upcoming" className="space-y-4">

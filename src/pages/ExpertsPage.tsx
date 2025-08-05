@@ -9,6 +9,7 @@ import { Star, MapPin, Calendar, Scissors, Palette, Sparkles } from 'lucide-reac
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { useProfessionalServices } from '@/hooks/useProfessionalServices';
+import PageHeader from '@/components/PageHeader';
 
 interface Professional {
   id: string;
@@ -232,12 +233,15 @@ const ExpertsPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-4">Choisir un Expert</h1>
-        <p className="text-lg text-muted-foreground">
-          Sélectionnez votre professionnel et réservez votre rendez-vous
-        </p>
-      </div>
+      <PageHeader
+        title="Choisir un Expert"
+        description="Sélectionnez votre professionnel et réservez votre rendez-vous"
+        showBackButton={true}
+        breadcrumbs={[
+          { label: 'Accueil', path: '/' },
+          { label: 'Experts' }
+        ]}
+      />
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-8">
