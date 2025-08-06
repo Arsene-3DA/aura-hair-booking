@@ -11,20 +11,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { useStylistReviews } from '@/hooks/useStylistReviews';
-import { 
-  ArrowLeft, 
-  Star, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock,
-  Euro,
-  Loader2,
-  Camera,
-  MessageCircle,
-  BarChart3
-} from 'lucide-react';
-
+import { ArrowLeft, Star, MapPin, Phone, Mail, Clock, Euro, Loader2, Camera, MessageCircle, BarChart3 } from 'lucide-react';
 interface StylistProfile {
   id: string;
   name: string;
@@ -37,7 +24,6 @@ interface StylistProfile {
   rating: number;
   is_active: boolean;
 }
-
 interface Service {
   id: string;
   name: string;
@@ -45,20 +31,30 @@ interface Service {
   duration: number;
   description?: string;
 }
-
 const StylistProfilePage = () => {
-  const { stylistId } = useParams<{ stylistId: string }>();
+  const {
+    stylistId
+  } = useParams<{
+    stylistId: string;
+  }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const [stylist, setStylist] = useState<StylistProfile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Load portfolio and reviews
-  const { portfolio, loading: portfolioLoading } = usePortfolio(stylistId);
-  const { reviews, stats, loading: reviewsLoading } = useStylistReviews(stylistId);
 
+  // Load portfolio and reviews
+  const {
+    portfolio,
+    loading: portfolioLoading
+  } = usePortfolio(stylistId);
+  const {
+    reviews,
+    stats,
+    loading: reviewsLoading
+  } = useStylistReviews(stylistId);
   useEffect(() => {
     const loadStylistProfile = async () => {
       if (!validateId(stylistId)) {
@@ -71,27 +67,20 @@ const StylistProfilePage = () => {
         navigate('/stylists');
         return;
       }
-
       try {
         setLoading(true);
-        
-        // Charger le profil du styliste depuis profiles et hairdressers
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', stylistId)
-          .in('role', ['coiffeur', 'coiffeuse', 'cosmetique'])
-          .single();
 
+        // Charger le profil du styliste depuis profiles et hairdressers
+        const {
+          data: profileData,
+          error: profileError
+        } = await supabase.from('profiles').select('*').eq('user_id', stylistId).in('role', ['coiffeur', 'coiffeuse', 'cosmetique']).single();
         let stylistData = null;
-        
         if (profileData) {
           // Essayer de récupérer des infos supplémentaires depuis hairdressers
-          const { data: hairdresserData } = await supabase
-            .from('hairdressers')
-            .select('*')
-            .eq('auth_id', stylistId)
-            .single();
+          const {
+            data: hairdresserData
+          } = await supabase.from('hairdressers').select('*').eq('auth_id', stylistId).single();
 
           // Combiner les données du profil avec celles du coiffeur
           stylistData = {
@@ -108,9 +97,7 @@ const StylistProfilePage = () => {
             role: profileData.role
           };
         }
-
         const stylistError = profileError;
-
         if (stylistError || !stylistData) {
           console.error('Erreur lors du chargement du styliste:', stylistError);
           toast({
@@ -121,13 +108,13 @@ const StylistProfilePage = () => {
           navigate('/stylists');
           return;
         }
-
         setStylist(stylistData);
 
         // Charger les services du styliste
-        const { data: servicesData, error: servicesError } = await supabase
-          .from('hairdresser_services')
-          .select(`
+        const {
+          data: servicesData,
+          error: servicesError
+        } = await supabase.from('hairdresser_services').select(`
             services (
               id,
               name,
@@ -135,16 +122,11 @@ const StylistProfilePage = () => {
               duration,
               description
             )
-          `)
-          .eq('hairdresser_id', stylistId);
-
+          `).eq('hairdresser_id', stylistId);
         if (!servicesError && servicesData) {
-          const mappedServices = servicesData
-            .map(item => item.services)
-            .filter(Boolean) as Service[];
+          const mappedServices = servicesData.map(item => item.services).filter(Boolean) as Service[];
           setServices(mappedServices);
         }
-
       } catch (error) {
         console.error('Erreur lors du chargement du profil:', error);
         toast({
@@ -157,24 +139,20 @@ const StylistProfilePage = () => {
         setLoading(false);
       }
     };
-
     loadStylistProfile();
   }, [stylistId, navigate, toast]);
-
   const handleBooking = (preselectedService?: string) => {
     if (stylist?.id) {
       navigate(`/reservation/${stylist.id}`, {
-        state: { 
+        state: {
           hairdresser: stylist,
-          preselectedService 
+          preselectedService
         }
       });
     }
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <div className="flex items-center justify-center py-24">
           <div className="text-center">
@@ -184,13 +162,10 @@ const StylistProfilePage = () => {
           </div>
         </div>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
   if (!stylist) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <div className="flex items-center justify-center py-24">
           <Card className="w-full max-w-md">
@@ -206,28 +181,21 @@ const StylistProfilePage = () => {
           </Card>
         </div>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <main className="py-8">
         <div className="container mx-auto px-4">
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              // Navigation intelligente selon la catégorie du coiffeur
-              if (window.history.length > 1) {
-                window.history.back();
-              } else {
-                navigate('/stylists');
-              }
-            }}
-            className="mb-6"
-          >
+          <Button variant="outline" onClick={() => {
+          // Navigation intelligente selon la catégorie du coiffeur
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            navigate('/stylists');
+          }
+        }} className="mb-6 text-slate-400">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
           </Button>
@@ -237,23 +205,16 @@ const StylistProfilePage = () => {
             <Card>
               <CardHeader>
                 <div className="flex items-start space-x-6">
-                  <EnhancedAvatar 
-                    src={stylist.image_url}
-                    name={stylist.name}
-                    size="xl"
-                    className="ring-2 ring-border"
-                  />
+                  <EnhancedAvatar src={stylist.image_url} name={stylist.name} size="xl" className="ring-2 ring-border" />
                   
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <div>
                         <CardTitle className="text-2xl mb-2">{stylist.name}</CardTitle>
                         
-                        {stylist.experience && (
-                          <p className="text-muted-foreground mb-3">
+                        {stylist.experience && <p className="text-muted-foreground mb-3">
                             {stylist.experience}
-                          </p>
-                        )}
+                          </p>}
                         
                         {/* Rating */}
                         <div className="flex items-center gap-2 mb-4">
@@ -267,35 +228,25 @@ const StylistProfilePage = () => {
                         </div>
                       </div>
                       
-                      <Button 
-                        onClick={() => handleBooking()}
-                        size="lg"
-                        className="animate-fade-in"
-                      >
+                      <Button onClick={() => handleBooking()} size="lg" className="animate-fade-in">
                         Réserver maintenant
                       </Button>
                     </div>
                     
                     {/* Contact Info */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
-                      {stylist.location && (
-                        <div className="flex items-center gap-2 text-sm">
+                      {stylist.location && <div className="flex items-center gap-2 text-sm">
                           <MapPin className="h-4 w-4 text-muted-foreground" />
                           <span>{stylist.location}</span>
-                        </div>
-                      )}
-                      {stylist.email && (
-                        <div className="flex items-center gap-2 text-sm">
+                        </div>}
+                      {stylist.email && <div className="flex items-center gap-2 text-sm">
                           <Mail className="h-4 w-4 text-muted-foreground" />
                           <span>{stylist.email}</span>
-                        </div>
-                      )}
-                      {stylist.phone && (
-                        <div className="flex items-center gap-2 text-sm">
+                        </div>}
+                      {stylist.phone && <div className="flex items-center gap-2 text-sm">
                           <Phone className="h-4 w-4 text-muted-foreground" />
                           <span>{stylist.phone}</span>
-                        </div>
-                      )}
+                        </div>}
                     </div>
                   </div>
                 </div>
@@ -303,27 +254,20 @@ const StylistProfilePage = () => {
             </Card>
 
             {/* Spécialités */}
-            {stylist.specialties && stylist.specialties.length > 0 && (
-              <Card>
+            {stylist.specialties && stylist.specialties.length > 0 && <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Spécialités</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {stylist.specialties.map((specialty, index) => (
-                      <Badge 
-                        key={index} 
-                        variant="secondary"
-                        className="animate-fade-in"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
+                    {stylist.specialties.map((specialty, index) => <Badge key={index} variant="secondary" className="animate-fade-in" style={{
+                  animationDelay: `${index * 0.1}s`
+                }}>
                         {specialty}
-                      </Badge>
-                    ))}
+                      </Badge>)}
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
             {/* Services */}
             <Card>
@@ -331,14 +275,10 @@ const StylistProfilePage = () => {
                 <CardTitle className="text-lg">Services proposés</CardTitle>
               </CardHeader>
               <CardContent>
-                {services.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {services.map((service, index) => (
-                      <div 
-                        key={service.id}
-                        className="p-4 border rounded-lg hover:border-primary/50 transition-colors animate-fade-in"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
+                {services.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {services.map((service, index) => <div key={service.id} className="p-4 border rounded-lg hover:border-primary/50 transition-colors animate-fade-in" style={{
+                  animationDelay: `${index * 0.1}s`
+                }}>
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-medium">{service.name}</h4>
                           <div className="flex items-center gap-1 text-primary font-semibold">
@@ -352,39 +292,25 @@ const StylistProfilePage = () => {
                           <span>{service.duration} minutes</span>
                         </div>
                         
-                        {service.description && (
-                          <p className="text-sm text-muted-foreground mb-3">
+                        {service.description && <p className="text-sm text-muted-foreground mb-3">
                             {service.description}
-                          </p>
-                        )}
+                          </p>}
                         
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleBooking(service.name)}
-                          className="w-full"
-                        >
+                        <Button size="sm" variant="outline" onClick={() => handleBooking(service.name)} className="w-full">
                           Réserver ce service
                         </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
+                      </div>)}
+                  </div> : <div className="text-center py-8">
                     <p className="text-muted-foreground mb-4">
                       Ce professionnel n'a pas encore défini de services spécifiques.
                     </p>
                     <p className="text-sm text-muted-foreground mb-4">
                       Vous pouvez faire une demande de réservation et les services seront personnalisés selon vos besoins.
                     </p>
-                    <Button 
-                      onClick={() => handleBooking()}
-                      variant="outline"
-                    >
+                    <Button onClick={() => handleBooking()} variant="outline">
                       Faire une demande de réservation
                     </Button>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </Card>
 
@@ -398,36 +324,22 @@ const StylistProfilePage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {portfolio.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {portfolio.map((item, index) => (
-                      <div 
-                        key={item.id}
-                        className="relative group rounded-lg overflow-hidden border animate-fade-in hover:shadow-lg transition-all duration-300"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <img
-                          src={item.image_url}
-                          alt={item.hairstyle_name || 'Réalisation'}
-                          className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/placeholder.svg';
-                          }}
-                        />
+                {portfolio.length > 0 ? <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {portfolio.map((item, index) => <div key={item.id} className="relative group rounded-lg overflow-hidden border animate-fade-in hover:shadow-lg transition-all duration-300" style={{
+                  animationDelay: `${index * 0.1}s`
+                }}>
+                        <img src={item.image_url} alt={item.hairstyle_name || 'Réalisation'} className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300" onError={e => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.svg';
+                  }} />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
-                        {item.hairstyle_name && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                        {item.hairstyle_name && <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                             <p className="text-white text-xs font-medium truncate">
                               {item.hairstyle_name}
                             </p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
+                          </div>}
+                      </div>)}
+                  </div> : <div className="text-center py-8">
                     <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground mb-2">
                       Portfolio en cours de création.
@@ -435,14 +347,12 @@ const StylistProfilePage = () => {
                     <p className="text-sm text-muted-foreground">
                       Ce professionnel publiera bientôt ses réalisations.
                     </p>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </Card>
 
             {/* Avis clients */}
-            {!reviewsLoading && stats.totalReviews > 0 && (
-              <Card>
+            {!reviewsLoading && stats.totalReviews > 0 && <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center text-lg">
                     <MessageCircle className="h-5 w-5 mr-2" />
@@ -469,48 +379,32 @@ const StylistProfilePage = () => {
                     {/* Distribution des notes */}
                     <div className="space-y-2">
                       {[5, 4, 3, 2, 1].map(rating => {
-                        const count = stats.ratingDistribution[rating as keyof typeof stats.ratingDistribution];
-                        const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
-                        
-                        return (
-                          <div key={rating} className="flex items-center gap-2 text-sm">
+                    const count = stats.ratingDistribution[rating as keyof typeof stats.ratingDistribution];
+                    const percentage = stats.totalReviews > 0 ? count / stats.totalReviews * 100 : 0;
+                    return <div key={rating} className="flex items-center gap-2 text-sm">
                             <span className="w-3">{rating}</span>
                             <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                             <div className="flex-1 bg-border rounded-full h-2">
-                              <div 
-                                className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${percentage}%` }}
-                              />
+                              <div className="bg-yellow-400 h-2 rounded-full transition-all duration-300" style={{
+                          width: `${percentage}%`
+                        }} />
                             </div>
                             <span className="w-8 text-right text-muted-foreground">{count}</span>
-                          </div>
-                        );
-                      })}
+                          </div>;
+                  })}
                     </div>
                   </div>
 
                   {/* Derniers avis */}
                   <div className="space-y-4">
                     <h4 className="font-medium">Derniers avis</h4>
-                    {reviews.slice(0, 3).map((review, index) => (
-                      <div 
-                        key={review.id}
-                        className="border rounded-lg p-4 animate-fade-in"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
+                    {reviews.slice(0, 3).map((review, index) => <div key={review.id} className="border rounded-lg p-4 animate-fade-in" style={{
+                  animationDelay: `${index * 0.1}s`
+                }}>
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star 
-                                  key={i}
-                                  className={`h-4 w-4 ${
-                                    i < review.rating 
-                                      ? 'fill-yellow-400 text-yellow-400' 
-                                      : 'text-muted-foreground'
-                                  }`}
-                                />
-                              ))}
+                              {[...Array(5)].map((_, i) => <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />)}
                             </div>
                             <span className="text-sm font-medium">
                               {review.booking?.client_name?.split(' ')[0] || 'Client'}
@@ -521,29 +415,21 @@ const StylistProfilePage = () => {
                           </span>
                         </div>
                         
-                        {review.comment && (
-                          <p className="text-sm text-muted-foreground mb-2">
+                        {review.comment && <p className="text-sm text-muted-foreground mb-2">
                             "{review.comment}"
-                          </p>
-                        )}
+                          </p>}
                         
-                        {review.booking?.service && (
-                          <div className="text-xs text-muted-foreground">
+                        {review.booking?.service && <div className="text-xs text-muted-foreground">
                             Service: {review.booking.service}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                          </div>}
+                      </div>)}
                     
-                    {reviews.length > 3 && (
-                      <p className="text-center text-sm text-muted-foreground">
+                    {reviews.length > 3 && <p className="text-center text-sm text-muted-foreground">
                         Et {reviews.length - 3} autres avis...
-                      </p>
-                    )}
+                      </p>}
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
             {/* Call to action final */}
             <Card className="text-center">
@@ -554,11 +440,7 @@ const StylistProfilePage = () => {
                 <p className="text-muted-foreground mb-4">
                   Réservez votre créneau avec {stylist.name} en quelques clics
                 </p>
-                <Button 
-                  onClick={() => handleBooking()}
-                  size="lg"
-                  className="hover-scale"
-                >
+                <Button onClick={() => handleBooking()} size="lg" className="hover-scale">
                   Réserver maintenant
                 </Button>
               </CardContent>
@@ -568,8 +450,6 @@ const StylistProfilePage = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default StylistProfilePage;
