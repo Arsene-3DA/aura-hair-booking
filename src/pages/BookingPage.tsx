@@ -82,7 +82,7 @@ const BookingPage = () => {
     });
 
     if (result.success) {
-      navigate('/app/bookings');
+      navigate('/client/dashboard');
     }
   };
 

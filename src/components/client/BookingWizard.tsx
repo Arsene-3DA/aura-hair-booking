@@ -208,7 +208,7 @@ export const BookingWizard = () => {
     });
 
     if (result.success) {
-      navigate('/app/bookings');
+      navigate('/client/dashboard');
     }
   };
 

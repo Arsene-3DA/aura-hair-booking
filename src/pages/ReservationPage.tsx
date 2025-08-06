@@ -89,12 +89,7 @@ const ReservationPage = () => {
   }, [stylistId, location.state, navigate, toast]);
 
   const handleReservationSuccess = () => {
-    // Essayer de retourner à la page précédente ou à la liste des coiffeurs par défaut
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      navigate('/stylists');
-    }
+    navigate('/client/dashboard');
   };
 
   if (loading) {
