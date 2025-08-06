@@ -1,53 +1,17 @@
-// SECURITY ENHANCEMENT: Security audit page for administrators
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useSecurityState } from '@/components/EnhancedSecurityProvider';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Shield, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
-  Eye, 
-  RefreshCw,
-  Clock,
-  Users,
-  Database,
-  Lock
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-
-interface SecurityLog {
-  id: string;
-  event_type: string;
-  user_id?: string;
-  event_data: any;
-  ip_address?: string;
-  user_agent?: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  created_at: string;
-}
-
-interface SecurityMetrics {
-  totalEvents: number;
-  criticalEvents: number;
-  highSeverityEvents: number;
-  failedLogins: number;
-  suspiciousActivity: number;
-  lastUpdate: string;
-}
+import React from 'react';
+import { PageLayout } from '@/components/PageLayout';
+import { SecurityDashboard } from '@/components/SecurityDashboard';
 
 export default function SecurityAudit() {
-  const [securityLogs, setSecurityLogs] = useState<SecurityLog[]>([]);
-  const [metrics, setMetrics] = useState<SecurityMetrics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
-  const { securityLevel, securityWarnings, refreshSecurityContext } = useSecurityState();
+  return (
+    <PageLayout 
+      title="Audit de Sécurité"
+      description="Monitoring et analyse de la sécurité du système"
+    >
+      <SecurityDashboard />
+    </PageLayout>
+  );
+}
 
   // Load security logs
   const loadSecurityLogs = async () => {
