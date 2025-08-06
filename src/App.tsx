@@ -10,6 +10,9 @@ import AuthenticatedRoute from "@/components/AuthenticatedRoute";
 import { EnhancedSecurityProvider } from "@/components/EnhancedSecurityProvider";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { CanadianLocalizationProvider } from "@/components/CanadianLocalizationProvider";
+import { RouteTracker } from "@/components/RouteTracker";
+import { BrokenLinkDetector } from "@/components/BrokenLinkDetector";
+import { NotFound } from "@/components/NotFound";
 import "@/lib/i18n";
 
 // Lazy loading des pages
@@ -26,7 +29,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const CoiffeurDashboard = lazy(() => import("./pages/CoiffeurDashboard"));
 const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
 const ComponentsDemo = lazy(() => import("./pages/ComponentsDemo"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+
 const ServicesListPage = lazy(() => import("./pages/ServicesListPage"));
 const ReviewPage = lazy(() => import("./pages/ReviewPage"));
 
@@ -89,8 +92,10 @@ const App = () => (
             <EnhancedSecurityProvider enableStrictMode={true} showWarnings={true}>
               <Toaster />
               <Sonner />
-          <BrowserRouter>
-            <Suspense fallback={<LoadingSpinner />}>
+              <BrowserRouter>
+                <RouteTracker>
+                  <BrokenLinkDetector>
+                    <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 {/* Routes publiques */}
                 <Route path="/" element={<Index />} />
@@ -203,7 +208,9 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </BrowserRouter>
+          </BrokenLinkDetector>
+        </RouteTracker>
+      </BrowserRouter>
             </EnhancedSecurityProvider>
         </TooltipProvider>
         </CanadianLocalizationProvider>
