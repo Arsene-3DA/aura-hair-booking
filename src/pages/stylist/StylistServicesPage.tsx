@@ -10,21 +10,21 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useStylistServicesManagement, type CreateServiceData } from '@/hooks/useStylistServicesManagement';
 import { useAuth } from '@/hooks/useAuth';
-
 const StylistServicesPage = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const stylistId = user?.id || '';
-  
-  // Utiliser le hook avec persistance
-  const { 
-    services, 
-    loading, 
-    addService, 
-    updateService, 
-    deleteService, 
-    toggleServiceStatus 
-  } = useStylistServicesManagement(stylistId);
 
+  // Utiliser le hook avec persistance
+  const {
+    services,
+    loading,
+    addService,
+    updateService,
+    deleteService,
+    toggleServiceStatus
+  } = useStylistServicesManagement(stylistId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
   const [formData, setFormData] = useState<CreateServiceData>({
@@ -42,39 +42,33 @@ const StylistServicesPage = () => {
   }>({});
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
-  
+
   // Validation du formulaire
   const validateForm = () => {
     const errors: typeof formErrors = {};
-    
     if (!formData.name.trim()) {
       errors.name = 'Le nom du service est requis';
     } else if (formData.name.trim().length < 2) {
       errors.name = 'Le nom doit contenir au moins 2 caractères';
     }
-    
     if (!formData.description.trim()) {
       errors.description = 'La description est requise';
     } else if (formData.description.trim().length < 10) {
       errors.description = 'La description doit contenir au moins 10 caractères';
     }
-    
     if (!formData.duration || formData.duration < 15) {
       errors.duration = 'La durée doit être d\'au moins 15 minutes';
     } else if (formData.duration > 480) {
       errors.duration = 'La durée ne peut pas dépasser 8 heures (480 minutes)';
     }
-    
     if (!formData.price || formData.price <= 0) {
       errors.price = 'Le prix doit être supérieur à 0';
     } else if (formData.price > 1000) {
       errors.price = 'Le prix ne peut pas dépasser 1000$ CAD';
     }
-    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
   const handleAddService = () => {
     setEditingService(null);
     setFormData({
@@ -102,10 +96,8 @@ const StylistServicesPage = () => {
     if (!validateForm()) {
       return;
     }
-
     try {
       setSubmitting(true);
-      
       if (editingService) {
         // Modifier un service existant
         await updateService(editingService.id, formData);
@@ -113,7 +105,7 @@ const StylistServicesPage = () => {
         // Ajouter un nouveau service
         await addService(formData);
       }
-      
+
       // Fermer le dialog et réinitialiser le formulaire
       setIsDialogOpen(false);
       setEditingService(null);
@@ -131,15 +123,12 @@ const StylistServicesPage = () => {
       setSubmitting(false);
     }
   };
-
   const handleDeleteService = (serviceId: string) => {
     setServiceToDelete(serviceId);
     setDeleteConfirmOpen(true);
   };
-
   const confirmDeleteService = async () => {
     if (!serviceToDelete) return;
-    
     try {
       await deleteService(serviceToDelete);
       setDeleteConfirmOpen(false);
@@ -148,25 +137,20 @@ const StylistServicesPage = () => {
       // L'erreur est déjà gérée dans le hook
     }
   };
-
   const handleToggleServiceStatus = (serviceId: string) => {
     toggleServiceStatus(serviceId);
   };
 
   // Afficher un loader pendant le chargement initial
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
+    return <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin mx-auto" />
           <p className="text-muted-foreground">Chargement de vos services...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6">
+  return <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6">
       {/* Header amélioré */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/20">
         <div>
@@ -246,76 +230,63 @@ const StylistServicesPage = () => {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name" className="block mb-2 text-sm font-medium">Nom du service</Label>
-                <Input 
-                  id="name" 
-                  value={formData.name} 
-                  onChange={e => {
-                    setFormData(prev => ({ ...prev, name: e.target.value }));
-                    if (formErrors.name) setFormErrors(prev => ({ ...prev, name: undefined }));
-                  }}
-                  placeholder="ex: Coupe femme"
-                  className={formErrors.name ? "border-destructive" : ""}
-                />
-                {formErrors.name && (
-                  <p className="text-destructive text-sm mt-1">{formErrors.name}</p>
-                )}
+                <Input id="name" value={formData.name} onChange={e => {
+                setFormData(prev => ({
+                  ...prev,
+                  name: e.target.value
+                }));
+                if (formErrors.name) setFormErrors(prev => ({
+                  ...prev,
+                  name: undefined
+                }));
+              }} placeholder="ex: Coupe femme" className={formErrors.name ? "border-destructive" : ""} />
+                {formErrors.name && <p className="text-destructive text-sm mt-1">{formErrors.name}</p>}
               </div>
               
               <div>
                 <Label htmlFor="description" className="block mb-2 text-sm font-medium">Description</Label>
-                <Textarea 
-                  id="description" 
-                  value={formData.description} 
-                  onChange={e => {
-                    setFormData(prev => ({ ...prev, description: e.target.value }));
-                    if (formErrors.description) setFormErrors(prev => ({ ...prev, description: undefined }));
-                  }}
-                  placeholder="Décrivez brièvement ce service..." 
-                  rows={3}
-                  className={formErrors.description ? "border-destructive" : ""}
-                />
-                {formErrors.description && (
-                  <p className="text-destructive text-sm mt-1">{formErrors.description}</p>
-                )}
+                <Textarea id="description" value={formData.description} onChange={e => {
+                setFormData(prev => ({
+                  ...prev,
+                  description: e.target.value
+                }));
+                if (formErrors.description) setFormErrors(prev => ({
+                  ...prev,
+                  description: undefined
+                }));
+              }} placeholder="Décrivez brièvement ce service..." rows={3} className={formErrors.description ? "border-destructive" : ""} />
+                {formErrors.description && <p className="text-destructive text-sm mt-1">{formErrors.description}</p>}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="duration" className="block mb-2 text-sm font-medium">Durée (minutes)</Label>
-                  <Input 
-                    id="duration" 
-                    type="number" 
-                    value={formData.duration} 
-                    onChange={e => {
-                      setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }));
-                      if (formErrors.duration) setFormErrors(prev => ({ ...prev, duration: undefined }));
-                    }}
-                    min="15" 
-                    step="15"
-                    className={formErrors.duration ? "border-destructive" : ""}
-                  />
-                  {formErrors.duration && (
-                    <p className="text-destructive text-sm mt-1">{formErrors.duration}</p>
-                  )}
+                  <Label htmlFor="duration" className="block mb-2 text-sm font-medium bg-slate-500">Durée (minutes)</Label>
+                  <Input id="duration" type="number" value={formData.duration} onChange={e => {
+                  setFormData(prev => ({
+                    ...prev,
+                    duration: parseInt(e.target.value) || 0
+                  }));
+                  if (formErrors.duration) setFormErrors(prev => ({
+                    ...prev,
+                    duration: undefined
+                  }));
+                }} min="15" step="15" className={formErrors.duration ? "border-destructive" : ""} />
+                  {formErrors.duration && <p className="text-destructive text-sm mt-1">{formErrors.duration}</p>}
                 </div>
                 
                 <div>
                   <Label htmlFor="price" className="block mb-2 text-sm font-medium">Prix ($CAD)</Label>
-                  <Input 
-                    id="price" 
-                    type="number" 
-                    value={formData.price} 
-                    onChange={e => {
-                      setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }));
-                      if (formErrors.price) setFormErrors(prev => ({ ...prev, price: undefined }));
-                    }}
-                    min="0" 
-                    step="0.50"
-                    className={formErrors.price ? "border-destructive" : ""}
-                  />
-                  {formErrors.price && (
-                    <p className="text-destructive text-sm mt-1">{formErrors.price}</p>
-                  )}
+                  <Input id="price" type="number" value={formData.price} onChange={e => {
+                  setFormData(prev => ({
+                    ...prev,
+                    price: parseFloat(e.target.value) || 0
+                  }));
+                  if (formErrors.price) setFormErrors(prev => ({
+                    ...prev,
+                    price: undefined
+                  }));
+                }} min="0" step="0.50" className={formErrors.price ? "border-destructive" : ""} />
+                  {formErrors.price && <p className="text-destructive text-sm mt-1">{formErrors.price}</p>}
                 </div>
               </div>
             </div>
@@ -398,18 +369,14 @@ const StylistServicesPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDeleteService}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={confirmDeleteService} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Supprimer définitivement
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {services.length === 0 && (
-        <Card className="border-dashed border-2">
+      {services.length === 0 && <Card className="border-dashed border-2">
           <CardContent className="text-center py-12">
             <Scissors className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -423,10 +390,7 @@ const StylistServicesPage = () => {
               Ajouter mon premier service
             </Button>
           </CardContent>
-        </Card>
-      )}
-    </div>
-  );
+        </Card>}
+    </div>;
 };
-
 export default StylistServicesPage;
