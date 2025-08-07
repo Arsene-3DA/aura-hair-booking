@@ -25,11 +25,12 @@ const Header = () => {
     }}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30">
-                <Scissors className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-white">Aura</span>
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/lovable-uploads/adc857a4-9747-4ab0-a7d9-34c15807fe8e.png" 
+                alt="Tchix Logo" 
+                className="h-12 w-auto"
+              />
             </div>
             <div className="animate-pulse w-32 h-8 bg-white/20 rounded"></div>
           </div>
@@ -55,11 +56,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30">
-              <Scissors className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-white">Aura</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src="/lovable-uploads/adc857a4-9747-4ab0-a7d9-34c15807fe8e.png" 
+              alt="Tchix Logo" 
+              className="h-12 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
