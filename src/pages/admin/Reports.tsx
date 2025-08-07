@@ -70,7 +70,7 @@ const AdminReports = () => {
                   format(new Date(row.report_date), 'dd/MM/yyyy', { locale: fr }),
                   row.total_bookings.toString(),
                   row.confirmed_bookings.toString(),
-                  `${row.total_revenue}€`
+                  `$${row.total_revenue} CAD`
                 ])
               ]
             },
@@ -214,7 +214,7 @@ const AdminReports = () => {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalRevenue.toFixed(2)}€</div>
+            <div className="text-2xl font-bold">${totalRevenue.toFixed(2)} CAD</div>
             <p className="text-xs text-muted-foreground">
               Revenus générés
             </p>
@@ -321,7 +321,7 @@ const AdminReports = () => {
                       <td className="p-2">{row.pending_bookings}</td>
                       <td className="p-2">{row.declined_bookings}</td>
                       <td className="p-2">{row.no_shows}</td>
-                      <td className="p-2">{Number(row.total_revenue).toFixed(2)}€</td>
+                      <td className="p-2">${Number(row.total_revenue).toFixed(2)} CAD</td>
                     </tr>
                   ))}
                 </tbody>

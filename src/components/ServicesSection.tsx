@@ -7,42 +7,42 @@ const services = [
     icon: Scissors,
     title: "Coupe & Styling",
     description: "Coupes tendances adaptées à votre style et morphologie",
-    price: "À partir de 45$",
+    price: "À partir de 45$ CAD",
     popular: false
   },
   {
     icon: Palette,
     title: "Couleur & Mèches",
     description: "Colorations personnalisées et techniques de mèches modernes",
-    price: "À partir de 85$",
+    price: "À partir de 85$ CAD",
     popular: true
   },
   {
     icon: Heart,
     title: "Soins Capillaires",
     description: "Traitements nourrissants pour des cheveux en pleine santé",
-    price: "À partir de 35$",
+    price: "À partir de 35$ CAD",
     popular: false
   },
   {
     icon: Crown,
     title: "Coiffure Mariée",
     description: "Créations sur-mesure pour votre jour J",
-    price: "À partir de 160$",
+    price: "À partir de 160$ CAD",
     popular: false
   },
   {
     icon: Users,
     title: "Coiffure Homme",
     description: "Coupes masculines classiques et modernes",
-    price: "À partir de 38$",
+    price: "À partir de 38$ CAD",
     popular: false
   },
   {
     icon: Sparkles,
     title: "Extensions",
     description: "Pose d'extensions pour plus de volume et de longueur",
-    price: "À partir de 200$",
+    price: "À partir de 200$ CAD",
     popular: false
   }
 ];

@@ -92,7 +92,7 @@ const StylistQueuePage = () => {
                   <div>
                     <span className="font-medium">{reservation.service_name || 'Service non spécifié'}</span>
                     {reservation.service_price && (
-                      <span className="ml-2 text-sm">({reservation.service_price}€)</span>
+                      <span className="ml-2 text-sm">(${reservation.service_price} CAD)</span>
                     )}
                     {reservation.service_duration && (
                       <span className="ml-2 text-sm">- {reservation.service_duration}min</span>

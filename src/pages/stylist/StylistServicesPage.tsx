@@ -68,7 +68,7 @@ const StylistServicesPage = () => {
     if (!formData.price || formData.price <= 0) {
       errors.price = 'Le prix doit être supérieur à 0';
     } else if (formData.price > 1000) {
-      errors.price = 'Le prix ne peut pas dépasser 1000€';
+      errors.price = 'Le prix ne peut pas dépasser 1000$ CAD';
     }
     
     setFormErrors(errors);
@@ -205,7 +205,7 @@ const StylistServicesPage = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Euro className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xl font-bold text-primary">{service.price}€</span>
+                    <span className="text-xl font-bold text-primary">${service.price} CAD</span>
                   </div>
                 </div>
               </div>
@@ -300,7 +300,7 @@ const StylistServicesPage = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="price" className="block mb-2 text-sm font-medium">Prix (€)</Label>
+                  <Label htmlFor="price" className="block mb-2 text-sm font-medium">Prix ($CAD)</Label>
                   <Input 
                     id="price" 
                     type="number" 
@@ -347,7 +347,7 @@ const StylistServicesPage = () => {
                       <div className="flex items-center gap-2">
                         <Euro className="h-4 w-4 text-muted-foreground" />
                         <span className="text-xl font-bold text-primary">
-                          {formData.price || 0}€
+                          ${formData.price || 0} CAD
                         </span>
                       </div>
                     </div>

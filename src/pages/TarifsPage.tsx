@@ -11,33 +11,33 @@ const TarifsPage = () => {
     {
       category: "Coupe & Styling",
       items: [
-        { name: "Coupe classique", price: "35€", duration: "45 min", description: "Coupe et mise en forme" },
-        { name: "Coupe & brushing", price: "50€", duration: "60 min", description: "Coupe avec mise en plis" },
-        { name: "Styling événementiel", price: "70€", duration: "90 min", description: "Coiffure pour occasions spéciales" }
+        { name: "Coupe classique", price: "35$ CAD", duration: "45 min", description: "Coupe et mise en forme" },
+        { name: "Coupe & brushing", price: "50$ CAD", duration: "60 min", description: "Coupe avec mise en plis" },
+        { name: "Styling événementiel", price: "70$ CAD", duration: "90 min", description: "Coiffure pour occasions spéciales" }
       ]
     },
     {
       category: "Coloration",
       items: [
-        { name: "Coloration racines", price: "60€", duration: "120 min", description: "Retouche des racines" },
-        { name: "Coloration complète", price: "80€", duration: "150 min", description: "Coloration sur toute la longueur" },
-        { name: "Mèches", price: "90€", duration: "180 min", description: "Techniques de mèches" }
+        { name: "Coloration racines", price: "60$ CAD", duration: "120 min", description: "Retouche des racines" },
+        { name: "Coloration complète", price: "80$ CAD", duration: "150 min", description: "Coloration sur toute la longueur" },
+        { name: "Mèches", price: "90$ CAD", duration: "180 min", description: "Techniques de mèches" }
       ]
     },
     {
       category: "Soins",
       items: [
-        { name: "Soin hydratant", price: "25€", duration: "30 min", description: "Masque nourrissant" },
-        { name: "Soin réparateur", price: "35€", duration: "45 min", description: "Traitement intensif" },
-        { name: "Soin anti-chute", price: "40€", duration: "60 min", description: "Traitement spécialisé" }
+        { name: "Soin hydratant", price: "25$ CAD", duration: "30 min", description: "Masque nourrissant" },
+        { name: "Soin réparateur", price: "35$ CAD", duration: "45 min", description: "Traitement intensif" },
+        { name: "Soin anti-chute", price: "40$ CAD", duration: "60 min", description: "Traitement spécialisé" }
       ]
     },
     {
       category: "Homme",
       items: [
-        { name: "Coupe homme", price: "25€", duration: "30 min", description: "Coupe masculine classique" },
-        { name: "Barbe", price: "20€", duration: "20 min", description: "Taille et mise en forme" },
-        { name: "Coupe + Barbe", price: "40€", duration: "45 min", description: "Service complet" }
+        { name: "Coupe homme", price: "25$ CAD", duration: "30 min", description: "Coupe masculine classique" },
+        { name: "Barbe", price: "20$ CAD", duration: "20 min", description: "Taille et mise en forme" },
+        { name: "Coupe + Barbe", price: "40$ CAD", duration: "45 min", description: "Service complet" }
       ]
     }
   ];
@@ -45,8 +45,8 @@ const TarifsPage = () => {
   const packages = [
     {
       name: "Découverte",
-      price: "120€",
-      originalPrice: "150€",
+      price: "120$ CAD",
+      originalPrice: "150$ CAD",
       popular: false,
       features: [
         "Consultation personnalisée",
@@ -57,8 +57,8 @@ const TarifsPage = () => {
     },
     {
       name: "Transformation",
-      price: "200€",
-      originalPrice: "250€",
+      price: "200$ CAD",
+      originalPrice: "250$ CAD",
       popular: true,
       features: [
         "Consultation approfondie",
@@ -70,8 +70,8 @@ const TarifsPage = () => {
     },
     {
       name: "Premium",
-      price: "300€",
-      originalPrice: "380€",
+      price: "300$ CAD",
+      originalPrice: "380$ CAD",
       popular: false,
       features: [
         "Service VIP complet",

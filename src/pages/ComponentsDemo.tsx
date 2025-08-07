@@ -89,7 +89,7 @@ const ComponentsDemo = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <DashboardWidget
               title="Revenus"
-              value="€2,450"
+              value="$2,450 CAD"
               change="+12%"
               isPositive={true}
               sparklineData={sparklineData}
