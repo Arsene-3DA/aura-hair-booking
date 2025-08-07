@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfessionalServices } from '@/hooks/useProfessionalServices';
+import ResponsiveImage from '@/components/ResponsiveImage';
 interface HairdresserCardProps {
   id: string;
   name: string;
@@ -76,13 +77,17 @@ const HairdresserCard = ({
     navigate(`/stylist/${id}`);
   };
   return <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform duration-200 cursor-pointer border border-gray-100">
-      {/* Photo ronde 96px */}
+      {/* Photo ronde 96px avec gestion d'erreur améliorée */}
       <div className="flex justify-center mb-4">
         <div className="relative">
-          <img src={photo} alt={name} className="w-24 h-24 rounded-full object-cover border-4 border-gold-200" onError={e => {
-          const target = e.target as HTMLImageElement;
-          target.src = '/placeholder.svg';
-        }} />
+          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gold-200">
+            <ResponsiveImage
+              src={photo}
+              alt={name}
+              className="w-full h-full"
+              loading="lazy"
+            />
+          </div>
           <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white"></div>
         </div>
       </div>

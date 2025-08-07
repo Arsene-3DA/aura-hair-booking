@@ -98,16 +98,18 @@ const ExpertDetailPage = () => {
         throw expertError;
       }
 
-      // Récupérer les informations de rôle depuis profiles
+      // Récupérer les informations de rôle et avatar depuis profiles
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, avatar_url, full_name')
         .eq('user_id', expertId)
         .single();
 
       return {
         ...expertData,
-        role: profileData?.role || 'coiffeur'
+        role: profileData?.role || 'coiffeur',
+        image_url: profileData?.avatar_url || expertData.image_url,
+        name: profileData?.full_name || expertData.name
       } as ExpertDetail;
     },
     enabled: !!expertId
@@ -196,7 +198,13 @@ const ExpertDetailPage = () => {
           <Card>
             <CardHeader className="text-center">
               <Avatar className="h-32 w-32 mx-auto mb-4">
-                <AvatarImage src={expert.image_url} alt={expert.name} />
+                <AvatarImage 
+                  src={expert.image_url} 
+                  alt={expert.name}
+                  className="object-cover"
+                  style={{ aspectRatio: '1/1' }}
+                  loading="lazy" 
+                />
                 <AvatarFallback className="text-2xl">
                   {expert.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                 </AvatarFallback>
@@ -327,6 +335,12 @@ const ExpertDetailPage = () => {
                         src={item.image_url} 
                         alt={item.hairstyle_name || 'Portfolio'} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        style={{ aspectRatio: '1/1' }}
+                        loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder.svg';
+                        }}
                       />
                       {item.hairstyle_name && (
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">

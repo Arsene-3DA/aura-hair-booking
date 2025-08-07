@@ -58,11 +58,17 @@ export const EnhancedAvatar = ({ src, name, size = 'md', className }: EnhancedAv
         <AvatarImage 
           src={src} 
           alt={name || 'Avatar'} 
+          className="object-cover"
+          style={{ aspectRatio: '1/1' }}
+          loading="lazy"
           onError={(e) => {
             // Si l'image échoue, essaie le fallback ui-avatars
             const fallbackUrl = getFallbackAvatarUrl();
             if (fallbackUrl && e.currentTarget.src !== fallbackUrl) {
               e.currentTarget.src = fallbackUrl;
+            } else {
+              // Si même le fallback échoue, on cache l'élément pour laisser place au fallback final
+              e.currentTarget.style.display = 'none';
             }
           }}
         />
@@ -73,6 +79,13 @@ export const EnhancedAvatar = ({ src, name, size = 'md', className }: EnhancedAv
         <AvatarImage 
           src={getFallbackAvatarUrl() || ''} 
           alt={name}
+          className="object-cover"
+          style={{ aspectRatio: '1/1' }}
+          loading="lazy"
+          onError={(e) => {
+            // Si même ui-avatars échoue, on cache l'élément
+            e.currentTarget.style.display = 'none';
+          }}
         />
       )}
       

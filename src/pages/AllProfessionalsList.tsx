@@ -5,111 +5,26 @@ import Footer from '@/components/Footer';
 import HairdresserCard from '@/components/HairdresserCard';
 import { Input } from "@/components/ui/input";
 import { Search } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from "@/hooks/use-toast";
-interface Professional {
-  id: string;
-  name: string;
-  specialties: string[];
-  rating: number;
-  image_url: string;
-  experience: string;
-  location: string;
-  salon_address: string;
-  gender: string;
-  email: string;
-  phone?: string;
-  is_active: boolean;
-}
+import { useCompleteProfessionals, type CompleteProfessional } from '@/hooks/useCompleteProfessionals';
 const AllProfessionalsList = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { professionals, loading, error } = useCompleteProfessionals();
+  const [filteredProfessionals, setFilteredProfessionals] = useState<CompleteProfessional[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Charger tous les professionnels depuis Supabase
-  useEffect(() => {
-    const loadProfessionals = async () => {
-      try {
-        setLoading(true);
-        console.log('Loading all professionals...');
-        const {
-          data,
-          error
-        } = await supabase.from('hairdressers').select(`
-            id,
-            auth_id,
-            name,
-            email,
-            phone,
-            salon_address,
-            bio,
-            website,
-            instagram,
-            specialties,
-            rating,
-            image_url,
-            experience,
-            location,
-            gender,
-            is_active
-          `).eq('is_active', true).not('auth_id', 'is', null) // Exclure les données de test (auth_id null)
-        .order('rating', {
-          ascending: false
-        });
-        if (error) {
-          console.error('Erreur lors du chargement des professionnels:', error);
-          toast({
-            title: "Erreur",
-            description: "Impossible de charger les professionnels",
-            variant: "destructive"
-          });
-          return;
-        }
-        console.log('Data received from Supabase:', data);
-
-        // Mapper les données Supabase vers l'interface Professional
-        const mappedProfessionals: Professional[] = (data || []).map(item => ({
-          id: item.auth_id || item.id,
-          name: item.name,
-          specialties: item.specialties || [],
-          rating: item.rating || 5.0,
-          image_url: item.image_url || '/placeholder.svg',
-          experience: item.experience || '',
-          location: item.salon_address || item.location || '',
-          salon_address: item.salon_address || '',
-          gender: item.gender || '',
-          email: item.email,
-          phone: item.phone || undefined,
-          is_active: item.is_active || false
-        }));
-        setProfessionals(mappedProfessionals);
-        setFilteredProfessionals(mappedProfessionals);
-        console.log('Professionnels chargés:', mappedProfessionals.length, mappedProfessionals);
-      } catch (error) {
-        console.error('Erreur:', error);
-        toast({
-          title: "Erreur",
-          description: "Une erreur est survenue",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProfessionals();
-  }, [toast]);
 
   // Filtrer les professionnels en temps réel selon la recherche
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredProfessionals(professionals);
     } else {
-      const filtered = professionals.filter(professional => professional.name.toLowerCase().includes(searchQuery.toLowerCase()) || professional.specialties.some(specialty => specialty.toLowerCase().includes(searchQuery.toLowerCase())) || professional.location.toLowerCase().includes(searchQuery.toLowerCase()));
+      const filtered = professionals.filter(professional => 
+        professional.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        professional.specialties.some(specialty => 
+          specialty.toLowerCase().includes(searchQuery.toLowerCase())
+        ) ||
+        (professional.salon_address && professional.salon_address.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (professional.location && professional.location.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
       setFilteredProfessionals(filtered);
     }
   }, [searchQuery, professionals]);
@@ -155,7 +70,7 @@ const AllProfessionalsList = () => {
                 
                 {filteredProfessionals.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredProfessionals.map(professional => <div key={professional.id} className="animate-fade-in">
-                        <HairdresserCard id={professional.id} name={professional.name} photo={professional.image_url} tags={professional.specialties} rating={professional.rating} experience={professional.experience} />
+                        <HairdresserCard id={professional.auth_id || professional.id} name={professional.name} photo={professional.image_url} tags={professional.specialties} rating={professional.rating} experience={professional.experience} />
                       </div>)}
                   </div> : searchQuery ? <div className="text-center py-16">
                     <p className="text-gray-600 text-lg mb-4">
