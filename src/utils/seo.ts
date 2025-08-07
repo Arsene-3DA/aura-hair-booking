@@ -8,10 +8,10 @@ interface SEOMetaProps {
 }
 
 export const updateSEOMeta = ({
-  title = "SalonBook - Réservation Coiffeur Premium",
-  description = "Réservez votre coiffeur en ligne avec SalonBook",
+  title = "Tchix - Réservation Coiffeur Premium",
+  description = "Réservez votre coiffeur en ligne avec Tchix",
   hairdresserName,
-  siteName = "SalonBook",
+  siteName = "Tchix",
   image = "/og-image.jpg"
 }: SEOMetaProps) => {
   // Title dynamique

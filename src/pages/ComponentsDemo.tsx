@@ -30,10 +30,10 @@ const ComponentsDemo = () => {
   // Mettre à jour les meta SEO
   useState(() => {
     updateSEOMeta({
-      title: "Démonstration Composants - SalonBook",
-      description: "Découvrez tous les composants premium de SalonBook",
+      title: "Démonstration Composants - Tchix",
+      description: "Découvrez tous les composants premium de Tchix",
       hairdresserName: "Marie Dupont",
-      siteName: "SalonBook Premium"
+      siteName: "Tchix Premium"
     });
   });
 

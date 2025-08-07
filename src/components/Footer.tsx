@@ -14,7 +14,7 @@ const Footer = () => {
                 <Scissors className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold gradient-text">SalonBook</h3>
+                <h3 className="text-2xl font-bold gradient-text">Tchix</h3>
                 <p className="text-sm text-gray-400">Réservation en ligne</p>
               </div>
             </div>
@@ -80,15 +80,9 @@ const Footer = () => {
             </h4>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-gray-300">Lundi - Vendredi</span>
+                <span className="text-gray-300">Lundi - Samedi</span>
                 <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                  9h - 19h
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-300">Samedi</span>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                  9h - 18h
+                  9h - 21h
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
@@ -112,15 +106,14 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-gold-400 mt-0.5" />
                 <div>
-                  <p className="text-gray-300">123 Rue Somerset</p>
-                  <p className="text-gray-300">Ottawa, ON K1R 5T3, Canada</p>
+                  <p className="text-gray-300">Canada</p>
                 </div>
               </div>
               
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-gold-400" />
-                <a href="tel:6139901234" className="text-gray-300 hover:text-gold-400 transition-colors">
-                  (613) 990-1234
+                <a href="tel:+18736555275" className="text-gray-300 hover:text-gold-400 transition-colors">
+                  +1 (873) 655-5275
                 </a>
               </div>
               
@@ -145,7 +138,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-400 text-sm">
-              © 2024 SalonBook. Tous droits réservés.
+              © 2024 Tchix. Tous droits réservés.
             </div>
             <div className="flex space-x-6">
               <a href="#" className="text-gray-400 hover:text-gold-400 transition-colors text-sm">
