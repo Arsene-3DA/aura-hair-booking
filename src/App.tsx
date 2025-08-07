@@ -114,6 +114,11 @@ const App = () => (
                 } />
                 <Route path="/professionals/:gender" element={<ProfessionalsList />} />
                 <Route path="/auth" element={<RoleAuthPage />} />
+                <Route path="/connexion" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {React.createElement(React.lazy(() => import('./pages/ModernAuthPage')))}
+                  </Suspense>
+                } />
                 <Route path="/stylists" element={<StylistsList />} />
                 <Route path="/stylist/:stylistId" element={
                   <Suspense fallback={<LoadingSpinner />}>
