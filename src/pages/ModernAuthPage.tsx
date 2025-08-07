@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import salonHeroImage from '@/assets/salon-professionals-hero.jpg';
 
 const ModernAuthPage = () => {
@@ -116,236 +116,251 @@ const ModernAuthPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-white">
-      {/* Section gauche - Image et contenu */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-luxury-black">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${salonHeroImage})` }}
+    <div className="min-h-screen flex flex-col bg-white relative">
+      {/* Bouton de retour en haut */}
+      <div className="absolute top-4 left-4 z-20">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/')}
+          className="flex items-center space-x-2 text-white hover:text-white/80 hover:bg-white/10 rounded-full px-4 py-2"
         >
-          <div className="absolute inset-0 bg-luxury-black/40" />
-        </div>
-        
-        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-          <h1 className="text-5xl font-bold mb-6 leading-tight">
-            TROUVEZ DES<br />
-            COIFFEURS<br />
-            <span className="text-luxury-gold-400">EXCEPTIONNELS...</span>
-          </h1>
-          <p className="text-xl mb-8 text-gray-200 max-w-md">
-            Créez un compte et prenez rendez-vous<br />
-            facilement avec des stylistes talentueux.
-          </p>
-          <Button 
-            onClick={() => navigate('/professionals')}
-            className="w-fit bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:scale-105"
-          >
-            DÉCOUVRIR
-          </Button>
-        </div>
+          <ArrowLeft className="h-4 w-4" />
+          <span>Accueil</span>
+        </Button>
       </div>
 
-      {/* Section droite - Formulaire */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8" style={{ backgroundColor: '#F4DC7C' }}>
-        <div className="w-full max-w-md">
-          <Card className="border-0 shadow-none bg-white/95 backdrop-blur-sm">
-            <div className="p-8">
-              <h2 className="text-3xl font-bold text-center mb-8 text-luxury-black">
-                Connexion à la plateforme
-              </h2>
-
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100">
-                  <TabsTrigger value="login" className="data-[state=active]:bg-white">
-                    Connexion
-                  </TabsTrigger>
-                  <TabsTrigger value="signup" className="data-[state=active]:bg-white">
-                    Inscription
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="login" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-luxury-black font-medium">
-                      Email
-                    </Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="votre@email.com"
-                      className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password" className="text-luxury-black font-medium">
-                      Mot de passe
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="login-password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-500" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-500" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={() => handleSubmit(false)}
-                    disabled={isSubmitting}
-                    className="w-full h-12 bg-luxury-black hover:bg-luxury-charcoal text-white font-bold rounded-full transition-all duration-300 hover:scale-105"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    LOGIN
-                  </Button>
-
-                  <div className="text-center">
-                    <Button
-                      variant="ghost"
-                      className="text-luxury-black/70 hover:text-luxury-black underline"
-                    >
-                      Mot de passe oublié ?
-                    </Button>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="signup" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name" className="text-luxury-black font-medium">
-                      Nom complet
-                    </Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Votre nom complet"
-                      className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email" className="text-luxury-black font-medium">
-                      Email
-                    </Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="votre@email.com"
-                      className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password" className="text-luxury-black font-medium">
-                      Mot de passe
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-500" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-500" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password" className="text-luxury-black font-medium">
-                      Confirmer le mot de passe
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-confirm-password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-500" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-500" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={() => handleSubmit(true)}
-                    disabled={isSubmitting}
-                    className="w-full h-12 bg-luxury-black hover:bg-luxury-charcoal text-white font-bold rounded-full transition-all duration-300 hover:scale-105"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    S'INSCRIRE
-                  </Button>
-                </TabsContent>
-              </Tabs>
-            </div>
-          </Card>
-
-          {/* Bouton retour à l'accueil pour mobile */}
-          <div className="text-center mt-6 lg:hidden">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/')}
-              className="text-white hover:text-white/80"
+      <div className="min-h-screen flex bg-white">
+        {/* Section gauche - Image et contenu */}
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-luxury-black">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${salonHeroImage})` }}
+          >
+            <div className="absolute inset-0 bg-luxury-black/40" />
+          </div>
+          
+          <div className="relative z-10 flex flex-col justify-center px-12 text-white">
+            <h1 className="text-5xl font-bold mb-6 leading-tight">
+              TROUVEZ DES<br />
+              COIFFEURS<br />
+              <span className="text-luxury-gold-400">EXCEPTIONNELS...</span>
+            </h1>
+            <p className="text-xl mb-8 text-gray-200 max-w-md">
+              Créez un compte et prenez rendez-vous<br />
+              facilement avec des stylistes talentueux.
+            </p>
+            <Button 
+              onClick={() => navigate('/professionals')}
+              className="w-fit bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:scale-105"
             >
-              ← Retour à l'accueil
+              DÉCOUVRIR
             </Button>
+          </div>
+        </div>
+
+        {/* Section droite - Formulaire */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8" style={{ backgroundColor: '#F4DC7C' }}>
+          <div className="w-full max-w-md">
+            <Card className="border-0 shadow-none bg-white/95 backdrop-blur-sm">
+              <div className="p-8">
+                <h2 className="text-3xl font-bold text-center mb-8 text-luxury-black">
+                  Connexion à la plateforme
+                </h2>
+
+                <Tabs defaultValue="login" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100">
+                    <TabsTrigger value="login" className="data-[state=active]:bg-white">
+                      Connexion
+                    </TabsTrigger>
+                    <TabsTrigger value="signup" className="data-[state=active]:bg-white">
+                      Inscription
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="login" className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="login-email" className="text-luxury-black font-medium">
+                        Email
+                      </Label>
+                      <Input
+                        id="login-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="votre@email.com"
+                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="login-password" className="text-luxury-black font-medium">
+                        Mot de passe
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="login-password"
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => handleSubmit(false)}
+                      disabled={isSubmitting}
+                      className="w-full h-12 bg-luxury-black hover:bg-luxury-charcoal text-white font-bold rounded-full transition-all duration-300 hover:scale-105"
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      LOGIN
+                    </Button>
+
+                    <div className="text-center">
+                      <Button
+                        variant="ghost"
+                        className="text-luxury-black/70 hover:text-luxury-black underline"
+                      >
+                        Mot de passe oublié ?
+                      </Button>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="signup" className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-name" className="text-luxury-black font-medium">
+                        Nom complet
+                      </Label>
+                      <Input
+                        id="signup-name"
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Votre nom complet"
+                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email" className="text-luxury-black font-medium">
+                        Email
+                      </Label>
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="votre@email.com"
+                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password" className="text-luxury-black font-medium">
+                        Mot de passe
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="signup-password"
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-confirm-password" className="text-luxury-black font-medium">
+                        Confirmer le mot de passe
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="signup-confirm-password"
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => handleSubmit(true)}
+                      disabled={isSubmitting}
+                      className="w-full h-12 bg-luxury-black hover:bg-luxury-charcoal text-white font-bold rounded-full transition-all duration-300 hover:scale-105"
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      S'INSCRIRE
+                    </Button>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </Card>
+
+            {/* Bouton retour à l'accueil pour mobile */}
+            <div className="text-center mt-6 lg:hidden">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/')}
+                className="text-white hover:text-white/80"
+              >
+                ← Retour à l'accueil
+              </Button>
+            </div>
           </div>
         </div>
       </div>
