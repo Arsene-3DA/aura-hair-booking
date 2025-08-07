@@ -24,6 +24,7 @@ const ProfileSection = ({ onProfileUpdate }: ProfileSectionProps) => {
     if (profile) {
       setFormData({
         name: profile.name || '',
+        email: profile.email || '',
         salon_address: profile.salon_address || '',
         phone: profile.phone || '',
         bio: profile.bio || '',
@@ -104,6 +105,26 @@ const ProfileSection = ({ onProfileUpdate }: ProfileSectionProps) => {
                 Ce nom sera affiché publiquement sur votre profil
               </p>
             </div>
+            <div>
+              <Label htmlFor="email">Email professionnel</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="contact@salon.com"
+                  className="pl-10"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.email ? 'Visible publiquement pour les réservations' : 'Sera affiché une fois renseigné'}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="phone">Téléphone</Label>
               <div className="relative">

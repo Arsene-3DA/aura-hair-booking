@@ -46,8 +46,6 @@ export const useProfessionalServices = (
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Récupération des services pour professionalAuthId:', professionalAuthId);
-
       // D'abord récupérer l'ID du hairdresser basé sur auth_id
       const { data: hairdresserData, error: hairdresserError } = await supabase
         .from('hairdressers')
@@ -56,12 +54,9 @@ export const useProfessionalServices = (
         .eq('is_active', true)
         .single();
 
-      console.log('🔍 Hairdresser data:', hairdresserData, 'Error:', hairdresserError);
-
       if (hairdresserError) {
         if (hairdresserError.code === 'PGRST116') {
           // Professionnel non trouvé ou inactif
-          console.log('❌ Professionnel non trouvé ou inactif');
           setServices([]);
           return;
         }
@@ -69,7 +64,6 @@ export const useProfessionalServices = (
       }
 
       if (!hairdresserData) {
-        console.log('❌ Aucune donnée hairdresser');
         setServices([]);
         return;
       }

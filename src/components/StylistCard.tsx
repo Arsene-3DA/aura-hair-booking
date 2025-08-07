@@ -131,15 +131,13 @@ export const StylistCard = ({
             </div>
           </div>
 
-          {/* Rating */}
-          {rating > 0 && (
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" aria-hidden="true" />
-              <span className="text-sm font-medium" aria-label={`Note: ${rating} sur 5`}>
-                {rating.toFixed(1)}
-              </span>
-            </div>
-          )}
+          {/* Rating - 5 étoiles par défaut */}
+          <div className="flex items-center gap-1">
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" aria-hidden="true" />
+            <span className="text-sm font-medium" aria-label={`Note: ${rating > 0 ? rating : 5.0} sur 5`}>
+              {(rating > 0 ? rating : 5.0).toFixed(1)}
+            </span>
+          </div>
         </div>
       </CardHeader>
 

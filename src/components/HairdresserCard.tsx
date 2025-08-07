@@ -121,24 +121,27 @@ const HairdresserCard = ({
           </span>}
       </div>
 
-      {/* Rating - synchronisé en temps réel */}
-      <div className="flex items-center justify-center mb-6">
-        <div className="flex space-x-1 mr-2">
-          {[...Array(5)].map((_, i) => 
-            <Star 
-              key={i} 
-              className={`h-4 w-4 ${
-                i < Math.floor(currentRating) 
-                  ? 'text-yellow-400 fill-yellow-400' 
-                  : 'text-gray-300'
-              }`} 
-            />
-          )}
-        </div>
-        <span className="text-sm text-gray-700 font-medium">
-          {currentRating.toFixed(1)}
-        </span>
-      </div>
+          {/* Rating - 5 étoiles par défaut */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="flex space-x-1 mr-2">
+              {[...Array(5)].map((_, i) => {
+                const displayRating = currentRating > 0 ? currentRating : 5.0;
+                return (
+                  <Star 
+                    key={i} 
+                    className={`h-4 w-4 ${
+                      i < Math.floor(displayRating) 
+                        ? 'text-yellow-400 fill-yellow-400' 
+                        : 'text-gray-300'
+                    }`} 
+                  />
+                );
+              })}
+            </div>
+            <span className="text-sm text-gray-700 font-medium">
+              {(currentRating > 0 ? currentRating : 5.0).toFixed(1)}
+            </span>
+          </div>
 
       {/* Boutons d'action */}
       <div className="space-y-3">

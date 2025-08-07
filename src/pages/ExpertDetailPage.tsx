@@ -204,7 +204,7 @@ const ExpertDetailPage = () => {
               <CardTitle className="text-2xl">{expert.name}</CardTitle>
               <div className="flex items-center justify-center gap-1">
                 <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{expert.rating}/5</span>
+                <span className="font-medium">{expert.rating > 0 ? expert.rating : 5.0}/5</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -389,12 +389,6 @@ const ExpertDetailPage = () => {
                 <div className="text-center py-8 text-muted-foreground">
                   <p>Ce professionnel n'a pas encore défini de services spécifiques.</p>
                   <p className="text-sm">Vous pouvez faire une demande de réservation et les services seront personnalisés selon vos besoins.</p>
-                  {/* Debug info - À supprimer en production */}
-                  <div className="text-xs mt-4 p-2 bg-gray-100 rounded">
-                    <p>Debug: expertId={expertId}</p>
-                    <p>Services loading: {servicesLoading ? 'true' : 'false'}</p>
-                    <p>Services count: {services?.length || 0}</p>
-                  </div>
                 </div>
               )}
             </CardContent>
