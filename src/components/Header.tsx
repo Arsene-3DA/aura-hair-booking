@@ -78,9 +78,14 @@ const Header = () => {
             <Link to="/tarifs" className="text-white/90 hover:text-white transition-colors font-medium">
               Tarifs
             </Link>
-            {role === 'admin' && <Link to="/admin" className="text-yellow-300 hover:text-yellow-100 transition-colors font-medium">
+            <Link to="/contact" className="text-white/90 hover:text-white transition-colors font-medium">
+              Nous contacter
+            </Link>
+            {role === 'admin' && (
+              <Link to="/admin" className="text-yellow-300 hover:text-yellow-100 transition-colors font-medium">
                 Dashboard Admin
-              </Link>}
+              </Link>
+            )}
           </nav>
 
           {/* Search Bar */}
@@ -127,10 +132,14 @@ const Header = () => {
               <Link to="/tarifs" className="text-white/90 hover:text-white transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
                 Tarifs
               </Link>
-              
-              {role === 'admin' && <Link to="/admin" className="text-yellow-300 hover:text-yellow-100 transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/contact" className="text-white/90 hover:text-white transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
+                Nous contacter
+              </Link>
+              {role === 'admin' && (
+                <Link to="/admin" className="text-yellow-300 hover:text-yellow-100 transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
                   Dashboard Admin
-                </Link>}
+                </Link>
+              )}
               
               <div className="px-2 pt-4">
                 <Button onClick={() => {
