@@ -7,6 +7,7 @@ import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import PriceDisplay from '@/components/ui/price-display';
 import { Calendar, Clock, User, FileText, Check, X } from 'lucide-react';
 
 interface PendingReservation {

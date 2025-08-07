@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Scissors, Users, Eye, Settings, CheckCircle } from 'lucide-react';
 import ClientServiceSelector from '@/components/ClientServiceSelector';
+import PriceDisplay from '@/components/ui/price-display';
 import { useAuth } from '@/hooks/useAuth';
 
 const ServiceManagementDemo = () => {
