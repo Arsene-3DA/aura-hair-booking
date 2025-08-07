@@ -110,19 +110,37 @@ const StylistProfilePage = () => {
         }
         setStylist(stylistData);
 
-        // Charger les services du styliste
-        const {
-          data: servicesData,
-          error: servicesError
-        } = await supabase.from('hairdresser_services').select(`
-            services (
-              id,
-              name,
-              price,
-              duration,
-              description
-            )
-          `).eq('hairdresser_id', stylistId);
+        // Charger les services du styliste depuis hairdresser_services
+        let servicesData = null;
+        let servicesError = null;
+        
+        if (stylistData) {
+          // D'abord récupérer l'ID du hairdresser basé sur auth_id
+          const { data: hairdresserData, error: hairdresserError } = await supabase
+            .from('hairdressers')
+            .select('id')
+            .eq('auth_id', stylistId)
+            .single();
+
+          if (hairdresserData && !hairdresserError) {
+            // Ensuite récupérer les services pour ce professionnel via la table de liaison
+            const { data: services, error: error } = await supabase
+              .from('hairdresser_services')
+              .select(`
+                services!inner (
+                  id,
+                  name,
+                  price,
+                  duration,
+                  description
+                )
+              `)
+              .eq('hairdresser_id', hairdresserData.id);
+              
+            servicesData = services;
+            servicesError = error;
+          }
+        }
         if (!servicesError && servicesData) {
           const mappedServices = servicesData.map(item => item.services).filter(Boolean) as Service[];
           setServices(mappedServices);
