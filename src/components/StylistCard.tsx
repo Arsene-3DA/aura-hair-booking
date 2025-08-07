@@ -143,7 +143,7 @@ export const StylistCard = ({
 
       <CardContent className="space-y-4">
         {/* Specialties */}
-        {specialties.length > 0 && (
+        {specialties && specialties.length > 0 && (
           <div>
             <h4 className="text-sm font-medium text-foreground mb-2">Spécialités</h4>
             <div className="flex flex-wrap gap-1">
