@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
-
 interface Professional {
   id: string;
   name: string;
@@ -22,10 +21,11 @@ interface Professional {
   phone?: string;
   is_active: boolean;
 }
-
 const AllProfessionalsList = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,10 +37,10 @@ const AllProfessionalsList = () => {
       try {
         setLoading(true);
         console.log('Loading all professionals...');
-        
-        const { data, error } = await supabase
-          .from('hairdressers')
-          .select(`
+        const {
+          data,
+          error
+        } = await supabase.from('hairdressers').select(`
             id,
             auth_id,
             name,
@@ -57,21 +57,19 @@ const AllProfessionalsList = () => {
             location,
             gender,
             is_active
-          `)
-          .eq('is_active', true)
-          .not('auth_id', 'is', null) // Exclure les données de test (auth_id null)
-          .order('rating', { ascending: false });
-
+          `).eq('is_active', true).not('auth_id', 'is', null) // Exclure les données de test (auth_id null)
+        .order('rating', {
+          ascending: false
+        });
         if (error) {
           console.error('Erreur lors du chargement des professionnels:', error);
           toast({
             title: "Erreur",
             description: "Impossible de charger les professionnels",
-            variant: "destructive",
+            variant: "destructive"
           });
           return;
         }
-
         console.log('Data received from Supabase:', data);
 
         // Mapper les données Supabase vers l'interface Professional
@@ -89,23 +87,20 @@ const AllProfessionalsList = () => {
           phone: item.phone || undefined,
           is_active: item.is_active || false
         }));
-
         setProfessionals(mappedProfessionals);
         setFilteredProfessionals(mappedProfessionals);
         console.log('Professionnels chargés:', mappedProfessionals.length, mappedProfessionals);
-        
       } catch (error) {
         console.error('Erreur:', error);
         toast({
           title: "Erreur",
           description: "Une erreur est survenue",
-          variant: "destructive",
+          variant: "destructive"
         });
       } finally {
         setLoading(false);
       }
     };
-
     loadProfessionals();
   }, [toast]);
 
@@ -114,19 +109,11 @@ const AllProfessionalsList = () => {
     if (!searchQuery.trim()) {
       setFilteredProfessionals(professionals);
     } else {
-      const filtered = professionals.filter(professional =>
-        professional.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        professional.specialties.some(specialty => 
-          specialty.toLowerCase().includes(searchQuery.toLowerCase())
-        ) ||
-        professional.location.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const filtered = professionals.filter(professional => professional.name.toLowerCase().includes(searchQuery.toLowerCase()) || professional.specialties.some(specialty => specialty.toLowerCase().includes(searchQuery.toLowerCase())) || professional.location.toLowerCase().includes(searchQuery.toLowerCase()));
       setFilteredProfessionals(filtered);
     }
   }, [searchQuery, professionals]);
-
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <Header />
       <main>
         {/* Header Section */}
@@ -144,13 +131,7 @@ const AllProfessionalsList = () => {
               <div className="max-w-md mx-auto">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Rechercher par nom, spécialité ou lieu..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-white border-gray-300 rounded-full h-12 text-black placeholder:text-gray-500 focus:border-gold-500 focus:ring-gold-500"
-                  />
+                  <Input type="text" placeholder="Rechercher par nom, spécialité ou lieu..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 border-gray-300 rounded-full h-12 text-black placeholder:text-gray-500 focus:border-gold-500 focus:ring-gold-500 bg-slate-950" />
                 </div>
               </div>
             </div>
@@ -160,56 +141,35 @@ const AllProfessionalsList = () => {
         {/* Professionals Grid */}
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4">
-            {loading ? (
-              <div className="text-center py-16">
+            {loading ? <div className="text-center py-16">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
                 <p className="text-gray-600 text-lg">Chargement des professionnels...</p>
-              </div>
-            ) : (
-              <>
+              </div> : <>
                 {/* Résultats de recherche */}
-                {searchQuery && (
-                  <div className="mb-6 text-center">
+                {searchQuery && <div className="mb-6 text-center">
                     <p className="text-gray-600">
                       {filteredProfessionals.length} professionnel{filteredProfessionals.length > 1 ? 's' : ''} trouvé{filteredProfessionals.length > 1 ? 's' : ''}
                       {searchQuery && ` pour "${searchQuery}"`}
                     </p>
-                  </div>
-                )}
+                  </div>}
                 
-                {filteredProfessionals.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredProfessionals.map((professional) => (
-                      <div key={professional.id} className="animate-fade-in">
-                        <HairdresserCard 
-                          id={professional.id}
-                          name={professional.name}
-                          photo={professional.image_url}
-                          tags={professional.specialties}
-                          rating={professional.rating}
-                          experience={professional.experience}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : searchQuery ? (
-                  <div className="text-center py-16">
+                {filteredProfessionals.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredProfessionals.map(professional => <div key={professional.id} className="animate-fade-in">
+                        <HairdresserCard id={professional.id} name={professional.name} photo={professional.image_url} tags={professional.specialties} rating={professional.rating} experience={professional.experience} />
+                      </div>)}
+                  </div> : searchQuery ? <div className="text-center py-16">
                     <p className="text-gray-600 text-lg mb-4">
                       Aucun professionnel trouvé pour "{searchQuery}"
                     </p>
                     <p className="text-gray-500 text-sm">
                       Essayez avec d'autres mots-clés ou parcourez tous nos professionnels
                     </p>
-                  </div>
-                ) : (
-                  <div className="text-center py-16">
+                  </div> : <div className="text-center py-16">
                     <p className="text-gray-600 text-lg mb-4">
                       Aucun professionnel disponible pour le moment
                     </p>
-                  </div>
-                )}
-              </>
-            )}
+                  </div>}
+              </>}
             
             {/* Contact Info */}
             <div className="text-center mt-16">
@@ -231,8 +191,6 @@ const AllProfessionalsList = () => {
         </section>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default AllProfessionalsList;
