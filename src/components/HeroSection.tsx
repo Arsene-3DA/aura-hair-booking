@@ -64,7 +64,7 @@ const HeroSection = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-luxury-gold-300 text-luxury-gold-700 hover:bg-luxury-gold-50 px-6 lg:px-8 py-3 lg:py-4 text-base lg:text-lg w-full sm:w-auto"
+                className="border-2 border-luxury-gold-300 text-luxury-gold-700 hover:bg-luxury-gold-100 hover:text-luxury-gold-800 hover:border-luxury-gold-400 px-6 lg:px-8 py-3 lg:py-4 text-base lg:text-lg w-full sm:w-auto transition-all duration-300"
                 onClick={handleDiscoverServicesClick}
               >
                 Découvrir nos services
