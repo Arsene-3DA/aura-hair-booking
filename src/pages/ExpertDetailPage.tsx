@@ -387,8 +387,14 @@ const ExpertDetailPage = () => {
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>Aucun service spécifique configuré</p>
-                  <p className="text-sm">Contactez directement le professionnel pour plus d'informations</p>
+                  <p>Ce professionnel n'a pas encore défini de services spécifiques.</p>
+                  <p className="text-sm">Vous pouvez faire une demande de réservation et les services seront personnalisés selon vos besoins.</p>
+                  {/* Debug info - À supprimer en production */}
+                  <div className="text-xs mt-4 p-2 bg-gray-100 rounded">
+                    <p>Debug: expertId={expertId}</p>
+                    <p>Services loading: {servicesLoading ? 'true' : 'false'}</p>
+                    <p>Services count: {services?.length || 0}</p>
+                  </div>
                 </div>
               )}
             </CardContent>
