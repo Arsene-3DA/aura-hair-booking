@@ -69,14 +69,18 @@ export const useStylistProfile = (authId?: string) => {
         .eq('user_id', authId)
         .single();
 
+      // Récupérer l'email de l'utilisateur depuis auth.users
+      const { data: authUser } = await supabase.auth.getUser();
+
       const { data, error } = await supabase
         .from('hairdressers')
         .insert({
           auth_id: authId,
           name: userProfile?.full_name || 'Styliste',
-          email: userProfile?.user_id || '',
+          email: authUser?.user?.email || '',
           salon_address: '',
           bio: '',
+          rating: 5.0, // Note par défaut de 5 étoiles
           working_hours: {
             monday: { open: "09:00", close: "18:00", isOpen: true },
             tuesday: { open: "09:00", close: "18:00", isOpen: true },
@@ -95,7 +99,7 @@ export const useStylistProfile = (authId?: string) => {
       
       toast({
         title: "Profil créé",
-        description: "Votre profil professionnel a été créé avec succès",
+        description: "Votre profil professionnel a été créé avec succès (5⭐ par défaut)",
       });
     } catch (error) {
       console.error('Error creating stylist profile:', error);
@@ -111,6 +115,25 @@ export const useStylistProfile = (authId?: string) => {
     if (!authId || !profile) return;
 
     try {
+      // Validation côté client avant envoi
+      if (updates.email && updates.email.trim() !== '') {
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!emailRegex.test(updates.email.trim())) {
+          throw new Error('Format d\'email invalide');
+        }
+      }
+
+      if (updates.phone && updates.phone.trim() !== '') {
+        const phoneDigits = updates.phone.replace(/[^0-9]/g, '');
+        if (phoneDigits.length < 10) {
+          throw new Error('Le numéro de téléphone doit contenir au moins 10 chiffres');
+        }
+      }
+
+      if (updates.name && updates.name.trim() === '') {
+        throw new Error('Le nom ne peut pas être vide');
+      }
+
       const { error } = await supabase
         .from('hairdressers')
         .update(updates)
@@ -122,14 +145,15 @@ export const useStylistProfile = (authId?: string) => {
       
       toast({
         title: "Profil mis à jour",
-        description: "Vos modifications ont été sauvegardées",
+        description: "Vos modifications ont été sauvegardées et sont visibles publiquement",
       });
     } catch (error) {
       console.error('Error updating stylist profile:', error);
+      const errorMessage = error instanceof Error ? error.message : "Impossible de sauvegarder vos modifications";
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de sauvegarder vos modifications",
+        description: errorMessage,
       });
       throw error;
     }

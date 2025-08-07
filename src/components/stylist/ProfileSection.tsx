@@ -92,13 +92,17 @@ const ProfileSection = ({ onProfileUpdate }: ProfileSectionProps) => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Nom complet</Label>
+              <Label htmlFor="name">Nom complet *</Label>
               <Input
                 id="name"
                 value={formData.name || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Votre nom complet"
+                placeholder="Votre nom complet (obligatoire)"
+                required
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Ce nom sera affiché publiquement sur votre profil
+              </p>
             </div>
             <div>
               <Label htmlFor="phone">Téléphone</Label>
@@ -108,10 +112,13 @@ const ProfileSection = ({ onProfileUpdate }: ProfileSectionProps) => {
                   id="phone"
                   value={formData.phone || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="Votre numéro de téléphone"
+                  placeholder="Ex: +33 6 12 34 56 78"
                   className="pl-10"
                 />
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.phone ? 'Visible publiquement' : 'Sera affiché une fois renseigné'}
+              </p>
             </div>
           </div>
 
@@ -127,6 +134,9 @@ const ProfileSection = ({ onProfileUpdate }: ProfileSectionProps) => {
                 className="pl-10"
               />
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {formData.salon_address ? 'Visible publiquement pour vos clients' : 'Sera affichée une fois renseignée'}
+            </p>
           </div>
 
           <div>
@@ -153,6 +163,9 @@ const ProfileSection = ({ onProfileUpdate }: ProfileSectionProps) => {
                   className="pl-10"
                 />
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.website ? 'Lien visible sur votre profil public' : 'Optionnel'}
+              </p>
             </div>
             <div>
               <Label htmlFor="instagram">Instagram</Label>
@@ -166,6 +179,9 @@ const ProfileSection = ({ onProfileUpdate }: ProfileSectionProps) => {
                   className="pl-10"
                 />
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.instagram ? 'Lien visible sur votre profil public' : 'Optionnel'}
+              </p>
             </div>
           </div>
 

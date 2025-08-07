@@ -30,7 +30,16 @@ export const useRealtimeProfileSync = (
         (payload) => {
           console.log('📡 Profile update received:', payload);
           if (payload.eventType === 'UPDATE' && payload.new) {
-            options.onProfileUpdate?.(payload.new);
+            // Validation des données synchronisées
+            const updatedProfile = payload.new;
+            console.log('✅ Profile data synchronized:', {
+              name: updatedProfile.name,
+              email: updatedProfile.email,
+              phone: updatedProfile.phone,
+              salon_address: updatedProfile.salon_address,
+              rating: updatedProfile.rating
+            });
+            options.onProfileUpdate?.(updatedProfile);
           }
         }
       )
