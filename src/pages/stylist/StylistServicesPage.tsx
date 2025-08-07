@@ -275,7 +275,7 @@ const StylistServicesPage = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="price" className="block mb-2 text-sm font-medium">Prix ($CAD)</Label>
+                  <Label htmlFor="price" className="block mb-2 text-sm font-medium bg-gray-500">Prix ($CAD)</Label>
                   <Input id="price" type="number" value={formData.price} onChange={e => {
                   setFormData(prev => ({
                     ...prev,
