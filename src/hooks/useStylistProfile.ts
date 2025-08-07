@@ -78,9 +78,12 @@ export const useStylistProfile = (authId?: string) => {
           auth_id: authId,
           name: userProfile?.full_name || 'Styliste',
           email: authUser?.user?.email || '',
-          salon_address: '',
-          bio: '',
-          rating: 5.0, // Note par défaut de 5 étoiles
+          salon_address: null, // Pas d'adresse par défaut
+          bio: null,
+          phone: null,
+          website: null,
+          instagram: null,
+          rating: 5.0, // Note par défaut de 5 étoiles garantie
           working_hours: {
             monday: { open: "09:00", close: "18:00", isOpen: true },
             tuesday: { open: "09:00", close: "18:00", isOpen: true },
@@ -132,6 +135,15 @@ export const useStylistProfile = (authId?: string) => {
 
       if (updates.name && updates.name.trim() === '') {
         throw new Error('Le nom ne peut pas être vide');
+      }
+
+      // Validation et nettoyage de l'adresse
+      if (updates.salon_address !== undefined) {
+        if (updates.salon_address && updates.salon_address.trim() === '') {
+          updates.salon_address = null; // Vider le champ si chaîne vide
+        } else if (updates.salon_address) {
+          updates.salon_address = updates.salon_address.trim(); // Nettoyer les espaces
+        }
       }
 
       const { error } = await supabase
