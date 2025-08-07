@@ -206,7 +206,7 @@ const StylistProfilePage = () => {
       
       <main className="py-8">
         <div className="container mx-auto px-4">
-          <Button variant="outline" onClick={() => navigate('/stylists')} className="mb-6 text-slate-400">
+          <Button variant="outline" onClick={() => navigate(-1)} className="mb-6 text-slate-400">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
           </Button>
