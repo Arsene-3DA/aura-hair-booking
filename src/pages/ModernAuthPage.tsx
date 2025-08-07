@@ -119,15 +119,19 @@ const ModernAuthPage = () => {
     <div className="min-h-screen flex flex-col bg-white relative">
       {/* Bouton de retour en haut */}
       <div className="absolute top-4 left-4 z-20">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/')}
-          className="flex items-center space-x-2 text-white hover:text-white/80 hover:bg-white/10 rounded-full px-4 py-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Accueil</span>
-        </Button>
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="flex items-center space-x-2 text-black bg-white hover:bg-gray-100 rounded-2xl px-4 py-2 shadow-md border-2 border-black"
+          >
+            <span className="font-medium">Accueil</span>
+          </Button>
+          {/* Petit triangle pour effet bulle */}
+          <div className="absolute -bottom-2 left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
+          <div className="absolute -bottom-1 left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white"></div>
+        </div>
       </div>
 
       <div className="min-h-screen flex bg-white">
@@ -162,7 +166,7 @@ const ModernAuthPage = () => {
         {/* Section droite - Formulaire */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8" style={{ backgroundColor: '#F4DC7C' }}>
           <div className="w-full max-w-md">
-            <Card className="border-0 shadow-none bg-white/95 backdrop-blur-sm">
+            <Card className="border-0 shadow-none bg-white/95 backdrop-blur-sm rounded-3xl">
               <div className="p-8">
                 <h2 className="text-3xl font-bold text-center mb-8 text-luxury-black">
                   Connexion à la plateforme
@@ -189,7 +193,7 @@ const ModernAuthPage = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="votre@email.com"
-                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
+                        className="h-12 border-gray-300 focus:border-primary rounded-3xl px-4 bg-black text-white placeholder:text-gray-400"
                         required
                       />
                     </div>
@@ -205,7 +209,7 @@ const ModernAuthPage = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
-                          className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
+                          className="h-12 border-gray-300 focus:border-primary rounded-3xl px-4 pr-12 bg-black text-white placeholder:text-gray-400"
                           required
                         />
                         <Button
@@ -216,9 +220,9 @@ const ModernAuthPage = () => {
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
+                            <EyeOff className="h-4 w-4 text-gray-400" />
                           ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
+                            <Eye className="h-4 w-4 text-gray-400" />
                           )}
                         </Button>
                       </div>
@@ -227,7 +231,7 @@ const ModernAuthPage = () => {
                     <Button
                       onClick={() => handleSubmit(false)}
                       disabled={isSubmitting}
-                      className="w-full h-12 bg-luxury-black hover:bg-luxury-charcoal text-white font-bold rounded-full transition-all duration-300 hover:scale-105"
+                      className="w-full h-12 bg-luxury-black hover:bg-luxury-charcoal text-white font-bold rounded-3xl transition-all duration-300 hover:scale-105"
                     >
                       {isSubmitting ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -256,7 +260,7 @@ const ModernAuthPage = () => {
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="Votre nom complet"
-                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
+                        className="h-12 border-gray-300 focus:border-primary rounded-3xl px-4 bg-black text-white placeholder:text-gray-400"
                         required
                       />
                     </div>
@@ -271,7 +275,7 @@ const ModernAuthPage = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="votre@email.com"
-                        className="h-12 border-gray-300 focus:border-primary rounded-full px-4"
+                        className="h-12 border-gray-300 focus:border-primary rounded-3xl px-4 bg-black text-white placeholder:text-gray-400"
                         required
                       />
                     </div>
@@ -287,7 +291,7 @@ const ModernAuthPage = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
-                          className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
+                          className="h-12 border-gray-300 focus:border-primary rounded-3xl px-4 pr-12 bg-black text-white placeholder:text-gray-400"
                           required
                         />
                         <Button
@@ -298,9 +302,9 @@ const ModernAuthPage = () => {
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
+                            <EyeOff className="h-4 w-4 text-gray-400" />
                           ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
+                            <Eye className="h-4 w-4 text-gray-400" />
                           )}
                         </Button>
                       </div>
@@ -317,7 +321,7 @@ const ModernAuthPage = () => {
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="••••••••"
-                          className="h-12 border-gray-300 focus:border-primary rounded-full px-4 pr-12"
+                          className="h-12 border-gray-300 focus:border-primary rounded-3xl px-4 pr-12 bg-black text-white placeholder:text-gray-400"
                           required
                         />
                         <Button
@@ -328,9 +332,9 @@ const ModernAuthPage = () => {
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         >
                           {showConfirmPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
+                            <EyeOff className="h-4 w-4 text-gray-400" />
                           ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
+                            <Eye className="h-4 w-4 text-gray-400" />
                           )}
                         </Button>
                       </div>
@@ -339,7 +343,7 @@ const ModernAuthPage = () => {
                     <Button
                       onClick={() => handleSubmit(true)}
                       disabled={isSubmitting}
-                      className="w-full h-12 bg-luxury-black hover:bg-luxury-charcoal text-white font-bold rounded-full transition-all duration-300 hover:scale-105"
+                      className="w-full h-12 bg-luxury-black hover:bg-luxury-charcoal text-white font-bold rounded-3xl transition-all duration-300 hover:scale-105"
                     >
                       {isSubmitting ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
