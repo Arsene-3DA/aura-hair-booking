@@ -366,7 +366,7 @@ const Index = () => {
                   <MapPin className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Adresse</h3>
-                <p className="text-gray-600">123 Rue Somerset<br />Ottawa, ON K1R 5T3</p>
+                <p className="text-gray-600">Canada</p>
               </div>
               
               <div className="text-center">
@@ -374,7 +374,7 @@ const Index = () => {
                   <Clock className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Horaires</h3>
-                <p className="text-gray-600">Lun-Sam: 9h-19h<br />Dimanche: Fermé</p>
+                <p className="text-gray-600">Lun-Sam: 9h-21h<br />Dimanche: Fermé</p>
               </div>
               
               <div className="text-center">
@@ -382,7 +382,7 @@ const Index = () => {
                   <span className="text-2xl">📞</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Contact</h3>
-                <p className="text-gray-600">(613) 990-1234<br />contact@salonottawa.ca</p>
+                <p className="text-gray-600">(873) 655-5275<br />contact@salonottawa.ca</p>
               </div>
             </div>
           </div>
