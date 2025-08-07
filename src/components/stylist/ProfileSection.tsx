@@ -37,8 +37,13 @@ const ProfileSection = ({ onProfileUpdate }: ProfileSectionProps) => {
     try {
       setSaving(true);
       await updateProfile(formData);
+      
+      // Force immediate update and trigger callback
       onProfileUpdate?.();
+      
+      console.log('✅ Profile updated successfully, data synchronized');
     } catch (error) {
+      console.error('❌ Profile update failed:', error);
       // Error is handled in the hook
     } finally {
       setSaving(false);

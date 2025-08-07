@@ -57,7 +57,10 @@ const WorkingHoursSection = () => {
     try {
       setSaving(true);
       await updateWorkingHours(workingHours);
+      
+      console.log('✅ Working hours updated successfully, booking slots synchronized');
     } catch (error) {
+      console.error('❌ Working hours update failed:', error);
       // Error is handled in the hook
     } finally {
       setSaving(false);

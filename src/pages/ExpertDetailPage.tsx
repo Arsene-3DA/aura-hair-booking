@@ -1,5 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,10 +14,14 @@ import {
   Clock, 
   Phone, 
   Mail,
-  CheckCircle
+  CheckCircle,
+  Globe,
+  Instagram,
+  Camera
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfessionalServices } from '@/hooks/useProfessionalServices';
+import { usePortfolioManagement } from '@/hooks/usePortfolioManagement';
 import PriceDisplay from '@/components/ui/price-display';
 import PageHeader from '@/components/PageHeader';
 
@@ -32,16 +37,31 @@ interface ExpertDetail {
   location: string;
   auth_id: string;
   role: string;
+  salon_address?: string;
+  bio?: string;
+  website?: string;
+  instagram?: string;
+  working_hours?: any;
+}
+
+interface WorkingDay {
+  open: string;
+  close: string;
+  isOpen: boolean;
 }
 
 const ExpertDetailPage = () => {
   const { expertId } = useParams<{ expertId: string }>();
   const navigate = useNavigate();
+  const [expert, setExpert] = useState<ExpertDetail | null>(null);
 
   // Récupérer les services du professionnel avec mises à jour temps réel
   const { services, loading: servicesLoading } = useProfessionalServices(expertId, true);
+  
+  // Récupérer le portfolio avec mises à jour temps réel
+  const { portfolio } = usePortfolioManagement(expertId);
 
-  const { data: expert, isLoading, error } = useQuery({
+  const { data: initialExpert, isLoading, error } = useQuery({
     queryKey: ['expert', expertId],
     queryFn: async () => {
       if (!expertId) throw new Error('ID expert manquant');
@@ -59,6 +79,11 @@ const ExpertDetailPage = () => {
           image_url,
           experience,
           location,
+          salon_address,
+          bio,
+          website,
+          instagram,
+          working_hours,
           auth_id,
           is_active
         `)
@@ -87,6 +112,41 @@ const ExpertDetailPage = () => {
     },
     enabled: !!expertId
   });
+
+  // Configuration de la synchronisation temps réel
+  useEffect(() => {
+    if (initialExpert) {
+      setExpert(initialExpert);
+    }
+  }, [initialExpert]);
+
+  useEffect(() => {
+    if (!expertId) return;
+
+    // Synchronisation temps réel pour les données du professionnel
+    const channel = supabase
+      .channel(`expert-${expertId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'hairdressers',
+          filter: `auth_id=eq.${expertId}`,
+        },
+        (payload) => {
+          console.log('📡 Real-time update for expert:', payload);
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            setExpert(prev => prev ? { ...prev, ...payload.new } : null);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [expertId]);
 
   if (isLoading || servicesLoading) {
     return (
@@ -155,10 +215,17 @@ const ExpertDetailPage = () => {
                 </div>
               )}
 
-              {expert.location && (
+              {expert.bio && (
+                <div>
+                  <h4 className="font-medium mb-2">À propos</h4>
+                  <p className="text-sm text-muted-foreground">{expert.bio}</p>
+                </div>
+              )}
+
+              {(expert.salon_address || expert.location) && (
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{expert.location}</span>
+                  <span className="text-sm">{expert.salon_address || expert.location}</span>
                 </div>
               )}
 
@@ -176,6 +243,27 @@ const ExpertDetailPage = () => {
                 </div>
               )}
 
+              {expert.website && (
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <a href={expert.website} target="_blank" rel="noopener noreferrer" 
+                     className="text-sm text-primary hover:underline">
+                    Site web
+                  </a>
+                </div>
+              )}
+
+              {expert.instagram && (
+                <div className="flex items-center gap-2">
+                  <Instagram className="h-4 w-4 text-muted-foreground" />
+                  <a href={`https://instagram.com/${expert.instagram.replace('@', '')}`} 
+                     target="_blank" rel="noopener noreferrer" 
+                     className="text-sm text-primary hover:underline">
+                    {expert.instagram}
+                  </a>
+                </div>
+              )}
+
               {expert.specialties && expert.specialties.length > 0 && (
                 <div>
                   <h4 className="font-medium mb-2">Spécialités</h4>
@@ -188,12 +276,80 @@ const ExpertDetailPage = () => {
                   </div>
                 </div>
               )}
+
+              {expert.working_hours && (
+                <div>
+                  <h4 className="font-medium mb-2">Horaires d'ouverture</h4>
+                  <div className="space-y-1 text-sm">
+                    {Object.entries(expert.working_hours as Record<string, WorkingDay>).map(([day, hours]) => {
+                      const dayNames: Record<string, string> = {
+                        monday: 'Lundi',
+                        tuesday: 'Mardi', 
+                        wednesday: 'Mercredi',
+                        thursday: 'Jeudi',
+                        friday: 'Vendredi',
+                        saturday: 'Samedi',
+                        sunday: 'Dimanche'
+                      };
+                      
+                      return (
+                        <div key={day} className="flex justify-between">
+                          <span className="text-muted-foreground">{dayNames[day]}</span>
+                          <span>
+                            {hours.isOpen ? `${hours.open} - ${hours.close}` : 'Fermé'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Services et réservation */}
+        {/* Services, Portfolio et réservation */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Portfolio - Gallery */}
+          {portfolio && portfolio.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="h-5 w-5" />
+                  Portfolio ({portfolio.length} photos)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {portfolio.slice(0, 6).map((item) => (
+                    <div key={item.id} className="relative group overflow-hidden rounded-lg aspect-square">
+                      <img 
+                        src={item.image_url} 
+                        alt={item.hairstyle_name || 'Portfolio'} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {item.hairstyle_name && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                          <p className="text-white text-xs font-medium">{item.hairstyle_name}</p>
+                        </div>
+                      )}
+                      {item.is_featured && (
+                        <div className="absolute top-2 right-2">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {portfolio.length > 6 && (
+                  <p className="text-center text-sm text-muted-foreground mt-4">
+                    +{portfolio.length - 6} autres réalisations
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Services disponibles */}
           <Card>
             <CardHeader>
