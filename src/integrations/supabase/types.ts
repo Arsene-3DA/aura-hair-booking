@@ -209,51 +209,66 @@ export type Database = {
       hairdressers: {
         Row: {
           auth_id: string | null
+          bio: string | null
           created_at: string
           email: string
           experience: string | null
           gender: string | null
           id: string
           image_url: string | null
+          instagram: string | null
           is_active: boolean | null
           location: string | null
           name: string
           phone: string | null
           rating: number | null
+          salon_address: string | null
           specialties: string[] | null
           updated_at: string
+          website: string | null
+          working_hours: Json | null
         }
         Insert: {
           auth_id?: string | null
+          bio?: string | null
           created_at?: string
           email: string
           experience?: string | null
           gender?: string | null
           id?: string
           image_url?: string | null
+          instagram?: string | null
           is_active?: boolean | null
           location?: string | null
           name: string
           phone?: string | null
           rating?: number | null
+          salon_address?: string | null
           specialties?: string[] | null
           updated_at?: string
+          website?: string | null
+          working_hours?: Json | null
         }
         Update: {
           auth_id?: string | null
+          bio?: string | null
           created_at?: string
           email?: string
           experience?: string | null
           gender?: string | null
           id?: string
           image_url?: string | null
+          instagram?: string | null
           is_active?: boolean | null
           location?: string | null
           name?: string
           phone?: string | null
           rating?: number | null
+          salon_address?: string | null
           specialties?: string[] | null
           updated_at?: string
+          website?: string | null
+          working_hours?: Json | null
         }
         Relationships: []
       }
@@ -375,25 +390,31 @@ export type Database = {
       portfolio: {
         Row: {
           created_at: string | null
+          display_order: number | null
           hairstyle_name: string | null
           id: string
           image_url: string | null
+          is_featured: boolean | null
           service_id: string | null
           stylist_id: string | null
         }
         Insert: {
           created_at?: string | null
+          display_order?: number | null
           hairstyle_name?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           service_id?: string | null
           stylist_id?: string | null
         }
         Update: {
           created_at?: string | null
+          display_order?: number | null
           hairstyle_name?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           service_id?: string | null
           stylist_id?: string | null
         }
@@ -691,6 +712,47 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      stylist_schedule: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean | null
+          start_time: string
+          stylist_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          start_time: string
+          stylist_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          start_time?: string
+          stylist_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stylist_schedule_stylist_id_fkey"
+            columns: ["stylist_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       system_logs: {
         Row: {

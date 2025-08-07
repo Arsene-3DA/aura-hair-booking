@@ -13,6 +13,47 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Generate slots based on stylist working hours
+  const generateSlotsFromWorkingHours = async (date: Date) => {
+    try {
+      const { data: hairdresser } = await supabase
+        .from('hairdressers')
+        .select('working_hours')
+        .eq('auth_id', stylistId)
+        .single();
+
+      const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()];
+      const workingHours = hairdresser?.working_hours?.[dayOfWeek];
+
+      if (!workingHours?.isOpen) {
+        return []; // Salon fermé ce jour
+      }
+
+      const slots: TimeSlot[] = [];
+      const [openHour, openMinute] = (workingHours.open || '09:00').split(':').map(Number);
+      const [closeHour, closeMinute] = (workingHours.close || '18:00').split(':').map(Number);
+      
+      const startTime = openHour * 60 + openMinute;
+      const endTime = closeHour * 60 + closeMinute;
+      
+      for (let time = startTime; time < endTime; time += 30) {
+        const hour = Math.floor(time / 60);
+        const minute = time % 60;
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        
+        slots.push({
+          time: timeString,
+          available: true,
+        });
+      }
+      
+      return slots;
+    } catch (error) {
+      console.error('Error generating slots from working hours:', error);
+      return [];
+    }
+  };
+
   // Créneaux par défaut: 9h à 21h30 par pas de 30min
   const generateDefaultSlots = (): string[] => {
     const slots: string[] = [];
@@ -55,13 +96,18 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
 
       if (bookingError) throw bookingError;
 
-      // Générer les créneaux avec leur statut
-      const defaultSlots = generateDefaultSlots();
+      // Générer les créneaux basés sur les horaires du salon
+      const workingSlots = await generateSlotsFromWorkingHours(date);
+      if (workingSlots.length === 0) {
+        setTimeSlots([]);
+        return;
+      }
       const today = new Date();
       const isToday = isSameDay(date, today);
       const currentTime = new Date();
 
-      const slotsWithStatus: TimeSlot[] = defaultSlots.map(time => {
+      const slotsWithStatus: TimeSlot[] = workingSlots.map(slot => {
+        const time = slot.time;
         const [hours, minutes] = time.split(':').map(Number);
         const slotDateTime = new Date(date);
         slotDateTime.setHours(hours, minutes, 0, 0);
