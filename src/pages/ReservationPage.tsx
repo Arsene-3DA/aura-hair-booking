@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,6 @@ import ReservationForm from '@/components/ReservationForm';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { validateId } from '@/utils/authHelper';
-
 interface Hairdresser {
   id: string;
   name: string;
@@ -18,13 +16,17 @@ interface Hairdresser {
   experience: string;
   rating: number;
 }
-
 const ReservationPage = () => {
-  const { stylistId } = useParams<{ stylistId: string }>();
+  const {
+    stylistId
+  } = useParams<{
+    stylistId: string;
+  }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const [hairdresser, setHairdresser] = useState<Hairdresser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,13 +53,10 @@ const ReservationPage = () => {
 
       // Sinon, charger depuis la base de données
       try {
-        const { data, error } = await supabase
-          .from('hairdressers')
-          .select('*')
-          .eq('id', stylistId)
-          .eq('is_active', true)
-          .single();
-
+        const {
+          data,
+          error
+        } = await supabase.from('hairdressers').select('*').eq('id', stylistId).eq('is_active', true).single();
         if (error || !data) {
           console.error('Erreur lors du chargement du coiffeur:', error);
           toast({
@@ -68,9 +67,9 @@ const ReservationPage = () => {
           navigate('/');
           return;
         }
-
         setHairdresser({
-          id: data.auth_id, // Utiliser auth_id qui correspond à profiles.id
+          id: data.auth_id,
+          // Utiliser auth_id qui correspond à profiles.id
           name: data.name,
           image_url: data.image_url || '/placeholder.svg',
           specialties: data.specialties || [],
@@ -84,56 +83,42 @@ const ReservationPage = () => {
         setLoading(false);
       }
     };
-
     loadHairdresser();
   }, [stylistId, location.state, navigate, toast]);
-
   const handleReservationSuccess = () => {
     navigate('/client/dashboard');
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!hairdresser) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Coiffeur non trouvé</h2>
           <Button onClick={() => navigate('/')} className="bg-gradient-gold text-white">
             Retour à l'accueil
           </Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
+  return <div className="min-h-screen bg-gray-50">
       <Header />
       
       <main className="py-8">
         <div className="container mx-auto px-4">
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              // Navigation intelligente selon la catégorie du coiffeur
-              if (window.history.length > 1) {
-                window.history.back();
-              } else {
-                navigate('/stylists');
-              }
-            }}
-            className="mb-6"
-          >
+          <Button variant="outline" onClick={() => {
+          // Navigation intelligente selon la catégorie du coiffeur
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            navigate('/stylists');
+          }
+        }} className="mb-6 text-slate-400">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
           </Button>
@@ -142,15 +127,10 @@ const ReservationPage = () => {
             {/* Informations du coiffeur */}
             <div className="bg-white rounded-lg p-6 mb-8 shadow-sm">
               <div className="flex items-center space-x-4">
-                <img 
-                  src={hairdresser.image_url} 
-                  alt={hairdresser.name}
-                  className="w-20 h-20 rounded-full object-cover border-4 border-gold-200"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/placeholder.svg';
-                  }}
-                />
+                <img src={hairdresser.image_url} alt={hairdresser.name} className="w-20 h-20 rounded-full object-cover border-4 border-gold-200" onError={e => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/placeholder.svg';
+              }} />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{hairdresser.name}</h1>
                   <p className="text-gray-600">{hairdresser.experience}</p>
@@ -161,37 +141,23 @@ const ReservationPage = () => {
                 </div>
               </div>
               
-              {hairdresser.specialties && hairdresser.specialties.length > 0 && (
-                <div className="mt-4">
+              {hairdresser.specialties && hairdresser.specialties.length > 0 && <div className="mt-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">Spécialités :</p>
                   <div className="flex flex-wrap gap-2">
-                    {hairdresser.specialties.map((specialty, index) => (
-                      <span 
-                        key={index}
-                        className="px-3 py-1 bg-gold-100 text-gold-700 rounded-full text-sm"
-                      >
+                    {hairdresser.specialties.map((specialty, index) => <span key={index} className="px-3 py-1 bg-gold-100 text-gold-700 rounded-full text-sm">
                         {specialty}
-                      </span>
-                    ))}
+                      </span>)}
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* Formulaire de réservation */}
-            <ReservationForm
-              hairdresserId={hairdresser.id}
-              hairdresserName={hairdresser.name}
-              onSuccess={handleReservationSuccess}
-              preselectedService={location.state?.preselectedService}
-            />
+            <ReservationForm hairdresserId={hairdresser.id} hairdresserName={hairdresser.name} onSuccess={handleReservationSuccess} preselectedService={location.state?.preselectedService} />
           </div>
         </div>
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ReservationPage;
