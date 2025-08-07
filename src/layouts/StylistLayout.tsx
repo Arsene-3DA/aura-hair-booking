@@ -83,14 +83,15 @@ const StylistLayout = () => {
             )}
             <div className="flex items-center gap-2">
               <Button
-                asChild
                 variant="ghost"
                 size="icon"
                 className="hover:bg-muted"
+                onClick={() => {
+                  console.log('Bouton Accueil cliqué');
+                  window.location.href = '/';
+                }}
               >
-                <Link to="/">
-                  <Home className="h-4 w-4" />
-                </Link>
+                <Home className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
