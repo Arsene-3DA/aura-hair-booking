@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scissors, Star, Clock, MapPin, ArrowLeft, Sparkles } from 'lucide-react';
+import { Scissors, Star, Clock, MapPin, ArrowLeft, Sparkles, User, Calendar, Settings } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
 import ServicesSection from '@/components/ServicesSection';
 import HairdresserCard from '@/components/HairdresserCard';
 import { useToast } from "@/hooks/use-toast";
+import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { supabase } from '@/integrations/supabase/client';
 interface Professional {
   id: string;
@@ -27,9 +28,8 @@ interface Professional {
 const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { user, userProfile, isAuthenticated } = useRoleAuth();
   const [showExperts, setShowExperts] = useState(false);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [loading, setLoading] = useState(false);
@@ -165,6 +165,23 @@ const Index = () => {
     setProfessionals([]);
     setSelectedCategory(null);
   };
+  
+  const getDashboardRedirect = () => {
+    if (!userProfile?.role) return '/auth';
+    
+    switch (userProfile.role) {
+      case 'admin':
+        return '/admin';
+      case 'coiffeur':
+      case 'coiffeuse':
+      case 'cosmetique':
+        return '/stylist';
+      case 'client':
+        return '/app';
+      default:
+        return '/auth';
+    }
+  };
   if (showExperts) {
     return <div className="min-h-screen bg-white">
         <Header />
@@ -222,6 +239,44 @@ const Index = () => {
       
       <main>
         <HeroSection />
+        
+        {/* Section d'accès rapide pour les utilisateurs connectés */}
+        {isAuthenticated && userProfile && (
+          <section className="py-12 bg-gradient-to-br from-primary/5 to-secondary/5">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold mb-4">
+                  Bonjour <span className="gradient-text">{userProfile.full_name || user?.email}</span> !
+                </h2>
+                <p className="text-xl text-muted-foreground">
+                  Accédez rapidement à votre espace de travail
+                </p>
+              </div>
+              
+              <div className="flex justify-center gap-4">
+                <Button 
+                  onClick={() => navigate(getDashboardRedirect())} 
+                  className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-8 py-4 text-lg"
+                >
+                  <Settings className="h-6 w-6 mr-3" />
+                  Mon Dashboard
+                </Button>
+                
+                {userProfile.role === 'client' && (
+                  <Button 
+                    onClick={() => navigate('/app/bookings/new')} 
+                    variant="outline"
+                    className="px-8 py-4 text-lg"
+                  >
+                    <Calendar className="h-6 w-6 mr-3" />
+                    Nouvelle Réservation
+                  </Button>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+        
         <ServicesSection />
         
         {/* Section de sélection du genre */}
@@ -336,20 +391,22 @@ const Index = () => {
               </Card>
             </div>
 
-            {/* Section pour les professionnels */}
-            <div className="text-center mt-16">
-              <div className="bg-gray-50 rounded-lg p-6 max-w-md mx-auto">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Vous êtes un professionnel ?
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Accédez à votre espace de gestion
-                </p>
-                <Button onClick={handleProfessionalLogin} variant="outline" className="border-gold-300 text-gold-700 hover:bg-gold-50 text-slate-400">
-                  Connexion Professionnelle
-                </Button>
+            {/* Section pour les professionnels - masquée si utilisateur connecté */}
+            {!isAuthenticated && (
+              <div className="text-center mt-16">
+                <div className="bg-gray-50 rounded-lg p-6 max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Vous êtes un professionnel ?
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Accédez à votre espace de gestion
+                  </p>
+                  <Button onClick={handleProfessionalLogin} variant="outline" className="border-gold-300 text-gold-700 hover:bg-gold-50 text-slate-400">
+                    Connexion Professionnelle
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </section>
 
