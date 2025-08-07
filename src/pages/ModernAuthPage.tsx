@@ -116,7 +116,7 @@ const ModernAuthPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-white">
       {/* Section gauche - Image et contenu */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-luxury-black">
         <div 
