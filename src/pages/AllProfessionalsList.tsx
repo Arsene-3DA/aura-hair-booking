@@ -149,7 +149,7 @@ const AllProfessionalsList = () => {
                     placeholder="Rechercher par nom, spécialité ou lieu..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-white border-gray-300 rounded-full h-12 text-gray-800 placeholder:text-gray-500 focus:border-gold-500 focus:ring-gold-500"
+                    className="pl-10 bg-white border-gray-300 rounded-full h-12 text-black placeholder:text-gray-500 focus:border-gold-500 focus:ring-gold-500"
                   />
                 </div>
               </div>
