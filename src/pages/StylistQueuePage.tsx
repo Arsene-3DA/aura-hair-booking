@@ -125,7 +125,7 @@ const StylistQueuePage = () => {
                             <Clock className="h-3 w-3" />
                             {reservation.services.duration} min
                           </div>
-                          <div>{reservation.services.price}€</div>
+                          <div><PriceDisplay amount={reservation.services.price} size="sm" /></div>
                         </>
                       )}
                     </div>

@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar, Clock, User, FileText, Check, X } from 'lucide-react';
+import PriceDisplay from '@/components/ui/price-display';
 
 interface BookingWithDetails {
   id: string;
@@ -175,7 +176,7 @@ const StylistBookingsPage = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {booking.services ? `${booking.services.price}€` : '-'}
+                      {booking.services ? <PriceDisplay amount={booking.services.price} size="sm" /> : '-'}
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(booking.status)}

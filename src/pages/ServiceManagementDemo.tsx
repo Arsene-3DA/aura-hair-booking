@@ -136,7 +136,7 @@ const ServiceManagementDemo = () => {
                   <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                     <h4 className="font-semibold mb-2 text-green-800">Service sélectionné :</h4>
                     <p className="text-green-700">
-                      <strong>{selectedService.name}</strong> - {selectedService.price}€ ({selectedService.duration} min)
+                      <strong>{selectedService.name}</strong> - <PriceDisplay amount={selectedService.price} size="sm" showCAD={false} /> ({selectedService.duration} min)
                     </p>
                   </div>
                 )}

@@ -8,6 +8,7 @@ import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar, Clock, User, FileText } from 'lucide-react';
+import PriceDisplay from '@/components/ui/price-display';
 
 interface Reservation {
   id: string;
@@ -150,7 +151,7 @@ const ClientBookingsPage = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {reservation.services ? `${reservation.services.price}€` : '-'}
+                      {reservation.services ? <PriceDisplay amount={reservation.services.price} size="sm" /> : '-'}
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(reservation.status)}

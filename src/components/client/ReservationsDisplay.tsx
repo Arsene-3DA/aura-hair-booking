@@ -29,6 +29,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { ClientReservation } from '@/hooks/useClientReservations';
+import PriceDisplay from '@/components/ui/price-display';
 
 interface ReservationCardProps {
   reservation: ClientReservation;
@@ -113,7 +114,7 @@ const ReservationCard = ({ reservation, onCancel, showCancelButton = false }: Re
 
             {reservation.service && (
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span>{reservation.service.price}€</span>
+                <PriceDisplay amount={reservation.service.price} size="sm" />
                 <span>{reservation.service.duration} min</span>
               </div>
             )}

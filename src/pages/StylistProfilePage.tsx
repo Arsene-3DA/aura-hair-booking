@@ -11,7 +11,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { useStylistReviews } from '@/hooks/useStylistReviews';
-import { ArrowLeft, Star, MapPin, Phone, Mail, Clock, Euro, Loader2, Camera, MessageCircle, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, Phone, Mail, Clock, DollarSign, Loader2, Camera, MessageCircle, BarChart3 } from 'lucide-react';
+import PriceDisplay from '@/components/ui/price-display';
 interface StylistProfile {
   id: string;
   name: string;
@@ -293,8 +294,8 @@ const StylistProfilePage = () => {
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-medium">{service.name}</h4>
                           <div className="flex items-center gap-1 text-primary font-semibold">
-                            <Euro className="h-4 w-4" />
-                            <span>{service.price}€</span>
+                            <DollarSign className="h-4 w-4" />
+                            <PriceDisplay amount={service.price} size="sm" showCAD={false} />
                           </div>
                         </div>
                         

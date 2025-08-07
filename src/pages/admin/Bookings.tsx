@@ -29,6 +29,8 @@ import {
   Scissors
 } from 'lucide-react';
 import { useAdminReservations } from '@/hooks/useAdminReservations';
+import { formatPrice } from '@/utils/priceFormatter';
+import PriceDisplay from '@/components/ui/price-display';
 import Papa from 'papaparse';
 
 const Bookings = () => {
@@ -50,7 +52,7 @@ const Bookings = () => {
       'Localisation': reservation.stylist_location || 'N/A',
       'Date & Heure': new Date(reservation.scheduled_at).toLocaleString('fr-FR'),
       'Service': reservation.service_name || 'N/A',
-      'Prix': reservation.service_price ? `${reservation.service_price}€` : 'N/A',
+      'Prix': reservation.service_price ? formatPrice(reservation.service_price) : 'N/A',
       'Durée': reservation.service_duration ? `${reservation.service_duration}min` : 'N/A',
       'Statut': reservation.status,
       'Notes': reservation.notes || '',
@@ -360,7 +362,7 @@ const Bookings = () => {
                       <div className="font-medium">{reservation.service_name || 'Service non spécifié'}</div>
                       {reservation.service_price && (
                         <div className="text-sm text-muted-foreground">
-                          {reservation.service_price}€
+                          <PriceDisplay amount={reservation.service_price} size="sm" />
                         </div>
                       )}
                       {reservation.service_duration && (
