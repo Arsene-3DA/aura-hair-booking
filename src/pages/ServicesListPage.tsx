@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Euro, Scissors, ArrowLeft } from 'lucide-react';
+import { Clock, DollarSign, Scissors, ArrowLeft } from 'lucide-react';
 interface Service {
   id: string;
   name: string;
@@ -109,7 +109,7 @@ const ServicesListPage = () => {
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-xl">{service.name}</CardTitle>
                     <Badge variant="secondary" className="ml-2">
-                      {service.price}€
+                      ${service.price} CAD
                     </Badge>
                   </div>
                 </CardHeader>
@@ -122,8 +122,8 @@ const ServicesListPage = () => {
                       <span>{service.duration} min</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Euro className="h-4 w-4 text-muted-foreground" />
-                      <span>{service.price}€</span>
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span>${service.price} CAD</span>
                     </div>
                   </div>
 
