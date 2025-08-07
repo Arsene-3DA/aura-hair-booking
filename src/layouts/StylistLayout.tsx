@@ -9,7 +9,8 @@ import {
   Menu,
   User,
   Scissors,
-  Camera
+  Camera,
+  Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -25,6 +26,7 @@ import { cn } from '@/lib/utils';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
 import LogoutButton from '@/components/LogoutButton';
+import { Link } from 'react-router-dom';
 
 const StylistLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -79,13 +81,25 @@ const StylistLayout = () => {
             {sidebarOpen && (
               <h2 className="text-lg font-semibold">Espace Pro</h2>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="hover:bg-muted"
+              >
+                <Link to="/">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
 

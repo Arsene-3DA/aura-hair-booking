@@ -10,7 +10,8 @@ import {
   Menu,
   User,
   Shield,
-  FileText
+  FileText,
+  Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,6 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
+import { Link } from 'react-router-dom';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -74,13 +76,25 @@ const AdminLayout = () => {
                 <h2 className="text-lg font-semibold">Admin Panel</h2>
               </div>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="hover:bg-muted"
+              >
+                <Link to="/">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
 

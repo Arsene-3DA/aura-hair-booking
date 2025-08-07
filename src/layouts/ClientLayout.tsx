@@ -49,6 +49,16 @@ const ClientLayout = () => {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-6">
+              <Button 
+                asChild
+                variant="ghost" 
+                size="icon"
+                className="hover:bg-muted"
+              >
+                <Link to="/">
+                  <Home className="h-5 w-5" />
+                </Link>
+              </Button>
               <h1 className="text-xl font-semibold">Mon Espace Client</h1>
             </div>
             <div className="flex items-center gap-4">
