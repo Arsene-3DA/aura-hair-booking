@@ -19,9 +19,14 @@ import {
 
 interface Hairdresser {
   id: string;
+  auth_id: string;
   name: string;
   email: string;
   phone?: string;
+  salon_address?: string;
+  bio?: string;
+  website?: string;
+  instagram?: string;
   location?: string;
   specialties: string[];
   experience?: string;
@@ -59,13 +64,67 @@ const StylistsList = () => {
     loadHairdressers();
   }, []);
 
+  // Synchronisation temps réel pour les mises à jour des profils
+  useEffect(() => {
+    console.log('🔄 Setting up real-time sync for stylists list');
+
+    const channel = supabase
+      .channel('stylists-list-sync')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'hairdressers',
+        },
+        (payload) => {
+          console.log('📡 Stylist data updated in list:', payload);
+          
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            // Mettre à jour le styliste dans la liste
+            setHairdressers(prev => prev.map(h => 
+              h.auth_id === payload.new.auth_id || h.id === payload.new.id
+                ? { ...h, ...payload.new }
+                : h
+            ));
+            console.log('✅ Stylist list synchronized with real-time update');
+          } else if (payload.eventType === 'INSERT' && payload.new) {
+            // Ajouter le nouveau styliste
+            setHairdressers(prev => [...prev, payload.new as Hairdresser]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🧹 Cleaning up stylists list real-time sync');
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const loadHairdressers = async () => {
     try {
       setLoading(true);
       
       const { data, error } = await supabase
         .from('hairdressers')
-        .select('*')
+        .select(`
+          id,
+          auth_id,
+          name,
+          email,
+          phone,
+          salon_address,
+          bio,
+          website,
+          instagram,
+          location,
+          specialties,
+          experience,
+          image_url,
+          rating,
+          is_active
+        `)
         .eq('is_active', true)
         .order('rating', { ascending: false });
 
@@ -90,7 +149,7 @@ const StylistsList = () => {
   ).filter(Boolean);
 
   const allLocations = Array.from(
-    new Set(hairdressers.map(h => h.location).filter(Boolean))
+    new Set(hairdressers.map(h => h.salon_address || h.location).filter(Boolean))
   );
 
   // Filter hairdressers
@@ -103,6 +162,7 @@ const StylistsList = () => {
       hairdresser.specialties.includes(selectedSpecialty);
 
     const matchesLocation = !selectedLocation || 
+      hairdresser.salon_address === selectedLocation ||
       hairdresser.location === selectedLocation;
 
     return matchesSearch && matchesSpecialty && matchesLocation;
@@ -279,13 +339,13 @@ const StylistsList = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredHairdressers.map((hairdresser) => (
             <StylistCard
-              key={hairdresser.id}
-              id={hairdresser.id}
+              key={hairdresser.auth_id || hairdresser.id}
+              id={hairdresser.auth_id || hairdresser.id} 
               name={hairdresser.name}
               avatar_url={hairdresser.image_url}
               email={hairdresser.email}
               phone={hairdresser.phone}
-              location={hairdresser.location}
+              location={hairdresser.salon_address || hairdresser.location}
               specialties={hairdresser.specialties}
               rating={hairdresser.rating}
               experience={hairdresser.experience}

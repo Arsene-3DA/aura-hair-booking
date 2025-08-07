@@ -52,7 +52,24 @@ const ProfessionalsList = () => {
         
         const { data, error } = await supabase
           .from('hairdressers')
-          .select('*')
+          .select(`
+            id,
+            auth_id,
+            name,
+            email,
+            phone,
+            salon_address,
+            bio,
+            website,
+            instagram,
+            specialties,
+            rating,
+            image_url,
+            experience,
+            location,
+            gender,
+            is_active
+          `)
           .eq('gender', gender)
           .eq('is_active', true)
           .order('rating', { ascending: false });
@@ -71,13 +88,13 @@ const ProfessionalsList = () => {
 
         // Mapper les données Supabase vers l'interface Professional
         const mappedProfessionals: Professional[] = (data || []).map(item => ({
-          id: item.id,
+          id: item.auth_id || item.id, // Utiliser auth_id comme identifiant pour la liaison
           name: item.name,
           specialties: item.specialties || [],
-          rating: item.rating || 4.5,
+          rating: item.rating || 5.0, // Note par défaut de 5 étoiles
           image_url: item.image_url || '/placeholder.svg',
           experience: item.experience || '',
-          location: item.location || '',
+          location: item.salon_address || item.location || '', // Priorité à salon_address
           gender: item.gender as 'male' | 'female',
           email: item.email,
           phone: item.phone || undefined,
