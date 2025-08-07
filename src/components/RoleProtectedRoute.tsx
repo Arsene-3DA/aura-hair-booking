@@ -25,7 +25,23 @@ const RoleProtectedRoute = ({
       }
 
       if (allowedRoles.length > 0 && profile && !allowedRoles.includes(profile.role)) {
-        navigate('/403');
+        // Au lieu de rediriger vers 403, rediriger vers le dashboard approprié
+        switch (profile.role) {
+          case 'admin':
+            navigate('/admin', { replace: true });
+            break;
+          case 'coiffeur':
+          case 'coiffeuse':
+          case 'cosmetique':
+            navigate('/stylist', { replace: true });
+            break;
+          case 'client':
+            navigate('/app', { replace: true });
+            break;
+          default:
+            navigate('/403');
+            break;
+        }
         return;
       }
     }

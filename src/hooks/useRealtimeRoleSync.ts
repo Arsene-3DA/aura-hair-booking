@@ -9,7 +9,7 @@ export const useRealtimeRoleSync = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Gérer les changements de rôle en temps réel
+  // Gérer les changements de rôle en temps réel avec redirection automatique
   const handleRoleChange = useCallback(async () => {
     if (!user) return;
     
@@ -19,16 +19,45 @@ export const useRealtimeRoleSync = () => {
     // Afficher une notification
     toast({
       title: '🔄 Rôle mis à jour',
-      description: 'Votre rôle a été modifié. Redirection en cours...',
+      description: 'Votre rôle a été modifié. Redirection automatique...',
     });
     
-    // Rediriger après un délai avec navigation SPA
+    // Attendre un peu que le profil soit rechargé, puis naviguer
     setTimeout(async () => {
-      await loadUserProfile();
-      // Le userRole sera mis à jour après loadUserProfile, on doit le récupérer différemment
-      // Naviguer selon le rôle par défaut ou rafraîchir la page
-      window.location.href = '/';
-    }, 2000);
+      try {
+        // Recharger encore une fois pour s'assurer d'avoir le bon rôle
+        await loadUserProfile();
+        
+        // Récupérer le nouveau rôle depuis le profil
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile?.role) {
+          // Rediriger selon le nouveau rôle
+          switch (profile.role) {
+            case 'admin':
+              navigate('/admin', { replace: true });
+              break;
+            case 'coiffeur':
+            case 'coiffeuse':
+            case 'cosmetique':
+              navigate('/stylist', { replace: true });
+              break;
+            case 'client':
+            default:
+              navigate('/app', { replace: true });
+              break;
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la redirection automatique:', error);
+        // Fallback vers la page d'accueil
+        navigate('/', { replace: true });
+      }
+    }, 1000);
   }, [user, loadUserProfile, toast, navigate]);
 
   // Écouter les changements dans la table profiles

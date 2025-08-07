@@ -13,6 +13,7 @@ import { CanadianLocalizationProvider } from "@/components/CanadianLocalizationP
 import { RouteTracker } from "@/components/RouteTracker";
 import { BrokenLinkDetector } from "@/components/BrokenLinkDetector";
 import { NotFound } from "@/components/NotFound";
+import RoleDashboardRedirect from "@/components/RoleDashboardRedirect";
 import "@/lib/i18n";
 
 // Lazy loading des pages
@@ -95,7 +96,8 @@ const App = () => (
               <BrowserRouter>
                 <RouteTracker>
                   <BrokenLinkDetector>
-                    <Suspense fallback={<LoadingSpinner />}>
+                    <RoleDashboardRedirect>
+                      <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 {/* Routes publiques */}
                 <Route path="/" element={<Index />} />
@@ -208,6 +210,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            </RoleDashboardRedirect>
           </BrokenLinkDetector>
         </RouteTracker>
       </BrowserRouter>
