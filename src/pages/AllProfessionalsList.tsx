@@ -59,6 +59,7 @@ const AllProfessionalsList = () => {
             is_active
           `)
           .eq('is_active', true)
+          .not('auth_id', 'is', null) // Exclure les données de test (auth_id null)
           .order('rating', { ascending: false });
 
         if (error) {
