@@ -247,7 +247,9 @@ const ExpertDetailPage = () => {
               {expert.phone && (
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{expert.phone}</span>
+                  <a href={`tel:${expert.phone}`} className="text-sm text-primary hover:underline">
+                    {expert.phone}
+                  </a>
                 </div>
               )}
 

@@ -255,10 +255,12 @@ const StylistProfilePage = () => {
                           <Mail className="h-4 w-4 text-muted-foreground" />
                           <span>{stylist.email}</span>
                         </div>}
-                      {stylist.phone && <div className="flex items-center gap-2 text-sm">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span>{stylist.phone}</span>
-                        </div>}
+                       {stylist.phone && <div className="flex items-center gap-2 text-sm">
+                           <Phone className="h-4 w-4 text-muted-foreground" />
+                           <a href={`tel:${stylist.phone}`} className="text-primary hover:underline">
+                             {stylist.phone}
+                           </a>
+                         </div>}
                     </div>
                   </div>
                 </div>
