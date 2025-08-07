@@ -18,6 +18,11 @@ const RoleDashboardRedirect = ({ children }: RoleDashboardRedirectProps) => {
     if (!loading && isAuthenticated && userProfile?.role) {
       const currentPath = window.location.pathname;
       
+      // Permettre l'accès à la page d'accueil pour tous les utilisateurs
+      if (currentPath === '/') {
+        return;
+      }
+      
       // Vérifier si l'utilisateur est sur le bon dashboard selon son rôle
       const shouldRedirect = () => {
         switch (userProfile.role) {
