@@ -29,7 +29,7 @@ const Header = () => {
               <img 
                 src="/lovable-uploads/adc857a4-9747-4ab0-a7d9-34c15807fe8e.png" 
                 alt="Tchix Logo" 
-                className="h-12 w-auto"
+                className="h-16 w-auto"
               />
             </div>
             <div className="animate-pulse w-32 h-8 bg-white/20 rounded"></div>
@@ -60,7 +60,7 @@ const Header = () => {
             <img 
               src="/lovable-uploads/adc857a4-9747-4ab0-a7d9-34c15807fe8e.png" 
               alt="Tchix Logo" 
-              className="h-12 w-auto"
+              className="h-16 w-auto"
             />
           </Link>
 
