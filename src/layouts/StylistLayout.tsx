@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -32,6 +32,7 @@ const StylistLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user, userProfile } = useRoleAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   useRealtimeRoleSync(); // Synchronisation en temps réel des rôles
 
   const navigation = [
@@ -86,10 +87,7 @@ const StylistLayout = () => {
                 variant="ghost"
                 size="icon"
                 className="hover:bg-muted"
-                onClick={() => {
-                  console.log('Bouton Accueil cliqué');
-                  window.location.href = '/';
-                }}
+                onClick={() => navigate('/')}
               >
                 <Home className="h-4 w-4" />
               </Button>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { HeaderClient } from '@/components/client/HeaderClient';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,7 @@ import {
 const ClientLayout = () => {
   const { user } = useRoleAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const { notifications } = useNotifications(user?.id);
   useRealtimeRoleSync(); // Synchronisation en temps réel des rôles
   
@@ -50,14 +51,12 @@ const ClientLayout = () => {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-6">
               <Button 
-                asChild
                 variant="ghost" 
                 size="icon"
                 className="hover:bg-muted"
+                onClick={() => navigate('/')}
               >
-                <Link to="/">
-                  <Home className="h-5 w-5" />
-                </Link>
+                <Home className="h-5 w-5" />
               </Button>
               <h1 className="text-xl font-semibold">Mon Espace Client</h1>
             </div>
