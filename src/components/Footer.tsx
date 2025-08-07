@@ -141,6 +141,9 @@ const Footer = () => {
               © 2024 Tchix. Tous droits réservés.
             </div>
             <div className="flex space-x-6">
+              <a href="/contact" className="text-gray-400 hover:text-gold-400 transition-colors text-sm">
+                Nous contacter
+              </a>
               <a href="#" className="text-gray-400 hover:text-gold-400 transition-colors text-sm">
                 Mentions légales
               </a>

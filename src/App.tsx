@@ -61,6 +61,7 @@ const ClientHistory = lazy(() => import("./pages/client/History"));
 const ExpertsPage = lazy(() => import("./pages/ExpertsPage"));
 const ExpertDetailPage = lazy(() => import("./pages/ExpertDetailPage"));
 const NewBookingFormPage = lazy(() => import("./pages/NewBookingFormPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
 
 // Lazy loading des layouts stylist
 const StylistLayout = lazy(() => import("./layouts/StylistLayout"));
@@ -214,6 +215,7 @@ const App = () => (
                 {/* Routes publiques pour les experts et réservations */}
                 <Route path="/experts" element={<ExpertsPage />} />
                 <Route path="/experts/:expertId" element={<ExpertDetailPage />} />
+                <Route path="/contact" element={<ContactPage />} />
                 <Route path="/bookings/new" element={
                   <AuthenticatedRoute>
                     <NewBookingFormPage />
