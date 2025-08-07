@@ -146,7 +146,7 @@ const ModernAuthPage = () => {
       </div>
 
       {/* Section droite - Formulaire */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-primary">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8" style={{ backgroundColor: '#F4DC7C' }}>
         <div className="w-full max-w-md">
           <Card className="border-0 shadow-none bg-white/95 backdrop-blur-sm">
             <div className="p-8">
