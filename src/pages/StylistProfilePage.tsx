@@ -88,11 +88,11 @@ const StylistProfilePage = () => {
             name: profileData.full_name,
             email: hairdresserData?.email || '',
             phone: hairdresserData?.phone || '',
-            location: hairdresserData?.location || 'Ottawa, ON',
+            location: hairdresserData?.salon_address || hairdresserData?.location || '', // Priorité à salon_address
             specialties: hairdresserData?.specialties || ['Coiffure'],
             experience: hairdresserData?.experience || 'Professionnel expérimenté',
-            image_url: profileData.avatar_url || hairdresserData?.image_url || '/placeholder.svg',
-            rating: hairdresserData?.rating || 4.5,
+            image_url: hairdresserData?.image_url || profileData.avatar_url || '/placeholder.svg',
+            rating: hairdresserData?.rating || 5.0, // Note par défaut de 5 étoiles
             is_active: hairdresserData?.is_active ?? true,
             role: profileData.role
           };

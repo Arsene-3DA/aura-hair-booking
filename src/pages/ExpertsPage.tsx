@@ -118,7 +118,7 @@ const ProfessionalCard = ({ professional }: { professional: Professional }) => {
               />
             ))}
           </div>
-          <span className="text-sm text-muted-foreground font-medium ml-1">5.0</span>
+          <span className="text-sm text-muted-foreground font-medium ml-1">{professional.rating.toFixed(1)}</span>
         </div>
 
         {/* Boutons d'action */}
@@ -157,6 +157,7 @@ const ExpertsPage = () => {
           rating,
           experience,
           location,
+          salon_address,
           image_url,
           is_active
         `)
@@ -183,10 +184,10 @@ const ExpertsPage = () => {
           id: item.id,
           name: item.name,
           specialties: item.specialties || [],
-          rating: item.rating || 4.5,
+          rating: item.rating || 5.0, // Note par défaut de 5 étoiles
           image_url: item.image_url || '/placeholder.svg',
           experience: item.experience || '',
-          location: item.location || '',
+          location: item.salon_address || item.location || '', // Priorité à salon_address
           auth_id: item.auth_id,
           role: roleMap[item.auth_id] || 'coiffeur'
         }));
