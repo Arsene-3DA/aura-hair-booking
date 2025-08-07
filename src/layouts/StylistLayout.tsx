@@ -65,7 +65,7 @@ const StylistLayout = () => {
       <div className={cn("bg-card border-r border-border transition-all duration-300 flex flex-col", "fixed lg:static inset-y-0 left-0 z-50 lg:z-auto", sidebarOpen ? "w-64" : "w-16 lg:w-16", "lg:translate-x-0", sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0")}>
         {/* Header */}
         <div className="p-4 border-b border-border">
-          <div className="flex items-center justify-between bg-gray-600">
+          <div className="flex items-center justify-between bg-slate-950">
             {sidebarOpen && <h2 className="text-lg font-semibold text-gray-50">Espace Pro</h2>}
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="hover:bg-muted text-gray-50">
