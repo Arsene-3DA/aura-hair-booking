@@ -71,7 +71,7 @@ const StylistLayout = () => {
               <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="hover:bg-muted text-gray-50">
                 <Home className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-50">
                 <Menu className="h-4 w-4" />
               </Button>
             </div>
