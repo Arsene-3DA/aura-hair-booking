@@ -76,7 +76,7 @@ const Header = () => {
               Accueil
             </Link>
             <Link to="/professionals" className="text-white/90 hover:text-white transition-colors font-medium">
-              Nos coiffeurs
+              Nos Professionnels
             </Link>
             <Link to="/services" className="text-white/90 hover:text-white transition-colors font-medium">
               Services
@@ -97,7 +97,7 @@ const Header = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 type="text"
-                placeholder="Rechercher un coiffeur..."
+                  placeholder="Rechercher un professionnel..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-white/95 border-0 rounded-full h-12 text-gray-800 placeholder:text-gray-500 focus:bg-white"
@@ -140,7 +140,7 @@ const Header = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
                     type="text"
-                    placeholder="Rechercher un coiffeur..."
+                    placeholder="Rechercher un professionnel..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 bg-white/95 border-0 rounded-full h-12 text-gray-800 placeholder:text-gray-500"
@@ -160,7 +160,7 @@ const Header = () => {
                 className="text-white/90 hover:text-white transition-colors font-medium px-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Nos coiffeurs
+                Nos Professionnels
               </Link>
               <Link 
                 to="/services" 

@@ -107,7 +107,11 @@ const App = () => (
                     {React.createElement(React.lazy(() => import('./pages/TarifsPage')))}
                   </Suspense>
                 } />
-                <Route path="/professionals" element={<ProfessionalsList />} />
+                <Route path="/professionals" element={
+                  <Suspense fallback={<div>Chargement...</div>}>
+                    {React.createElement(React.lazy(() => import('./pages/AllProfessionalsList')))}
+                  </Suspense>
+                } />
                 <Route path="/professionals/:gender" element={<ProfessionalsList />} />
                 <Route path="/auth" element={<RoleAuthPage />} />
                 <Route path="/stylists" element={<StylistsList />} />
