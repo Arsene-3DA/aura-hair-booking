@@ -1,4 +1,4 @@
-import { Bell, Calendar, User, LogOut, Settings } from 'lucide-react';
+import { Bell, Calendar, User, LogOut, Settings, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { EnhancedAvatar } from '@/components/EnhancedAvatar';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface HeaderClientProps {
   onNewBookingClick: () => void;
@@ -41,6 +42,18 @@ export const HeaderClient = ({ onNewBookingClick, pendingNotifications = 0 }: He
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="flex h-16 items-center justify-between px-6">
         <div className="flex items-center space-x-4">
+          {/* Home Button */}
+          <Button 
+            asChild
+            variant="ghost" 
+            size="icon"
+            className="hover:bg-muted"
+          >
+            <Link to="/">
+              <Home className="h-5 w-5" />
+            </Link>
+          </Button>
+          
           <h1 className="text-xl font-semibold text-foreground">
             Mon Espace Client
           </h1>
