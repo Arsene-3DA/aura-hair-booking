@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Send, CheckCircle, Phone, MapPin, Clock, Scissors } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
@@ -37,13 +38,40 @@ const ContactPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulation d'envoi d'email - À remplacer par votre edge function
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      // Submit form securely via edge function
+      const { data: response, error } = await supabase.functions.invoke('contact-form', {
+        body: {
+          name: data.name.trim(),
+          email: data.email.trim(),
+          message: data.message.trim(),
+          csrf_token: Date.now().toString() // Simple CSRF token
+        }
+      });
+
+      if (error) {
+        console.error('Contact form error:', error);
+        toast({
+          title: "Erreur d'envoi",
+          description: "Une erreur s'est produite. Veuillez réessayer.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!response?.success) {
+        toast({
+          title: "Erreur d'envoi",
+          description: response?.error || "Une erreur s'est produite.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Success
       setIsSubmitted(true);
       toast({
         title: "Message envoyé !",
-        description: "Merci pour votre message, nous vous répondrons bientôt !",
+        description: response.message || "Merci pour votre message, nous vous répondrons bientôt !",
         duration: 5000,
       });
       
@@ -55,9 +83,10 @@ const ContactPage = () => {
       }, 5000);
       
     } catch (error) {
+      console.error('Contact form submission error:', error);
       toast({
         title: "Erreur d'envoi",
-        description: "Une erreur est survenue lors de l'envoi. Veuillez réessayer.",
+        description: "Une erreur s'est produite. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
