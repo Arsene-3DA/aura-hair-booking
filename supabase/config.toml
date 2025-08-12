@@ -1,4 +1,7 @@
 project_id = "yazsvadgmkpatqyjrzcw"
 
+[functions.contact-form]
+verify_jwt = false
+
 [functions.proxy-latest-message]
 verify_jwt = false
