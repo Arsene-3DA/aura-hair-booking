@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -170,6 +170,60 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_requests: {
+        Row: {
+          client_email: string
+          client_id: string
+          client_name: string
+          created_at: string | null
+          hairdresser_id: string
+          id: string
+          message: string
+          status: string | null
+          subject: string
+          updated_at: string | null
+        }
+        Insert: {
+          client_email: string
+          client_id: string
+          client_name: string
+          created_at?: string | null
+          hairdresser_id: string
+          id?: string
+          message: string
+          status?: string | null
+          subject: string
+          updated_at?: string | null
+        }
+        Update: {
+          client_email?: string
+          client_id?: string
+          client_name?: string
+          created_at?: string | null
+          hairdresser_id?: string
+          id?: string
+          message?: string
+          status?: string | null
+          subject?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_requests_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_requests_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hairdresser_services: {
         Row: {
           created_at: string | null
@@ -195,6 +249,13 @@ export type Database = {
             columns: ["hairdresser_id"]
             isOneToOne: false
             referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hairdresser_services_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers_public"
             referencedColumns: ["id"]
           },
           {
@@ -752,6 +813,13 @@ export type Database = {
             referencedRelation: "hairdressers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "stylist_schedule_stylist_id_fkey"
+            columns: ["stylist_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       system_logs: {
@@ -852,11 +920,70 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      hairdressers_public: {
+        Row: {
+          auth_id: string | null
+          bio: string | null
+          created_at: string | null
+          experience: string | null
+          gender: string | null
+          id: string | null
+          image_url: string | null
+          instagram: string | null
+          is_active: boolean | null
+          location: string | null
+          name: string | null
+          rating: number | null
+          salon_address: string | null
+          specialties: string[] | null
+          updated_at: string | null
+          website: string | null
+          working_hours: Json | null
+        }
+        Insert: {
+          auth_id?: string | null
+          bio?: string | null
+          created_at?: string | null
+          experience?: string | null
+          gender?: string | null
+          id?: string | null
+          image_url?: string | null
+          instagram?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          name?: string | null
+          rating?: number | null
+          salon_address?: string | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          website?: string | null
+          working_hours?: Json | null
+        }
+        Update: {
+          auth_id?: string | null
+          bio?: string | null
+          created_at?: string | null
+          experience?: string | null
+          gender?: string | null
+          id?: string | null
+          image_url?: string | null
+          instagram?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          name?: string | null
+          rating?: number | null
+          salon_address?: string | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          website?: string | null
+          working_hours?: Json | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       change_user_role: {
-        Args: { target_user_id: string; new_role: string }
+        Args: { new_role: string; target_user_id: string }
         Returns: Json
       }
       clean_expired_bookings: {
@@ -869,8 +996,8 @@ export type Database = {
       }
       count_unread_messages: {
         Args: {
-          p_stylist_id: string
           p_client_id: string
+          p_stylist_id: string
           p_user_type?: string
         }
         Returns: number
@@ -886,28 +1013,28 @@ export type Database = {
       get_admin_reservations: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          scheduled_at: string
-          status: string
-          notes: string
-          created_at: string
-          updated_at: string
-          client_name: string
           client_avatar: string
           client_email: string
+          client_name: string
           client_phone: string
-          stylist_name: string
+          created_at: string
+          id: string
+          notes: string
+          scheduled_at: string
+          service_category: string
+          service_description: string
+          service_duration: number
+          service_name: string
+          service_price: number
+          status: string
           stylist_avatar: string
           stylist_email: string
-          stylist_phone: string
-          stylist_specialties: string[]
           stylist_location: string
+          stylist_name: string
+          stylist_phone: string
           stylist_role: string
-          service_name: string
-          service_description: string
-          service_price: number
-          service_duration: number
-          service_category: string
+          stylist_specialties: string[]
+          updated_at: string
         }[]
       }
       get_current_user_id: {
@@ -921,36 +1048,36 @@ export type Database = {
       get_review_by_token: {
         Args: { token: string }
         Returns: {
-          id: string
-          reservation_id: string
           client_id: string
-          professional_id: string
-          status: string
-          created_at: string
           client_name: string
+          created_at: string
+          id: string
+          professional_id: string
           professional_name: string
-          service_name: string
+          reservation_id: string
           scheduled_at: string
+          service_name: string
+          status: string
         }[]
       }
       get_stylist_reservations: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          scheduled_at: string
-          status: string
-          notes: string
-          created_at: string
-          updated_at: string
-          client_name: string
           client_avatar: string
           client_email: string
+          client_name: string
           client_phone: string
-          service_name: string
-          service_description: string
-          service_price: number
-          service_duration: number
+          created_at: string
+          id: string
+          notes: string
+          scheduled_at: string
           service_category: string
+          service_description: string
+          service_duration: number
+          service_name: string
+          service_price: number
+          status: string
+          updated_at: string
         }[]
       }
       is_admin: {
@@ -959,15 +1086,15 @@ export type Database = {
       }
       log_security_event: {
         Args: {
-          event_type: string
           event_message: string
-          user_id?: string
+          event_type: string
           metadata?: Json
+          user_id?: string
         }
         Returns: undefined
       }
       mark_messages_as_read: {
-        Args: { p_stylist_id: string; p_client_id: string }
+        Args: { p_client_id: string; p_stylist_id: string }
         Returns: undefined
       }
       promote_to_admin: {
@@ -979,7 +1106,17 @@ export type Database = {
         Returns: undefined
       }
       secure_change_user_role: {
-        Args: { target_user_id: string; new_role: string; csrf_token?: string }
+        Args: { csrf_token?: string; new_role: string; target_user_id: string }
+        Returns: Json
+      }
+      send_contact_request: {
+        Args: {
+          p_client_email: string
+          p_client_name: string
+          p_hairdresser_id: string
+          p_message: string
+          p_subject: string
+        }
         Returns: Json
       }
       set_super_admin: {
@@ -987,11 +1124,20 @@ export type Database = {
         Returns: undefined
       }
       set_user_role: {
-        Args: { user_id: string; new_role: string }
+        Args: { new_role: string; user_id: string }
         Returns: undefined
       }
+      submit_contact_form: {
+        Args: {
+          csrf_token?: string
+          email: string
+          message: string
+          name: string
+        }
+        Returns: Json
+      }
       submit_review: {
-        Args: { token: string; rating: number; comment_text: string }
+        Args: { comment_text: string; rating: number; token: string }
         Returns: Json
       }
       update_stylist_rating_for_user: {
@@ -999,7 +1145,7 @@ export type Database = {
         Returns: undefined
       }
       validate_booking_service: {
-        Args: { p_stylist_user_id: string; p_service_id: string }
+        Args: { p_service_id: string; p_stylist_user_id: string }
         Returns: boolean
       }
       validate_password_strength: {

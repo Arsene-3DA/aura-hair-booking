@@ -17,11 +17,16 @@ import {
   CheckCircle,
   Globe,
   Instagram,
-  Camera
+  Camera,
+  Shield,
+  MessageCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfessionalServices } from '@/hooks/useProfessionalServices';
 import { usePortfolioManagement } from '@/hooks/usePortfolioManagement';
+import { useSecureHairdresserData } from '@/hooks/useSecureHairdresserData';
+import { ContactHairdresserModal } from '@/components/ContactHairdresserModal';
+import { useAuth } from '@/hooks/useAuth';
 import PriceDisplay from '@/components/ui/price-display';
 import PageHeader from '@/components/PageHeader';
 
@@ -53,102 +58,17 @@ interface WorkingDay {
 const ExpertDetailPage = () => {
   const { expertId } = useParams<{ expertId: string }>();
   const navigate = useNavigate();
-  const [expert, setExpert] = useState<ExpertDetail | null>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const { user } = useAuth();
+  
+  // Use secure data hook
+  const { hairdresser: expert, loading: isLoading, error } = useSecureHairdresserData(expertId);
 
   // Récupérer les services du professionnel avec mises à jour temps réel
   const { services, loading: servicesLoading } = useProfessionalServices(expertId, true);
   
   // Récupérer le portfolio avec mises à jour temps réel
   const { portfolio } = usePortfolioManagement(expertId);
-
-  const { data: initialExpert, isLoading, error } = useQuery({
-    queryKey: ['expert', expertId],
-    queryFn: async () => {
-      if (!expertId) throw new Error('ID expert manquant');
-
-      // Récupérer les données de l'expert via auth_id
-      const { data: expertData, error: expertError } = await supabase
-        .from('hairdressers')
-        .select(`
-          id,
-          name,
-          email,
-          phone,
-          specialties,
-          rating,
-          image_url,
-          experience,
-          location,
-          salon_address,
-          bio,
-          website,
-          instagram,
-          working_hours,
-          auth_id,
-          is_active
-        `)
-        .eq('auth_id', expertId)
-        .eq('is_active', true)
-        .single();
-
-      if (expertError) {
-        if (expertError.code === 'PGRST116') {
-          throw new Error('Expert non trouvé');
-        }
-        throw expertError;
-      }
-
-      // Récupérer les informations de rôle et avatar depuis profiles
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('role, avatar_url, full_name')
-        .eq('user_id', expertId)
-        .single();
-
-      return {
-        ...expertData,
-        role: profileData?.role || 'coiffeur',
-        image_url: profileData?.avatar_url || expertData.image_url,
-        name: profileData?.full_name || expertData.name
-      } as ExpertDetail;
-    },
-    enabled: !!expertId
-  });
-
-  // Configuration de la synchronisation temps réel
-  useEffect(() => {
-    if (initialExpert) {
-      setExpert(initialExpert);
-    }
-  }, [initialExpert]);
-
-  useEffect(() => {
-    if (!expertId) return;
-
-    // Synchronisation temps réel pour les données du professionnel
-    const channel = supabase
-      .channel(`expert-${expertId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'hairdressers',
-          filter: `auth_id=eq.${expertId}`,
-        },
-        (payload) => {
-          console.log('📡 Real-time update for expert:', payload);
-          if (payload.eventType === 'UPDATE' && payload.new) {
-            setExpert(prev => prev ? { ...prev, ...payload.new } : null);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [expertId]);
 
   if (isLoading || servicesLoading) {
     return (
@@ -237,19 +157,45 @@ const ExpertDetailPage = () => {
                 </div>
               )}
 
-              {expert.email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{expert.email}</span>
-                </div>
-              )}
+              {/* Contact Info - Only show if authorized */}
+              {expert.canViewContact ? (
+                <>
+                  {expert.email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <a href={`mailto:${expert.email}`} className="text-sm text-primary hover:underline">
+                        {expert.email}
+                      </a>
+                    </div>
+                  )}
 
-              {expert.phone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <a href={`tel:${expert.phone}`} className="text-sm text-primary hover:underline">
-                    {expert.phone}
-                  </a>
+                  {expert.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <a href={`tel:${expert.phone}`} className="text-sm text-primary hover:underline">
+                        {expert.phone}
+                      </a>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <Shield className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">Informations protégées</p>
+                      <p>Contactez ce professionnel via notre système sécurisé.</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowContactModal(true)}
+                        className="mt-2 border-blue-300 text-blue-700 hover:bg-blue-100"
+                      >
+                        <MessageCircle className="h-3 w-3 mr-1" />
+                        Envoyer un message
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -433,6 +379,16 @@ const ExpertDetailPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Contact Modal */}
+      {expert && (
+        <ContactHairdresserModal
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+          hairdresserId={expert.id}
+          hairdresserName={expert.name}
+        />
+      )}
     </div>
   );
 };

@@ -146,9 +146,9 @@ const ExpertsPage = () => {
   const { data: professionals = [], isLoading } = useQuery({
     queryKey: ['professionals'],
     queryFn: async () => {
-      // Récupérer tous les hairdressers actifs
+      // Récupérer tous les hairdressers actifs (business info only for public)
       const { data, error } = await supabase
-        .from('hairdressers')
+        .from('hairdressers_public')
         .select(`
           id,
           auth_id,
