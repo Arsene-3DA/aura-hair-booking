@@ -31,8 +31,11 @@ const CosmetiqueProfessionalsList = () => {
       try {
         setLoading(true);
         
-        // Utiliser la fonction publique pour récupérer tous les professionnels
-        const { data, error } = await supabase.rpc('get_public_hairdresser_data');
+        // Requête directe avec seulement les colonnes publiques autorisées
+        const { data: hairdressersData, error } = await supabase
+          .from('hairdressers')
+          .select('id, name, rating, salon_address, image_url, gender, is_active, auth_id, created_at, updated_at')
+          .eq('is_active', true);
         
         if (error) {
           console.error('Erreur lors du chargement des professionnels:', error);
@@ -44,31 +47,39 @@ const CosmetiqueProfessionalsList = () => {
           return;
         }
 
-        // Filtrer les professionnels cosmétique
-        const cosmetiquePromises = (data || []).map(async (item) => {
-          if (!item.auth_id) return null; // Ignorer ceux sans compte
-          
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('user_id', item.auth_id)
-            .maybeSingle();
-            
-          return profile?.role === 'cosmetique' ? item : null;
-        });
+        // Filtrer les professionnels cosmétique en vérifiant les profils
+        const filteredProfessionals = [];
         
-        const profileResults = await Promise.all(cosmetiquePromises);
-        const filteredProfessionals = profileResults.filter(item => item !== null);
+        if (hairdressersData) {
+          for (const item of hairdressersData) {
+            if (!item.auth_id) continue; // Ignorer ceux sans compte
+            
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('user_id', item.auth_id)
+                .maybeSingle();
+                
+              if (profile?.role === 'cosmetique') {
+                filteredProfessionals.push(item);
+              }
+            } catch (profileError) {
+              console.log('Profil non accessible:', item.name);
+              // Ignorer silencieusement les profils non accessibles
+            }
+          }
+        }
 
         // Mapper les données
         const mappedProfessionals: CosmetiqueProfessional[] = filteredProfessionals.map(item => ({
           id: item.auth_id || item.id,
           name: item.name,
-          specialties: item.specialties || ['Soins esthétiques', 'Cosmétique'],
+          specialties: ['Soins esthétiques', 'Cosmétique'],
           rating: item.rating || 5.0,
           image_url: item.image_url || '/placeholder.svg',
-          experience: item.experience || 'Expert en soins esthétiques',
-          location: item.salon_address || item.location || '',
+          experience: 'Expert en soins esthétiques',
+          location: item.salon_address || '',
           auth_id: item.auth_id,
           is_active: item.is_active || true
         }));

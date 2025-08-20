@@ -49,8 +49,11 @@ const ProfessionalsList = () => {
         setLoading(true);
         console.log('Loading professionals for gender:', gender);
         
-        // Utiliser directement la fonction publique sécurisée
-        const { data, error } = await supabase.rpc('get_public_hairdresser_data_safe');
+        // Requête directe avec seulement les colonnes publiques autorisées
+        const { data, error } = await supabase
+          .from('hairdressers')
+          .select('id, name, rating, salon_address, image_url, gender, is_active, created_at, updated_at')
+          .eq('is_active', true);
 
         if (error) {
           console.error('Erreur lors du chargement des professionnels:', error);
@@ -64,8 +67,10 @@ const ProfessionalsList = () => {
 
         console.log('Data received from Supabase:', data);
 
-        // Filtrer simplement par genre - les professionnels avec rôles incorrects ont été nettoyés
-        const filteredData = (data || []).filter(item => item.gender === gender && item.is_active);
+        // Filtrer par genre
+        const filteredData = (data || []).filter(item => 
+          item.gender === gender && item.is_active
+        );
 
         // Mapper les données Supabase vers l'interface Professional
         const mappedProfessionals: Professional[] = filteredData.map(item => ({
@@ -75,7 +80,7 @@ const ProfessionalsList = () => {
           rating: item.rating || 5.0,
           image_url: item.image_url || '/placeholder.svg',
           experience: '', // Pas exposé publiquement pour la sécurité
-          location: item.location || '',
+          location: item.salon_address || '',
           gender: item.gender as 'male' | 'female',
           email: '',
           phone: '',
