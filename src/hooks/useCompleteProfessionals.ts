@@ -66,11 +66,9 @@ export const useCompleteProfessionals = () => {
             gender,
             is_active,
             working_hours,
-            profiles!inner(role)
+            profiles(role)
           `)
           .eq('is_active', true)
-          .not('auth_id', 'is', null)
-          .in('profiles.role', ['coiffeur', 'coiffeuse', 'cosmetique'])
           .order('rating', { ascending: false });
         
         hairdressersData = data;
@@ -94,28 +92,30 @@ export const useCompleteProfessionals = () => {
         return;
       }
 
-      // Récupérer les profils correspondants en une seule requête
-      // Filtrer uniquement les rôles professionnels
+      // Récupérer les profils correspondants en une seule requête pour enrichir les données
       const authIds = hairdressersData.map(h => h.auth_id).filter(Boolean);
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, avatar_url, role')
-        .in('user_id', authIds)
-        .in('role', ['coiffeur', 'coiffeuse', 'cosmetique']);
+      let profilesData = [];
+      if (authIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, avatar_url, role')
+          .in('user_id', authIds);
 
-      if (profilesError) {
-        console.warn('Erreur lors du chargement des profils:', profilesError);
-        // Continue sans les données de profils
+        if (profilesError) {
+          console.warn('Erreur lors du chargement des profils:', profilesError);
+        } else {
+          profilesData = profiles || [];
+        }
       }
 
-      // Mapper et enrichir les données - ne garder que ceux avec un profil professionnel
+      // Mapper et enrichir les données - inclure tous les professionnels actifs
       const enrichedProfessionals: CompleteProfessional[] = hairdressersData
         .map(hairdresser => {
           const profile = profilesData?.find(p => p.user_id === hairdresser.auth_id);
           
-          // Ne garder que les professionnels avec un rôle professionnel valide
-          if (!profile || !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profile.role)) {
-            return null;
+          // Accepter les professionnels avec compte professionnel OU sans compte (ajoutés manuellement)
+          if (hairdresser.auth_id && profile && !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profile.role)) {
+            return null; // Exclure seulement ceux avec compte mais sans rôle professionnel
           }
           
           return {

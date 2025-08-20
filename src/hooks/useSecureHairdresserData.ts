@@ -110,11 +110,10 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
             .from('profiles')
             .select('role, avatar_url, full_name')
             .eq('user_id', hairdresserId)
-            .in('role', ['coiffeur', 'coiffeuse', 'cosmetique'])
             .single();
 
-          // Vérifier que l'utilisateur a bien un rôle professionnel
-          if (!profileData || !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profileData.role)) {
+          // Si le professionnel a un compte mais pas de rôle professionnel, rejeter
+          if (hairdresserId && profileData && !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profileData.role)) {
             throw new Error('Professionnel non trouvé ou compte non professionnel');
           }
 
