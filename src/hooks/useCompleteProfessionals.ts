@@ -6,7 +6,7 @@ export interface CompleteProfessional {
   id: string;
   auth_id: string;
   name: string;
-  email: string;
+  email?: string; // Only available for authenticated users
   phone?: string;
   salon_address?: string;
   bio?: string;
@@ -37,31 +37,69 @@ export const useCompleteProfessionals = () => {
       setLoading(true);
       setError(null);
 
-      // Récupérer tous les coiffeurs actifs
-      const { data: hairdressersData, error: hairdressersError } = await supabase
-        .from('hairdressers')
-        .select(`
-          id,
-          auth_id,
-          name,
-          email,
-          phone,
-          salon_address,
-          bio,
-          website,
-          instagram,
-          specialties,
-          rating,
-          image_url,
-          experience,
-          location,
-          gender,
-          is_active,
-          working_hours
-        `)
-        .eq('is_active', true)
-        .not('auth_id', 'is', null)
-        .order('rating', { ascending: false });
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      let hairdressersData;
+      let hairdressersError;
+
+      if (user) {
+        // Authenticated user - can access full data including contact info
+        const { data, error } = await supabase
+          .from('hairdressers')
+          .select(`
+            id,
+            auth_id,
+            name,
+            email,
+            phone,
+            salon_address,
+            bio,
+            website,
+            instagram,
+            specialties,
+            rating,
+            image_url,
+            experience,
+            location,
+            gender,
+            is_active,
+            working_hours
+          `)
+          .eq('is_active', true)
+          .not('auth_id', 'is', null)
+          .order('rating', { ascending: false });
+        
+        hairdressersData = data;
+        hairdressersError = error;
+      } else {
+        // Unauthenticated user - only business info (no email/phone)
+        const { data, error } = await supabase
+          .from('hairdressers_public')
+          .select(`
+            id,
+            auth_id,
+            name,
+            salon_address,
+            bio,
+            website,
+            instagram,
+            specialties,
+            rating,
+            image_url,
+            experience,
+            location,
+            gender,
+            is_active,
+            working_hours
+          `)
+          .eq('is_active', true)
+          .not('auth_id', 'is', null)
+          .order('rating', { ascending: false });
+        
+        hairdressersData = data;
+        hairdressersError = error;
+      }
 
       if (hairdressersError) {
         throw hairdressersError;
