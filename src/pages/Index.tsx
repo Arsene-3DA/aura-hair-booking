@@ -271,84 +271,86 @@ const Index = () => {
             
             <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Coiffeurs */}
-              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('coiffeur')}>
+              <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-gray-700 hover:border-blue-500/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('coiffeur')}>
                 <div className="text-center">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                    <Scissors className="h-10 w-10 text-white" />
+                  <div className="w-16 h-16 mx-auto mb-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <Scissors className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">
                     Voir nos coiffeurs
                   </h3>
-                  <p className="text-gray-300 mb-6">
+                  <p className="text-gray-300 mb-6 text-sm leading-relaxed">
                     Spécialistes en coupe, barbe et styling masculin
                   </p>
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center justify-center text-sm text-gray-300">
-                      <Star className="h-4 w-4 text-[#FFD700] mr-2" />
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center justify-center text-sm text-yellow-400">
+                      <Star className="h-4 w-4 mr-2" />
                       Experts certifiés
                     </div>
-                    <div className="flex items-center justify-center text-sm text-gray-300">
-                      <Clock className="h-4 w-4 text-green-500 mr-2" />
+                    <div className="flex items-center justify-center text-sm text-green-400">
+                      <Clock className="h-4 w-4 mr-2" />
                       Disponibles aujourd'hui
                     </div>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white">
+                  <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-lg transition-all duration-300">
                     Voir nos coiffeurs
                   </Button>
                 </div>
               </div>
 
               {/* Coiffeuses */}
-              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('coiffeuse')}>
+              <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-gray-700 hover:border-yellow-500/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('coiffeuse')}>
                 <div className="text-center">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-[#FFD700] rounded-full flex items-center justify-center">
-                    <Scissors className="h-10 w-10 text-black" />
+                  <div className="w-16 h-16 mx-auto mb-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <Scissors className="h-8 w-8 text-black" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">
                     Voir nos coiffeuses
                   </h3>
-                  <p className="text-gray-300 mb-6">
+                  <p className="text-gray-300 mb-6 text-sm leading-relaxed">
                     Spécialistes en coupe, couleur et coiffage féminin
                   </p>
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center justify-center text-sm text-gray-300">
-                      <Star className="h-4 w-4 text-[#FFD700] mr-2" />
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center justify-center text-sm text-yellow-400">
+                      <Star className="h-4 w-4 mr-2" />
                       Expertes certifiées
                     </div>
-                    <div className="flex items-center justify-center text-sm text-gray-300">
-                      <Clock className="h-4 w-4 text-green-500 mr-2" />
+                    <div className="flex items-center justify-center text-sm text-green-400">
+                      <Clock className="h-4 w-4 mr-2" />
                       Disponibles aujourd'hui
                     </div>
                   </div>
-                  <Button className="w-full bg-[#FFD700] hover:bg-[#FFD700]/90 text-black">
+                  <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-3 rounded-lg transition-all duration-300">
                     Voir nos coiffeuses
                   </Button>
                 </div>
               </div>
 
               {/* Cosmétique */}
-              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('cosmetique')}>
+              <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-gray-700 hover:border-purple-500/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('cosmetique')}>
                 <div className="text-center">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <Sparkles className="h-10 w-10 text-white" />
+                  <div className="w-16 h-16 mx-auto mb-6 bg-purple-500 rounded-full flex items-center justify-center">
+                    <Sparkles className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">
                     Cosmétique
                   </h3>
-                  <p className="text-gray-300 mb-6">
+                  <p className="text-gray-300 mb-6 text-sm leading-relaxed">
                     Spécialistes en soins esthétiques et cosmétiques
                   </p>
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center justify-center text-sm text-gray-300">
-                      <Star className="h-4 w-4 text-[#FFD700] mr-2" />
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center justify-center text-sm text-yellow-400">
+                      <Star className="h-4 w-4 mr-2" />
                       Experts certifiés
                     </div>
-                    <div className="flex items-center justify-center text-sm text-gray-300">
-                      <Clock className="h-4 w-4 text-green-500 mr-2" />
+                    <div className="flex items-center justify-center text-sm text-green-400">
+                      <Clock className="h-4 w-4 mr-2" />
                       Disponibles aujourd'hui
                     </div>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white">Cosmétique</Button>
+                  <Button className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-3 rounded-lg transition-all duration-300">
+                    Cosmétique
+                  </Button>
                 </div>
               </div>
             </div>
