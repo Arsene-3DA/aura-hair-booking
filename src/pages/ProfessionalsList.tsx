@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
@@ -50,7 +49,7 @@ const ProfessionalsList = () => {
         setLoading(true);
         console.log('Loading professionals for gender:', gender);
         
-        // Utiliser la fonction publique sécurisée
+        // Utiliser directement la fonction publique sécurisée
         const { data, error } = await supabase.rpc('get_public_hairdresser_data');
 
         if (error) {
@@ -65,32 +64,11 @@ const ProfessionalsList = () => {
 
         console.log('Data received from Supabase:', data);
 
-        // Filtrer par genre et rôle
-        const filteredPromises = (data || []).map(async (item) => {
-          // Filtrer d'abord par genre
-          if (item.gender !== gender) return null;
-          
-          // Vérifier le rôle si auth_id existe
-          if (item.auth_id) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('user_id', item.auth_id)
-              .maybeSingle();
-              
-            if (!profile || !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profile.role)) {
-              return null;
-            }
-          }
-          
-          return item;
-        });
-        
-        const filteredResults = await Promise.all(filteredPromises);
-        const validProfessionals = filteredResults.filter(item => item !== null);
+        // Filtrer simplement par genre - les professionnels avec rôles incorrects ont été nettoyés
+        const filteredData = (data || []).filter(item => item.gender === gender && item.is_active);
 
         // Mapper les données Supabase vers l'interface Professional
-        const mappedProfessionals: Professional[] = validProfessionals.map(item => ({
+        const mappedProfessionals: Professional[] = filteredData.map(item => ({
           id: item.auth_id || item.id,
           name: item.name,
           specialties: item.specialties || [],
@@ -100,7 +78,7 @@ const ProfessionalsList = () => {
           location: item.salon_address || item.location || '',
           gender: item.gender as 'male' | 'female',
           email: '',
-          phone: undefined,
+          phone: '',
           is_active: item.is_active || false
         }));
 
@@ -110,7 +88,7 @@ const ProfessionalsList = () => {
         if (mappedProfessionals.length === 0) {
           toast({
             title: "Information",
-            description: `Aucun ${gender === 'male' ? 'coiffeur' : 'coiffeuse'} trouvé. Utilisez le bouton 'Initialiser' pour créer des comptes de test.`,
+            description: `Aucun ${gender === 'male' ? 'coiffeur' : 'coiffeuse'} trouvé actuellement.`,
           });
         }
       } catch (error) {
@@ -194,10 +172,10 @@ const ProfessionalsList = () => {
                   Aucun {gender === 'male' ? 'coiffeur' : 'coiffeuse'} trouvé pour cette catégorie.
                 </p>
                 <p className="text-gray-500 text-sm mb-6">
-                  Utilisez le bouton "Initialiser" sur la page de connexion pour créer des comptes de test.
+                  Nos professionnels seront bientôt disponibles sur la plateforme.
                 </p>
                 <Button onClick={() => navigate('/auth')} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300">
-                  Aller à la page de connexion
+                  Être notifié de leur arrivée
                 </Button>
               </div>
             )}
