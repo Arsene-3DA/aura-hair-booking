@@ -13,7 +13,7 @@ import salonHeroImage from '@/assets/salon-professionals-hero.jpg';
 const ModernAuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signIn, signUp, isAuthenticated, loading } = useRoleAuth();
+  const { signIn, signUp, isAuthenticated, loading, userProfile } = useRoleAuth();
   const { toast } = useToast();
 
   const [email, setEmail] = useState('');
@@ -26,15 +26,29 @@ const ModernAuthPage = () => {
 
   // Gérer la redirection après authentification
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && userProfile) {
       const returnTo = searchParams.get('returnTo');
       if (returnTo) {
         navigate(decodeURIComponent(returnTo), { replace: true });
       } else {
-        navigate('/', { replace: true });
+        // Rediriger vers le dashboard approprié selon le rôle
+        switch (userProfile.role) {
+          case 'admin':
+            navigate('/admin', { replace: true });
+            break;
+          case 'coiffeur':
+          case 'coiffeuse':
+          case 'cosmetique':
+            navigate('/stylist', { replace: true });
+            break;
+          case 'client':
+          default:
+            navigate('/app', { replace: true });
+            break;
+        }
       }
     }
-  }, [isAuthenticated, navigate, searchParams]);
+  }, [isAuthenticated, userProfile, navigate, searchParams]);
 
   const handleSubmit = async (isSignUp: boolean) => {
     if (!email || !password) {
