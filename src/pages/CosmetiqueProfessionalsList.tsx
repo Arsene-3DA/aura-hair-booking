@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCompleteProfessionals } from '@/hooks/useCompleteProfessionals';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HairdresserCard from '@/components/HairdresserCard';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles, Star, Clock } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Sparkles } from 'lucide-react';
 
 interface CosmetiqueProfessional {
   id: string;
@@ -22,90 +20,10 @@ interface CosmetiqueProfessional {
 
 const CosmetiqueProfessionalsList = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [professionals, setProfessionals] = useState<CosmetiqueProfessional[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { professionals: allProfessionals, loading, error } = useCompleteProfessionals();
 
-  useEffect(() => {
-    const loadCosmetiqueProfessionals = async () => {
-      try {
-        setLoading(true);
-        
-        // Requête directe avec seulement les colonnes publiques autorisées
-        const { data: hairdressersData, error } = await supabase
-          .from('hairdressers')
-          .select('id, name, rating, salon_address, image_url, gender, is_active, auth_id, created_at, updated_at')
-          .eq('is_active', true);
-        
-        if (error) {
-          console.error('Erreur lors du chargement des professionnels:', error);
-          toast({
-            title: "Erreur",
-            description: "Impossible de charger les professionnels",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Filtrer les professionnels cosmétique en vérifiant les profils
-        const filteredProfessionals = [];
-        
-        if (hairdressersData) {
-          for (const item of hairdressersData) {
-            if (!item.auth_id) continue; // Ignorer ceux sans compte
-            
-            try {
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('user_id', item.auth_id)
-                .maybeSingle();
-                
-              if (profile?.role === 'cosmetique') {
-                filteredProfessionals.push(item);
-              }
-            } catch (profileError) {
-              console.log('Profil non accessible:', item.name);
-              // Ignorer silencieusement les profils non accessibles
-            }
-          }
-        }
-
-        // Mapper les données
-        const mappedProfessionals: CosmetiqueProfessional[] = filteredProfessionals.map(item => ({
-          id: item.auth_id || item.id,
-          name: item.name,
-          specialties: ['Soins esthétiques', 'Cosmétique'],
-          rating: item.rating || 5.0,
-          image_url: item.image_url || '/placeholder.svg',
-          experience: 'Expert en soins esthétiques',
-          location: item.salon_address || '',
-          auth_id: item.auth_id,
-          is_active: item.is_active || true
-        }));
-
-        setProfessionals(mappedProfessionals);
-
-        if (mappedProfessionals.length === 0) {
-          toast({
-            title: "Information",
-            description: "Aucun expert en cosmétique trouvé actuellement.",
-          });
-        }
-      } catch (error) {
-        console.error('Erreur:', error);
-        toast({
-          title: "Erreur",
-          description: "Une erreur est survenue",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadCosmetiqueProfessionals();
-  }, [toast]);
+  // Filtrer les professionnels cosmétique
+  const professionals = allProfessionals.filter(prof => prof.role === 'cosmetique');
 
   return (
     <div className="min-h-screen bg-black">
@@ -155,12 +73,12 @@ const CosmetiqueProfessionalsList = () => {
               {professionals.map((professional) => (
                   <div key={professional.id} className="animate-fade-in">
                     <HairdresserCard 
-                      id={professional.auth_id}
-                      name={professional.name}
-                      photo={professional.image_url}
-                      tags={professional.specialties}
+                      id={professional.id}
+                      name={professional.name || professional.full_name}
+                      photo={professional.image_url || professional.avatar_url}
+                      tags={['Soins esthétiques', 'Cosmétique']}
                       rating={professional.rating}
-                      experience={professional.experience}
+                      experience="Expert en soins esthétiques"
                     />
                   </div>
                 ))}

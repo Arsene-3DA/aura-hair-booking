@@ -1,12 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useCompleteProfessionals } from '@/hooks/useCompleteProfessionals';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HairdresserCard from '@/components/HairdresserCard';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from "@/hooks/use-toast";
 
 interface Professional {
   id: string;
@@ -25,97 +23,19 @@ interface Professional {
 const ProfessionalsList = () => {
   const { gender } = useParams<{ gender?: 'male' | 'female' }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { professionals: allProfessionals, loading, error } = useCompleteProfessionals();
   
   console.log('Current gender parameter:', gender);
   
   // Si pas de genre spécifié ou genre invalide, rediriger vers l'accueil
-  useEffect(() => {
-    if (!gender || !['male', 'female'].includes(gender)) {
-      console.log('Invalid gender parameter, redirecting to home');
-      navigate('/');
-      return;
-    }
-  }, [gender, navigate]);
-
-  // Charger les professionnels depuis Supabase
-  useEffect(() => {
-    const loadProfessionals = async () => {
-      if (!gender || !['male', 'female'].includes(gender)) return;
-      
-      try {
-        setLoading(true);
-        console.log('Loading professionals for gender:', gender);
-        
-        // Requête directe sur la table publique hairdressers
-        const { data, error } = await supabase
-          .from('hairdressers')
-          .select('id, name, rating, salon_address, image_url, gender, is_active, created_at, updated_at')
-          .eq('is_active', true)
-          .eq('gender', gender);
-
-        if (error) {
-          console.error('Erreur lors du chargement des professionnels:', error);
-          toast({
-            title: "Erreur",
-            description: "Impossible de charger les professionnels",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        console.log('Data received from Supabase:', data);
-
-        console.log('Raw data from Supabase:', data);
-
-        // Pas besoin de filtrer, déjà fait dans la requête
-        const filteredData = data || [];
-
-        // Mapper les données Supabase vers l'interface Professional
-        const mappedProfessionals: Professional[] = filteredData.map(item => ({
-          id: item.id,
-          name: item.name,
-          specialties: [], // Pas exposé publiquement pour la sécurité
-          rating: item.rating || 5.0,
-          image_url: item.image_url || '/placeholder.svg',
-          experience: '', // Pas exposé publiquement pour la sécurité
-          location: item.salon_address || '',
-          gender: item.gender as 'male' | 'female',
-          email: '',
-          phone: '',
-          is_active: item.is_active || false
-        }));
-
-        setProfessionals(mappedProfessionals);
-        console.log('Professionnels mappés pour', gender, ':', mappedProfessionals.length, mappedProfessionals);
-        
-        if (mappedProfessionals.length === 0) {
-          toast({
-            title: "Information",
-            description: `Aucun ${gender === 'male' ? 'coiffeur' : 'coiffeuse'} trouvé actuellement.`,
-          });
-        }
-      } catch (error) {
-        console.error('Erreur:', error);
-        toast({
-          title: "Erreur",
-          description: "Une erreur est survenue",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProfessionals();
-  }, [gender, toast]);
-
-  // Si pas de genre valide, ne rien afficher (useEffect va rediriger)
   if (!gender || !['male', 'female'].includes(gender)) {
+    console.log('Invalid gender parameter, redirecting to home');
+    navigate('/');
     return null;
   }
+
+  // Filtrer les professionnels par genre
+  const professionals = allProfessionals.filter(prof => prof.gender === gender);
 
   const title = gender === 'male' ? 'Nos Coiffeurs Experts' : 'Nos Coiffeuses Expertes';
   const subtitle = gender === 'male' 
@@ -163,11 +83,11 @@ const ProfessionalsList = () => {
                   <div key={professional.id} className="animate-fade-in">
                     <HairdresserCard 
                       id={professional.id}
-                      name={professional.name}
-                      photo={professional.image_url}
-                      tags={professional.specialties}
+                      name={professional.name || professional.full_name}
+                      photo={professional.image_url || professional.avatar_url}
+                      tags={professional.specialties || []}
                       rating={professional.rating}
-                      experience={professional.experience}
+                      experience={professional.experience || ''}
                     />
                   </div>
                 ))}
