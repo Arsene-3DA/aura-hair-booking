@@ -206,7 +206,7 @@ const App = () => (
                   } />
                 </Route>
                 <Route path="/app" element={
-                  <RoleGuard allowedRoles={['client', 'coiffeur', 'coiffeuse', 'cosmetique', 'admin']}>
+                  <RoleGuard allowedRoles={['client']}>
                     <ClientLayout />
                   </RoleGuard>
                 }>

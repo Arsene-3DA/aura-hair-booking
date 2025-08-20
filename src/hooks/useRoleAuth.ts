@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export type UserRole = 'client' | 'coiffeur' | 'coiffeuse' | 'cosmetique' | 'admin' | null;
 
@@ -52,6 +53,7 @@ export function useRoleAuth(): AuthState & AuthActions {
   });
 
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   /* ───────── Charger le profil utilisateur ───────── */
   const loadUserProfile = useCallback(async () => {
@@ -164,7 +166,7 @@ export function useRoleAuth(): AuthState & AuthActions {
 
       // Rediriger vers le hub après connexion réussie
       if (data.session) {
-        window.location.href = '/post-login';
+        navigate('/post-login');
       }
 
       setState(prev => ({ ...prev, showTransition: true }));
