@@ -123,10 +123,10 @@ const ContactPage = () => {
           
           {/* Left Side - Visual & Info */}
           <div className="space-y-8">
-            {/* Image Section */}
-            <div className="relative rounded-2xl overflow-hidden h-96 border border-[#FFD700]/30">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/20 via-[#FFD700]/30 to-[#FFD700]/40">
-                <div className="absolute inset-0 bg-black/40"></div>
+            {/* Image Section avec filtre doré amélioré */}
+            <div className="relative rounded-2xl overflow-hidden h-96 border-2 border-[#FFD700]/40 shadow-lg shadow-[#FFD700]/10">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/30 via-[#FFD700]/20 to-[#FFD700]/40">
+                <div className="absolute inset-0 bg-black/30"></div>
                 <img 
                   src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=600&fit=crop&crop=face"
                   alt="Tchiix - Salon de coiffure moderne" 
@@ -135,25 +135,30 @@ const ContactPage = () => {
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
-                  <Scissors className="h-16 w-16 mx-auto mb-4 drop-shadow-lg text-[#FFD700]" />
-                  <h3 className="text-2xl font-bold mb-2 text-[#FFD700]">Tchiix</h3>
-                  <p className="text-lg font-light">L'excellence coiffure</p>
+                  <div className="w-20 h-20 mx-auto mb-4 bg-[#FFD700]/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-[#FFD700]/50">
+                    <Scissors className="h-12 w-12 text-[#FFD700] drop-shadow-lg" />
+                  </div>
+                  <h3 className="text-3xl font-bold mb-2 text-[#FFD700] drop-shadow-lg">Tchiix</h3>
+                  <p className="text-lg font-light drop-shadow-md">L'excellence coiffure</p>
                 </div>
               </div>
             </div>
 
-            {/* Contact Info Cards */}
+            {/* Contact Info Cards avec glows dorés */}
             <div className="space-y-6">
-              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border-2 border-[#FFD700]/40 hover:border-[#FFD700]/70 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 group">
                 <div className="flex items-start space-x-4">
-                  <div className="p-3 rounded-xl bg-[#FFD700]">
-                    <Phone className="h-5 w-5 text-black" />
+                  <div className="p-3 rounded-xl bg-[#FFD700] shadow-lg shadow-[#FFD700]/30 group-hover:shadow-[#FFD700]/50 transition-all duration-300">
+                    <Phone className="h-6 w-6 text-black" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-white mb-1">📞 Téléphone</h3>
+                    <h3 className="font-semibold text-white mb-1 flex items-center">
+                      <span className="text-[#FFD700] text-lg mr-2">📞</span>
+                      Téléphone
+                    </h3>
                     <a 
                       href="tel:+18736555275" 
-                      className="text-[#FFD700] hover:text-[#FFD700]/80 transition-colors"
+                      className="text-[#FFD700] hover:text-[#FFD700]/80 transition-colors text-lg font-medium"
                     >
                       +1 (873) 655-5275
                     </a>
@@ -161,16 +166,19 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border-2 border-[#FFD700]/40 hover:border-[#FFD700]/70 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 group">
                 <div className="flex items-start space-x-4">
-                  <div className="p-3 rounded-xl bg-[#FFD700]">
-                    <Mail className="h-5 w-5 text-black" />
+                  <div className="p-3 rounded-xl bg-[#FFD700] shadow-lg shadow-[#FFD700]/30 group-hover:shadow-[#FFD700]/50 transition-all duration-300">
+                    <Mail className="h-6 w-6 text-black" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-white mb-1">✉️ Email</h3>
+                    <h3 className="font-semibold text-white mb-1 flex items-center">
+                      <span className="text-[#FFD700] text-lg mr-2">✉️</span>
+                      Email
+                    </h3>
                     <a 
                       href="mailto:tchix3da@gmail.com" 
-                      className="text-[#FFD700] hover:text-[#FFD700]/80 transition-colors"
+                      className="text-[#FFD700] hover:text-[#FFD700]/80 transition-colors text-lg font-medium"
                     >
                       tchix3da@gmail.com
                     </a>
@@ -178,29 +186,35 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border-2 border-[#FFD700]/40 hover:border-[#FFD700]/70 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 group">
                 <div className="flex items-start space-x-4">
-                  <div className="p-3 rounded-xl bg-[#FFD700]">
-                    <MapPin className="h-5 w-5 text-black" />
+                  <div className="p-3 rounded-xl bg-[#FFD700] shadow-lg shadow-[#FFD700]/30 group-hover:shadow-[#FFD700]/50 transition-all duration-300">
+                    <MapPin className="h-6 w-6 text-black" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-white mb-1">📍 Localisation</h3>
-                    <p className="text-gray-300">Canada</p>
+                    <h3 className="font-semibold text-white mb-1 flex items-center">
+                      <span className="text-[#FFD700] text-lg mr-2">📍</span>
+                      Localisation
+                    </h3>
+                    <p className="text-gray-300 text-lg">Canada</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border-2 border-[#FFD700]/40 hover:border-[#FFD700]/70 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 group">
                 <div className="flex items-start space-x-4">
-                  <div className="p-3 rounded-xl bg-[#FFD700]">
-                    <Clock className="h-5 w-5 text-black" />
+                  <div className="p-3 rounded-xl bg-[#FFD700] shadow-lg shadow-[#FFD700]/30 group-hover:shadow-[#FFD700]/50 transition-all duration-300">
+                    <Clock className="h-6 w-6 text-black" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-white mb-1">🕒 Horaires</h3>
+                    <h3 className="font-semibold text-white mb-1 flex items-center">
+                      <span className="text-[#FFD700] text-lg mr-2">🕒</span>
+                      Horaires
+                    </h3>
                     <div className="space-y-1 text-sm text-gray-300">
                       <p>Lundi - Samedi: 9h - 21h</p>
                       <p>Dimanche: Fermé</p>
-                      <p className="text-[#FFD700] font-medium">Réservation 24h/24</p>
+                      <p className="text-[#FFD700] font-medium text-base">Réservation 24h/24</p>
                     </div>
                   </div>
                 </div>
@@ -208,14 +222,14 @@ const ContactPage = () => {
             </div>
           </div>
 
-          {/* Right Side - Contact Form */}
+          {/* Right Side - Contact Form avec glow élégant */}
           <div>
-            <div className="bg-[#1a1a1a] rounded-2xl shadow-2xl border border-[#FFD700]/30">
-              <div className="p-8 border-b border-[#FFD700]/20">
-                <h2 className="text-2xl font-bold text-center text-white mb-4">
+            <div className="bg-[#1a1a1a] rounded-2xl shadow-2xl border-2 border-[#FFD700]/50 shadow-[#FFD700]/10">
+              <div className="p-8 border-b border-[#FFD700]/30">
+                <h2 className="text-3xl font-bold text-center text-white mb-4">
                   Envoyez-nous un message
                 </h2>
-                <div className="h-1 bg-[#FFD700] rounded-full mx-auto w-20"></div>
+                <div className="h-1.5 bg-gradient-to-r from-transparent via-[#FFD700] to-transparent rounded-full mx-auto w-32 shadow-sm shadow-[#FFD700]/30"></div>
               </div>
 
               <div className="p-8">
@@ -241,14 +255,14 @@ const ContactPage = () => {
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="prenom" className="text-white font-medium">
-                          Prénom <span className="text-red-500">*</span>
+                        <Label htmlFor="prenom" className="text-white font-semibold text-base">
+                          Prénom <span className="text-red-400">*</span>
                         </Label>
                         <Input
                           id="prenom"
                           {...register('prenom')}
                           placeholder="Votre prénom"
-                          className={`bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
+                          className={`bg-black/70 border-2 border-[#FFD700]/40 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-200 h-12 ${
                             errors.prenom 
                               ? 'border-red-500 focus:ring-red-500' 
                               : ''
@@ -256,19 +270,19 @@ const ContactPage = () => {
                           disabled={isSubmitting}
                         />
                         {errors.prenom && (
-                          <p className="text-red-500 text-sm">{errors.prenom.message}</p>
+                          <p className="text-red-400 text-sm font-medium">{errors.prenom.message}</p>
                         )}
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="nom" className="text-white font-medium">
-                          Nom <span className="text-red-500">*</span>
+                        <Label htmlFor="nom" className="text-white font-semibold text-base">
+                          Nom <span className="text-red-400">*</span>
                         </Label>
                         <Input
                           id="nom"
                           {...register('nom')}
                           placeholder="Votre nom"
-                          className={`bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
+                          className={`bg-black/70 border-2 border-[#FFD700]/40 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-200 h-12 ${
                             errors.nom 
                               ? 'border-red-500 focus:ring-red-500' 
                               : ''
@@ -276,21 +290,21 @@ const ContactPage = () => {
                           disabled={isSubmitting}
                         />
                         {errors.nom && (
-                          <p className="text-red-500 text-sm">{errors.nom.message}</p>
+                          <p className="text-red-400 text-sm font-medium">{errors.nom.message}</p>
                         )}
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-white font-medium">
-                        Adresse e-mail <span className="text-red-500">*</span>
+                      <Label htmlFor="email" className="text-white font-semibold text-base">
+                        Adresse e-mail <span className="text-red-400">*</span>
                       </Label>
                       <Input
                         id="email"
                         type="email"
                         {...register('email')}
                         placeholder="votre@email.com"
-                        className={`bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
+                        className={`bg-black/70 border-2 border-[#FFD700]/40 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-200 h-12 ${
                           errors.email 
                             ? 'border-red-500 focus:ring-red-500' 
                             : ''
@@ -298,19 +312,19 @@ const ContactPage = () => {
                         disabled={isSubmitting}
                       />
                       {errors.email && (
-                        <p className="text-red-500 text-sm">{errors.email.message}</p>
+                        <p className="text-red-400 text-sm font-medium">{errors.email.message}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="sujet" className="text-white font-medium">
-                        Objet <span className="text-red-500">*</span>
+                      <Label htmlFor="sujet" className="text-white font-semibold text-base">
+                        Objet <span className="text-red-400">*</span>
                       </Label>
                       <Input
                         id="sujet"
                         {...register('sujet')}
                         placeholder="Objet de votre message"
-                        className={`bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
+                        className={`bg-black/70 border-2 border-[#FFD700]/40 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-200 h-12 ${
                           errors.sujet 
                             ? 'border-red-500 focus:ring-red-500' 
                             : ''
@@ -318,19 +332,19 @@ const ContactPage = () => {
                         disabled={isSubmitting}
                       />
                       {errors.sujet && (
-                        <p className="text-red-500 text-sm">{errors.sujet.message}</p>
+                        <p className="text-red-400 text-sm font-medium">{errors.sujet.message}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="message" className="text-white font-medium">
-                        Message <span className="text-red-500">*</span>
+                      <Label htmlFor="message" className="text-white font-semibold text-base">
+                        Message <span className="text-red-400">*</span>
                       </Label>
                       <Textarea
                         id="message"
                         {...register('message')}
                         placeholder="Décrivez votre demande, vos besoins ou posez votre question..."
-                        className={`min-h-32 resize-none bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
+                        className={`min-h-32 resize-none bg-black/70 border-2 border-[#FFD700]/40 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-200 ${
                           errors.message 
                             ? 'border-red-500 focus:ring-red-500' 
                             : ''
@@ -338,31 +352,31 @@ const ContactPage = () => {
                         disabled={isSubmitting}
                       />
                       {errors.message && (
-                        <p className="text-red-500 text-sm">{errors.message.message}</p>
+                        <p className="text-red-400 text-sm font-medium">{errors.message.message}</p>
                       )}
                     </div>
 
-                    <div className="pt-4">
+                    <div className="pt-6">
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 font-semibold py-6 text-lg"
+                        className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/95 hover:shadow-2xl hover:shadow-[#FFD700]/40 transition-all duration-300 font-bold py-7 text-xl rounded-xl border-2 border-[#FFD700] hover:scale-[1.02] transform"
                       >
                         {isSubmitting ? (
                           <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black mr-3"></div>
                             Envoi en cours...
                           </>
                         ) : (
                           <>
-                            <Send className="h-5 w-5 mr-2" />
+                            <Send className="h-6 w-6 mr-3" />
                             Envoyer le message
                           </>
                         )}
                       </Button>
                     </div>
 
-                    <p className="text-xs text-gray-400 text-center">
+                    <p className="text-xs text-gray-400 text-center pt-4">
                       En envoyant ce formulaire, vous acceptez que nous traitions vos données 
                       pour répondre à votre demande.
                     </p>
