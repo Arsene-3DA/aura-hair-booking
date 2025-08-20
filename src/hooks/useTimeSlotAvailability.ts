@@ -13,17 +13,23 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Generate slots based on stylist working hours
+  // Generate slots based on stylist working hours using public RPC
   const generateSlotsFromWorkingHours = async (date: Date) => {
     try {
-      const { data: hairdresser } = await supabase
-        .from('hairdressers')
-        .select('working_hours')
+      // Utiliser la fonction publique RPC pour récupérer les horaires
+      const { data: professionalData, error } = await supabase
+        .rpc('get_public_hairdresser_data')
         .eq('auth_id', stylistId)
         .single();
 
+      if (error || !professionalData?.working_hours) {
+        console.log('⚠️ No working hours found via RPC, using default slots');
+        // Générer des créneaux par défaut
+        return generateDefaultTimeSlots();
+      }
+
       const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()];
-      const workingHours = hairdresser?.working_hours?.[dayOfWeek];
+      const workingHours = professionalData.working_hours[dayOfWeek];
 
       if (!workingHours?.isOpen) {
         return []; // Salon fermé ce jour
@@ -50,19 +56,19 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
       return slots;
     } catch (error) {
       console.error('Error generating slots from working hours:', error);
-      return [];
+      return generateDefaultTimeSlots();
     }
   };
 
-  // Créneaux par défaut: 9h à 21h30 par pas de 30min
-  const generateDefaultSlots = (): string[] => {
-    const slots: string[] = [];
-    for (let hour = 9; hour <= 21; hour++) {
-      if (hour === 21) {
-        slots.push('21:00', '21:30');
-        break;
-      }
-      slots.push(`${hour.toString().padStart(2, '0')}:00`, `${hour.toString().padStart(2, '0')}:30`);
+  // Créneaux par défaut: 9h à 18h par pas de 30min
+  const generateDefaultTimeSlots = (): TimeSlot[] => {
+    const slots: TimeSlot[] = [];
+    for (let hour = 9; hour <= 18; hour++) {
+      if (hour === 18) break; // S'arrêter à 18h
+      slots.push(
+        { time: `${hour.toString().padStart(2, '0')}:00`, available: true },
+        { time: `${hour.toString().padStart(2, '0')}:30`, available: true }
+      );
     }
     return slots;
   };

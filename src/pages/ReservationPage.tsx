@@ -1,112 +1,83 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ReservationForm from '@/components/ReservationForm';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { validateId } from '@/utils/authHelper';
-interface Hairdresser {
-  id: string;
-  name: string;
-  image_url: string;
-  specialties: string[];
-  experience: string;
-  rating: number;
-}
+import { usePublicProfessionalData } from '@/hooks/usePublicProfessionalData';
+
 const ReservationPage = () => {
-  const {
-    stylistId
-  } = useParams<{
-    stylistId: string;
-  }>();
+  const { stylistId } = useParams<{ stylistId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    toast
-  } = useToast();
-  const [hairdresser, setHairdresser] = useState<Hairdresser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  
+  // Utiliser le nouveau hook pour récupérer les données publiques
+  const { professional: hairdresser, loading, error } = usePublicProfessionalData(stylistId);
 
-  // Récupérer les données du coiffeur depuis les paramètres de navigation ou la BD
+  // Vérifier la validité de l'ID au montage
   useEffect(() => {
-    const loadHairdresser = async () => {
-      if (!validateId(stylistId)) {
-        console.error('ID coiffeur invalide:', stylistId);
-        toast({
-          title: "Erreur",
-          description: "ID du coiffeur manquant ou invalide",
-          variant: "destructive"
-        });
-        navigate('/');
-        return;
-      }
+    if (!validateId(stylistId)) {
+      console.error('ID coiffeur invalide:', stylistId);
+      toast({
+        title: "Erreur",
+        description: "ID du coiffeur manquant ou invalide",
+        variant: "destructive"
+      });
+      navigate('/');
+      return;
+    }
+  }, [stylistId, navigate, toast]);
 
-      // Essayer d'abord de récupérer depuis l'état de navigation
-      if (location.state?.hairdresser) {
-        setHairdresser(location.state.hairdresser);
-        setLoading(false);
-        return;
-      }
+  // Gérer les erreurs de chargement
+  useEffect(() => {
+    if (error) {
+      console.error('Erreur lors du chargement du professionnel:', error);
+      toast({
+        title: "Erreur",
+        description: error,
+        variant: "destructive"
+      });
+      navigate('/');
+    }
+  }, [error, navigate, toast]);
 
-      // Sinon, charger depuis la base de données
-      try {
-        const {
-          data,
-          error
-        } = await supabase.from('hairdressers').select('*').eq('id', stylistId).eq('is_active', true).single();
-        if (error || !data) {
-          console.error('Erreur lors du chargement du coiffeur:', error);
-          toast({
-            title: "Erreur",
-            description: "Coiffeur non trouvé",
-            variant: "destructive"
-          });
-          navigate('/');
-          return;
-        }
-        setHairdresser({
-          id: data.auth_id,
-          // Utiliser auth_id qui correspond à profiles.id
-          name: data.name,
-          image_url: data.image_url || '/placeholder.svg',
-          specialties: data.specialties || [],
-          experience: data.experience || '',
-          rating: data.rating || 4.5
-        });
-      } catch (error) {
-        console.error('Erreur lors du chargement du coiffeur:', error);
-        navigate('/');
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadHairdresser();
-  }, [stylistId, location.state, navigate, toast]);
   const handleReservationSuccess = () => {
     navigate('/client/dashboard');
   };
+
   if (loading) {
-    return <div className="min-h-screen bg-black flex items-center justify-center">
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFD700] mx-auto mb-4"></div>
           <p className="text-gray-300">Chargement...</p>
         </div>
-      </div>;
+      </div>
+    );
   }
+
   if (!hairdresser) {
-    return <div className="min-h-screen bg-black flex items-center justify-center">
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Professionnel non trouvé</h2>
-          <Button onClick={() => navigate('/')} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300">
+          <Button 
+            onClick={() => navigate('/')} 
+            className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300"
+          >
             Retour à l'accueil
           </Button>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="min-h-screen bg-black">
+
+  return (
+    <div className="min-h-screen bg-black">
       <Header />
       
       <main>
@@ -157,7 +128,9 @@ const ReservationPage = () => {
                   />
                   <div>
                     <h2 className="text-3xl font-bold text-white mb-2">{hairdresser.name}</h2>
-                    <p className="text-gray-300 text-lg mb-3">{hairdresser.experience}</p>
+                    <p className="text-gray-300 text-lg mb-3">
+                      {hairdresser.experience || hairdresser.bio || 'Professionnel expérimenté'}
+                    </p>
                     <div className="flex items-center">
                       <span className="text-[#FFD700] text-xl">★</span>
                       <span className="ml-2 text-lg font-medium text-white">{hairdresser.rating}/5</span>
@@ -165,28 +138,38 @@ const ReservationPage = () => {
                   </div>
                 </div>
                 
-                {hairdresser.specialties && hairdresser.specialties.length > 0 && 
+                {hairdresser.specialties && hairdresser.specialties.length > 0 && (
                   <div className="mt-6">
                     <p className="text-lg font-bold text-[#FFD700] mb-3">Spécialités :</p>
                     <div className="flex flex-wrap gap-3">
-                      {hairdresser.specialties.map((specialty, index) => 
-                        <span key={index} className="px-4 py-2 bg-black border border-[#FFD700]/40 text-[#FFD700] rounded-xl text-sm font-medium hover:bg-[#FFD700]/10 transition-colors duration-300">
+                      {hairdresser.specialties.map((specialty, index) => (
+                        <span 
+                          key={index} 
+                          className="px-4 py-2 bg-black border border-[#FFD700]/40 text-[#FFD700] rounded-xl text-sm font-medium hover:bg-[#FFD700]/10 transition-colors duration-300"
+                        >
                           {specialty}
                         </span>
-                      )}
+                      ))}
                     </div>
                   </div>
-                }
+                )}
               </div>
 
               {/* Formulaire de réservation */}
-              <ReservationForm hairdresserId={hairdresser.id} hairdresserName={hairdresser.name} onSuccess={handleReservationSuccess} preselectedService={location.state?.preselectedService} />
+              <ReservationForm 
+                hairdresserId={hairdresser.auth_id} 
+                hairdresserName={hairdresser.name} 
+                onSuccess={handleReservationSuccess} 
+                preselectedService={location.state?.preselectedService} 
+              />
             </div>
           </div>
         </section>
       </main>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default ReservationPage;

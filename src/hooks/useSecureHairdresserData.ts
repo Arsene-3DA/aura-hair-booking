@@ -89,8 +89,11 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
           setHairdresser({
             ...fullData,
             role: profileData?.role || 'coiffeur',
-            image_url: profileData?.avatar_url || fullData.image_url,
-            name: profileData?.full_name || fullData.name,
+            image_url: profileData?.avatar_url || fullData.image_url || '/placeholder.svg',
+            name: profileData?.full_name || fullData.name || 'Professionnel',
+            specialties: fullData.specialties || [],
+            experience: fullData.experience || '',
+            location: fullData.location || fullData.salon_address || '',
             canViewContact: true
           });
         } else {
@@ -120,8 +123,11 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
           setHairdresser({
             ...publicData,
             role: profileData?.role || 'coiffeur',
-            image_url: profileData?.avatar_url || publicData.image_url,
-            name: profileData?.full_name || publicData.name,
+            image_url: profileData?.avatar_url || publicData?.image_url || '/placeholder.svg',
+            name: profileData?.full_name || publicData?.name || 'Professionnel',
+            specialties: publicData?.specialties || [],
+            experience: publicData?.experience || '',
+            location: publicData?.location || publicData?.salon_address || '',
             canViewContact: false
           });
         }
