@@ -58,15 +58,20 @@ export function useRoleAuth(): AuthState & AuthActions {
     if (!state.session?.user) return;
 
     try {
+      console.log('🔍 Loading profile for user:', state.session.user.id);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', state.session.user.id)
         .single();
 
+      console.log('📊 Profile query result:', { data, error });
+
       if (error) {
+        console.error('❌ Profile loading failed:', error);
         // Créer un profil par défaut si il n'existe pas
         if (error.code === 'PGRST116') {
+          console.log('🆕 Creating default profile...');
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
             .insert({
@@ -78,6 +83,7 @@ export function useRoleAuth(): AuthState & AuthActions {
             .single();
 
           if (!createError && newProfile) {
+            console.log('✅ Default profile created:', newProfile);
             setState(prev => ({
               ...prev,
               role: newProfile.role as UserRole,
@@ -89,6 +95,7 @@ export function useRoleAuth(): AuthState & AuthActions {
         return;
       }
 
+      console.log('✅ Profile loaded successfully:', data);
       setState(prev => ({
         ...prev,
         role: data?.role as UserRole,
@@ -96,7 +103,7 @@ export function useRoleAuth(): AuthState & AuthActions {
         userProfile: data
       }));
     } catch (err) {
-      console.error('Profile loading error:', err);
+      console.error('💥 Profile loading error:', err);
     }
   }, [state.session?.user]);
 
