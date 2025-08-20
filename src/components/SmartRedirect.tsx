@@ -43,6 +43,7 @@ export const SmartRedirect = ({ children }: SmartRedirectProps) => {
         case 'coiffeur':
         case 'coiffeuse':
         case 'cosmetique':
+        case 'stylist':
           if (!currentPath.startsWith('/stylist')) {
             targetPath = '/stylist';
           }

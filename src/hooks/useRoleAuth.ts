@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
-export type UserRole = 'client' | 'coiffeur' | 'coiffeuse' | 'cosmetique' | 'admin' | null;
+export type UserRole = 'client' | 'coiffeur' | 'coiffeuse' | 'cosmetique' | 'admin' | 'stylist' | null;
 
 interface UserProfile {
   id: string;
@@ -157,6 +157,8 @@ export function useRoleAuth(): AuthState & AuthActions {
   /* ───────── Méthodes d'authentification ───────── */
   const signIn = useCallback(async (email: string, password: string) => {
     try {
+      setState(prev => ({ ...prev, loading: true }));
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -164,12 +166,14 @@ export function useRoleAuth(): AuthState & AuthActions {
 
       if (error) throw error;
 
+      console.log('✅ Sign in successful, redirecting to post-login...');
+      
+      setState(prev => ({ ...prev, showTransition: true, loading: false }));
+
       // Rediriger vers le hub après connexion réussie
       if (data.session) {
         navigate('/post-login');
       }
-
-      setState(prev => ({ ...prev, showTransition: true }));
 
       toast({
         title: "✅ Connexion réussie",
@@ -178,6 +182,7 @@ export function useRoleAuth(): AuthState & AuthActions {
 
       return { success: true, user: data.user };
     } catch (error: any) {
+      setState(prev => ({ ...prev, loading: false }));
       const errorMessage = error.message || 'Erreur de connexion';
       toast({
         title: "❌ Erreur de connexion",
@@ -186,7 +191,7 @@ export function useRoleAuth(): AuthState & AuthActions {
       });
       return { success: false, error: errorMessage };
     }
-  }, [toast]);
+  }, [toast, navigate]);
 
   const signUp = useCallback(async (email: string, password: string, userData?: any) => {
     try {
@@ -242,20 +247,45 @@ export function useRoleAuth(): AuthState & AuthActions {
 
   const signOut = useCallback(async () => {
     try {
+      console.log('🚪 Starting sign out process...');
+      
+      // D'abord nettoyer l'état local
+      setState({
+        loading: false,
+        session: null,
+        role: null,
+        userRole: null,
+        user: null,
+        userProfile: null,
+        isAuthenticated: false,
+        showTransition: false,
+      });
+
+      // Ensuite déconnecter de Supabase
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
+      console.log('✅ Sign out successful');
+      
+      // Rediriger vers la page d'accueil
+      navigate('/', { replace: true });
+
       toast({
-        title: "Déconnexion",
+        title: "👋 Déconnexion réussie",
         description: "À bientôt !"
       });
       
       return { success: true };
     } catch (error: any) {
-      console.error('Erreur lors de la déconnexion:', error);
+      console.error('❌ Sign out error:', error);
+      toast({
+        title: "❌ Erreur de déconnexion",
+        description: error.message,
+        variant: "destructive"
+      });
       return { success: false, error: error.message };
     }
-  }, [toast]);
+  }, [toast, navigate]);
 
   const hasRole = useCallback((role: UserRole) => {
     return state.role === role;

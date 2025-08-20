@@ -29,6 +29,7 @@ const PostAuthPage = () => {
         case 'coiffeur':
         case 'coiffeuse':
         case 'cosmetique':
+        case 'stylist':
           console.log('✂️ Redirecting stylist to /stylist');
           navigate('/stylist', { replace: true });
           break;
