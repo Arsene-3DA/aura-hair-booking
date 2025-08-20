@@ -222,13 +222,6 @@ export type Database = {
             referencedRelation: "hairdressers_public"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "contact_requests_hairdresser_id_fkey"
-            columns: ["hairdresser_id"]
-            isOneToOne: false
-            referencedRelation: "public_hairdressers_view"
-            referencedColumns: ["id"]
-          },
         ]
       }
       hairdresser_services: {
@@ -263,13 +256,6 @@ export type Database = {
             columns: ["hairdresser_id"]
             isOneToOne: false
             referencedRelation: "hairdressers_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hairdresser_services_hairdresser_id_fkey"
-            columns: ["hairdresser_id"]
-            isOneToOne: false
-            referencedRelation: "public_hairdressers_view"
             referencedColumns: ["id"]
           },
           {
@@ -834,13 +820,6 @@ export type Database = {
             referencedRelation: "hairdressers_public"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "stylist_schedule_stylist_id_fkey"
-            columns: ["stylist_id"]
-            isOneToOne: false
-            referencedRelation: "public_hairdressers_view"
-            referencedColumns: ["id"]
-          },
         ]
       }
       system_logs: {
@@ -1001,54 +980,6 @@ export type Database = {
         }
         Relationships: []
       }
-      public_hairdressers_view: {
-        Row: {
-          bio: string | null
-          created_at: string | null
-          gender: string | null
-          id: string | null
-          image_url: string | null
-          instagram: string | null
-          is_active: boolean | null
-          location: string | null
-          name: string | null
-          rating: number | null
-          updated_at: string | null
-          website: string | null
-          working_hours: Json | null
-        }
-        Insert: {
-          bio?: never
-          created_at?: string | null
-          gender?: string | null
-          id?: string | null
-          image_url?: string | null
-          instagram?: string | null
-          is_active?: boolean | null
-          location?: string | null
-          name?: string | null
-          rating?: number | null
-          updated_at?: string | null
-          website?: string | null
-          working_hours?: Json | null
-        }
-        Update: {
-          bio?: never
-          created_at?: string | null
-          gender?: string | null
-          id?: string | null
-          image_url?: string | null
-          instagram?: string | null
-          is_active?: boolean | null
-          location?: string | null
-          name?: string | null
-          rating?: number | null
-          updated_at?: string | null
-          website?: string | null
-          working_hours?: Json | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       change_user_role: {
@@ -1131,6 +1062,24 @@ export type Database = {
           rating: number
           salon_address: string
           specialties: string[]
+          updated_at: string
+          website: string
+          working_hours: Json
+        }[]
+      }
+      get_public_hairdresser_data_safe: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          bio: string
+          created_at: string
+          gender: string
+          id: string
+          image_url: string
+          instagram: string
+          is_active: boolean
+          location: string
+          name: string
+          rating: number
           updated_at: string
           website: string
           working_hours: Json

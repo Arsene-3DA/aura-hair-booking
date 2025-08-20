@@ -50,7 +50,7 @@ const ProfessionalsList = () => {
         console.log('Loading professionals for gender:', gender);
         
         // Utiliser directement la fonction publique sécurisée
-        const { data, error } = await supabase.rpc('get_public_hairdresser_data_secure');
+        const { data, error } = await supabase.rpc('get_public_hairdresser_data_safe');
 
         if (error) {
           console.error('Erreur lors du chargement des professionnels:', error);
