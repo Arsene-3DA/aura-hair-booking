@@ -99,17 +99,17 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-luxury-gold-50 to-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-luxury-black to-luxury-charcoal text-white py-16">
+      <div className="bg-black py-16 border-b border-[#FFD700]/20">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-6">
-            <div className="p-3 rounded-xl bg-gradient-gold mr-4">
-              <Scissors className="h-8 w-8 text-white" />
+            <div className="p-3 rounded-xl bg-[#FFD700] mr-4">
+              <Scissors className="h-8 w-8 text-black" />
             </div>
-            <h1 className="text-5xl font-bold gradient-text">Tchiix</h1>
+            <h1 className="text-5xl font-bold text-[#FFD700]">Tchiix</h1>
           </div>
-          <h2 className="text-3xl font-light mb-4">Contactez-nous</h2>
+          <h2 className="text-3xl font-light mb-4 text-white">Contactez-nous</h2>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Une question, une réservation ou besoin de conseils ? 
             Notre équipe est là pour vous accompagner.
@@ -124,19 +124,19 @@ const ContactPage = () => {
           {/* Left Side - Visual & Info */}
           <div className="space-y-8">
             {/* Image Section */}
-            <div className="relative rounded-2xl overflow-hidden shadow-luxury h-96">
-              <div className="absolute inset-0 bg-gradient-to-br from-luxury-gold-400 via-luxury-gold-500 to-luxury-gold-600">
-                <div className="absolute inset-0 bg-black/30"></div>
+            <div className="relative rounded-2xl overflow-hidden h-96 border border-[#FFD700]/30">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/20 via-[#FFD700]/30 to-[#FFD700]/40">
+                <div className="absolute inset-0 bg-black/40"></div>
                 <img 
-                  src="/lovable-uploads/dfda7518-5719-4fad-9e89-8f721fdfbab7.png" 
-                  alt="Tchiix - Univers coiffure" 
-                  className="w-full h-full object-cover mix-blend-overlay"
+                  src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=600&fit=crop&crop=face"
+                  alt="Tchiix - Salon de coiffure moderne" 
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
-                  <Scissors className="h-16 w-16 mx-auto mb-4 drop-shadow-lg" />
-                  <h3 className="text-2xl font-bold mb-2">Tchiix</h3>
+                  <Scissors className="h-16 w-16 mx-auto mb-4 drop-shadow-lg text-[#FFD700]" />
+                  <h3 className="text-2xl font-bold mb-2 text-[#FFD700]">Tchiix</h3>
                   <p className="text-lg font-light">L'excellence coiffure</p>
                 </div>
               </div>
@@ -144,104 +144,95 @@ const ContactPage = () => {
 
             {/* Contact Info Cards */}
             <div className="space-y-6">
-              <Card className="luxury-card">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 rounded-xl bg-gradient-gold">
-                      <Phone className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-luxury-black mb-1">Téléphone</h3>
-                      <a 
-                        href="tel:+18736555275" 
-                        className="text-luxury-gold-600 hover:text-luxury-gold-700 transition-colors"
-                      >
-                        +1 (873) 655-5275
-                      </a>
-                    </div>
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-xl bg-[#FFD700]">
+                    <Phone className="h-5 w-5 text-black" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <h3 className="font-semibold text-white mb-1">📞 Téléphone</h3>
+                    <a 
+                      href="tel:+18736555275" 
+                      className="text-[#FFD700] hover:text-[#FFD700]/80 transition-colors"
+                    >
+                      +1 (873) 655-5275
+                    </a>
+                  </div>
+                </div>
+              </div>
 
-              <Card className="luxury-card">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 rounded-xl bg-gradient-gold">
-                      <Mail className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-luxury-black mb-1">Email</h3>
-                      <a 
-                        href="mailto:tchix3da@gmail.com" 
-                        className="text-luxury-gold-600 hover:text-luxury-gold-700 transition-colors"
-                      >
-                        tchix3da@gmail.com
-                      </a>
-                    </div>
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-xl bg-[#FFD700]">
+                    <Mail className="h-5 w-5 text-black" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <h3 className="font-semibold text-white mb-1">✉️ Email</h3>
+                    <a 
+                      href="mailto:tchix3da@gmail.com" 
+                      className="text-[#FFD700] hover:text-[#FFD700]/80 transition-colors"
+                    >
+                      tchix3da@gmail.com
+                    </a>
+                  </div>
+                </div>
+              </div>
 
-              <Card className="luxury-card">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 rounded-xl bg-gradient-gold">
-                      <MapPin className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-luxury-black mb-1">Localisation</h3>
-                      <p className="text-gray-600">Canada</p>
-                    </div>
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-xl bg-[#FFD700]">
+                    <MapPin className="h-5 w-5 text-black" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <h3 className="font-semibold text-white mb-1">📍 Localisation</h3>
+                    <p className="text-gray-300">Canada</p>
+                  </div>
+                </div>
+              </div>
 
-              <Card className="luxury-card">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 rounded-xl bg-gradient-gold">
-                      <Clock className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-luxury-black mb-1">Horaires</h3>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <p>Lundi - Samedi: 9h - 21h</p>
-                        <p>Dimanche: Fermé</p>
-                        <p className="text-luxury-gold-600 font-medium">Réservation 24h/24</p>
-                      </div>
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-xl bg-[#FFD700]">
+                    <Clock className="h-5 w-5 text-black" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white mb-1">🕒 Horaires</h3>
+                    <div className="space-y-1 text-sm text-gray-300">
+                      <p>Lundi - Samedi: 9h - 21h</p>
+                      <p>Dimanche: Fermé</p>
+                      <p className="text-[#FFD700] font-medium">Réservation 24h/24</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Right Side - Contact Form */}
           <div>
-            <Card className="luxury-card shadow-2xl">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-2xl font-bold text-center text-luxury-black">
+            <div className="bg-[#1a1a1a] rounded-2xl shadow-2xl border border-[#FFD700]/30">
+              <div className="p-8 border-b border-[#FFD700]/20">
+                <h2 className="text-2xl font-bold text-center text-white mb-4">
                   Envoyez-nous un message
-                </CardTitle>
-                <Separator className="bg-gradient-gold h-1 rounded-full" />
-              </CardHeader>
+                </h2>
+                <div className="h-1 bg-[#FFD700] rounded-full mx-auto w-20"></div>
+              </div>
 
-              <CardContent className="p-8">
+              <div className="p-8">
                 {isSubmitted ? (
                   <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <CheckCircle className="h-12 w-12 text-green-600" />
+                    <div className="w-20 h-20 bg-[#FFD700]/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-[#FFD700]/30">
+                      <CheckCircle className="h-12 w-12 text-[#FFD700]" />
                     </div>
-                    <h3 className="text-2xl font-bold text-luxury-black mb-4">
+                    <h3 className="text-2xl font-bold text-white mb-4">
                       Merci pour votre message !
                     </h3>
-                    <p className="text-gray-600 mb-6">
+                    <p className="text-gray-300 mb-6">
                       Merci pour votre message. Nous vous répondrons dans les plus brefs délais.
                     </p>
                     <Button
                       onClick={() => setIsSubmitted(false)}
-                      variant="outline"
-                      className="border-luxury-gold-400 text-luxury-gold-600 hover:bg-luxury-gold-50"
+                      className="bg-transparent border border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300"
                     >
                       Envoyer un autre message
                     </Button>
@@ -250,17 +241,17 @@ const ContactPage = () => {
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="prenom" className="text-luxury-black font-medium">
+                        <Label htmlFor="prenom" className="text-white font-medium">
                           Prénom <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           id="prenom"
                           {...register('prenom')}
                           placeholder="Votre prénom"
-                          className={`transition-all duration-200 ${
+                          className={`bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
                             errors.prenom 
                               ? 'border-red-500 focus:ring-red-500' 
-                              : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
+                              : ''
                           }`}
                           disabled={isSubmitting}
                         />
@@ -270,17 +261,17 @@ const ContactPage = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="nom" className="text-luxury-black font-medium">
+                        <Label htmlFor="nom" className="text-white font-medium">
                           Nom <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           id="nom"
                           {...register('nom')}
                           placeholder="Votre nom"
-                          className={`transition-all duration-200 ${
+                          className={`bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
                             errors.nom 
                               ? 'border-red-500 focus:ring-red-500' 
-                              : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
+                              : ''
                           }`}
                           disabled={isSubmitting}
                         />
@@ -291,7 +282,7 @@ const ContactPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-luxury-black font-medium">
+                      <Label htmlFor="email" className="text-white font-medium">
                         Adresse e-mail <span className="text-red-500">*</span>
                       </Label>
                       <Input
@@ -299,10 +290,10 @@ const ContactPage = () => {
                         type="email"
                         {...register('email')}
                         placeholder="votre@email.com"
-                        className={`transition-all duration-200 ${
+                        className={`bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
                           errors.email 
                             ? 'border-red-500 focus:ring-red-500' 
-                            : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
+                            : ''
                         }`}
                         disabled={isSubmitting}
                       />
@@ -312,17 +303,17 @@ const ContactPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="sujet" className="text-luxury-black font-medium">
-                        Sujet <span className="text-red-500">*</span>
+                      <Label htmlFor="sujet" className="text-white font-medium">
+                        Objet <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="sujet"
                         {...register('sujet')}
                         placeholder="Objet de votre message"
-                        className={`transition-all duration-200 ${
+                        className={`bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
                           errors.sujet 
                             ? 'border-red-500 focus:ring-red-500' 
-                            : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
+                            : ''
                         }`}
                         disabled={isSubmitting}
                       />
@@ -332,17 +323,17 @@ const ContactPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="message" className="text-luxury-black font-medium">
+                      <Label htmlFor="message" className="text-white font-medium">
                         Message <span className="text-red-500">*</span>
                       </Label>
                       <Textarea
                         id="message"
                         {...register('message')}
                         placeholder="Décrivez votre demande, vos besoins ou posez votre question..."
-                        className={`min-h-32 resize-none transition-all duration-200 ${
+                        className={`min-h-32 resize-none bg-black/50 border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 transition-all duration-200 ${
                           errors.message 
                             ? 'border-red-500 focus:ring-red-500' 
-                            : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
+                            : ''
                         }`}
                         disabled={isSubmitting}
                       />
@@ -355,11 +346,11 @@ const ContactPage = () => {
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full luxury-button bg-gradient-gold text-luxury-black hover:shadow-luxury transition-all duration-300 font-semibold py-6 text-lg"
+                        className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 font-semibold py-6 text-lg"
                       >
                         {isSubmitting ? (
                           <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
                             Envoi en cours...
                           </>
                         ) : (
@@ -371,55 +362,55 @@ const ContactPage = () => {
                       </Button>
                     </div>
 
-                    <p className="text-xs text-gray-500 text-center">
+                    <p className="text-xs text-gray-400 text-center">
                       En envoyant ce formulaire, vous acceptez que nous traitions vos données 
                       pour répondre à votre demande.
                     </p>
                   </form>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Additional Info Section */}
         <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-luxury-gold-100 to-luxury-gold-200 rounded-2xl p-8 max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-luxury-black mb-4">
+          <div className="bg-[#1a1a1a] border border-[#FFD700]/30 rounded-2xl p-8 max-w-4xl mx-auto">
+            <h3 className="text-2xl font-bold text-[#FFD700] mb-4">
               Pourquoi choisir Tchiix ?
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
               <div className="text-center">
-                <div className="w-12 h-12 bg-gradient-gold rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Scissors className="h-6 w-6 text-white" />
+                <div className="w-12 h-12 bg-[#FFD700] rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Scissors className="h-6 w-6 text-black" />
                 </div>
-                <h4 className="font-semibold text-luxury-black mb-2">Expertise</h4>
-                <p className="text-gray-700">Professionnels qualifiés et expérimentés</p>
+                <h4 className="font-semibold text-white mb-2">Expertise</h4>
+                <p className="text-gray-300">Professionnels qualifiés et expérimentés</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-gradient-gold rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Clock className="h-6 w-6 text-white" />
+                <div className="w-12 h-12 bg-[#FFD700] rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Clock className="h-6 w-6 text-black" />
                 </div>
-                <h4 className="font-semibold text-luxury-black mb-2">Flexibilité</h4>
-                <p className="text-gray-700">Réservation en ligne 24h/24</p>
+                <h4 className="font-semibold text-white mb-2">Flexibilité</h4>
+                <p className="text-gray-300">Réservation en ligne 24h/24</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-gradient-gold rounded-full flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle className="h-6 w-6 text-white" />
+                <div className="w-12 h-12 bg-[#FFD700] rounded-full flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle className="h-6 w-6 text-black" />
                 </div>
-                <h4 className="font-semibold text-luxury-black mb-2">Qualité</h4>
-                <p className="text-gray-700">Produits premium et service personnalisé</p>
+                <h4 className="font-semibold text-white mb-2">Qualité</h4>
+                <p className="text-gray-300">Produits premium et service personnalisé</p>
               </div>
             </div>
             
             {/* Social Icons */}
             <div className="flex justify-center gap-4 mt-8">
-              <a href="#" className="w-10 h-10 bg-gradient-gold rounded-full flex items-center justify-center text-white hover:shadow-lg transition-all duration-300">
+              <a href="#" className="w-10 h-10 bg-[#FFD700] rounded-full flex items-center justify-center text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.042-3.441.219-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.357-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
                 </svg>
               </a>
-              <a href="#" className="w-10 h-10 bg-gradient-gold rounded-full flex items-center justify-center text-white hover:shadow-lg transition-all duration-300">
+              <a href="#" className="w-10 h-10 bg-[#FFD700] rounded-full flex items-center justify-center text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
                 </svg>
