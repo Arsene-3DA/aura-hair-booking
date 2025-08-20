@@ -1045,6 +1045,28 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_public_hairdresser_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          auth_id: string
+          bio: string
+          created_at: string
+          experience: string
+          gender: string
+          id: string
+          image_url: string
+          instagram: string
+          is_active: boolean
+          location: string
+          name: string
+          rating: number
+          salon_address: string
+          specialties: string[]
+          updated_at: string
+          website: string
+          working_hours: Json
+        }[]
+      }
       get_review_by_token: {
         Args: { token: string }
         Returns: {
