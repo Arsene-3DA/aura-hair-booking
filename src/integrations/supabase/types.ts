@@ -1067,6 +1067,24 @@ export type Database = {
           working_hours: Json
         }[]
       }
+      get_public_hairdresser_data_secure: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          bio: string
+          created_at: string
+          gender: string
+          id: string
+          image_url: string
+          instagram: string
+          is_active: boolean
+          location: string
+          name: string
+          rating: number
+          updated_at: string
+          website: string
+          working_hours: Json
+        }[]
+      }
       get_review_by_token: {
         Args: { token: string }
         Returns: {

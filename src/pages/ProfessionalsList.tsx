@@ -50,7 +50,7 @@ const ProfessionalsList = () => {
         console.log('Loading professionals for gender:', gender);
         
         // Utiliser directement la fonction publique sécurisée
-        const { data, error } = await supabase.rpc('get_public_hairdresser_data');
+        const { data, error } = await supabase.rpc('get_public_hairdresser_data_secure');
 
         if (error) {
           console.error('Erreur lors du chargement des professionnels:', error);
@@ -69,13 +69,13 @@ const ProfessionalsList = () => {
 
         // Mapper les données Supabase vers l'interface Professional
         const mappedProfessionals: Professional[] = filteredData.map(item => ({
-          id: item.auth_id || item.id,
+          id: item.id,
           name: item.name,
-          specialties: item.specialties || [],
+          specialties: [], // Pas exposé publiquement pour la sécurité
           rating: item.rating || 5.0,
           image_url: item.image_url || '/placeholder.svg',
-          experience: item.experience || '',
-          location: item.salon_address || item.location || '',
+          experience: '', // Pas exposé publiquement pour la sécurité
+          location: item.location || '',
           gender: item.gender as 'male' | 'female',
           email: '',
           phone: '',
