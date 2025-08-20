@@ -67,21 +67,9 @@ const Index = () => {
     setShowExperts(true);
     setSelectedCategory(category || null);
     try {
-      // Récupérer depuis la table profiles pour avoir accès au rôle et genre
-      const {
-        data,
-        error
-      } = await supabase.from('profiles').select(`
-          id,
-          user_id,
-          full_name,
-          role,
-          gender,
-          avatar_url,
-          created_at
-        `).in('role', category ? [category] : ['coiffeur', 'coiffeuse', 'cosmetique']).order('created_at', {
-        ascending: false
-      });
+      // Utiliser directement la fonction publique pour éviter les problèmes RLS
+      const { data, error } = await supabase
+        .rpc('get_public_hairdresser_data');
       console.log('Query result:', {
         data,
         error,
@@ -96,49 +84,41 @@ const Index = () => {
         });
         return;
       }
-      // Récupérer les données détaillées de chaque professionnel depuis la table hairdressers
-      const professionalsWithDetails = await Promise.all((data || []).map(async item => {
-        try {
-          const {
-            data: hairdresserData
-          } = await supabase.from('hairdressers').select('*').eq('auth_id', item.user_id).single();
-          return {
-            id: item.user_id,
-            name: hairdresserData?.name || item.full_name || 'Nom non défini',
-            specialties: hairdresserData?.specialties || (item.role === 'cosmetique' ? ['Soins esthétiques', 'Cosmétique'] : ['Coiffure', 'Styling']),
-            rating: hairdresserData?.rating || 5.0,
-            // Note par défaut de 5 étoiles
-            image_url: hairdresserData?.image_url || item.avatar_url || '/placeholder.svg',
-            experience: hairdresserData?.experience || 'Professionnel expérimenté',
-            location: hairdresserData?.salon_address || hairdresserData?.location || '',
-            // Priorité à salon_address
-            gender: (hairdresserData?.gender || item.gender) as 'homme' | 'femme' | 'autre' | 'non_specifie',
-            email: hairdresserData?.email || '',
-            phone: hairdresserData?.phone || '',
-            is_active: hairdresserData?.is_active ?? true,
-            role: item.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
-          };
-        } catch (error) {
-          console.warn(`Impossible de récupérer les détails pour ${item.user_id}:`, error);
-          // Retourner les données minimales en cas d'erreur
-          return {
-            id: item.user_id,
-            name: item.full_name || 'Nom non défini',
-            specialties: item.role === 'cosmetique' ? ['Soins esthétiques', 'Cosmétique'] : ['Coiffure', 'Styling'],
-            rating: 5.0,
-            // Note par défaut de 5 étoiles
-            image_url: item.avatar_url || '/placeholder.svg',
-            experience: 'Professionnel expérimenté',
-            location: '',
-            gender: item.gender as 'homme' | 'femme' | 'autre' | 'non_specifie',
-            email: '',
-            phone: '',
-            is_active: true,
-            role: item.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
-          };
-        }
+      // Filtrer par catégorie si spécifiée
+      let filteredData = data || [];
+      if (category) {
+        // Récupérer les profils pour le filtrage par rôle
+        const profilePromises = filteredData.map(async (item) => {
+          if (!item.auth_id) return item; // Garder les professionnels sans compte
+          
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('user_id', item.auth_id)
+            .maybeSingle();
+            
+          return profile?.role === category ? item : null;
+        });
+        
+        const profileResults = await Promise.all(profilePromises);
+        filteredData = profileResults.filter(item => item !== null);
+      }
+
+      // Mapper les données directement depuis get_public_hairdresser_data
+      const mappedProfessionals: Professional[] = filteredData.map(item => ({
+        id: item.auth_id || item.id,
+        name: item.name || 'Nom non défini',
+        specialties: item.specialties || [],
+        rating: item.rating || 5.0,
+        image_url: item.image_url || '/placeholder.svg',
+        experience: item.experience || 'Professionnel expérimenté',
+        location: item.salon_address || item.location || '',
+        gender: (item.gender || 'non_specifie') as 'homme' | 'femme' | 'autre' | 'non_specifie',
+        email: '',
+        phone: '',
+        is_active: item.is_active ?? true,
+        role: category || 'coiffeur'
       }));
-      const mappedProfessionals: Professional[] = professionalsWithDetails;
       setProfessionals(mappedProfessionals);
       if (mappedProfessionals.length === 0) {
         toast({
