@@ -183,23 +183,27 @@ const Index = () => {
     }
   };
   if (showExperts) {
-    return <div className="min-h-screen bg-white">
+    return <div className="min-h-screen bg-black">
         <Header />
         
         <main>
           {/* Header Section */}
-          <section className="bg-gradient-to-br from-gold-50 via-orange-50 to-white py-16">
+          <section className="bg-black py-16 border-b border-[#FFD700]/20">
             <div className="container mx-auto px-4">
-              <Button variant="outline" onClick={handleBackToHome} className="mb-6 text-slate-400">
+              <Button 
+                variant="outline" 
+                onClick={handleBackToHome} 
+                className="mb-6 bg-transparent border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Retour à l'accueil
               </Button>
               
               <div className="text-center">
-                <h1 className="text-4xl font-bold mb-4">
-                  {selectedCategory === 'coiffeur' ? <>Nos <span className="gradient-text">Coiffeurs</span></> : selectedCategory === 'coiffeuse' ? <>Nos <span className="gradient-text">Coiffeuses</span></> : selectedCategory === 'cosmetique' ? <>Nos Experts <span className="gradient-text">Cosmétique</span></> : <>Nos <span className="gradient-text">Experts</span></>}
+                <h1 className="text-4xl font-bold mb-4 text-white">
+                  {selectedCategory === 'coiffeur' ? <>Nos <span className="text-[#FFD700]">Coiffeurs</span></> : selectedCategory === 'coiffeuse' ? <>Nos <span className="text-[#FFD700]">Coiffeuses</span></> : selectedCategory === 'cosmetique' ? <>Nos Experts <span className="text-[#FFD700]">Cosmétique</span></> : <>Nos <span className="text-[#FFD700]">Experts</span></>}
                 </h1>
-                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                <p className="text-xl text-gray-300 max-w-2xl mx-auto">
                   {selectedCategory === 'coiffeur' ? 'Découvrez nos coiffeurs qualifiés et réservez directement' : selectedCategory === 'coiffeuse' ? 'Découvrez nos coiffeuses qualifiées et réservez directement' : selectedCategory === 'cosmetique' ? 'Découvrez nos experts en cosmétique et soins esthétiques' : 'Découvrez nos professionnels qualifiés et réservez directement'}
                 </p>
               </div>
@@ -207,23 +211,23 @@ const Index = () => {
           </section>
 
           {/* Professionals Grid */}
-          <section className="py-20 bg-white">
+          <section className="py-20 bg-black">
             <div className="container mx-auto px-4">
               {loading ? <div className="text-center py-16">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
-                  <p className="text-gray-600 text-lg">Chargement des professionnels...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFD700] mx-auto mb-4"></div>
+                  <p className="text-gray-300 text-lg">Chargement des professionnels...</p>
                 </div> : professionals.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {professionals.map(professional => <div key={professional.id} className="animate-fade-in">
                       <HairdresserCard id={professional.id} name={professional.name} photo={professional.image_url} tags={professional.specialties} rating={professional.rating} experience={professional.experience} />
                     </div>)}
                 </div> : <div className="text-center py-16">
-                  <p className="text-gray-600 text-lg mb-4">
+                  <p className="text-gray-300 text-lg mb-4">
                     Aucun professionnel trouvé.
                   </p>
-                  <p className="text-gray-500 text-sm mb-6">
+                  <p className="text-gray-400 text-sm mb-6">
                     Utilisez le bouton "Initialiser" sur la page de connexion pour créer des comptes de test.
                   </p>
-                  <Button onClick={() => navigate('/auth')} className="bg-gradient-gold text-white">
+                  <Button onClick={() => navigate('/auth')} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300">
                     Aller à la page de connexion
                   </Button>
                 </div>}
@@ -234,7 +238,7 @@ const Index = () => {
         <Footer />
       </div>;
   }
-  return <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-black">
       <Header />
       
       <main>
@@ -242,13 +246,13 @@ const Index = () => {
         
         {/* Section d'accès rapide pour les utilisateurs connectés */}
         {isAuthenticated && userProfile && (
-          <section className="py-12 bg-gradient-to-br from-primary/5 to-secondary/5">
+          <section className="py-12 bg-[#1a1a1a] border-y border-[#FFD700]/20">
             <div className="container mx-auto px-4">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">
-                  Bonjour <span className="gradient-text">{userProfile.full_name || user?.email}</span> !
+                <h2 className="text-3xl font-bold mb-4 text-white">
+                  Bonjour <span className="text-[#FFD700]">{userProfile.full_name || user?.email}</span> !
                 </h2>
-                <p className="text-xl text-muted-foreground">
+                <p className="text-xl text-gray-300">
                   Accédez rapidement à votre espace de travail
                 </p>
               </div>
@@ -256,7 +260,7 @@ const Index = () => {
               <div className="flex justify-center gap-4">
                 <Button 
                   onClick={() => navigate(getDashboardRedirect())} 
-                  className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-8 py-4 text-lg"
+                  className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 px-8 py-4 text-lg"
                 >
                   <Settings className="h-6 w-6 mr-3" />
                   Mon Dashboard
@@ -265,8 +269,7 @@ const Index = () => {
                 {userProfile.role === 'client' && (
                   <Button 
                     onClick={() => navigate('/app/bookings/new')} 
-                    variant="outline"
-                    className="px-8 py-4 text-lg"
+                    className="bg-transparent border border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300 px-8 py-4 text-lg"
                   >
                     <Calendar className="h-6 w-6 mr-3" />
                     Nouvelle Réservation
@@ -280,20 +283,20 @@ const Index = () => {
         <ServicesSection />
         
         {/* Section de sélection du genre */}
-        <section className="py-20 bg-gradient-to-br from-gold-50 via-orange-50 to-white">
+        <section className="py-20 bg-black">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-4">
-                Choisissez votre <span className="gradient-text">Expert</span>
+              <h2 className="text-4xl font-bold mb-4 text-white">
+                Choisissez votre <span className="text-[#FFD700]">Expert</span>
               </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
                 Nos professionnels spécialisés vous attendent pour une expérience sur mesure
               </p>
             </div>
             
             {/* Bouton principal pour voir tous les experts */}
             <div className="text-center mb-12">
-              <Button onClick={() => handleShowExperts()} className="bg-gradient-gold text-white text-xl px-12 py-4 rounded-xl hover:shadow-lg transition-all duration-300">
+              <Button onClick={() => handleShowExperts()} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 text-xl px-12 py-4 rounded-xl">
                 <Scissors className="h-6 w-6 mr-3" />
                 Voir tous nos Experts
               </Button>
@@ -301,25 +304,23 @@ const Index = () => {
             
             <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Coiffeurs */}
-              <Card className="group hover:scale-105 transition-all duration-300 cursor-pointer border-2 hover:border-gold-300 hover:shadow-xl" onClick={() => handleCategorySelection('coiffeur')}>
-                <CardHeader className="text-center pb-4">
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('coiffeur')}>
+                <div className="text-center">
                   <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                     <Scissors className="h-10 w-10 text-white" />
                   </div>
-                  <CardTitle className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-white mb-4">
                     Voir nos coiffeurs
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <p className="text-gray-600 mb-6">
+                  </h3>
+                  <p className="text-gray-300 mb-6">
                     Spécialistes en coupe, barbe et styling masculin
                   </p>
                   <div className="space-y-2 mb-6">
-                    <div className="flex items-center justify-center text-sm text-gray-600">
-                      <Star className="h-4 w-4 text-yellow-400 mr-2" />
+                    <div className="flex items-center justify-center text-sm text-gray-300">
+                      <Star className="h-4 w-4 text-[#FFD700] mr-2" />
                       Experts certifiés
                     </div>
-                    <div className="flex items-center justify-center text-sm text-gray-600">
+                    <div className="flex items-center justify-center text-sm text-gray-300">
                       <Clock className="h-4 w-4 text-green-500 mr-2" />
                       Disponibles aujourd'hui
                     </div>
@@ -327,59 +328,55 @@ const Index = () => {
                   <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white">
                     Voir nos coiffeurs
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Coiffeuses */}
-              <Card className="group hover:scale-105 transition-all duration-300 cursor-pointer border-2 hover:border-gold-300 hover:shadow-xl" onClick={() => handleCategorySelection('coiffeuse')}>
-                <CardHeader className="text-center pb-4">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-gold rounded-full flex items-center justify-center">
-                    <Scissors className="h-10 w-10 text-white" />
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('coiffeuse')}>
+                <div className="text-center">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-[#FFD700] rounded-full flex items-center justify-center">
+                    <Scissors className="h-10 w-10 text-black" />
                   </div>
-                  <CardTitle className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-white mb-4">
                     Voir nos coiffeuses
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <p className="text-gray-600 mb-6">
+                  </h3>
+                  <p className="text-gray-300 mb-6">
                     Spécialistes en coupe, couleur et coiffage féminin
                   </p>
                   <div className="space-y-2 mb-6">
-                    <div className="flex items-center justify-center text-sm text-gray-600">
-                      <Star className="h-4 w-4 text-yellow-400 mr-2" />
+                    <div className="flex items-center justify-center text-sm text-gray-300">
+                      <Star className="h-4 w-4 text-[#FFD700] mr-2" />
                       Expertes certifiées
                     </div>
-                    <div className="flex items-center justify-center text-sm text-gray-600">
+                    <div className="flex items-center justify-center text-sm text-gray-300">
                       <Clock className="h-4 w-4 text-green-500 mr-2" />
                       Disponibles aujourd'hui
                     </div>
                   </div>
-                  <Button className="w-full bg-gradient-gold hover:bg-gold-600 text-white">
+                  <Button className="w-full bg-[#FFD700] hover:bg-[#FFD700]/90 text-black">
                     Voir nos coiffeuses
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Cosmétique */}
-              <Card className="group hover:scale-105 transition-all duration-300 cursor-pointer border-2 hover:border-gold-300 hover:shadow-xl" onClick={() => handleCategorySelection('cosmetique')}>
-                <CardHeader className="text-center pb-4">
+              <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#FFD700]/30 hover:border-[#FFD700]/60 hover:scale-105 transition-all duration-300 cursor-pointer group" onClick={() => handleCategorySelection('cosmetique')}>
+                <div className="text-center">
                   <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
                     <Sparkles className="h-10 w-10 text-white" />
                   </div>
-                  <CardTitle className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-white mb-4">
                     Cosmétique
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <p className="text-gray-600 mb-6">
+                  </h3>
+                  <p className="text-gray-300 mb-6">
                     Spécialistes en soins esthétiques et cosmétiques
                   </p>
                   <div className="space-y-2 mb-6">
-                    <div className="flex items-center justify-center text-sm text-gray-600">
-                      <Star className="h-4 w-4 text-yellow-400 mr-2" />
+                    <div className="flex items-center justify-center text-sm text-gray-300">
+                      <Star className="h-4 w-4 text-[#FFD700] mr-2" />
                       Experts certifiés
                     </div>
-                    <div className="flex items-center justify-center text-sm text-gray-600">
+                    <div className="flex items-center justify-center text-sm text-gray-300">
                       <Clock className="h-4 w-4 text-green-500 mr-2" />
                       Disponibles aujourd'hui
                     </div>
@@ -387,21 +384,21 @@ const Index = () => {
                   <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white">
                     Voir nos experts
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
 
             {/* Section pour les professionnels - masquée si utilisateur connecté */}
             {!isAuthenticated && (
               <div className="text-center mt-16">
-                <div className="bg-gray-50 rounded-lg p-6 max-w-md mx-auto">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="bg-[#1a1a1a] border border-[#FFD700]/30 rounded-lg p-6 max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold text-white mb-2">
                     Vous êtes un professionnel ?
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-300 mb-4">
                     Accédez à votre espace de gestion
                   </p>
-                  <Button onClick={handleProfessionalLogin} variant="outline" className="border-gold-300 text-gold-700 hover:bg-gold-50 text-slate-400">
+                  <Button onClick={handleProfessionalLogin} className="bg-transparent border border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300">
                     Connexion Professionnelle
                   </Button>
                 </div>
@@ -411,35 +408,35 @@ const Index = () => {
         </section>
 
         {/* Section informations pratiques */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-[#1a1a1a] border-t border-[#FFD700]/20">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Informations Pratiques</h2>
+              <h2 className="text-3xl font-bold mb-4 text-white">Informations Pratiques</h2>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-gold rounded-full flex items-center justify-center">
-                  <MapPin className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 mx-auto mb-4 bg-[#FFD700] rounded-full flex items-center justify-center">
+                  <MapPin className="h-8 w-8 text-black" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Adresse</h3>
-                <p className="text-gray-600">Canada</p>
+                <h3 className="text-xl font-semibold mb-2 text-white">Adresse</h3>
+                <p className="text-gray-300">Canada</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-gold rounded-full flex items-center justify-center">
-                  <Clock className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 mx-auto mb-4 bg-[#FFD700] rounded-full flex items-center justify-center">
+                  <Clock className="h-8 w-8 text-black" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Horaires</h3>
-                <p className="text-gray-600">Lun-Sam: 9h-21h<br />Dimanche: Fermé</p>
+                <h3 className="text-xl font-semibold mb-2 text-white">Horaires</h3>
+                <p className="text-gray-300">Lun-Sam: 9h-21h<br />Dimanche: Fermé</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-gold rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-[#FFD700] rounded-full flex items-center justify-center">
                   <span className="text-2xl">📞</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Contact</h3>
-                <p className="text-gray-600">(873) 655-5275<br />contact@salonottawa.ca</p>
+                <h3 className="text-xl font-semibold mb-2 text-white">Contact</h3>
+                <p className="text-gray-300">(873) 655-5275<br />contact@salonottawa.ca</p>
               </div>
             </div>
           </div>
