@@ -17,6 +17,7 @@ interface Service {
   category: string;
   image_url?: string;
   hairdresser_count?: number;
+  isRealService?: boolean; // Pour distinguer les services réels des services de démo
 }
 
 const ServicesPage = () => {
@@ -79,120 +80,188 @@ const ServicesPage = () => {
       try {
         setLoading(true);
         
-        // Services prédéfinis avec images et données complètes
+        // Services prédéfinis comme base
         const demoServices: Service[] = [
-            {
-              id: '1',
-              name: 'Coupe Homme',
-              description: 'Coupe classique pour homme avec finitions',
-              price: 35,
-              duration: 30,
-              category: 'Coupe',
-              hairdresser_count: 5
-            },
-            {
-              id: '2',
-              name: 'Coupe Femme',
-              description: 'Coupe moderne pour femme avec styling',
-              price: 45,
-              duration: 45,
-              category: 'Coupe',
-              hairdresser_count: 5
-            },
-            {
-              id: '3',
-              name: 'Coloration',
-              description: 'Coloration complète des cheveux',
-              price: 80,
-              duration: 90,
-              category: 'Couleur',
-              hairdresser_count: 8
-            },
-            {
-              id: '4',
-              name: 'Barbe',
-              description: 'Taille et mise en forme de la barbe',
-              price: 20,
-              duration: 20,
-              category: 'Barbe',
-              hairdresser_count: 4
-            },
-            {
-              id: '5',
-              name: 'Dégradé',
-              description: 'Dégradé moderne avec finitions précises',
-              price: 40,
-              duration: 35,
-              category: 'Coupe',
-              hairdresser_count: 6
-            },
-            {
-              id: '6',
-              name: 'Mèches',
-              description: 'Mèches naturelles pour illuminer vos cheveux',
-              price: 65,
-              duration: 75,
-              category: 'Couleur',
-              hairdresser_count: 7
-            },
-            {
-              id: '7',
-              name: 'Balayage',
-              description: 'Technique de coloration naturelle et tendance',
-              price: 95,
-              duration: 120,
-              category: 'Couleur',
-              hairdresser_count: 5
-            },
-            {
-              id: '8',
-              name: 'Soin Capillaire',
-              description: 'Soin réparateur et nourrissant pour tous types de cheveux',
-              price: 35,
-              duration: 30,
-              category: 'Soin',
-              hairdresser_count: 8
-            },
-            {
-              id: '9',
-              name: 'Extensions',
-              description: 'Pose d\'extensions pour une nouvelle longueur',
-              price: 120,
-              duration: 180,
-              category: 'Coiffage',
-              hairdresser_count: 3
-            },
-            {
-              id: '10',
-              name: 'Lissage',
-              description: 'Lissage professionnel pour cheveux lisses et brillants',
-              price: 85,
-              duration: 90,
-              category: 'Traitement',
-              hairdresser_count: 4
-            },
-            {
-              id: '11',
-              name: 'Rasage Traditionnel',
-              description: 'Rasage à l\'ancienne avec serviettes chaudes',
-              price: 25,
-              duration: 25,
-              category: 'Barbe',
-              hairdresser_count: 3
-            },
-            {
-              id: '12',
-              name: 'Relooking',
-              description: 'Conseil personnalisé pour un nouveau style',
-              price: 50,
-              duration: 60,
-              category: 'Conseil',
-              hairdresser_count: 2
+          {
+            id: '1',
+            name: 'Coupe Homme',
+            description: 'Coupe classique pour homme avec finitions',
+            price: 35,
+            duration: 30,
+            category: 'Coupe',
+            hairdresser_count: 5
+          },
+          {
+            id: '2',
+            name: 'Coupe Femme',
+            description: 'Coupe moderne pour femme avec styling',
+            price: 45,
+            duration: 45,
+            category: 'Coupe',
+            hairdresser_count: 5
+          },
+          {
+            id: '3',
+            name: 'Coloration',
+            description: 'Coloration complète des cheveux',
+            price: 80,
+            duration: 90,
+            category: 'Couleur',
+            hairdresser_count: 8
+          },
+          {
+            id: '4',
+            name: 'Barbe',
+            description: 'Taille et mise en forme de la barbe',
+            price: 20,
+            duration: 20,
+            category: 'Barbe',
+            hairdresser_count: 4
+          },
+          {
+            id: '5',
+            name: 'Dégradé',
+            description: 'Dégradé moderne avec finitions précises',
+            price: 40,
+            duration: 35,
+            category: 'Coupe',
+            hairdresser_count: 6
+          },
+          {
+            id: '6',
+            name: 'Mèches',
+            description: 'Mèches naturelles pour illuminer vos cheveux',
+            price: 65,
+            duration: 75,
+            category: 'Couleur',
+            hairdresser_count: 7
+          },
+          {
+            id: '7',
+            name: 'Balayage',
+            description: 'Technique de coloration naturelle et tendance',
+            price: 95,
+            duration: 120,
+            category: 'Couleur',
+            hairdresser_count: 5
+          },
+          {
+            id: '8',
+            name: 'Soin Capillaire',
+            description: 'Soin réparateur et nourrissant pour tous types de cheveux',
+            price: 35,
+            duration: 30,
+            category: 'Soin',
+            hairdresser_count: 8
+          },
+          {
+            id: '9',
+            name: 'Extensions',
+            description: 'Pose d\'extensions pour une nouvelle longueur',
+            price: 120,
+            duration: 180,
+            category: 'Coiffage',
+            hairdresser_count: 3
+          },
+          {
+            id: '10',
+            name: 'Lissage',
+            description: 'Lissage professionnel pour cheveux lisses et brillants',
+            price: 85,
+            duration: 90,
+            category: 'Traitement',
+            hairdresser_count: 4
+          },
+          {
+            id: '11',
+            name: 'Rasage Traditionnel',
+            description: 'Rasage à l\'ancienne avec serviettes chaudes',
+            price: 25,
+            duration: 25,
+            category: 'Barbe',
+            hairdresser_count: 3
+          },
+          {
+            id: '12',
+            name: 'Relooking',
+            description: 'Conseil personnalisé pour un nouveau style',
+            price: 50,
+            duration: 60,
+            category: 'Conseil',
+            hairdresser_count: 2
+          }
+        ];
+
+        let allServices = [...demoServices];
+
+        // Essayer de charger les services réels des professionnels
+        try {
+          const { data: realServices, error: servicesError } = await supabase
+            .from('services')
+            .select('*');
+
+          if (!servicesError && realServices && realServices.length > 0) {
+            console.log('Services réels trouvés:', realServices.length);
+            
+            // Traiter les services réels
+            const processedRealServices = await Promise.all(
+              realServices.map(async (service: any) => {
+                try {
+                  // Compter combien de professionnels offrent ce service
+                  const { data: countData, error: countError } = await supabase
+                    .from('hairdresser_services')
+                    .select('id')
+                    .eq('service_id', service.id);
+
+                  return {
+                    id: `real-${service.id}`,
+                    name: service.name,
+                    description: service.description || `Service professionnel : ${service.name}`,
+                    price: service.price || 50,
+                    duration: service.duration || 60,
+                    category: service.category || 'Autre',
+                    hairdresser_count: countError ? 0 : (countData?.length || 0),
+                    image_url: getServiceImage(service.name, service.category || 'Autre'),
+                    isRealService: true
+                  };
+                } catch (error) {
+                  console.error('Erreur lors du traitement du service:', error);
+                  return {
+                    id: `real-${service.id}`,
+                    name: service.name,
+                    description: service.description || `Service professionnel : ${service.name}`,
+                    price: service.price || 50,
+                    duration: service.duration || 60,
+                    category: service.category || 'Autre',
+                    hairdresser_count: 0,
+                    image_url: getServiceImage(service.name, service.category || 'Autre'),
+                    isRealService: true
+                  };
+                }
+              })
+            );
+
+            // Fusionner les services en évitant les doublons
+            const existingNames = demoServices.map(s => s.name.toLowerCase());
+            const uniqueRealServices = processedRealServices.filter(
+              service => !existingNames.includes(service.name.toLowerCase())
+            );
+
+            allServices = [...demoServices, ...uniqueRealServices];
+            
+            if (uniqueRealServices.length > 0) {
+              toast({
+                title: "Services mis à jour",
+                description: `${uniqueRealServices.length} services professionnels ajoutés`,
+              });
             }
-          ];
-          
+          }
+        } catch (error) {
+          console.log('Services de la base non disponibles, utilisation des services de démonstration');
+        }
+
         // Ajouter les images aux services
-        const servicesWithImages = demoServices.map(service => ({
+        const servicesWithImages = allServices.map(service => ({
           ...service,
           image_url: getServiceImage(service.name, service.category)
         }));
@@ -303,10 +372,15 @@ const ServicesPage = () => {
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                      <div className="absolute top-4 right-4">
+                      <div className="absolute top-4 right-4 flex gap-2">
                         <span className="bg-black/70 backdrop-blur-sm text-[#FFD700] px-3 py-1 rounded-full text-sm font-medium border border-[#FFD700]/30">
                           {service.category}
                         </span>
+                        {service.isRealService && (
+                          <span className="bg-green-600/80 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
+                            PRO
+                          </span>
+                        )}
                       </div>
                     </div>
                     
