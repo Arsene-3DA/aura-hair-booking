@@ -26,29 +26,45 @@ const ModernAuthPage = () => {
 
   // Gérer la redirection après authentification
   useEffect(() => {
-    if (isAuthenticated && userProfile?.role) {
+    console.log('🔍 ModernAuthPage - Auth check:', {
+      isAuthenticated,
+      userProfile,
+      role: userProfile?.role,
+      loading
+    });
+
+    if (isAuthenticated && userProfile?.role && !loading) {
+      console.log('✅ Ready for redirection:', userProfile.role);
       const returnTo = searchParams.get('returnTo');
       if (returnTo) {
         navigate(decodeURIComponent(returnTo), { replace: true });
       } else {
         // Rediriger vers le dashboard approprié selon le rôle
+        let targetPath = '';
         switch (userProfile.role) {
           case 'admin':
-            navigate('/admin', { replace: true });
+            targetPath = '/admin';
+            console.log('👨‍💼 Redirecting admin to:', targetPath);
             break;
           case 'coiffeur':
           case 'coiffeuse':
           case 'cosmetique':
-            navigate('/stylist', { replace: true });
+            targetPath = '/stylist';
+            console.log('✂️ Redirecting professional to:', targetPath);
             break;
           case 'client':
           default:
-            navigate('/app', { replace: true });
+            targetPath = '/app';
+            console.log('👤 Redirecting client to:', targetPath);
             break;
+        }
+        
+        if (targetPath) {
+          navigate(targetPath, { replace: true });
         }
       }
     }
-  }, [isAuthenticated, userProfile, navigate, searchParams]);
+  }, [isAuthenticated, userProfile, loading, navigate, searchParams]);
 
   const handleSubmit = async (isSignUp: boolean) => {
     if (!email || !password) {

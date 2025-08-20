@@ -258,7 +258,9 @@ export function useRoleAuth(): AuthState & AuthActions {
   /* init au premier rendu + subscribe changements */
   useEffect(() => {
     init();
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+    console.log('🚀 Setting up auth state listener');
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔄 Auth state change:', event, session?.user?.email);
       setState(prev => ({
         ...prev,
         session,
@@ -267,23 +269,30 @@ export function useRoleAuth(): AuthState & AuthActions {
       }));
 
       if (session?.user) {
+        console.log('🔥 Auth state changed - User logged in:', session.user.email);
         // Charger le profil après changement d'auth
         setTimeout(async () => {
+          console.log('📖 Loading profile for user:', session.user.id);
           const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('user_id', session.user.id)
             .single();
 
+          console.log('📊 Profile query result:', { data, error });
+
           if (!error && data) {
+            console.log('✅ Profile loaded successfully:', data);
             setState(prev => ({
               ...prev,
               role: data.role as UserRole,
               userRole: data.role as UserRole,
               userProfile: data
             }));
+          } else {
+            console.error('❌ Profile loading failed:', error);
           }
-        }, 0);
+        }, 100); // Augmenter le délai pour être sûr
       } else {
         setState(prev => ({
           ...prev,
