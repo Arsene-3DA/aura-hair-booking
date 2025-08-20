@@ -1084,6 +1084,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      log_hairdresser_access: {
+        Args: {
+          access_type: string
+          hairdresser_id: string
+          user_agent?: string
+        }
+        Returns: undefined
+      }
       log_security_event: {
         Args: {
           event_message: string

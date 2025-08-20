@@ -13,8 +13,10 @@ import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 
 const contactSchema = z.object({
-  name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  prenom: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  nom: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   email: z.string().email('Veuillez saisir une adresse email valide'),
+  sujet: z.string().min(3, 'Le sujet doit contenir au moins 3 caractères'),
   message: z.string().min(10, 'Le message doit contenir au moins 10 caractères'),
 });
 
@@ -41,9 +43,11 @@ const ContactPage = () => {
       // Submit form securely via edge function
       const { data: response, error } = await supabase.functions.invoke('contact-form', {
         body: {
-          name: data.name.trim(),
+          name: `${data.prenom} ${data.nom}`.trim(),
           email: data.email.trim(),
+          subject: data.sujet.trim(),
           message: data.message.trim(),
+          to: 'tchix3da@gmail.com', // Specified redirect email
           csrf_token: Date.now().toString() // Simple CSRF token
         }
       });
@@ -71,7 +75,7 @@ const ContactPage = () => {
       setIsSubmitted(true);
       toast({
         title: "Message envoyé !",
-        description: response.message || "Merci pour votre message, nous vous répondrons bientôt !",
+        description: "Merci pour votre message. Nous vous répondrons dans les plus brefs délais.",
         duration: 5000,
       });
       
@@ -232,7 +236,7 @@ const ContactPage = () => {
                       Merci pour votre message !
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Nous vous répondrons dans les plus brefs délais.
+                      Merci pour votre message. Nous vous répondrons dans les plus brefs délais.
                     </p>
                     <Button
                       onClick={() => setIsSubmitted(false)}
@@ -244,24 +248,46 @@ const ContactPage = () => {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-luxury-black font-medium">
-                        Nom complet <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="name"
-                        {...register('name')}
-                        placeholder="Votre nom complet"
-                        className={`transition-all duration-200 ${
-                          errors.name 
-                            ? 'border-red-500 focus:ring-red-500' 
-                            : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
-                        }`}
-                        disabled={isSubmitting}
-                      />
-                      {errors.name && (
-                        <p className="text-red-500 text-sm">{errors.name.message}</p>
-                      )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="prenom" className="text-luxury-black font-medium">
+                          Prénom <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="prenom"
+                          {...register('prenom')}
+                          placeholder="Votre prénom"
+                          className={`transition-all duration-200 ${
+                            errors.prenom 
+                              ? 'border-red-500 focus:ring-red-500' 
+                              : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
+                          }`}
+                          disabled={isSubmitting}
+                        />
+                        {errors.prenom && (
+                          <p className="text-red-500 text-sm">{errors.prenom.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="nom" className="text-luxury-black font-medium">
+                          Nom <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="nom"
+                          {...register('nom')}
+                          placeholder="Votre nom"
+                          className={`transition-all duration-200 ${
+                            errors.nom 
+                              ? 'border-red-500 focus:ring-red-500' 
+                              : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
+                          }`}
+                          disabled={isSubmitting}
+                        />
+                        {errors.nom && (
+                          <p className="text-red-500 text-sm">{errors.nom.message}</p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -282,6 +308,26 @@ const ContactPage = () => {
                       />
                       {errors.email && (
                         <p className="text-red-500 text-sm">{errors.email.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="sujet" className="text-luxury-black font-medium">
+                        Sujet <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="sujet"
+                        {...register('sujet')}
+                        placeholder="Objet de votre message"
+                        className={`transition-all duration-200 ${
+                          errors.sujet 
+                            ? 'border-red-500 focus:ring-red-500' 
+                            : 'border-gray-300 focus:ring-luxury-gold-500 focus:border-luxury-gold-500'
+                        }`}
+                        disabled={isSubmitting}
+                      />
+                      {errors.sujet && (
+                        <p className="text-red-500 text-sm">{errors.sujet.message}</p>
                       )}
                     </div>
 
@@ -364,6 +410,20 @@ const ContactPage = () => {
                 <h4 className="font-semibold text-luxury-black mb-2">Qualité</h4>
                 <p className="text-gray-700">Produits premium et service personnalisé</p>
               </div>
+            </div>
+            
+            {/* Social Icons */}
+            <div className="flex justify-center gap-4 mt-8">
+              <a href="#" className="w-10 h-10 bg-gradient-gold rounded-full flex items-center justify-center text-white hover:shadow-lg transition-all duration-300">
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.042-3.441.219-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.357-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
+                </svg>
+              </a>
+              <a href="#" className="w-10 h-10 bg-gradient-gold rounded-full flex items-center justify-center text-white hover:shadow-lg transition-all duration-300">
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
