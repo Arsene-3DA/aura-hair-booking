@@ -84,135 +84,157 @@ const TarifsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Nos Tarifs</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Découvrez nos prestations et forfaits conçus pour sublimer votre beauté
-          </p>
-        </div>
+      <main>
+        {/* Hero Section */}
+        <section className="bg-black border-b border-[#FFD700]/20 py-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-5xl font-bold mb-6 text-white">
+              Nos <span className="text-[#FFD700]">Tarifs</span> Premium
+            </h1>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Découvrez nos prestations et forfaits conçus pour sublimer votre beauté avec l'excellence Tchiix
+            </p>
+          </div>
+        </section>
 
         {/* Services individuels */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-semibold text-foreground mb-8 text-center">
-            Services à la carte
-          </h2>
-          
-          <div className="grid gap-8">
-            {services.map((category, categoryIndex) => (
-              <Card key={categoryIndex} className="overflow-hidden">
-                <CardHeader className="bg-primary/5">
-                  <CardTitle className="text-xl text-primary">
-                    {category.category}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y divide-border">
+        <section className="py-20 bg-black">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold text-center mb-12 text-white">
+              Services <span className="text-[#FFD700]">à la carte</span>
+            </h2>
+            
+            <div className="grid gap-8">
+              {services.map((category, categoryIndex) => (
+                <div key={categoryIndex} className="bg-[#1a1a1a] rounded-2xl overflow-hidden border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300">
+                  <div className="bg-gradient-to-r from-[#FFD700]/20 to-[#FFD700]/10 border-b border-[#FFD700]/30 p-6">
+                    <h3 className="text-2xl font-bold text-[#FFD700]">
+                      {category.category}
+                    </h3>
+                  </div>
+                  <div className="divide-y divide-[#FFD700]/20">
                     {category.items.map((service, serviceIndex) => (
-                      <div key={serviceIndex} className="p-6 flex justify-between items-center hover:bg-muted/30 transition-colors">
+                      <div key={serviceIndex} className="p-6 flex justify-between items-center hover:bg-[#FFD700]/5 transition-all duration-300 group">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-foreground mb-1">
+                          <h4 className="font-bold text-white mb-2 text-lg group-hover:text-[#FFD700] transition-colors duration-300">
                             {service.name}
-                          </h3>
-                          <p className="text-sm text-muted-foreground mb-2">
+                          </h4>
+                          <p className="text-gray-300 mb-3 leading-relaxed">
                             {service.description}
                           </p>
-                          <Badge variant="outline" className="text-xs">
+                          <span className="bg-black/50 border border-[#FFD700]/40 text-[#FFD700] px-3 py-1 rounded-full text-sm font-medium">
                             {service.duration}
-                          </Badge>
+                          </span>
                         </div>
-                        <div className="text-right ml-4">
-                          <div className="text-2xl font-bold text-primary">
+                        <div className="text-right ml-6">
+                          <div className="text-3xl font-bold text-[#FFD700]">
                             {service.price}
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
             ))}
+            </div>
           </div>
         </section>
 
         {/* Forfaits */}
-        <section>
-          <h2 className="text-3xl font-semibold text-foreground mb-8 text-center">
-            Forfaits Avantageux
-          </h2>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {packages.map((pkg, index) => (
-              <Card key={index} className={`relative overflow-hidden ${pkg.popular ? 'ring-2 ring-primary scale-105' : ''}`}>
-                {pkg.popular && (
-                  <div className="absolute top-0 left-0 right-0">
-                    <div className="bg-primary text-primary-foreground text-center py-2 text-sm font-medium flex items-center justify-center gap-1">
-                      <Star className="w-4 h-4 fill-current" />
-                      Le plus populaire
+        <section className="py-20 bg-[#1a1a1a] border-y border-[#FFD700]/20">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold text-center mb-12 text-white">
+              Forfaits <span className="text-[#FFD700]">Avantageux</span>
+            </h2>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              {packages.map((pkg, index) => (
+                <div key={index} className={`relative bg-black rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                  pkg.popular 
+                    ? 'border-[#FFD700] shadow-2xl shadow-[#FFD700]/30 scale-105' 
+                    : 'border-[#FFD700]/40 hover:border-[#FFD700]/70 hover:shadow-lg hover:shadow-[#FFD700]/20'
+                }`}>
+                  {pkg.popular && (
+                    <div className="absolute top-0 left-0 right-0">
+                      <div className="bg-gradient-to-r from-[#FFD700] to-[#FFD700]/80 text-black text-center py-3 text-sm font-bold flex items-center justify-center gap-2">
+                        <Star className="w-4 h-4 fill-current" />
+                        LE PLUS POPULAIRE
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className={`p-8 ${pkg.popular ? 'pt-16' : ''}`}>
+                    <h3 className="text-center text-2xl font-bold text-white mb-4">{pkg.name}</h3>
+                    <div className="text-center mb-6">
+                      <div className="space-y-2">
+                        <div className="text-4xl font-bold text-[#FFD700]">{pkg.price}</div>
+                        {pkg.originalPrice && (
+                          <div className="text-lg text-gray-400 line-through">
+                            {pkg.originalPrice}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <ul className="space-y-4">
+                        {pkg.features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="flex items-center gap-3 text-gray-300">
+                            <Check className="w-5 h-5 text-[#FFD700] flex-shrink-0" />
+                            <span className="font-medium">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <Button 
+                        className={`w-full py-4 text-lg font-bold transition-all duration-300 ${
+                          pkg.popular 
+                            ? 'bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/40 hover:scale-105' 
+                            : 'bg-transparent border-2 border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-black hover:scale-105'
+                        }`}
+                      >
+                        Réserver ce forfait
+                      </Button>
                     </div>
                   </div>
-                )}
-                
-                <CardHeader className={pkg.popular ? 'pt-12' : ''}>
-                  <CardTitle className="text-center text-xl">{pkg.name}</CardTitle>
-                  <CardDescription className="text-center">
-                    <div className="space-y-1">
-                      <div className="text-3xl font-bold text-primary">{pkg.price}</div>
-                      {pkg.originalPrice && (
-                        <div className="text-sm text-muted-foreground line-through">
-                          {pkg.originalPrice}
-                        </div>
-                      )}
-                    </div>
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <ul className="space-y-3">
-                    {pkg.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center gap-2 text-sm">
-                        <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <Button 
-                    className="w-full" 
-                    variant={pkg.popular ? "default" : "outline"}
-                  >
-                    Réserver ce forfait
-                  </Button>
-                </CardContent>
-              </Card>
+                </div>
             ))}
+            </div>
           </div>
         </section>
 
         {/* Informations complémentaires */}
-        <section className="mt-16 bg-muted/30 rounded-lg p-8">
-          <h3 className="text-xl font-semibold text-foreground mb-4 text-center">
-            Informations importantes
-          </h3>
-          <div className="grid md:grid-cols-2 gap-6 text-sm text-muted-foreground">
-            <div>
-              <h4 className="font-medium text-foreground mb-2">Modalités de paiement</h4>
-              <ul className="space-y-1">
-                <li>• Espèces, CB, chèques acceptés</li>
-                <li>• Paiement échelonné possible sur les forfaits</li>
-                <li>• Cartes cadeaux disponibles</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground mb-2">Conditions d'annulation</h4>
-              <ul className="space-y-1">
-                <li>• Annulation gratuite 24h avant</li>
-                <li>• Modification possible jusqu'à 12h avant</li>
-                <li>• Forfaits valables 6 mois</li>
-              </ul>
+        <section className="py-20 bg-black">
+          <div className="container mx-auto px-4">
+            <div className="bg-[#1a1a1a] rounded-2xl border border-[#FFD700]/30 p-8">
+              <h3 className="text-3xl font-bold text-center mb-8 text-white">
+                Informations <span className="text-[#FFD700]">importantes</span>
+              </h3>
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="bg-black/50 rounded-xl p-6 border border-[#FFD700]/20">
+                  <h4 className="font-bold text-[#FFD700] mb-4 text-xl flex items-center">
+                    💳 Modalités de paiement
+                  </h4>
+                  <ul className="space-y-3 text-gray-300">
+                    <li className="flex items-center"><span className="text-[#FFD700] mr-3">•</span> Espèces, CB, chèques acceptés</li>
+                    <li className="flex items-center"><span className="text-[#FFD700] mr-3">•</span> Paiement échelonné possible sur les forfaits</li>
+                    <li className="flex items-center"><span className="text-[#FFD700] mr-3">•</span> Cartes cadeaux disponibles</li>
+                  </ul>
+                </div>
+                <div className="bg-black/50 rounded-xl p-6 border border-[#FFD700]/20">
+                  <h4 className="font-bold text-[#FFD700] mb-4 text-xl flex items-center">
+                    📅 Conditions d'annulation
+                  </h4>
+                  <ul className="space-y-3 text-gray-300">
+                    <li className="flex items-center"><span className="text-[#FFD700] mr-3">•</span> Annulation gratuite 24h avant</li>
+                    <li className="flex items-center"><span className="text-[#FFD700] mr-3">•</span> Modification possible jusqu'à 12h avant</li>
+                    <li className="flex items-center"><span className="text-[#FFD700] mr-3">•</span> Forfaits valables 6 mois</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
