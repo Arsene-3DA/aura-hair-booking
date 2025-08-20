@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 import AuthenticatedRoute from "@/components/AuthenticatedRoute";
 import { EnhancedSecurityProvider } from "@/components/EnhancedSecurityProvider";
+import RoleGuard from "@/components/RoleGuard";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { CanadianLocalizationProvider } from "@/components/CanadianLocalizationProvider";
 import { RouteTracker } from "@/components/RouteTracker";
@@ -142,10 +143,14 @@ const App = () => (
                 } />
                 <Route path="/reservation/:stylistId" element={<ReservationPage />} />
                 <Route path="/review/:token" element={<ReviewPage />} />
+                
+                {/* Post-login Hub */}
+                <Route path="/post-login" element={<PostAuthPage />} />
+                
                 <Route path="/admin" element={
-                  <RoleProtectedRoute allowedRoles={['admin']}>
+                  <RoleGuard allowedRoles={['admin']}>
                     <AdminLayout />
-                  </RoleProtectedRoute>
+                  </RoleGuard>
                 }>
                   <Route index element={<Overview />} />
                   <Route path="users" element={<Users />} />
@@ -155,9 +160,9 @@ const App = () => (
                   <Route path="settings" element={<PlatformSettings />} />
                 </Route>
                 <Route path="/stylist" element={
-                  <RoleProtectedRoute allowedRoles={['coiffeur', 'coiffeuse', 'cosmetique']}>
+                  <RoleGuard allowedRoles={['coiffeur', 'coiffeuse', 'cosmetique']}>
                     <StylistLayout />
-                  </RoleProtectedRoute>
+                  </RoleGuard>
                 }>
                   <Route index element={
                     <Suspense fallback={<LoadingSpinner />}>
@@ -201,9 +206,9 @@ const App = () => (
                   } />
                 </Route>
                 <Route path="/app" element={
-                  <RoleProtectedRoute allowedRoles={['client']}>
+                  <RoleGuard allowedRoles={['client', 'coiffeur', 'coiffeuse', 'cosmetique', 'admin']}>
                     <ClientLayout />
-                  </RoleProtectedRoute>
+                  </RoleGuard>
                 }>
                   <Route index element={<ClientDashboardPage />} />
                   <Route path="bookings" element={<MyReservationsPage />} />

@@ -155,6 +155,11 @@ export function useRoleAuth(): AuthState & AuthActions {
 
       if (error) throw error;
 
+      // Rediriger vers le hub après connexion réussie
+      if (data.session) {
+        window.location.href = '/post-login';
+      }
+
       setState(prev => ({ ...prev, showTransition: true }));
 
       toast({
@@ -180,7 +185,7 @@ export function useRoleAuth(): AuthState & AuthActions {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/post-login`,
           data: userData
         }
       });
@@ -209,7 +214,7 @@ export function useRoleAuth(): AuthState & AuthActions {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/post-auth`
+          redirectTo: `${window.location.origin}/post-login`
         }
       });
 
