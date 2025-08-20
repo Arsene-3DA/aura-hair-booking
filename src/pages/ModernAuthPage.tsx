@@ -100,8 +100,37 @@ const ModernAuthPage = () => {
         if (result.success) {
           toast({
             title: "Connexion réussie",
-            description: "Vous êtes maintenant connecté"
+            description: "Redirection en cours..."
           });
+          
+          // Redirection immédiate après connexion réussie
+          setTimeout(() => {
+            const returnTo = searchParams.get('returnTo');
+            if (returnTo) {
+              navigate(decodeURIComponent(returnTo), { replace: true });
+            } else {
+              // Rediriger selon le rôle si disponible, sinon vers /app par défaut
+              if (userProfile?.role) {
+                switch (userProfile.role) {
+                  case 'admin':
+                    navigate('/admin', { replace: true });
+                    break;
+                  case 'coiffeur':
+                  case 'coiffeuse':
+                  case 'cosmetique':
+                    navigate('/stylist', { replace: true });
+                    break;
+                  case 'client':
+                  default:
+                    navigate('/app', { replace: true });
+                    break;
+                }
+              } else {
+                // Redirection par défaut si le rôle n'est pas encore chargé
+                navigate('/app', { replace: true });
+              }
+            }
+          }, 500); // Délai de 500ms pour laisser le temps au profil de se charger
         } else {
           toast({
             title: "Erreur de connexion",
