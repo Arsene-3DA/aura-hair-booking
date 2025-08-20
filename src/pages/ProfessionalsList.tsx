@@ -50,31 +50,8 @@ const ProfessionalsList = () => {
         setLoading(true);
         console.log('Loading professionals for gender:', gender);
         
-        const { data, error } = await supabase
-          .from('hairdressers')
-          .select(`
-            id,
-            auth_id,
-            name,
-            email,
-            phone,
-            salon_address,
-            bio,
-            website,
-            instagram,
-            specialties,
-            rating,
-            image_url,
-            experience,
-            location,
-            gender,
-            is_active,
-            profiles!inner(role)
-          `)
-          .eq('gender', gender)
-          .eq('is_active', true)
-          .in('profiles.role', ['coiffeur', 'coiffeuse', 'cosmetique'])
-          .order('rating', { ascending: false });
+        // Utiliser la fonction publique sécurisée
+        const { data, error } = await supabase.rpc('get_public_hairdresser_data');
 
         if (error) {
           console.error('Erreur lors du chargement des professionnels:', error);
@@ -88,18 +65,42 @@ const ProfessionalsList = () => {
 
         console.log('Data received from Supabase:', data);
 
+        // Filtrer par genre et rôle
+        const filteredPromises = (data || []).map(async (item) => {
+          // Filtrer d'abord par genre
+          if (item.gender !== gender) return null;
+          
+          // Vérifier le rôle si auth_id existe
+          if (item.auth_id) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('user_id', item.auth_id)
+              .maybeSingle();
+              
+            if (!profile || !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profile.role)) {
+              return null;
+            }
+          }
+          
+          return item;
+        });
+        
+        const filteredResults = await Promise.all(filteredPromises);
+        const validProfessionals = filteredResults.filter(item => item !== null);
+
         // Mapper les données Supabase vers l'interface Professional
-        const mappedProfessionals: Professional[] = (data || []).map(item => ({
-          id: item.auth_id || item.id, // Utiliser auth_id comme identifiant pour la liaison
+        const mappedProfessionals: Professional[] = validProfessionals.map(item => ({
+          id: item.auth_id || item.id,
           name: item.name,
           specialties: item.specialties || [],
-          rating: item.rating || 5.0, // Note par défaut de 5 étoiles
+          rating: item.rating || 5.0,
           image_url: item.image_url || '/placeholder.svg',
           experience: item.experience || '',
-          location: item.salon_address || item.location || '', // Priorité à salon_address
+          location: item.salon_address || item.location || '',
           gender: item.gender as 'male' | 'female',
-          email: item.email,
-          phone: item.phone || undefined,
+          email: '',
+          phone: undefined,
           is_active: item.is_active || false
         }));
 
