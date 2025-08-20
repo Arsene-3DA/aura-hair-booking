@@ -138,7 +138,18 @@ const Index = () => {
     }
   };
   const handleCategorySelection = (category: 'coiffeur' | 'coiffeuse' | 'cosmetique') => {
-    handleShowExperts(category);
+    // Navigation vers les pages dédiées selon la catégorie
+    switch (category) {
+      case 'coiffeur':
+        navigate('/professionals/male');
+        break;
+      case 'coiffeuse':
+        navigate('/professionals/female');
+        break;
+      case 'cosmetique':
+        navigate('/professionals/cosmetique');
+        break;
+    }
   };
   const handleProfessionalLogin = () => {
     navigate('/auth');
