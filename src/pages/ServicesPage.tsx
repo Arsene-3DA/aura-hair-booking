@@ -199,141 +199,164 @@ const ServicesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black">
       <Header />
       
       <main>
-        <section className="bg-gradient-to-br from-gold-50 via-orange-50 to-white py-16">
+        {/* Hero Section */}
+        <section className="bg-black border-b border-[#FFD700]/20 py-20">
           <div className="container mx-auto px-4">
             <div className="text-center">
-              <h1 className="text-4xl font-bold mb-4">
-                Nos <span className="gradient-text">Services</span>
+              <h1 className="text-5xl font-bold mb-6 text-white">
+                Nos <span className="text-[#FFD700]">Services</span> Premium
               </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Découvrez la gamme complète de services offerts par nos experts coiffeurs
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Découvrez une expérience beauté sur-mesure avec notre gamme complète de services 
+                professionnels, réalisés par nos experts coiffeurs passionnés.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="py-8 bg-gray-50">
+        {/* Category Filters */}
+        <section className="py-12 bg-[#1a1a1a] border-b border-[#FFD700]/20">
           <div className="container mx-auto px-4">
-            <div className="flex flex-wrap gap-2 justify-center">
+            <div className="flex flex-wrap gap-3 justify-center">
               {categories.map((category) => (
-                <Badge
+                <button
                   key={category.key}
-                  variant={selectedCategory === category.key ? "default" : "outline"}
-                  className={`cursor-pointer px-4 py-2 text-sm ${
+                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
                     selectedCategory === category.key
-                      ? 'bg-gradient-gold text-white hover:bg-gold-600'
-                      : 'hover:bg-gold-50 hover:text-gold-700'
+                      ? 'bg-[#FFD700] text-black shadow-lg shadow-[#FFD700]/30 scale-105'
+                      : 'bg-black border border-[#FFD700]/40 text-[#FFD700] hover:border-[#FFD700]/80 hover:bg-[#FFD700]/10 hover:scale-102'
                   }`}
                   onClick={() => setSelectedCategory(category.key)}
                 >
                   {category.label}
-                </Badge>
+                </button>
               ))}
             </div>
           </div>
         </section>
 
         {/* Services Grid */}
-        <section className="py-16 bg-white">
+        <section className="py-20 bg-black">
           <div className="container mx-auto px-4">
             {loading ? (
-              <div className="text-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
-                <p className="text-gray-600 text-lg">Chargement des services...</p>
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#FFD700]/20 border-t-[#FFD700] mx-auto mb-6"></div>
+                <p className="text-gray-300 text-xl">Chargement de nos services premium...</p>
               </div>
             ) : filteredServices.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredServices.map((service) => (
-                  <Card key={service.id} className="hover:shadow-lg transition-shadow duration-200 overflow-hidden">
-                    {/* Image du service */}
-                    <div className="h-48 overflow-hidden">
+                  <div 
+                    key={service.id} 
+                    className="bg-[#1a1a1a] rounded-2xl overflow-hidden border border-[#FFD700]/30 hover:border-[#FFD700]/60 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#FFD700]/20 group"
+                  >
+                    {/* Image du service avec overlay doré */}
+                    <div className="relative h-56 overflow-hidden">
                       <img 
                         src={service.image_url}
                         alt={service.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?w=400&h=300&fit=crop';
                         }}
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      <div className="absolute top-4 right-4">
+                        <span className="bg-black/70 backdrop-blur-sm text-[#FFD700] px-3 py-1 rounded-full text-sm font-medium border border-[#FFD700]/30">
+                          {service.category}
+                        </span>
+                      </div>
                     </div>
                     
-                    <CardHeader>
-                      <div className="flex justify-between items-start mb-2">
-                        <CardTitle className="text-xl font-bold text-gray-900">
-                          {service.name}
-                        </CardTitle>
-                        <Badge variant="outline" className="ml-2">
-                          {service.category}
-                        </Badge>
-                      </div>
-                      <p className="text-gray-600 text-sm">
+                    <div className="p-6">
+                      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-[#FFD700] transition-colors duration-300">
+                        {service.name}
+                      </h3>
+                      <p className="text-gray-300 mb-6 leading-relaxed">
                         {service.description}
                       </p>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
+                      
+                      <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center text-gold-600">
-                            <DollarSign className="h-4 w-4 mr-1" />
-                            <span className="font-semibold text-lg">
+                          <div className="flex items-center text-[#FFD700]">
+                            <DollarSign className="h-5 w-5 mr-2" />
+                            <span className="font-bold text-xl">
                               {formatPrice(service.price)}
                             </span>
                           </div>
-                          <div className="flex items-center text-gray-600">
-                            <Clock className="h-4 w-4 mr-1" />
+                          <div className="flex items-center text-gray-400">
+                            <Clock className="h-4 w-4 mr-2" />
                             <span className="text-sm">
                               {formatDuration(service.duration)}
                             </span>
                           </div>
                         </div>
                         
-                        <div className="flex items-center text-gray-500">
-                          <Users className="h-4 w-4 mr-1" />
+                        <div className="flex items-center text-gray-400">
+                          <Users className="h-4 w-4 mr-2 text-[#FFD700]" />
                           <span className="text-sm">
-                            Proposé par {service.hairdresser_count || 0} expert{(service.hairdresser_count || 0) > 1 ? 's' : ''}
+                            Proposé par <span className="text-[#FFD700] font-medium">{service.hairdresser_count || 0}</span> expert{(service.hairdresser_count || 0) > 1 ? 's' : ''}
                           </span>
                         </div>
+                        
+                        <div className="pt-4">
+                          <div className="w-full h-1 bg-[#FFD700]/20 rounded-full overflow-hidden">
+                            <div className="w-3/4 h-full bg-gradient-to-r from-[#FFD700] to-[#FFD700]/60 rounded-full"></div>
+                          </div>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <p className="text-gray-600 text-lg">
-                  Aucun service trouvé pour cette catégorie.
-                </p>
+              <div className="text-center py-20">
+                <div className="max-w-md mx-auto">
+                  <div className="w-16 h-16 mx-auto mb-6 bg-[#FFD700]/20 rounded-full flex items-center justify-center">
+                    <Users className="h-8 w-8 text-[#FFD700]" />
+                  </div>
+                  <p className="text-gray-300 text-xl mb-4">
+                    Aucun service trouvé pour cette catégorie.
+                  </p>
+                  <p className="text-gray-500">
+                    Essayez une autre catégorie ou consultez tous nos services.
+                  </p>
+                </div>
               </div>
             )}
           </div>
         </section>
 
-        <section className="py-16 bg-gradient-to-br from-gold-50 via-orange-50 to-white">
+        {/* Call to Action */}
+        <section className="py-20 bg-[#1a1a1a] border-t border-[#FFD700]/20">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4">
-              Prêt à réserver votre <span className="gradient-text">service</span> ?
-            </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Choisissez votre expert et réservez dès maintenant pour une expérience sur mesure
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/professionals/male"
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
-              >
-                Nos Coiffeurs Experts
-              </Link>
-              <Link
-                to="/professionals/female"
-                className="bg-gradient-gold hover:bg-gold-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
-              >
-                Nos Coiffeuses Expertes
-              </Link>
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-4xl font-bold mb-6 text-white">
+                Prêt à vivre une expérience <span className="text-[#FFD700]">exceptionnelle</span> ?
+              </h2>
+              <p className="text-xl text-gray-300 mb-10 leading-relaxed">
+                Nos experts sont à votre disposition pour vous offrir un service personnalisé 
+                et des résultats qui dépasseront vos attentes.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Link
+                  to="/professionals/male"
+                  className="bg-black border-2 border-[#FFD700] text-[#FFD700] px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-[#FFD700] hover:text-black hover:scale-105 hover:shadow-lg hover:shadow-[#FFD700]/30"
+                >
+                  Nos Coiffeurs Experts
+                </Link>
+                <Link
+                  to="/professionals/female"
+                  className="bg-[#FFD700] text-black px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-[#FFD700]/90 hover:scale-105 hover:shadow-lg hover:shadow-[#FFD700]/40"
+                >
+                  Nos Coiffeuses Expertes
+                </Link>
+              </div>
             </div>
           </div>
         </section>
