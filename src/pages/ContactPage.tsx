@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, Send, CheckCircle, Phone, MapPin, Clock, Scissors } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/Header';
 
 const contactSchema = z.object({
   prenom: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
@@ -100,6 +101,8 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <Header />
+      
       {/* Hero Section */}
       <div className="bg-black py-16 border-b border-[#FFD700]/20">
         <div className="container mx-auto px-4 text-center">
