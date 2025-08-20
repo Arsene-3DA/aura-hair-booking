@@ -83,7 +83,7 @@ const Header = () => {
           </nav>
 
           {/* Search Bar */}
-          <div className="hidden xl:flex items-center flex-1 max-w-md mx-8">
+          <div className="hidden lg:flex items-center flex-1 max-w-md mx-8">
             <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input 
@@ -97,18 +97,18 @@ const Header = () => {
           </div>
 
           {/* Login Button */}
-          <Button onClick={handleLogin} className="hidden xl:flex bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6">
+          <Button onClick={handleLogin} className="hidden lg:flex bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6">
             Se connecter
           </Button>
 
           {/* Mobile Menu Button */}
-          <button className="xl:hidden p-2 text-[#FFD700]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <button className="lg:hidden p-2 text-[#FFD700]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && <div className="xl:hidden py-4 border-t border-[#FFD700]/20 bg-[#1a1a1a]">
+        {isMenuOpen && <div className="lg:hidden py-4 border-t border-[#FFD700]/20 bg-[#1a1a1a]">
             <nav className="flex flex-col space-y-4">
               {/* Mobile Search */}
               <div className="px-2 mb-4">
