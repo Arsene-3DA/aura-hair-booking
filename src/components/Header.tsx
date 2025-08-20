@@ -96,10 +96,27 @@ const Header = () => {
             </form>
           </div>
 
-          {/* Login Button */}
-          <Button onClick={handleLogin} className="hidden lg:flex bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6">
-            Se connecter
-          </Button>
+          {/* Dashboard & Login Buttons */}
+          <div className="hidden lg:flex items-center space-x-4">
+            {user ? (
+              <Button 
+                asChild
+                className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6"
+              >
+                <Link to={
+                  role === 'admin' ? '/admin' :
+                  role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
+                  '/app'
+                }>
+                  Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <Button onClick={handleLogin} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6">
+                Se connecter
+              </Button>
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <button className="lg:hidden p-2 text-[#FFD700]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -146,12 +163,28 @@ const Header = () => {
               )}
               
               <div className="px-2 pt-4">
-                <Button onClick={() => {
-              handleLogin();
-              setIsMenuOpen(false);
-            }} className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full">
-                  Se connecter
-                </Button>
+                {user ? (
+                  <Button 
+                    asChild
+                    className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Link to={
+                      role === 'admin' ? '/admin' :
+                      role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
+                      '/app'
+                    }>
+                      Dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button onClick={() => {
+                    handleLogin();
+                    setIsMenuOpen(false);
+                  }} className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full">
+                    Se connecter
+                  </Button>
+                )}
               </div>
             </nav>
           </div>}
