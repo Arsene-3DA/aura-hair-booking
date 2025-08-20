@@ -68,10 +68,12 @@ const ProfessionalsList = () => {
             experience,
             location,
             gender,
-            is_active
+            is_active,
+            profiles!inner(role)
           `)
           .eq('gender', gender)
           .eq('is_active', true)
+          .in('profiles.role', ['coiffeur', 'coiffeuse', 'cosmetique'])
           .order('rating', { ascending: false });
 
         if (error) {

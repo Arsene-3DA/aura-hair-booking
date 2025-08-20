@@ -36,11 +36,14 @@ const AllProfessionalsList = () => {
           <div className="container mx-auto px-4">
             <div className="text-center">
               <h1 className="text-4xl font-bold mb-4">
-                Nos <span className="gradient-text">Professionnels</span>
-              </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-                Découvrez notre équipe d'experts qualifiés et réservez directement
-              </p>
+                 Nos <span className="gradient-text">Professionnels</span> Certifiés
+               </h1>
+               <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
+                 Découvrez notre équipe d'experts qualifiés et réservez directement
+               </p>
+               <p className="text-sm text-gray-500 max-w-2xl mx-auto mb-8">
+                 ✨ Seuls les professionnels avec un compte certifié sont affichés
+               </p>
               
               {/* Barre de recherche */}
               <div className="max-w-md mx-auto">

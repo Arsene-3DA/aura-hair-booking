@@ -106,6 +106,7 @@ const StylistsList = () => {
     try {
       setLoading(true);
       
+      // Only load hairdressers with professional roles
       const { data, error } = await supabase
         .from('hairdressers')
         .select(`
@@ -123,9 +124,11 @@ const StylistsList = () => {
           experience,
           image_url,
           rating,
-          is_active
+          is_active,
+          profiles!inner(role)
         `)
         .eq('is_active', true)
+        .in('profiles.role', ['coiffeur', 'coiffeuse', 'cosmetique'])
         .order('rating', { ascending: false });
 
       if (error) throw error;
