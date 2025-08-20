@@ -222,6 +222,13 @@ export type Database = {
             referencedRelation: "hairdressers_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contact_requests_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       hairdresser_services: {
@@ -256,6 +263,13 @@ export type Database = {
             columns: ["hairdresser_id"]
             isOneToOne: false
             referencedRelation: "hairdressers_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hairdresser_services_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
           {
@@ -820,6 +834,13 @@ export type Database = {
             referencedRelation: "hairdressers_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "stylist_schedule_stylist_id_fkey"
+            columns: ["stylist_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       system_logs: {
@@ -980,6 +1001,27 @@ export type Database = {
         }
         Relationships: []
       }
+      professionals_public: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          experience: string | null
+          gender: string | null
+          id: string | null
+          image_url: string | null
+          instagram: string | null
+          is_active: boolean | null
+          location: string | null
+          name: string | null
+          professional_type: Database["public"]["Enums"]["user_role"] | null
+          rating: number | null
+          specialties: string[] | null
+          updated_at: string | null
+          website: string | null
+          working_hours: Json | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       change_user_role: {
@@ -1001,6 +1043,18 @@ export type Database = {
           p_user_type?: string
         }
         Returns: number
+      }
+      create_public_booking: {
+        Args: {
+          client_email: string
+          client_name: string
+          client_phone: string
+          notes?: string
+          professional_id: string
+          scheduled_datetime: string
+          service_id: string
+        }
+        Returns: Json
       }
       decline_booking: {
         Args: { p_booking_id: string }
@@ -1044,6 +1098,14 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_professional_availability: {
+        Args: { check_date: string; professional_id: string }
+        Returns: {
+          booking_duration: unknown
+          is_available: boolean
+          time_slot: string
+        }[]
       }
       get_public_hairdresser_data: {
         Args: Record<PropertyKey, never>
