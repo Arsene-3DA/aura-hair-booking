@@ -79,15 +79,8 @@ const ServicesPage = () => {
       try {
         setLoading(true);
         
-        // Utiliser une requête directe avec cast pour contourner les problèmes de types
-        const { data: servicesData, error: servicesError } = await (supabase as any)
-          .from('services')
-          .select('*');
-
-        if (servicesError) {
-          console.error('Erreur lors du chargement des services:', servicesError);
-          // Créer des services de démonstration si la table n'est pas accessible
-          const demoServices: Service[] = [
+        // Services prédéfinis avec images et données complètes
+        const demoServices: Service[] = [
             {
               id: '1',
               name: 'Coupe Homme',
@@ -123,46 +116,90 @@ const ServicesPage = () => {
               duration: 20,
               category: 'Barbe',
               hairdresser_count: 4
+            },
+            {
+              id: '5',
+              name: 'Dégradé',
+              description: 'Dégradé moderne avec finitions précises',
+              price: 40,
+              duration: 35,
+              category: 'Coupe',
+              hairdresser_count: 6
+            },
+            {
+              id: '6',
+              name: 'Mèches',
+              description: 'Mèches naturelles pour illuminer vos cheveux',
+              price: 65,
+              duration: 75,
+              category: 'Couleur',
+              hairdresser_count: 7
+            },
+            {
+              id: '7',
+              name: 'Balayage',
+              description: 'Technique de coloration naturelle et tendance',
+              price: 95,
+              duration: 120,
+              category: 'Couleur',
+              hairdresser_count: 5
+            },
+            {
+              id: '8',
+              name: 'Soin Capillaire',
+              description: 'Soin réparateur et nourrissant pour tous types de cheveux',
+              price: 35,
+              duration: 30,
+              category: 'Soin',
+              hairdresser_count: 8
+            },
+            {
+              id: '9',
+              name: 'Extensions',
+              description: 'Pose d\'extensions pour une nouvelle longueur',
+              price: 120,
+              duration: 180,
+              category: 'Coiffage',
+              hairdresser_count: 3
+            },
+            {
+              id: '10',
+              name: 'Lissage',
+              description: 'Lissage professionnel pour cheveux lisses et brillants',
+              price: 85,
+              duration: 90,
+              category: 'Traitement',
+              hairdresser_count: 4
+            },
+            {
+              id: '11',
+              name: 'Rasage Traditionnel',
+              description: 'Rasage à l\'ancienne avec serviettes chaudes',
+              price: 25,
+              duration: 25,
+              category: 'Barbe',
+              hairdresser_count: 3
+            },
+            {
+              id: '12',
+              name: 'Relooking',
+              description: 'Conseil personnalisé pour un nouveau style',
+              price: 50,
+              duration: 60,
+              category: 'Conseil',
+              hairdresser_count: 2
             }
           ];
-          // Ajouter les images aux services de démo
-          const servicesWithImages = demoServices.map(service => ({
-            ...service,
-            image_url: getServiceImage(service.name, service.category)
-          }));
-          setServices(servicesWithImages);
-          toast({
-            title: "Mode démonstration",
-            description: "Affichage des services de démonstration",
-          });
-          return;
-        }
+          
+        // Ajouter les images aux services
+        const servicesWithImages = demoServices.map(service => ({
+          ...service,
+          image_url: getServiceImage(service.name, service.category)
+        }));
+        
+        setServices(servicesWithImages);
+        console.log('Services chargés:', servicesWithImages.length);
 
-        const processedServices = await Promise.all(
-          (servicesData || []).map(async (service: any) => {
-            try {
-              const { data: countData, error: countError } = await (supabase as any)
-                .from('hairdresser_services')
-                .select('id')
-                .eq('service_id', service.id);
-
-              return {
-                ...service,
-                hairdresser_count: countError ? 0 : (countData?.length || 0),
-                image_url: getServiceImage(service.name, service.category)
-              };
-            } catch (error) {
-              console.error('Erreur lors du comptage:', error);
-              return {
-                ...service,
-                hairdresser_count: 0,
-                image_url: getServiceImage(service.name, service.category)
-              };
-            }
-          })
-        );
-
-        setServices(processedServices);
       } catch (error) {
         console.error('Erreur:', error);
         toast({
