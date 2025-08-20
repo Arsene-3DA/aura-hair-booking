@@ -35,6 +35,7 @@ const RoleDashboardRedirect = ({ children }: RoleDashboardRedirectProps) => {
       const shouldRedirect = () => {
         switch (userProfile.role) {
           case 'admin':
+            // Rediriger les admins vers /admin s'ils ne sont pas sur une page publique ou admin
             return !currentPath.startsWith('/admin');
           case 'coiffeur':
           case 'coiffeuse':
