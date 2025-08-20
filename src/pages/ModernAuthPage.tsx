@@ -26,7 +26,7 @@ const ModernAuthPage = () => {
 
   // Gérer la redirection après authentification
   useEffect(() => {
-    if (isAuthenticated && userProfile) {
+    if (isAuthenticated && userProfile?.role) {
       const returnTo = searchParams.get('returnTo');
       if (returnTo) {
         navigate(decodeURIComponent(returnTo), { replace: true });
