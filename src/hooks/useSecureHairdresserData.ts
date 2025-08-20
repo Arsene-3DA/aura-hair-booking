@@ -94,28 +94,13 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
             canViewContact: true
           });
         } else {
-          // Try public view (business info only)
-          const { data: publicData, error: publicError } = await supabase
-            .from('hairdressers_public')
-            .select(`
-              id,
-              name,
-              specialties,
-              rating,
-              image_url,
-              experience,
-              location,
-              salon_address,
-              bio,
-              website,
-              instagram,
-              working_hours,
-              auth_id,
-              is_active
-            `)
+          // Try public view (business info only) using secure function
+          const { data: publicDataArray, error: publicError } = await supabase
+            .rpc('get_public_hairdresser_data')
             .eq('auth_id', hairdresserId)
-            .eq('is_active', true)
-            .single();
+            .eq('is_active', true);
+
+          const publicData = publicDataArray?.[0] || null;
 
           if (publicError) {
             throw publicError;

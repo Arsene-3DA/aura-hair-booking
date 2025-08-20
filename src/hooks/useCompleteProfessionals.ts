@@ -73,28 +73,9 @@ export const useCompleteProfessionals = () => {
         hairdressersData = data;
         hairdressersError = error;
       } else {
-        // Unauthenticated user - only business info (no email/phone)
+        // Unauthenticated user - use secure function that only returns business info (no email/phone)
         const { data, error } = await supabase
-          .from('hairdressers_public')
-          .select(`
-            id,
-            auth_id,
-            name,
-            salon_address,
-            bio,
-            website,
-            instagram,
-            specialties,
-            rating,
-            image_url,
-            experience,
-            location,
-            gender,
-            is_active,
-            working_hours
-          `)
-          .eq('is_active', true)
-          .not('auth_id', 'is', null)
+          .rpc('get_public_hairdresser_data')
           .order('rating', { ascending: false });
         
         hairdressersData = data;
