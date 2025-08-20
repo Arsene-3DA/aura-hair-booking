@@ -49,11 +49,12 @@ const ProfessionalsList = () => {
         setLoading(true);
         console.log('Loading professionals for gender:', gender);
         
-        // Requête directe avec seulement les colonnes publiques autorisées
+        // Requête directe sur la table publique hairdressers
         const { data, error } = await supabase
           .from('hairdressers')
           .select('id, name, rating, salon_address, image_url, gender, is_active, created_at, updated_at')
-          .eq('is_active', true);
+          .eq('is_active', true)
+          .eq('gender', gender);
 
         if (error) {
           console.error('Erreur lors du chargement des professionnels:', error);
@@ -67,10 +68,10 @@ const ProfessionalsList = () => {
 
         console.log('Data received from Supabase:', data);
 
-        // Filtrer par genre
-        const filteredData = (data || []).filter(item => 
-          item.gender === gender && item.is_active
-        );
+        console.log('Raw data from Supabase:', data);
+
+        // Pas besoin de filtrer, déjà fait dans la requête
+        const filteredData = data || [];
 
         // Mapper les données Supabase vers l'interface Professional
         const mappedProfessionals: Professional[] = filteredData.map(item => ({
@@ -88,7 +89,7 @@ const ProfessionalsList = () => {
         }));
 
         setProfessionals(mappedProfessionals);
-        console.log('Professionnels chargés:', mappedProfessionals.length, mappedProfessionals);
+        console.log('Professionnels mappés pour', gender, ':', mappedProfessionals.length, mappedProfessionals);
         
         if (mappedProfessionals.length === 0) {
           toast({
