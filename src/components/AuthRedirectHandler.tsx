@@ -15,12 +15,14 @@ const AuthRedirectHandler = ({ children }: AuthRedirectHandlerProps) => {
   useEffect(() => {
     // Attendre que l'authentification et le rôle soient chargés
     if (!authLoading && !roleLoading && isAuthenticated && role) {
-      // Rediriger selon le rôle
+      // Rediriger selon le rôle vers le dashboard approprié
       switch (role) {
         case 'admin':
           navigate('/admin', { replace: true });
           break;
         case 'coiffeur':
+        case 'coiffeuse':
+        case 'cosmetique':
           navigate('/stylist', { replace: true });
           break;
         case 'client':

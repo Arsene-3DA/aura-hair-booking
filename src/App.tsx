@@ -153,7 +153,7 @@ const App = () => (
                   <Route path="settings" element={<PlatformSettings />} />
                 </Route>
                 <Route path="/stylist" element={
-                  <RoleProtectedRoute allowedRoles={['coiffeur', 'coiffeuse']}>
+                  <RoleProtectedRoute allowedRoles={['coiffeur', 'coiffeuse', 'cosmetique']}>
                     <StylistLayout />
                   </RoleProtectedRoute>
                 }>
