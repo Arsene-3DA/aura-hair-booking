@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useWelcomeData } from '@/hooks/useWelcomeData';
 import { useClientReservations } from '@/hooks/useClientReservations';
@@ -112,6 +113,15 @@ export default function ClientDashboard() {
     loading: reservationsLoading, 
     cancelReservation 
   } = useClientReservations(user?.id);
+
+  // TEST: Vérifier le rôle de l'utilisateur
+  useEffect(() => {
+    console.log('🚨 DEBUG CLIENT DASHBOARD - User role check:', {
+      userId: user?.id,
+      userEmail: user?.email,
+      welcomeData
+    });
+  }, [user, welcomeData]);
 
   console.log('🎯 Dashboard Debug:', {
     userId: user?.id,

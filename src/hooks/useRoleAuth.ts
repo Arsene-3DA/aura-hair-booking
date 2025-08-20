@@ -270,8 +270,8 @@ export function useRoleAuth(): AuthState & AuthActions {
 
       if (session?.user) {
         console.log('🔥 Auth state changed - User logged in:', session.user.email);
-        // Charger le profil après changement d'auth
-        setTimeout(async () => {
+        // Charger le profil après changement d'auth - FORCER le chargement
+        const loadProfile = async () => {
           console.log('📖 Loading profile for user:', session.user.id);
           const { data, error } = await supabase
             .from('profiles')
@@ -292,7 +292,11 @@ export function useRoleAuth(): AuthState & AuthActions {
           } else {
             console.error('❌ Profile loading failed:', error);
           }
-        }, 100); // Augmenter le délai pour être sûr
+        };
+        
+        // Exécuter immédiatement ET avec un délai de sécurité
+        loadProfile();
+        setTimeout(loadProfile, 500);
       } else {
         setState(prev => ({
           ...prev,
