@@ -9,32 +9,44 @@ interface AuthRedirectHandlerProps {
 
 const AuthRedirectHandler = ({ children }: AuthRedirectHandlerProps) => {
   const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading, user } = useRoleAuth();
-  const { data: role, isLoading: roleLoading } = useProfileRole(user?.id);
+  const { isAuthenticated, loading: authLoading, user, userProfile } = useRoleAuth();
 
   useEffect(() => {
-    // Attendre que l'authentification et le rôle soient chargés
-    if (!authLoading && !roleLoading && isAuthenticated && role) {
+    console.log('🔄 AuthRedirectHandler:', {
+      authLoading,
+      isAuthenticated,
+      user: user?.email,
+      userProfile,
+      role: userProfile?.role
+    });
+
+    // Attendre que l'authentification et le profil soient chargés
+    if (!authLoading && isAuthenticated && userProfile?.role) {
+      console.log(`🎯 Redirection automatique pour le rôle: ${userProfile.role}`);
+      
       // Rediriger selon le rôle vers le dashboard approprié
-      switch (role) {
+      switch (userProfile.role) {
         case 'admin':
+          console.log('👨‍💼 Redirection vers dashboard admin');
           navigate('/admin', { replace: true });
           break;
         case 'coiffeur':
         case 'coiffeuse':
         case 'cosmetique':
+          console.log('✂️ Redirection vers dashboard professionnel');
           navigate('/stylist', { replace: true });
           break;
         case 'client':
         default:
+          console.log('👤 Redirection vers dashboard client');
           navigate('/app', { replace: true });
           break;
       }
     }
-  }, [authLoading, roleLoading, isAuthenticated, role, navigate]);
+  }, [authLoading, isAuthenticated, userProfile, navigate]);
 
   // Afficher un loader pendant le chargement
-  if (authLoading || (isAuthenticated && roleLoading)) {
+  if (authLoading || (isAuthenticated && !userProfile)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
