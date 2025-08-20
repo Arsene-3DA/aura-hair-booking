@@ -44,7 +44,15 @@ export const useCanadianLocalization = (): CanadianLocalization => {
       setIsLoading(true);
       setError(null);
 
-      // Essayer plusieurs services de géolocalisation IP
+      // Désactiver la détection automatique pour éviter les erreurs de rate limit
+      // Utiliser les valeurs par défaut canadiennes
+      setDetectedProvince('QC');
+      setSuggestedLanguage('fr');
+      setIsLoading(false);
+      return;
+
+      // Code désactivé pour éviter les erreurs de rate limit
+      /*
       const services = [
         'https://ipapi.co/json/',
         'https://ip-api.com/json/',
@@ -97,6 +105,7 @@ export const useCanadianLocalization = (): CanadianLocalization => {
       // Si aucun service n'a fonctionné ou si pas au Canada, utiliser les paramètres par défaut
       setDetectedProvince(null);
       setSuggestedLanguage('fr'); // Défaut français pour le Canada
+      */
       
     } catch (err) {
       console.error('Erreur de détection de localisation:', err);

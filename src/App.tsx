@@ -97,8 +97,7 @@ const App = () => (
               <BrowserRouter>
                 <RouteTracker>
                   <BrokenLinkDetector>
-                    <RoleDashboardRedirect>
-                      <Suspense fallback={<LoadingSpinner />}>
+                       <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 {/* Routes publiques */}
                 <Route path="/" element={<Index />} />
@@ -234,8 +233,7 @@ const App = () => (
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </Suspense>
-            </RoleDashboardRedirect>
+             </Suspense>
           </BrokenLinkDetector>
         </RouteTracker>
       </BrowserRouter>

@@ -131,15 +131,11 @@ const getSeverityLevel = (eventType: string): string => {
   return 'low';
 };
 
-// Obtenir l'IP du client (approximative)
+// Obtenir l'IP du client (approximative) - désactivé pour éviter les erreurs de rate limit
 const getClientIP = async (): Promise<string | null> => {
   try {
-    // Utiliser ipinfo.io au lieu de ip-api.com pour éviter les erreurs 403
-    const response = await fetch('https://ipinfo.io/json');
-    if (response.ok) {
-      const data = await response.json();
-      return data.ip;
-    }
+    // Retourner une IP locale pour éviter les appels API répétés
+    return '127.0.0.1';
   } catch (error) {
     console.warn('Cannot get client IP:', error);
   }
