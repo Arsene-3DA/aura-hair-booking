@@ -1044,6 +1044,18 @@ export type Database = {
         }
         Returns: number
       }
+      create_booking_by_hairdresser_id: {
+        Args: {
+          client_email: string
+          client_name: string
+          client_phone: string
+          hairdresser_id: string
+          notes?: string
+          scheduled_datetime: string
+          service_id: string
+        }
+        Returns: Json
+      }
       create_public_booking: {
         Args: {
           client_email: string
@@ -1105,6 +1117,56 @@ export type Database = {
           booking_duration: unknown
           is_available: boolean
           time_slot: string
+        }[]
+      }
+      get_professional_availability_by_id: {
+        Args: { check_date: string; hairdresser_id: string }
+        Returns: {
+          booking_duration: unknown
+          is_available: boolean
+          time_slot: string
+        }[]
+      }
+      get_professional_by_auth_id: {
+        Args: { auth_user_id: string }
+        Returns: {
+          auth_id: string
+          bio: string
+          created_at: string
+          experience: string
+          gender: string
+          id: string
+          image_url: string
+          instagram: string
+          is_active: boolean
+          name: string
+          rating: number
+          salon_address: string
+          specialties: string[]
+          updated_at: string
+          website: string
+          working_hours: Json
+        }[]
+      }
+      get_professional_by_id: {
+        Args: { professional_id: string }
+        Returns: {
+          auth_id: string
+          bio: string
+          created_at: string
+          experience: string
+          gender: string
+          id: string
+          image_url: string
+          instagram: string
+          is_active: boolean
+          name: string
+          rating: number
+          salon_address: string
+          specialties: string[]
+          updated_at: string
+          website: string
+          working_hours: Json
         }[]
       }
       get_public_hairdresser_data: {

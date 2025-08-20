@@ -35,48 +35,60 @@ export const usePublicProfessionalData = (professionalId?: string) => {
         setLoading(true);
         setError(null);
 
-        // Utiliser la fonction RPC publique pour récupérer les données
-        const { data: publicData, error: publicError } = await supabase
-          .rpc('get_public_hairdresser_data')
-          .eq('auth_id', professionalId)
-          .eq('is_active', true)
-          .single();
+        // Essayer d'abord par ID de hairdresser
+        const { data: byIdData, error: byIdError } = await supabase
+          .rpc('get_professional_by_id', { professional_id: professionalId });
 
-        if (publicError) {
-          throw new Error('Professionnel non trouvé ou inactif');
+        if (!byIdError && byIdData && byIdData.length > 0) {
+          const professionalData: PublicProfessionalData = {
+            id: byIdData[0].id,
+            name: byIdData[0].name || 'Professionnel',
+            specialties: byIdData[0].specialties || [],
+            rating: byIdData[0].rating || 5.0,
+            image_url: byIdData[0].image_url || '/placeholder.svg',
+            experience: byIdData[0].experience || '',
+            location: byIdData[0].salon_address || '',
+            salon_address: byIdData[0].salon_address,
+            bio: byIdData[0].bio,
+            website: byIdData[0].website,
+            instagram: byIdData[0].instagram,
+            working_hours: byIdData[0].working_hours,
+            auth_id: byIdData[0].auth_id,
+            gender: byIdData[0].gender || 'non_specifie',
+            is_active: byIdData[0].is_active
+          };
+          setProfessional(professionalData);
+          return;
         }
 
-        if (!publicData) {
-          throw new Error('Aucune donnée trouvée pour ce professionnel');
+        // Essayer par auth_id en fallback
+        const { data: byAuthData, error: byAuthError } = await supabase
+          .rpc('get_professional_by_auth_id', { auth_user_id: professionalId });
+
+        if (!byAuthError && byAuthData && byAuthData.length > 0) {
+          const professionalData: PublicProfessionalData = {
+            id: byAuthData[0].id,
+            name: byAuthData[0].name || 'Professionnel',
+            specialties: byAuthData[0].specialties || [],
+            rating: byAuthData[0].rating || 5.0,
+            image_url: byAuthData[0].image_url || '/placeholder.svg',
+            experience: byAuthData[0].experience || '',
+            location: byAuthData[0].salon_address || '',
+            salon_address: byAuthData[0].salon_address,
+            bio: byAuthData[0].bio,
+            website: byAuthData[0].website,
+            instagram: byAuthData[0].instagram,
+            working_hours: byAuthData[0].working_hours,
+            auth_id: byAuthData[0].auth_id,
+            gender: byAuthData[0].gender || 'non_specifie',
+            is_active: byAuthData[0].is_active
+          };
+          setProfessional(professionalData);
+          return;
         }
 
-        // Essayer de récupérer des informations de profil supplémentaires
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('role, avatar_url, full_name')
-          .eq('user_id', professionalId)
-          .single();
+        throw new Error('Professionnel non trouvé ou inactif');
 
-        // Combiner les données publiques avec les informations de profil
-        const professionalData: PublicProfessionalData = {
-          id: publicData.id,
-          name: profileData?.full_name || publicData.name || 'Professionnel',
-          specialties: publicData.specialties || [],
-          rating: publicData.rating || 5.0,
-          image_url: profileData?.avatar_url || publicData.image_url || '/placeholder.svg',
-          experience: publicData.experience || '',
-          location: publicData.location || publicData.salon_address || '',
-          salon_address: publicData.salon_address,
-          bio: publicData.bio,
-          website: publicData.website,
-          instagram: publicData.instagram,
-          working_hours: publicData.working_hours,
-          auth_id: publicData.auth_id,
-          gender: publicData.gender || 'non_specifie',
-          is_active: publicData.is_active
-        };
-
-        setProfessional(professionalData);
       } catch (err: any) {
         console.error('Error fetching public professional data:', err);
         setError(err.message || 'Erreur lors du chargement des données');

@@ -13,23 +13,35 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Generate slots based on stylist working hours using public RPC
-  const generateSlotsFromWorkingHours = async (date: Date) => {
+  // Generate slots based on stylist working hours using new public functions
+  const generateSlotsFromWorkingHours = async (date: Date, hairdresserId: string) => {
     try {
-      // Utiliser la fonction publique RPC pour récupérer les horaires
-      const { data: professionalData, error } = await supabase
-        .rpc('get_public_hairdresser_data')
-        .eq('auth_id', stylistId)
-        .single();
+      // Utiliser la nouvelle fonction de disponibilité
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const { data: availabilityData, error } = await supabase
+        .rpc('get_professional_availability_by_id', {
+          hairdresser_id: hairdresserId,
+          check_date: dateStr
+        });
 
-      if (error || !professionalData?.working_hours) {
-        console.log('⚠️ No working hours found via RPC, using default slots');
-        // Générer des créneaux par défaut
+      if (!error && availabilityData && availabilityData.length > 0) {
+        return availabilityData.map((slot: any) => ({
+          time: slot.time_slot,
+          available: slot.is_available,
+        }));
+      }
+
+      // Fallback: utiliser l'ancienne méthode avec RPC
+      const { data: professionalData, error: profError } = await supabase
+        .rpc('get_professional_by_auth_id', { auth_user_id: stylistId });
+
+      if (profError || !professionalData?.[0]?.working_hours) {
+        console.log('⚠️ No working hours found, using default slots');
         return generateDefaultTimeSlots();
       }
 
       const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()];
-      const workingHours = professionalData.working_hours[dayOfWeek];
+      const workingHours = professionalData[0].working_hours[dayOfWeek];
 
       if (!workingHours?.isOpen) {
         return []; // Salon fermé ce jour
@@ -80,6 +92,15 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
       setLoading(true);
       const dateStr = format(date, 'yyyy-MM-dd');
       
+      // D'abord, essayer de récupérer l'ID du hairdresser pour ce stylist
+      const { data: professionalData } = await supabase
+        .rpc('get_professional_by_auth_id', { auth_user_id: stylistId });
+
+      let hairdresserId = null;
+      if (professionalData && professionalData.length > 0) {
+        hairdresserId = professionalData[0].id;
+      }
+
       // Récupérer les créneaux marqués comme indisponibles par le coiffeur
       const { data: unavailableSlots, error: availError } = await supabase
         .from('availabilities')
@@ -103,7 +124,10 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
       if (bookingError) throw bookingError;
 
       // Générer les créneaux basés sur les horaires du salon
-      const workingSlots = await generateSlotsFromWorkingHours(date);
+      const workingSlots = hairdresserId 
+        ? await generateSlotsFromWorkingHours(date, hairdresserId)
+        : await generateSlotsFromWorkingHours(date, stylistId); // fallback
+        
       if (workingSlots.length === 0) {
         setTimeSlots([]);
         return;

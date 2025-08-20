@@ -215,12 +215,6 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
         return;
       }
 
-      console.log('🔍 Debug - Tentative de création de réservation:', {
-        hairdresserId,
-        user: user?.id,
-        formData
-      });
-
       // Validation : si des services existent pour ce pro, un service doit être sélectionné
       if (availableServices.length > 0 && !formData.service) {
         toast({
@@ -232,47 +226,56 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
         return;
       }
 
-      // Créer la date complète avec le fuseau horaire local
+      // Récupérer l'ID du hairdresser pour utiliser la nouvelle fonction
+      const { data: hairdresserData, error: hairdresserError } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .eq('auth_id', hairdresserId)
+        .single();
+
+      if (hairdresserError || !hairdresserData) {
+        console.error('Coiffeur non trouvé:', hairdresserError);
+        toast({
+          title: "Erreur",
+          description: "Professionnel non trouvé.",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Créer la date complète
       const localDateTime = new Date(`${formData.date}T${formData.time}:00`);
-      const isoDateTime = localDateTime.toISOString();
-
-      console.log('🕐 Debug dates:', {
-        formDate: formData.date,
-        formTime: formData.time,
-        localDateTime: localDateTime.toString(),
-        isoDateTime,
-        now: new Date().toISOString()
-      });
-
-      const bookingData = {
-        client_user_id: user.id,
-        stylist_user_id: hairdresserId,
-        service_id: formData.serviceId || null,
-        scheduled_at: isoDateTime,
-        notes: formData.notes || null,
-        status: 'pending' as const
-      };
-
-      console.log('📝 Données à insérer:', bookingData);
       
+      // Utiliser la nouvelle fonction de booking
       const { data, error } = await supabase
-        .from('new_reservations')
-        .insert(bookingData)
-        .select();
+        .rpc('create_booking_by_hairdresser_id', {
+          hairdresser_id: hairdresserData.id,
+          client_name: formData.clientName,
+          client_email: formData.clientEmail,
+          client_phone: formData.clientPhone,
+          service_id: formData.serviceId || null,
+          scheduled_datetime: localDateTime.toISOString(),
+          notes: formData.notes || null
+        });
 
-      console.log('📊 Résultat de l\'insertion:', { data, error });
+      console.log('📊 Résultat de la réservation:', { data, error });
 
       if (error) {
-        console.error('❌ Erreur détaillée lors de la réservation:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        
+        console.error('❌ Erreur lors de la réservation:', error);
         toast({
           title: "Erreur",
           description: `Impossible de créer la réservation: ${error.message}`,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const result = data as any;
+      if (!result?.success) {
+        toast({
+          title: "Erreur",
+          description: result?.error || "Impossible de créer la réservation",
           variant: "destructive"
         });
         return;
@@ -287,6 +290,7 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
       });
 
       onSuccess();
+
     } catch (error) {
       console.error('Erreur:', error);
       toast({
