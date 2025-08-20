@@ -1,10 +1,7 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Scissors, MapPin, Phone, Mail, Clock, Facebook, Instagram, Twitter } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-[#1a1a1a] text-white border-t border-[#FFD700]/20">
+  return <footer className="bg-[#1a1a1a] text-white border-t border-[#FFD700]/20">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo & Description */}
@@ -119,9 +116,7 @@ const Footer = () => {
               
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-[#FFD700]" />
-                <a href="mailto:contact@salonottawa.ca" className="text-gray-300 hover:text-[#FFD700] transition-colors">
-                  contact@salonottawa.ca
-                </a>
+                <a href="mailto:contact@salonottawa.ca" className="text-gray-300 hover:text-[#FFD700] transition-colors">tchix3da@gmail.com</a>
               </div>
             </div>
             
@@ -157,8 +152,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
