@@ -74,7 +74,7 @@ const HairdresserCard = ({
     }
   };
   const handleViewProfile = () => {
-    navigate(`/stylist/${id}`);
+    navigate(`/expert/${id}`);
   };
   return <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform duration-200 cursor-pointer border border-gray-100">
       {/* Photo ronde 96px avec gestion d'erreur améliorée */}

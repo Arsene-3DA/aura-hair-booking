@@ -224,6 +224,7 @@ const App = () => (
                 {/* Routes publiques pour les experts et réservations */}
                 <Route path="/experts" element={<ExpertsPage />} />
                 <Route path="/experts/:expertId" element={<ExpertDetailPage />} />
+                <Route path="/expert/:expertId" element={<ExpertDetailPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/bookings/new" element={
                   <AuthenticatedRoute>
