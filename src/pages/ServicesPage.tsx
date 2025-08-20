@@ -343,18 +343,12 @@ const ServicesPage = () => {
                 Nos experts sont à votre disposition pour vous offrir un service personnalisé 
                 et des résultats qui dépasseront vos attentes.
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <div className="flex justify-center">
                 <Link
-                  to="/professionals/male"
-                  className="bg-black border-2 border-[#FFD700] text-[#FFD700] px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-[#FFD700] hover:text-black hover:scale-105 hover:shadow-lg hover:shadow-[#FFD700]/30"
+                  to="/professionals"
+                  className="bg-[#FFD700] text-black px-12 py-4 rounded-xl font-bold text-xl transition-all duration-300 hover:bg-[#FFD700]/90 hover:scale-105 hover:shadow-lg hover:shadow-[#FFD700]/40"
                 >
-                  Nos Coiffeurs Experts
-                </Link>
-                <Link
-                  to="/professionals/female"
-                  className="bg-[#FFD700] text-black px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-[#FFD700]/90 hover:scale-105 hover:shadow-lg hover:shadow-[#FFD700]/40"
-                >
-                  Nos Coiffeuses Expertes
+                  NOS PROFESSIONNELS
                 </Link>
               </div>
             </div>
