@@ -102,7 +102,11 @@ const App = () => (
               <Routes>
                 {/* Routes publiques */}
                 <Route path="/" element={<Index />} />
-                <Route path="/services" element={<ServicesListPage />} />
+                <Route path="/services" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {React.createElement(React.lazy(() => import('./pages/ServicesPage')))}
+                  </Suspense>
+                } />
                 <Route path="/tarifs" element={
                   <Suspense fallback={<LoadingSpinner />}>
                     {React.createElement(React.lazy(() => import('./pages/TarifsPage')))}
