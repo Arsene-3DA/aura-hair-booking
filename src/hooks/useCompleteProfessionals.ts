@@ -45,6 +45,7 @@ export const useCompleteProfessionals = () => {
 
       if (user) {
         // Authenticated user - can access full data including contact info
+        // Join with profiles to filter only users with professional roles
         const { data, error } = await supabase
           .from('hairdressers')
           .select(`
@@ -64,10 +65,12 @@ export const useCompleteProfessionals = () => {
             location,
             gender,
             is_active,
-            working_hours
+            working_hours,
+            profiles!inner(role)
           `)
           .eq('is_active', true)
           .not('auth_id', 'is', null)
+          .in('profiles.role', ['coiffeur', 'coiffeuse', 'cosmetique'])
           .order('rating', { ascending: false });
         
         hairdressersData = data;
@@ -92,34 +95,43 @@ export const useCompleteProfessionals = () => {
       }
 
       // Récupérer les profils correspondants en une seule requête
+      // Filtrer uniquement les rôles professionnels
       const authIds = hairdressersData.map(h => h.auth_id).filter(Boolean);
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, full_name, avatar_url, role')
-        .in('user_id', authIds);
+        .in('user_id', authIds)
+        .in('role', ['coiffeur', 'coiffeuse', 'cosmetique']);
 
       if (profilesError) {
         console.warn('Erreur lors du chargement des profils:', profilesError);
         // Continue sans les données de profils
       }
 
-      // Mapper et enrichir les données
-      const enrichedProfessionals: CompleteProfessional[] = hairdressersData.map(hairdresser => {
-        const profile = profilesData?.find(p => p.user_id === hairdresser.auth_id);
-        
-        return {
-          ...hairdresser,
-          // Utiliser les données du profil en priorité
-          name: profile?.full_name || hairdresser.name,
-          image_url: profile?.avatar_url || hairdresser.image_url || '/placeholder.svg',
-          role: profile?.role || 'coiffeur',
-          // Garder les données originales aussi
-          full_name: profile?.full_name,
-          avatar_url: profile?.avatar_url,
-          specialties: hairdresser.specialties || [],
-          rating: hairdresser.rating || 5.0
-        };
-      });
+      // Mapper et enrichir les données - ne garder que ceux avec un profil professionnel
+      const enrichedProfessionals: CompleteProfessional[] = hairdressersData
+        .map(hairdresser => {
+          const profile = profilesData?.find(p => p.user_id === hairdresser.auth_id);
+          
+          // Ne garder que les professionnels avec un rôle professionnel valide
+          if (!profile || !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profile.role)) {
+            return null;
+          }
+          
+          return {
+            ...hairdresser,
+            // Utiliser les données du profil en priorité
+            name: profile?.full_name || hairdresser.name,
+            image_url: profile?.avatar_url || hairdresser.image_url || '/placeholder.svg',
+            role: profile?.role || 'coiffeur',
+            // Garder les données originales aussi
+            full_name: profile?.full_name,
+            avatar_url: profile?.avatar_url,
+            specialties: hairdresser.specialties || [],
+            rating: hairdresser.rating || 5.0
+          };
+        })
+        .filter(Boolean) as CompleteProfessional[];
 
       setProfessionals(enrichedProfessionals);
 
