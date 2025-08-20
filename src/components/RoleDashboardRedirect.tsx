@@ -18,8 +18,16 @@ const RoleDashboardRedirect = ({ children }: RoleDashboardRedirectProps) => {
     if (!loading && isAuthenticated && userProfile?.role) {
       const currentPath = window.location.pathname;
       
-      // Permettre l'accès à la page d'accueil pour tous les utilisateurs
-      if (currentPath === '/') {
+      // Pages publiques accessibles à tous
+      const publicPaths = ['/', '/professionals', '/services', '/tarifs', '/contact', '/auth', '/professionals/'];
+      
+      // Vérifier si on est sur une page publique
+      const isOnPublicPath = publicPaths.some(path => 
+        currentPath === path || currentPath.startsWith(path)
+      );
+      
+      // Ne pas rediriger si on est sur une page publique
+      if (isOnPublicPath) {
         return;
       }
       
@@ -31,7 +39,7 @@ const RoleDashboardRedirect = ({ children }: RoleDashboardRedirectProps) => {
           case 'coiffeur':
           case 'coiffeuse':
           case 'cosmetique':
-            return !currentPath.startsWith('/stylist');
+            return !currentPath.startsWith('/stylist') && !currentPath.startsWith('/professionals');
           case 'client':
             return !currentPath.startsWith('/app') && !currentPath.startsWith('/client');
           default:
@@ -40,7 +48,7 @@ const RoleDashboardRedirect = ({ children }: RoleDashboardRedirectProps) => {
       };
 
       if (shouldRedirect()) {
-        // Rediriger vers le dashboard approprié
+        // Rediriger vers le dashboard approprié seulement si pas sur une page publique
         switch (userProfile.role) {
           case 'admin':
             navigate('/admin', { replace: true });
