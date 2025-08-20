@@ -28,8 +28,14 @@ interface Professional {
 const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
-  const { user, userProfile, isAuthenticated } = useRoleAuth();
+  const {
+    toast
+  } = useToast();
+  const {
+    user,
+    userProfile,
+    isAuthenticated
+  } = useRoleAuth();
   const [showExperts, setShowExperts] = useState(false);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [loading, setLoading] = useState(false);
@@ -91,50 +97,47 @@ const Index = () => {
         return;
       }
       // Récupérer les données détaillées de chaque professionnel depuis la table hairdressers
-      const professionalsWithDetails = await Promise.all(
-        (data || []).map(async (item) => {
-          try {
-            const { data: hairdresserData } = await supabase
-              .from('hairdressers')
-              .select('*')
-              .eq('auth_id', item.user_id)
-              .single();
-
-            return {
-              id: item.user_id,
-              name: hairdresserData?.name || item.full_name || 'Nom non défini',
-              specialties: hairdresserData?.specialties || (item.role === 'cosmetique' ? ['Soins esthétiques', 'Cosmétique'] : ['Coiffure', 'Styling']),
-              rating: hairdresserData?.rating || 5.0, // Note par défaut de 5 étoiles
-              image_url: hairdresserData?.image_url || item.avatar_url || '/placeholder.svg',
-              experience: hairdresserData?.experience || 'Professionnel expérimenté',
-              location: hairdresserData?.salon_address || hairdresserData?.location || '', // Priorité à salon_address
-              gender: (hairdresserData?.gender || item.gender) as 'homme' | 'femme' | 'autre' | 'non_specifie',
-              email: hairdresserData?.email || '',
-              phone: hairdresserData?.phone || '',
-              is_active: hairdresserData?.is_active ?? true,
-              role: item.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
-            };
-          } catch (error) {
-            console.warn(`Impossible de récupérer les détails pour ${item.user_id}:`, error);
-            // Retourner les données minimales en cas d'erreur
-            return {
-              id: item.user_id,
-              name: item.full_name || 'Nom non défini',
-              specialties: item.role === 'cosmetique' ? ['Soins esthétiques', 'Cosmétique'] : ['Coiffure', 'Styling'],
-              rating: 5.0, // Note par défaut de 5 étoiles
-              image_url: item.avatar_url || '/placeholder.svg',
-              experience: 'Professionnel expérimenté',
-              location: '',
-              gender: item.gender as 'homme' | 'femme' | 'autre' | 'non_specifie',
-              email: '',
-              phone: '',
-              is_active: true,
-              role: item.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
-            };
-          }
-        })
-      );
-
+      const professionalsWithDetails = await Promise.all((data || []).map(async item => {
+        try {
+          const {
+            data: hairdresserData
+          } = await supabase.from('hairdressers').select('*').eq('auth_id', item.user_id).single();
+          return {
+            id: item.user_id,
+            name: hairdresserData?.name || item.full_name || 'Nom non défini',
+            specialties: hairdresserData?.specialties || (item.role === 'cosmetique' ? ['Soins esthétiques', 'Cosmétique'] : ['Coiffure', 'Styling']),
+            rating: hairdresserData?.rating || 5.0,
+            // Note par défaut de 5 étoiles
+            image_url: hairdresserData?.image_url || item.avatar_url || '/placeholder.svg',
+            experience: hairdresserData?.experience || 'Professionnel expérimenté',
+            location: hairdresserData?.salon_address || hairdresserData?.location || '',
+            // Priorité à salon_address
+            gender: (hairdresserData?.gender || item.gender) as 'homme' | 'femme' | 'autre' | 'non_specifie',
+            email: hairdresserData?.email || '',
+            phone: hairdresserData?.phone || '',
+            is_active: hairdresserData?.is_active ?? true,
+            role: item.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
+          };
+        } catch (error) {
+          console.warn(`Impossible de récupérer les détails pour ${item.user_id}:`, error);
+          // Retourner les données minimales en cas d'erreur
+          return {
+            id: item.user_id,
+            name: item.full_name || 'Nom non défini',
+            specialties: item.role === 'cosmetique' ? ['Soins esthétiques', 'Cosmétique'] : ['Coiffure', 'Styling'],
+            rating: 5.0,
+            // Note par défaut de 5 étoiles
+            image_url: item.avatar_url || '/placeholder.svg',
+            experience: 'Professionnel expérimenté',
+            location: '',
+            gender: item.gender as 'homme' | 'femme' | 'autre' | 'non_specifie',
+            email: '',
+            phone: '',
+            is_active: true,
+            role: item.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
+          };
+        }
+      }));
       const mappedProfessionals: Professional[] = professionalsWithDetails;
       setProfessionals(mappedProfessionals);
       if (mappedProfessionals.length === 0) {
@@ -165,10 +168,8 @@ const Index = () => {
     setProfessionals([]);
     setSelectedCategory(null);
   };
-  
   const getDashboardRedirect = () => {
     if (!userProfile?.role) return '/auth';
-    
     switch (userProfile.role) {
       case 'admin':
         return '/admin';
@@ -190,11 +191,7 @@ const Index = () => {
           {/* Header Section */}
           <section className="bg-black py-16 border-b border-[#FFD700]/20">
             <div className="container mx-auto px-4">
-              <Button 
-                variant="outline" 
-                onClick={handleBackToHome} 
-                className="mb-6 bg-transparent border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300"
-              >
+              <Button variant="outline" onClick={handleBackToHome} className="mb-6 bg-transparent border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Retour à l'accueil
               </Button>
@@ -245,8 +242,7 @@ const Index = () => {
         <HeroSection />
         
         {/* Section d'accès rapide pour les utilisateurs connectés */}
-        {isAuthenticated && userProfile && (
-          <section className="py-12 bg-[#1a1a1a] border-y border-[#FFD700]/20">
+        {isAuthenticated && userProfile && <section className="py-12 bg-[#1a1a1a] border-y border-[#FFD700]/20">
             <div className="container mx-auto px-4">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold mb-4 text-white">
@@ -258,27 +254,18 @@ const Index = () => {
               </div>
               
               <div className="flex justify-center gap-4">
-                <Button 
-                  onClick={() => navigate(getDashboardRedirect())} 
-                  className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 px-8 py-4 text-lg"
-                >
+                <Button onClick={() => navigate(getDashboardRedirect())} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 px-8 py-4 text-lg">
                   <Settings className="h-6 w-6 mr-3" />
                   Mon Dashboard
                 </Button>
                 
-                {userProfile.role === 'client' && (
-                  <Button 
-                    onClick={() => navigate('/app/bookings/new')} 
-                    className="bg-transparent border border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300 px-8 py-4 text-lg"
-                  >
+                {userProfile.role === 'client' && <Button onClick={() => navigate('/app/bookings/new')} className="bg-transparent border border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300 px-8 py-4 text-lg">
                     <Calendar className="h-6 w-6 mr-3" />
                     Nouvelle Réservation
-                  </Button>
-                )}
+                  </Button>}
               </div>
             </div>
-          </section>
-        )}
+          </section>}
         
         <ServicesSection />
         
@@ -381,16 +368,13 @@ const Index = () => {
                       Disponibles aujourd'hui
                     </div>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white">
-                    Voir nos experts
-                  </Button>
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white">Cosmétique</Button>
                 </div>
               </div>
             </div>
 
             {/* Section pour les professionnels - masquée si utilisateur connecté */}
-            {!isAuthenticated && (
-              <div className="text-center mt-16">
+            {!isAuthenticated && <div className="text-center mt-16">
                 <div className="bg-[#1a1a1a] border border-[#FFD700]/30 rounded-lg p-6 max-w-md mx-auto">
                   <h3 className="text-lg font-semibold text-white mb-2">
                     Vous êtes un professionnel ?
@@ -402,8 +386,7 @@ const Index = () => {
                     Connexion Professionnelle
                   </Button>
                 </div>
-              </div>
-            )}
+              </div>}
           </div>
         </section>
 
