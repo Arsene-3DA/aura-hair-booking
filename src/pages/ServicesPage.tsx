@@ -39,55 +39,55 @@ const ServicesPage = () => {
 
   const getServiceImage = (serviceName: string, category: string) => {
     const imageMap: { [key: string]: string } = {
-      // Coupes - Images spécifiques pour chaque type de coupe
-      'Coupe Homme': 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Coupe Femme': 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Dégradé': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
+      // Coupes - Images fiables testées
+      'Coupe Homme': 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=500&h=400&q=80',
+      'Coupe Femme': 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?auto=format&fit=crop&w=500&h=400&q=80',
+      'Dégradé': 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=500&h=400&q=80',
       
-      // Barbe - Images professionnelles de barbier
-      'Barbe': 'https://images.unsplash.com/photo-1511018797779-3bc6fb8d7db3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Rasage Traditionnel': 'https://images.unsplash.com/photo-1585747065706-d3d2b6b11aa6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Barbe Sculptée': 'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
+      // Barbe - Images de barbier professionnelles
+      'Barbe': 'https://images.unsplash.com/photo-1511018797779-3bc6fb8d7db3?auto=format&fit=crop&w=500&h=400&q=80',
+      'Rasage Traditionnel': 'https://images.unsplash.com/photo-1585747065706-d3d2b6b11aa6?auto=format&fit=crop&w=500&h=400&q=80',
+      'Barbe Sculptée': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&h=400&q=80',
       
-      // Couleur - Images de coloration professionnelle
-      'Coloration': 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Mèches': 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Balayage': 'https://images.unsplash.com/photo-1594736797933-d0200ba5bfe1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Coloration Fantaisie': 'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
+      // Couleur - Images de coloration
+      'Coloration': 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&w=500&h=400&q=80',
+      'Mèches': 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=500&h=400&q=80',
+      'Balayage': 'https://images.unsplash.com/photo-1594736797933-d0200ba5bfe1?auto=format&fit=crop&w=500&h=400&q=80',
+      'Coloration Fantaisie': 'https://images.unsplash.com/photo-1604902396830-aca29e19b067?auto=format&fit=crop&w=500&h=400&q=80',
       
       // Soins - Images de soins capillaires
-      'Soin Capillaire': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Massage Cuir Chevelu': 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
+      'Soin Capillaire': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=500&h=400&q=80',
+      'Massage Cuir Chevelu': 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?auto=format&fit=crop&w=500&h=400&q=80',
       
-      // Coiffage - Images de coiffage et styling
-      'Extensions': 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Chignon': 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Styling': 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
+      // Coiffage - Images de styling
+      'Extensions': 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=500&h=400&q=80',
+      'Chignon': 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=500&h=400&q=80',
+      'Styling': 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=500&h=400&q=80',
       
-      // Traitements - Images de traitements professionnels
-      'Permanente': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Lissage': 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
+      // Traitements - Images de traitements
+      'Permanente': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=500&h=400&q=80',
+      'Lissage': 'https://images.unsplash.com/photo-1520637836862-4d197d17c50a?auto=format&fit=crop&w=500&h=400&q=80',
       
-      // Conseil - Images de consultation beauté
-      'Relooking': 'https://images.unsplash.com/photo-1522337662859-02fbefca4702?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400',
-      'Conseil': 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&h=400'
+      // Conseil - Images de consultation
+      'Relooking': 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=500&h=400&q=80',
+      'Conseil': 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=500&h=400&q=80'
     };
 
-    // Si une image exacte existe pour ce service, l'utiliser
+    // Retourner l'image spécifique ou une image par catégorie
     if (imageMap[serviceName]) {
       return imageMap[serviceName];
     }
 
-    // Sinon, utiliser une image par défaut selon la catégorie
+    // Images par défaut pour chaque catégorie
     const categoryDefaults: { [key: string]: string } = {
-      'Coupe': 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?w=500&h=400&fit=crop&auto=format',
-      'Couleur': 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=500&h=400&fit=crop&auto=format',
-      'Barbe': 'https://images.unsplash.com/photo-1511018797779-3bc6fb8d7db3?w=500&h=400&fit=crop&auto=format',
-      'Soin': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500&h=400&fit=crop&auto=format',
-      'Coiffage': 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=500&h=400&fit=crop&auto=format',
-      'Traitement': 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=500&h=400&fit=crop&auto=format',
-      'Conseil': 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=500&h=400&fit=crop&auto=format',
-      'Autre': 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?w=500&h=400&fit=crop&auto=format'
+      'Coupe': 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?auto=format&fit=crop&w=500&h=400&q=80',
+      'Couleur': 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&w=500&h=400&q=80',
+      'Barbe': 'https://images.unsplash.com/photo-1511018797779-3bc6fb8d7db3?auto=format&fit=crop&w=500&h=400&q=80',
+      'Soin': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=500&h=400&q=80',
+      'Coiffage': 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=500&h=400&q=80',
+      'Traitement': 'https://images.unsplash.com/photo-1520637836862-4d197d17c50a?auto=format&fit=crop&w=500&h=400&q=80',
+      'Conseil': 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=500&h=400&q=80',
+      'Autre': 'https://images.unsplash.com/photo-1560869713-7d0954b04f2d?auto=format&fit=crop&w=500&h=400&q=80'
     };
 
     return categoryDefaults[category] || categoryDefaults['Autre'];
