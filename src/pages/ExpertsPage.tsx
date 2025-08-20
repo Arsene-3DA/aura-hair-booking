@@ -8,22 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, MapPin, Calendar, Scissors, Palette, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { useCompleteProfessionals, CompleteProfessional } from '@/hooks/useCompleteProfessionals';
 import { useProfessionalServices } from '@/hooks/useProfessionalServices';
 import PageHeader from '@/components/PageHeader';
 
-interface Professional {
-  id: string;
-  name: string;
-  specialties: string[];
-  rating: number;
-  image_url: string;
-  experience: string;
-  location: string;
-  auth_id: string;
-  role: string;
-}
-
-const ProfessionalCard = ({ professional }: { professional: Professional }) => {
+const ProfessionalCard = ({ professional }: { professional: CompleteProfessional }) => {
   const { services } = useProfessionalServices(professional.auth_id, true);
   
   return (
@@ -101,10 +90,10 @@ const ProfessionalCard = ({ professional }: { professional: Professional }) => {
         )}
 
         {/* Localisation */}
-        {professional.location && (
+        {(professional.location || professional.salon_address) && (
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
             <MapPin className="h-4 w-4" />
-            <span className="truncate">{professional.location}</span>
+            <span className="truncate">{professional.salon_address || professional.location}</span>
           </div>
         )}
 
@@ -143,56 +132,8 @@ const ProfessionalCard = ({ professional }: { professional: Professional }) => {
 const ExpertsPage = () => {
   const [selectedTab, setSelectedTab] = useState('coiffeur');
 
-  const { data: professionals = [], isLoading } = useQuery({
-    queryKey: ['professionals'],
-    queryFn: async () => {
-      // Récupérer tous les hairdressers actifs (business info only for public)
-      const { data, error } = await supabase
-        .from('hairdressers_public')
-        .select(`
-          id,
-          auth_id,
-          name,
-          specialties,
-          rating,
-          experience,
-          location,
-          salon_address,
-          image_url,
-          is_active
-        `)
-        .eq('is_active', true);
-
-      if (error) throw error;
-
-      // Récupérer les rôles correspondants
-      const authIds = (data || []).map(h => h.auth_id).filter(Boolean);
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('user_id, role')
-        .in('user_id', authIds)
-        .in('role', ['coiffeur', 'coiffeuse', 'cosmetique']);
-
-      const roleMap = (profilesData || []).reduce((acc, profile) => {
-        acc[profile.user_id] = profile.role;
-        return acc;
-      }, {} as Record<string, string>);
-
-      return (data || [])
-        .filter(item => item.auth_id && roleMap[item.auth_id])
-        .map(item => ({
-          id: item.id,
-          name: item.name,
-          specialties: item.specialties || [],
-          rating: item.rating || 5.0, // Note par défaut de 5 étoiles
-          image_url: item.image_url || '/placeholder.svg',
-          experience: item.experience || '',
-          location: item.salon_address || item.location || '', // Priorité à salon_address
-          auth_id: item.auth_id,
-          role: roleMap[item.auth_id] || 'coiffeur'
-        }));
-    }
-  });
+  // Utiliser le hook qui fonctionne correctement
+  const { professionals, loading: isLoading } = useCompleteProfessionals();
 
   const filteredProfessionals = professionals.filter(p => p.role === selectedTab);
 
