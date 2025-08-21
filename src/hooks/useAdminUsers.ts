@@ -43,23 +43,40 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         console.warn('Warning fetching profiles:', profilesError);
       }
       
-      // Transformer les données en utilisant users comme source principale
-      const transformedUsers = usersData?.map(userRecord => {
-        const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
-        
-        return {
-          id: userRecord.id,
-          auth_id: userRecord.auth_id,
-          email: userRecord.email || 'N/A',
-          nom: userRecord.nom || profile?.full_name?.split(' ')[0] || 'N/A',
-          prenom: userRecord.prenom || profile?.full_name?.split(' ').slice(1).join(' ') || 'N/A',
-          role: userRecord.role || profile?.role || 'client',
-          status: userRecord.status || 'actif',
-          created_at: userRecord.created_at,
-          updated_at: userRecord.updated_at,
-          telephone: userRecord.telephone || null
-        };
-      }) || [];
+      // Filtrer et transformer les données - uniquement les professionnels validés
+      const transformedUsers = usersData
+        ?.filter(userRecord => {
+          const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
+          
+          // Exclure les comptes de test
+          const isTestAccount = userRecord.email?.includes('test') || 
+                               userRecord.email?.includes('demo') ||
+                               userRecord.nom?.toLowerCase().includes('test') ||
+                               userRecord.prenom?.toLowerCase().includes('test');
+          
+          // Vérifier que c'est un professionnel avec un profil complet
+          const isProfessional = ['coiffeur', 'coiffeuse', 'cosmetique'].includes(userRecord.role || profile?.role);
+          const hasCompleteProfile = profile?.full_name && userRecord.email && userRecord.nom && userRecord.prenom;
+          const isActive = userRecord.status === 'actif';
+          
+          return !isTestAccount && isProfessional && hasCompleteProfile && isActive;
+        })
+        ?.map(userRecord => {
+          const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
+          
+          return {
+            id: userRecord.id,
+            auth_id: userRecord.auth_id,
+            email: userRecord.email || 'N/A',
+            nom: userRecord.nom || profile?.full_name?.split(' ')[0] || 'N/A',
+            prenom: userRecord.prenom || profile?.full_name?.split(' ').slice(1).join(' ') || 'N/A',
+            role: userRecord.role || profile?.role || 'client',
+            status: userRecord.status || 'actif',
+            created_at: userRecord.created_at,
+            updated_at: userRecord.updated_at,
+            telephone: userRecord.telephone || null
+          };
+        }) || [];
       
       setUsers(transformedUsers);
       console.log('Admin users fetched:', transformedUsers.length, 'users');
