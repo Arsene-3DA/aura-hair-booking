@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAdminUsersSecure } from '@/hooks/useAdminUsersSecure';
+import { useAdminUsers } from '@/hooks/useAdminUsers';
 import { useDynamicRoleManagement } from '@/hooks/useDynamicRoleManagement';
 import RoleChangeModal from '@/components/RoleChangeModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,7 +46,7 @@ import { usePromoteToAdmin } from '@/hooks/usePromoteToAdmin';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const Users = () => {
-  const { users, loading, error, promoteUser, suspendUser, resetPassword, refetch } = useAdminUsersSecure();
+  const { users, loading, error, promoteUser, suspendUser, resetPassword, refetch } = useAdminUsers();
   const { promoteToAdmin } = usePromoteToAdmin();
   const { changeUserRole, loading: roleChangeLoading } = useDynamicRoleManagement();
   const [searchTerm, setSearchTerm] = useState('');
