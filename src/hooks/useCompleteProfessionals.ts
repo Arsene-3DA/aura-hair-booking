@@ -43,13 +43,10 @@ export const useCompleteProfessionals = () => {
       let hairdressersData;
       let hairdressersError;
 
-      console.log('🌐 Chargement UNIVERSEL des professionnels - accessible à tous');
+      console.log('🌐 Chargement SÉCURISÉ des professionnels - données publiques protégées');
       
-      // NOUVEAU : Utiliser la vue professionals_public pour un accès public optimisé
-      const { data, error } = await supabase
-        .from('professionals_public')
-        .select('*')
-        .order('rating', { ascending: false });
+      // Utiliser la fonction sécurisée qui masque les informations de contact
+      const { data, error } = await supabase.rpc('get_public_hairdresser_data_secure');
       
       hairdressersData = data;
       hairdressersError = error;

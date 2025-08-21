@@ -53,101 +53,74 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
         setLoading(true);
         setError(null);
 
-        // First try to get data by ID (hairdresser ID, not auth_id)
-        const { data: fullDataById, error: fullErrorById } = await supabase
-          .from('hairdressers')
-          .select(`
-            id,
-            name,
-            email,
-            phone,
-            specialties,
-            rating,
-            image_url,
-            experience,
-            location,
-            salon_address,
-            bio,
-            website,
-            instagram,
-            working_hours,
-            auth_id,
-            is_active
-          `)
-          .eq('id', hairdresserId) // Try by ID first
-          .eq('is_active', true)
-          .single();
+        // Use the secure function to get safe public data
+        const { data: safeData, error: safeError } = await supabase.rpc('get_public_hairdresser_data_secure');
 
-        if (!fullErrorById && fullDataById) {
-          // Found by ID - get profile data using auth_id
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('role, avatar_url, full_name')
-            .eq('user_id', fullDataById.auth_id)
-            .single();
+        if (safeError) {
+          throw safeError;
+        }
 
-          setHairdresser({
-            ...fullDataById,
-            role: profileData?.role || 'coiffeur',
-            image_url: profileData?.avatar_url || fullDataById.image_url || '/placeholder.svg',
-            name: profileData?.full_name || fullDataById.name || 'Professionnel',
-            specialties: fullDataById.specialties || [],
-            experience: fullDataById.experience || '',
-            location: fullDataById.location || fullDataById.salon_address || '',
-            canViewContact: false // Default to false for public view
-          });
+        // Find the specific hairdresser by ID or auth_id
+        let targetHairdresser = null;
+        if (safeData && Array.isArray(safeData)) {
+          targetHairdresser = safeData.find(h => h.id === hairdresserId || h.auth_id === hairdresserId);
+        }
+
+        if (!targetHairdresser) {
+          setError('Professionnel non trouvé');
+          setHairdresser(null);
           return;
         }
 
-        // Fallback: try by auth_id (for backward compatibility)
-        const { data: fullData, error: fullError } = await supabase
-          .from('hairdressers')
-          .select(`
-            id,
-            name,
-            email,
-            phone,
-            specialties,
-            rating,
-            image_url,
-            experience,
-            location,
-            salon_address,
-            bio,
-            website,
-            instagram,
-            working_hours,
-            auth_id,
-            is_active
-          `)
-          .eq('auth_id', hairdresserId)
-          .eq('is_active', true)
+        // Get profile data using auth_id
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('role, avatar_url, full_name')
+          .eq('user_id', targetHairdresser.auth_id)
           .single();
 
-        if (!fullError && fullData) {
-          // User has access to contact info
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('role, avatar_url, full_name')
-            .eq('user_id', hairdresserId)
-            .single();
+        // Check if user has access to contact info (admin, own profile, or has confirmed booking)
+        let contactInfo = null;
+        const currentUser = session?.user;
+        const hasContactAccess = currentUser && (
+          // User is viewing their own profile
+          currentUser.id === targetHairdresser.auth_id ||
+          // Admin access (would need to check role)
+          false || // Placeholder for admin check
+          // Has confirmed booking with this stylist
+          false // Placeholder for booking check
+        );
 
-          setHairdresser({
-            ...fullData,
-            role: profileData?.role || 'coiffeur',
-            image_url: profileData?.avatar_url || fullData.image_url || '/placeholder.svg',
-            name: profileData?.full_name || fullData.name || 'Professionnel',
-            specialties: fullData.specialties || [],
-            experience: fullData.experience || '',
-            location: fullData.location || fullData.salon_address || '',
-            canViewContact: false // Default to false for public view
-          });
-          return;
+        if (hasContactAccess) {
+          try {
+            const { data: fullData } = await supabase
+              .from('hairdressers')
+              .select('email, phone')
+              .eq('id', targetHairdresser.id)
+              .single();
+            
+            if (fullData) {
+              contactInfo = {
+                email: fullData.email,
+                phone: fullData.phone
+              };
+            }
+          } catch (contactError) {
+            console.log('Contact info not accessible:', contactError);
+          }
         }
 
-        // If both methods fail, set error
-        setError('Professionnel non trouvé');
-        setHairdresser(null);
+        setHairdresser({
+          ...targetHairdresser,
+          ...contactInfo,
+          role: profileData?.role || 'coiffeur',
+          image_url: profileData?.avatar_url || targetHairdresser.image_url || '/placeholder.svg',
+          name: profileData?.full_name || targetHairdresser.name || 'Professionnel',
+          specialties: targetHairdresser.specialties || [],
+          experience: targetHairdresser.experience || '',
+          location: targetHairdresser.location || targetHairdresser.salon_address || '',
+          canViewContact: Boolean(hasContactAccess)
+        });
       } catch (err: any) {
         console.error('Error fetching hairdresser data:', err);
         setError(err.message || 'Erreur lors du chargement des données');

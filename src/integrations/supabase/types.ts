@@ -226,6 +226,13 @@ export type Database = {
             foreignKeyName: "contact_requests_hairdresser_id_fkey"
             columns: ["hairdresser_id"]
             isOneToOne: false
+            referencedRelation: "hairdressers_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_requests_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
             referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
@@ -263,6 +270,13 @@ export type Database = {
             columns: ["hairdresser_id"]
             isOneToOne: false
             referencedRelation: "hairdressers_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hairdresser_services_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers_public_safe"
             referencedColumns: ["id"]
           },
           {
@@ -841,6 +855,13 @@ export type Database = {
             foreignKeyName: "stylist_schedule_stylist_id_fkey"
             columns: ["stylist_id"]
             isOneToOne: false
+            referencedRelation: "hairdressers_public_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stylist_schedule_stylist_id_fkey"
+            columns: ["stylist_id"]
+            isOneToOne: false
             referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
@@ -948,6 +969,66 @@ export type Database = {
     }
     Views: {
       hairdressers_public: {
+        Row: {
+          auth_id: string | null
+          bio: string | null
+          created_at: string | null
+          experience: string | null
+          gender: string | null
+          id: string | null
+          image_url: string | null
+          instagram: string | null
+          is_active: boolean | null
+          location: string | null
+          name: string | null
+          rating: number | null
+          salon_address: string | null
+          specialties: string[] | null
+          updated_at: string | null
+          website: string | null
+          working_hours: Json | null
+        }
+        Insert: {
+          auth_id?: string | null
+          bio?: string | null
+          created_at?: string | null
+          experience?: string | null
+          gender?: string | null
+          id?: string | null
+          image_url?: string | null
+          instagram?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          name?: string | null
+          rating?: number | null
+          salon_address?: string | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          website?: string | null
+          working_hours?: Json | null
+        }
+        Update: {
+          auth_id?: string | null
+          bio?: string | null
+          created_at?: string | null
+          experience?: string | null
+          gender?: string | null
+          id?: string | null
+          image_url?: string | null
+          instagram?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          name?: string | null
+          rating?: number | null
+          salon_address?: string | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          website?: string | null
+          working_hours?: Json | null
+        }
+        Relationships: []
+      }
+      hairdressers_public_safe: {
         Row: {
           auth_id: string | null
           bio: string | null
@@ -1259,6 +1340,7 @@ export type Database = {
       get_public_hairdresser_data_secure: {
         Args: Record<PropertyKey, never>
         Returns: {
+          auth_id: string
           bio: string
           created_at: string
           gender: string
@@ -1269,6 +1351,8 @@ export type Database = {
           location: string
           name: string
           rating: number
+          salon_address: string
+          specialties: string[]
           updated_at: string
           website: string
           working_hours: Json
