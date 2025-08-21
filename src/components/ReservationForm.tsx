@@ -204,7 +204,25 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     e.preventDefault();
     setLoading(true);
 
+    console.log('🚀 Début de la soumission avec données:', {
+      formData,
+      hairdresserId,
+      isGuestBooking: !isAuthenticated || !user,
+      user: !!user
+    });
+
     try {
+      // Validation des champs obligatoires
+      if (!formData.clientName.trim() || !formData.clientEmail.trim() || !formData.date || !formData.time) {
+        toast({
+          title: "Erreur",
+          description: "Veuillez remplir tous les champs obligatoires.",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
       // Permettre les réservations d'invités (pas besoin d'être connecté)
       const isGuestBooking = !isAuthenticated || !user;
 
@@ -237,8 +255,34 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
         return;
       }
 
-      // Créer la date complète
-      const localDateTime = new Date(`${formData.date}T${formData.time}:00`);
+      // Validation et création de la date complète
+      if (!formData.date || !formData.time) {
+        toast({
+          title: "Erreur",
+          description: "Date et heure obligatoires.",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Créer la date complète avec validation
+      const dateTimeString = `${formData.date}T${formData.time}:00`;
+      const localDateTime = new Date(dateTimeString);
+      
+      // Vérifier que la date est valide
+      if (isNaN(localDateTime.getTime())) {
+        console.error('❌ Date invalide:', { date: formData.date, time: formData.time, dateTimeString });
+        toast({
+          title: "Erreur",
+          description: "Date ou heure invalide. Veuillez vérifier vos sélections.",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      console.log('✅ Date créée:', { dateTimeString, localDateTime: localDateTime.toISOString() });
       
       let data, error;
       
