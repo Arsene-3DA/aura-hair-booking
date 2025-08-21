@@ -43,23 +43,11 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         console.warn('Warning fetching profiles:', profilesError);
       }
       
-      // Filtrer et transformer les données - uniquement les professionnels validés
+      // Transformer les données pour afficher TOUS les utilisateurs ayant un compte
       const transformedUsers = usersData
         ?.filter(userRecord => {
-          const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
-          
-          // Exclure les comptes de test
-          const isTestAccount = userRecord.email?.includes('test') || 
-                               userRecord.email?.includes('demo') ||
-                               userRecord.nom?.toLowerCase().includes('test') ||
-                               userRecord.prenom?.toLowerCase().includes('test');
-          
-          // Vérifier que c'est un professionnel avec un profil complet
-          const isProfessional = ['coiffeur', 'coiffeuse', 'cosmetique'].includes(userRecord.role || profile?.role);
-          const hasCompleteProfile = profile?.full_name && userRecord.email && userRecord.nom && userRecord.prenom;
-          const isActive = userRecord.status === 'actif';
-          
-          return !isTestAccount && isProfessional && hasCompleteProfile && isActive;
+          // Exclure seulement les comptes sans email valide
+          return userRecord.email && userRecord.email !== '';
         })
         ?.map(userRecord => {
           const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
