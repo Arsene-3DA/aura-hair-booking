@@ -43,44 +43,16 @@ export const useCompleteProfessionals = () => {
       let hairdressersData;
       let hairdressersError;
 
-      if (user) {
-        // Authenticated user - can access full data including contact info
-        console.log('🔓 Utilisateur connecté - chargement complet des professionnels');
-        const { data, error } = await supabase
-          .from('hairdressers')
-          .select(`
-            id,
-            auth_id,
-            name,
-            email,
-            phone,
-            salon_address,
-            bio,
-            website,
-            instagram,
-            specialties,
-            rating,
-            image_url,
-            experience,
-            location,
-            gender,
-            is_active,
-            working_hours
-          `)
-          .eq('is_active', true)
-          .order('rating', { ascending: false });
-        
-        hairdressersData = data;
-        hairdressersError = error;
-      } else {
-        // Unauthenticated user - use secure function that only returns business info (no email/phone)
-        console.log('🔒 Utilisateur non connecté - chargement public des professionnels');
-        const { data, error } = await supabase
-          .rpc('get_public_hairdresser_data');
-        
-        hairdressersData = data;
-        hairdressersError = error;
-      }
+      console.log('🌐 Chargement UNIVERSEL des professionnels - accessible à tous');
+      
+      // NOUVEAU : Utiliser la vue professionals_public pour un accès public optimisé
+      const { data, error } = await supabase
+        .from('professionals_public')
+        .select('*')
+        .order('rating', { ascending: false });
+      
+      hairdressersData = data;
+      hairdressersError = error;
 
       if (hairdressersError) {
         throw hairdressersError;
@@ -91,51 +63,28 @@ export const useCompleteProfessionals = () => {
         return;
       }
 
-      // Récupérer les profils correspondants en une seule requête pour enrichir les données
-      const authIds = hairdressersData.map(h => h.auth_id).filter(Boolean);
-      let profilesData = [];
-      if (authIds.length > 0) {
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, avatar_url, role')
-          .in('user_id', authIds);
-
-        if (profilesError) {
-          console.warn('Erreur lors du chargement des profils:', profilesError);
-        } else {
-          profilesData = profiles || [];
-        }
-      }
-
-      // Mapper et enrichir les données - inclure tous les professionnels actifs
+      // Enrichir les données depuis professionals_public (déjà filtrées)
       const enrichedProfessionals: CompleteProfessional[] = hairdressersData
-        .map(hairdresser => {
-          const profile = profilesData?.find(p => p.user_id === hairdresser.auth_id);
-          
-          // Inclure TOUS les professionnels actifs :
-          // 1. Professionnels avec compte et rôle professionnel
-          // 2. Professionnels sans compte (ajoutés manuellement)
-          const isProfessionalWithAccount = hairdresser.auth_id && profile && ['coiffeur', 'coiffeuse', 'cosmetique'].includes(profile.role);
-          const isProfessionalWithoutAccount = !hairdresser.auth_id; // Ajouté manuellement
-          
-          if (!isProfessionalWithAccount && !isProfessionalWithoutAccount) {
-            return null; // Exclure seulement ceux avec compte mais sans rôle professionnel
-          }
-          
-          return {
-            ...hairdresser,
-            // Utiliser les données du profil en priorité
-            name: profile?.full_name || hairdresser.name,
-            image_url: profile?.avatar_url || hairdresser.image_url || '/placeholder.svg',
-            role: profile?.role || 'coiffeur',
-            // Garder les données originales aussi
-            full_name: profile?.full_name,
-            avatar_url: profile?.avatar_url,
-            specialties: hairdresser.specialties || [],
-            rating: hairdresser.rating || 5.0
-          };
-        })
-        .filter(Boolean) as CompleteProfessional[];
+        .map(professional => ({
+          id: professional.id,
+          auth_id: professional.auth_id || professional.id, // Fallback pour compatibilité
+          name: professional.name,
+          email: user ? professional.email : undefined, // Email seulement si connecté
+          phone: user ? professional.phone : undefined, // Téléphone seulement si connecté
+          salon_address: professional.location,
+          bio: professional.bio,
+          website: professional.website,
+          instagram: professional.instagram,
+          specialties: professional.specialties || [],
+          rating: professional.rating || 5.0,
+          image_url: professional.image_url || '/placeholder.svg',
+          experience: professional.experience,
+          location: professional.location,
+          gender: professional.gender,
+          is_active: professional.is_active,
+          working_hours: professional.working_hours,
+          role: professional.professional_type || 'coiffeur'
+        }));
 
       setProfessionals(enrichedProfessionals);
 
