@@ -46,12 +46,13 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       // Transformer les données pour correspondre à l'interface User attendue
       const transformedUsers = profilesData?.map(profile => {
         const userRecord = usersData?.find(u => u.auth_id === profile.user_id);
+        
         return {
           id: profile.id,
           auth_id: profile.user_id,
-          email: profile.full_name || 'N/A',
-          nom: profile.full_name?.split(' ')[0] || 'N/A',
-          prenom: profile.full_name?.split(' ').slice(1).join(' ') || 'N/A',
+          email: userRecord?.email || 'N/A',
+          nom: userRecord?.nom || profile.full_name?.split(' ')[0] || 'N/A',
+          prenom: userRecord?.prenom || profile.full_name?.split(' ').slice(1).join(' ') || 'N/A',
           role: profile.role,
           status: userRecord?.status || 'actif',
           created_at: profile.created_at,
@@ -72,9 +73,15 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
 
   const promoteUser = async (userId: string, newRole: string) => {
     try {
-      // SECURITY FIX: Use the secure role change function
+      // Find the user's auth_id from our users array
+      const user = users.find(u => u.id === userId);
+      if (!user) {
+        throw new Error('Utilisateur non trouvé');
+      }
+
+      // SECURITY FIX: Use the secure role change function with auth_id
       const { data, error } = await supabase.rpc('secure_change_user_role', {
-        target_user_id: userId,
+        target_user_id: user.auth_id,
         new_role: newRole
       });
 
