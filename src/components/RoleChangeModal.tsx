@@ -88,9 +88,15 @@ const RoleChangeModal: React.FC<RoleChangeModalProps> = ({
     const result = await changeUserRole(user.auth_id, selectedRole);
     
     if (result.success) {
+      // Déclencher immédiatement la mise à jour
       onRoleChanged();
       onClose();
       setSelectedRole('');
+      
+      // Force une mise à jour supplémentaire après un court délai
+      setTimeout(() => {
+        onRoleChanged();
+      }, 500);
     }
   };
 

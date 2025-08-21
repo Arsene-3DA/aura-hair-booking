@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@/hooks/useUsers';
+import { User, UserRole } from '@/hooks/useUsers';
 
 interface UseAdminUsersReturn {
   users: User[];
@@ -66,6 +66,13 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         throw new Error('Utilisateur non trouvé');
       }
 
+      // OPTIMISTIC UPDATE: Update local state immediately
+      setUsers(prev => 
+        prev.map(u => 
+          u.id === userId ? { ...u, role: newRole as UserRole } : u
+        )
+      );
+
       // SECURITY FIX: Use the secure role change function with auth_id
       const { data, error } = await supabase.rpc('secure_change_user_role', {
         target_user_id: user.auth_id,
@@ -74,17 +81,31 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
 
       if (error) {
         console.error('Error promoting user:', error);
+        // Revert optimistic update on error
+        setUsers(prev => 
+          prev.map(u => 
+            u.id === userId ? { ...u, role: user.role } : u
+          )
+        );
         throw new Error(error.message || 'Impossible de modifier le rôle de l\'utilisateur');
       }
 
       const result = data as { success: boolean; message?: string; error?: string };
       
       if (!result.success) {
+        // Revert optimistic update on failure
+        setUsers(prev => 
+          prev.map(u => 
+            u.id === userId ? { ...u, role: user.role } : u
+          )
+        );
         throw new Error(result.error || 'Changement de rôle échoué');
       }
 
-      // Refetch data to ensure consistency
-      await fetchUsers();
+      // Confirm the change worked by refetching after a short delay
+      setTimeout(() => {
+        fetchUsers();
+      }, 1000);
       
     } catch (error) {
       throw error;

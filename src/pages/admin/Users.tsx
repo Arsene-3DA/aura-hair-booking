@@ -73,7 +73,8 @@ const Users = () => {
   };
 
   const handleRoleChanged = () => {
-    refetch(); // Recharger la liste des utilisateurs
+    // Force immédiatement le refetch des données
+    refetch();
   };
 
   const handlePromoteUser = async (userId: string, newRole: string) => {
