@@ -69,10 +69,17 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
           
           const hasValidEmail = userRecord.email && userRecord.email.trim() !== '';
           
-          console.log(`User ${userRecord.email}: isDemoAccount=${isDemoAccount}, hasValidEmail=${hasValidEmail}`);
+          // Récupérer le profil associé pour vérifier le rôle
+          const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
+          const userRole = userRecord.role || profile?.role;
           
-          // Garder TOUS les vrais comptes avec un email valide
-          return !isDemoAccount && hasValidEmail;
+          // Ne garder que les comptes de professionnels et clients réels
+          const isRealUserAccount = userRole && ['client', 'coiffeur', 'coiffeuse', 'cosmetique'].includes(userRole);
+          
+          console.log(`User ${userRecord.email}: isDemoAccount=${isDemoAccount}, hasValidEmail=${hasValidEmail}, role=${userRole}, isRealUserAccount=${isRealUserAccount}`);
+          
+          // Garder uniquement les vrais comptes professionnels/clients avec email valide
+          return !isDemoAccount && hasValidEmail && isRealUserAccount;
         })
         ?.map(userRecord => {
           const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
