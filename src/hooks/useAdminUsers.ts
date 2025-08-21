@@ -44,6 +44,9 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       }
       
       // Transformer les données pour afficher TOUS les vrais comptes utilisateurs
+      console.log('Raw users data:', usersData?.length, 'users');
+      console.log('Users data:', usersData?.map(u => ({ email: u.email, nom: u.nom, prenom: u.prenom })));
+      
       const transformedUsers = usersData
         ?.filter(userRecord => {
           // Exclure uniquement les comptes de démonstration évidents
@@ -53,8 +56,12 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
                                userRecord.prenom?.toLowerCase().includes('demo') ||
                                (userRecord.nom?.toLowerCase() === 'test' && userRecord.prenom?.toLowerCase() === 'test');
           
+          const hasValidEmail = userRecord.email && userRecord.email.trim() !== '';
+          
+          console.log(`User ${userRecord.email}: isDemoAccount=${isDemoAccount}, hasValidEmail=${hasValidEmail}`);
+          
           // Garder TOUS les vrais comptes avec un email valide, même les comptes 'test' réels
-          return !isDemoAccount && userRecord.email && userRecord.email.trim() !== '';
+          return !isDemoAccount && hasValidEmail;
         })
         ?.map(userRecord => {
           const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
@@ -74,7 +81,8 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         }) || [];
       
       setUsers(transformedUsers);
-      console.log('Admin users fetched:', transformedUsers.length, 'users');
+      console.log('Filtered admin users:', transformedUsers.length, 'users');
+      console.log('Transformed users:', transformedUsers.map(u => ({ email: u.email, nom: u.nom, prenom: u.prenom, role: u.role })));
     } catch (err) {
       console.error('Unexpected error:', err);
       setError('Une erreur inattendue est survenue');
