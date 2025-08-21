@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAvailability } from '@/hooks/useAvailability';
+import { formatTimeToFrench, convertFrenchTimeToStandard } from '@/utils/timeFormatter';
 import { Clock } from 'lucide-react';
 
 interface TimeSlotGridProps {
@@ -25,12 +26,12 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
     for (let hour = 9; hour <= 21; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         if (hour === 21 && minute === 30) break; // Stop at 21:30
-        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        const time = formatTimeToFrench(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
         
         // Check if this slot has availability data
         const availability = availabilities.find(av => {
           const avDate = new Date(av.start_at);
-          const avTime = `${avDate.getHours().toString().padStart(2, '0')}:${avDate.getMinutes().toString().padStart(2, '0')}`;
+          const avTime = formatTimeToFrench(`${avDate.getHours().toString().padStart(2, '0')}:${avDate.getMinutes().toString().padStart(2, '0')}`);
           return avTime === time && 
                  avDate.toDateString() === selectedDate.toDateString();
         });
@@ -66,7 +67,9 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
     }
 
     // Update availability in database
-    const [hours, minutes] = time.split(':').map(Number);
+    // Convertir le format français vers le format standard pour l'extraction des heures/minutes
+    const standardTime = convertFrenchTimeToStandard(time);
+    const [hours, minutes] = standardTime.split(':').map(Number);
     const slotDate = new Date(selectedDate);
     slotDate.setHours(hours, minutes, 0, 0);
     

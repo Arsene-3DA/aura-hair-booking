@@ -11,6 +11,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { validateEmail, validateFrenchPhone, validateName, sanitizeInput } from '@/utils/validation';
+import { convertFrenchTimeToStandard } from '@/utils/timeFormatter';
 import BookingCalendar from './BookingCalendar';
 import BookingHelp from './BookingHelp';
 import GuestBookingInfo from './GuestBookingInfo';
@@ -267,10 +268,11 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
       }
 
       // Créer la date complète avec validation
-      // S'assurer que le format time est correct (HH:MM ou HH:MM:SS)
-      const timeFormatted = formData.time.includes(':') ? 
-        (formData.time.split(':').length === 2 ? `${formData.time}:00` : formData.time) : 
-        `${formData.time}:00`;
+      // Convertir le format français "10h00" vers "10:00" pour la création de la date
+      const standardTime = convertFrenchTimeToStandard(formData.time);
+      const timeFormatted = standardTime.includes(':') ? 
+        (standardTime.split(':').length === 2 ? `${standardTime}:00` : standardTime) : 
+        `${standardTime}:00`;
       const dateTimeString = `${formData.date}T${timeFormatted}`;
       const localDateTime = new Date(dateTimeString);
       

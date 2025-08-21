@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { format, parseISO, isSameDay } from 'date-fns';
+import { formatTimeToFrench } from '@/utils/timeFormatter';
 
 export interface TimeSlot {
   time: string;
@@ -26,7 +27,7 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
 
       if (!error && availabilityData && availabilityData.length > 0) {
         return availabilityData.map((slot: any) => ({
-          time: slot.time_slot,
+          time: formatTimeToFrench(slot.time_slot),
           available: slot.is_available,
         }));
       }
@@ -60,7 +61,7 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         
         slots.push({
-          time: timeString,
+          time: formatTimeToFrench(timeString),
           available: true,
         });
       }
@@ -78,8 +79,8 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
     for (let hour = 9; hour <= 18; hour++) {
       if (hour === 18) break; // S'arrêter à 18h
       slots.push(
-        { time: `${hour.toString().padStart(2, '0')}:00`, available: true },
-        { time: `${hour.toString().padStart(2, '0')}:30`, available: true }
+        { time: formatTimeToFrench(`${hour.toString().padStart(2, '0')}:00`), available: true },
+        { time: formatTimeToFrench(`${hour.toString().padStart(2, '0')}:30`), available: true }
       );
     }
     return slots;
@@ -138,7 +139,12 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
 
       const slotsWithStatus: TimeSlot[] = workingSlots.map(slot => {
         const time = slot.time;
-        const [hours, minutes] = time.split(':').map(Number);
+        // Parser le format "10h00" pour extraire les heures et minutes
+        const match = time.match(/(\d+)h(\d+)/);
+        if (!match) return slot; // Fallback si le format n'est pas reconnu
+        
+        const hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
         const slotDateTime = new Date(date);
         slotDateTime.setHours(hours, minutes, 0, 0);
 
