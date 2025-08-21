@@ -267,7 +267,11 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
       }
 
       // Créer la date complète avec validation
-      const dateTimeString = `${formData.date}T${formData.time}:00`;
+      // S'assurer que le format time est correct (HH:MM ou HH:MM:SS)
+      const timeFormatted = formData.time.includes(':') ? 
+        (formData.time.split(':').length === 2 ? `${formData.time}:00` : formData.time) : 
+        `${formData.time}:00`;
+      const dateTimeString = `${formData.date}T${timeFormatted}`;
       const localDateTime = new Date(dateTimeString);
       
       // Vérifier que la date est valide
