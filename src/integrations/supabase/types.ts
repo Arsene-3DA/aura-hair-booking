@@ -1062,6 +1062,18 @@ export type Database = {
         }
         Returns: Json
       }
+      create_guest_booking: {
+        Args: {
+          p_client_email: string
+          p_client_name: string
+          p_client_phone: string
+          p_hairdresser_id: string
+          p_notes?: string
+          p_scheduled_datetime: string
+          p_service_id?: string
+        }
+        Returns: Json
+      }
       create_public_booking: {
         Args: {
           client_email: string

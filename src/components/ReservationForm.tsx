@@ -13,6 +13,7 @@ import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { validateEmail, validateFrenchPhone, validateName, sanitizeInput } from '@/utils/validation';
 import BookingCalendar from './BookingCalendar';
 import BookingHelp from './BookingHelp';
+import GuestBookingInfo from './GuestBookingInfo';
 import PriceDisplay from '@/components/ui/price-display';
 
 interface ReservationFormProps {
@@ -204,16 +205,8 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
     setLoading(true);
 
     try {
-      // Vérifier si l'utilisateur est connecté
-      if (!isAuthenticated || !user) {
-        // Sauvegarder les données du formulaire avant de rediriger
-        saveFormData();
-        
-        // Rediriger vers la page d'authentification avec l'URL de retour
-        const returnUrl = window.location.pathname + window.location.search;
-        navigate(`/auth?returnTo=${encodeURIComponent(returnUrl)}`);
-        return;
-      }
+      // Permettre les réservations d'invités (pas besoin d'être connecté)
+      const isGuestBooking = !isAuthenticated || !user;
 
       // Validation : si des services existent pour ce pro, un service doit être sélectionné
       if (availableServices.length > 0 && !formData.service) {
@@ -247,9 +240,25 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
       // Créer la date complète
       const localDateTime = new Date(`${formData.date}T${formData.time}:00`);
       
-      // Utiliser la nouvelle fonction de booking
-      const { data, error } = await supabase
-        .rpc('create_booking_by_hairdresser_id', {
+      let data, error;
+      
+      if (isGuestBooking) {
+        // Utiliser la fonction pour invités
+        const result = await supabase.rpc('create_guest_booking', {
+          p_hairdresser_id: hairdresserData.id,
+          p_client_name: formData.clientName,
+          p_client_email: formData.clientEmail,
+          p_client_phone: formData.clientPhone,
+          p_scheduled_datetime: localDateTime.toISOString(),
+          p_service_id: formData.serviceId || null,
+          p_notes: formData.notes || null
+        });
+        
+        data = result.data;
+        error = result.error;
+      } else {
+        // Utiliser la fonction pour utilisateurs connectés
+        const result = await supabase.rpc('create_booking_by_hairdresser_id', {
           hairdresser_id: hairdresserData.id,
           client_name: formData.clientName,
           client_email: formData.clientEmail,
@@ -258,6 +267,10 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
           scheduled_datetime: localDateTime.toISOString(),
           notes: formData.notes || null
         });
+        
+        data = result.data;
+        error = result.error;
+      }
 
       console.log('📊 Résultat de la réservation:', { data, error });
 
@@ -286,10 +299,24 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
 
       toast({
         title: "✅ Réservation créée",
-        description: `Votre demande de réservation chez ${hairdresserName} a été envoyée !`
+        description: isGuestBooking 
+          ? `Votre demande de réservation chez ${hairdresserName} a été envoyée ! Vous recevrez une confirmation par email.`
+          : `Votre demande de réservation chez ${hairdresserName} a été envoyée !`
       });
 
-      onSuccess();
+      // Pour les invités, rediriger vers la page d'accueil avec un message de succès
+      if (isGuestBooking) {
+        setTimeout(() => {
+          navigate('/', { 
+            state: { 
+              reservationSuccess: true,
+              message: 'Réservation créée avec succès ! Vous recevrez une confirmation par email.'
+            } 
+          });
+        }, 1500);
+      } else {
+        onSuccess();
+      }
 
     } catch (error) {
       console.error('Erreur:', error);
@@ -402,6 +429,9 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
 
   return (
     <div className="space-y-8">
+      {/* Informations pour les invités */}
+      {!isAuthenticated && <GuestBookingInfo />}
+      
       {/* Guide d'aide */}
       <BookingHelp />
       {/* Informations client */}
