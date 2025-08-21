@@ -546,6 +546,7 @@ export type Database = {
           full_name: string | null
           gender: Database["public"]["Enums"]["gender_type"] | null
           id: string
+          is_test: boolean | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
           user_id: string
@@ -556,6 +557,7 @@ export type Database = {
           full_name?: string | null
           gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
+          is_test?: boolean | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           user_id: string
@@ -566,6 +568,7 @@ export type Database = {
           full_name?: string | null
           gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
+          is_test?: boolean | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           user_id?: string
@@ -874,6 +877,7 @@ export type Database = {
           email: string
           gender: Database["public"]["Enums"]["gender_type"] | null
           id: string
+          is_test: boolean | null
           nom: string
           prenom: string
           role: Database["public"]["Enums"]["user_role"] | null
@@ -887,6 +891,7 @@ export type Database = {
           email: string
           gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
+          is_test?: boolean | null
           nom: string
           prenom: string
           role?: Database["public"]["Enums"]["user_role"] | null
@@ -900,6 +905,7 @@ export type Database = {
           email?: string
           gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
+          is_test?: boolean | null
           nom?: string
           prenom?: string
           role?: Database["public"]["Enums"]["user_role"] | null
@@ -1101,6 +1107,35 @@ export type Database = {
           stylist_role: string
           stylist_specialties: string[]
           updated_at: string
+        }[]
+      }
+      get_all_users_for_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          auth_id: string
+          avatar_url: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          nom: string
+          prenom: string
+          role: Database["public"]["Enums"]["user_role"]
+          status: Database["public"]["Enums"]["user_status"]
+          telephone: string
+          updated_at: string
+        }[]
+      }
+      get_available_time_slots: {
+        Args: {
+          professional_id: string
+          target_date?: string
+          timezone_name?: string
+        }
+        Returns: {
+          is_available: boolean
+          slot_datetime: string
+          time_slot: string
         }[]
       }
       get_current_user_id: {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/hooks/useUsers';
 
-interface UseAdminUsersReturn {
+interface UseAdminUsersSecureReturn {
   users: User[];
   loading: boolean;
   error: string | null;
@@ -12,7 +12,7 @@ interface UseAdminUsersReturn {
   refetch: () => Promise<void>;
 }
 
-export const useAdminUsers = (): UseAdminUsersReturn => {
+export const useAdminUsersSecure = (): UseAdminUsersSecureReturn => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,34 +22,66 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       setLoading(true);
       setError(null);
       
-      // Utiliser la fonction sécurisée pour récupérer tous les utilisateurs
-      const { data: usersData, error: usersError } = await supabase.rpc('get_all_users_for_admin');
+      // Try using the RPC function first
+      try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc('get_all_users_for_admin');
+        
+        if (!rpcError && rpcData) {
+          const transformedUsers = rpcData.map((userRecord: any) => ({
+            id: userRecord.id,
+            auth_id: userRecord.auth_id,
+            email: userRecord.email || 'N/A',
+            nom: userRecord.nom || 'N/A',
+            prenom: userRecord.prenom || 'N/A',
+            role: userRecord.role || 'client',
+            status: userRecord.status || 'actif',
+            created_at: userRecord.created_at,
+            updated_at: userRecord.updated_at,
+            telephone: userRecord.telephone || null
+          }));
+          
+          setUsers(transformedUsers);
+          console.log('Users fetched via RPC:', transformedUsers.length);
+          return;
+        }
+      } catch (rpcErr) {
+        console.warn('RPC function failed, trying edge function:', rpcErr);
+      }
 
-      if (usersError) {
-        console.error('Error fetching users:', usersError);
-        setError(usersError.message);
+      // Fallback to edge function
+      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('admin-users', {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (edgeError) {
+        console.error('Edge function error:', edgeError);
+        setError('Impossible de récupérer les utilisateurs');
         return;
       }
 
-      console.log('Admin users from secure function:', usersData?.length, 'users');
-      console.log('Users data:', usersData?.map(u => ({ email: u.email, nom: u.nom, prenom: u.prenom, role: u.role })));
+      if (edgeData?.users) {
+        const transformedUsers = edgeData.users.map((userRecord: any) => ({
+          id: userRecord.id,
+          auth_id: userRecord.auth_id,
+          email: userRecord.email || 'N/A',
+          nom: userRecord.nom || 'N/A',
+          prenom: userRecord.prenom || 'N/A',
+          role: userRecord.role || 'client',
+          status: userRecord.status || 'actif',
+          created_at: userRecord.created_at,
+          updated_at: userRecord.updated_at,
+          telephone: userRecord.telephone || null
+        }));
+        
+        setUsers(transformedUsers);
+        console.log('Users fetched via edge function:', transformedUsers.length);
+      } else {
+        setUsers([]);
+        console.log('No users returned from edge function');
+      }
       
-      // Transformer les données pour le format attendu par l'interface
-      const transformedUsers = usersData?.map(userRecord => ({
-        id: userRecord.id,
-        auth_id: userRecord.auth_id,
-        email: userRecord.email || 'N/A',
-        nom: userRecord.nom || 'N/A',
-        prenom: userRecord.prenom || 'N/A',
-        role: userRecord.role || 'client',
-        status: userRecord.status || 'actif',
-        created_at: userRecord.created_at,
-        updated_at: userRecord.updated_at,
-        telephone: userRecord.telephone || null
-      })) || [];
-      
-      setUsers(transformedUsers);
-      console.log('Final transformed users:', transformedUsers.length, 'users');
     } catch (err) {
       console.error('Unexpected error:', err);
       setError('Une erreur inattendue est survenue');
@@ -60,13 +92,11 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
 
   const promoteUser = async (userId: string, newRole: string) => {
     try {
-      // Find the user's auth_id from our users array
       const user = users.find(u => u.id === userId);
       if (!user) {
         throw new Error('Utilisateur non trouvé');
       }
 
-      // SECURITY FIX: Use the secure role change function with auth_id
       const { data, error } = await supabase.rpc('secure_change_user_role', {
         target_user_id: user.auth_id,
         new_role: newRole
@@ -83,7 +113,6 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         throw new Error(result.error || 'Changement de rôle échoué');
       }
 
-      // Refetch data to ensure consistency
       await fetchUsers();
       
     } catch (error) {
@@ -103,7 +132,6 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         throw new Error('Impossible de suspendre l\'utilisateur');
       }
 
-      // Update local state optimistically
       setUsers(prev => 
         prev.map(user => 
           user.id === userId ? { ...user, status: 'bloque' } : user
@@ -116,16 +144,7 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
 
   const resetPassword = async (userId: string) => {
     try {
-      // In real app, would trigger password reset email
-      // For now, simulate the action
       console.log('Password reset triggered for user:', userId);
-      
-      // Could use Supabase auth admin API here
-      // await supabase.auth.admin.generateLink({
-      //   type: 'recovery',
-      //   email: user.email
-      // });
-      
     } catch (error) {
       throw new Error('Impossible d\'envoyer l\'email de réinitialisation');
     }
@@ -134,17 +153,13 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
   useEffect(() => {
     fetchUsers();
 
-    // Set up real-time subscription pour les profiles
+    // Set up real-time subscription
     const channel = supabase
-      .channel('admin-users')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
-        console.log('Profile change detected:', payload);
-        // Refetch pour éviter les problèmes de synchronisation
+      .channel('admin-users-secure')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
         fetchUsers();
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, (payload) => {
-        console.log('User change detected:', payload);
-        // Refetch pour éviter les problèmes de synchronisation
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
         fetchUsers();
       })
       .subscribe();
