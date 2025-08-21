@@ -22,42 +22,42 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       setLoading(true);
       setError(null);
       
-      // Récupérer les utilisateurs depuis la table profiles qui contient tous les utilisateurs
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*, user_id')
+      // Récupérer TOUS les utilisateurs depuis la table users (source principale)
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (profilesError) {
-        console.error('Error fetching users from profiles:', profilesError);
-        setError(profilesError.message);
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
+        setError(usersError.message);
         return;
       }
 
-      // Récupérer aussi les données de la table users pour avoir le statut
-      const { data: usersData, error: usersError } = await supabase
-        .from('users')
+      // Récupérer les profils pour les données supplémentaires
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
         .select('*');
 
-      if (usersError) {
-        console.warn('Warning fetching users table:', usersError);
+      if (profilesError) {
+        console.warn('Warning fetching profiles:', profilesError);
       }
       
-      // Transformer les données pour correspondre à l'interface User attendue
-      const transformedUsers = profilesData?.map(profile => {
-        const userRecord = usersData?.find(u => u.auth_id === profile.user_id);
+      // Transformer les données en utilisant users comme source principale
+      const transformedUsers = usersData?.map(userRecord => {
+        const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
         
         return {
-          id: profile.id,
-          auth_id: profile.user_id,
-          email: userRecord?.email || 'N/A',
-          nom: userRecord?.nom || profile.full_name?.split(' ')[0] || 'N/A',
-          prenom: userRecord?.prenom || profile.full_name?.split(' ').slice(1).join(' ') || 'N/A',
-          role: profile.role,
-          status: userRecord?.status || 'actif',
-          created_at: profile.created_at,
-          updated_at: profile.updated_at,
-          telephone: userRecord?.telephone || null
+          id: userRecord.id,
+          auth_id: userRecord.auth_id,
+          email: userRecord.email || 'N/A',
+          nom: userRecord.nom || profile?.full_name?.split(' ')[0] || 'N/A',
+          prenom: userRecord.prenom || profile?.full_name?.split(' ').slice(1).join(' ') || 'N/A',
+          role: userRecord.role || profile?.role || 'client',
+          status: userRecord.status || 'actif',
+          created_at: userRecord.created_at,
+          updated_at: userRecord.updated_at,
+          telephone: userRecord.telephone || null
         };
       }) || [];
       
