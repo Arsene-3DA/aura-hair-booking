@@ -43,43 +43,43 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         console.warn('Warning fetching profiles:', profilesError);
       }
       
-      // Transformer les données pour afficher TOUS les vrais comptes utilisateurs
+      // Afficher TOUS les vrais comptes utilisateurs (clients et professionnels)
       console.log('Raw users data:', usersData?.length, 'users');
-      console.log('Users data:', usersData?.map(u => ({ email: u.email, nom: u.nom, prenom: u.prenom })));
+      console.log('Users data:', usersData?.map(u => ({ email: u.email, nom: u.nom, prenom: u.prenom, role: u.role })));
       
       const transformedUsers = usersData
         ?.filter(userRecord => {
-          // Exclure les comptes de démonstration et de test spécifiques
-          const isDemoAccount = userRecord.email?.toLowerCase().includes('demo') ||
-                               userRecord.email?.toLowerCase().includes('example.com') ||
-                               userRecord.email?.toLowerCase().includes('@salon.com') ||
-                               userRecord.email?.toLowerCase().includes('test@') ||
-                               userRecord.email?.toLowerCase() === 'admin@salon.com' ||
-                               userRecord.email?.toLowerCase() === 'marie@salon.com' ||
-                               userRecord.email?.toLowerCase() === 'pierre@salon.com' ||
-                               userRecord.email?.toLowerCase() === 'client@email.com' ||
-                               userRecord.nom?.toLowerCase().includes('demo') ||
-                               userRecord.prenom?.toLowerCase().includes('demo') ||
-                               (userRecord.nom?.toLowerCase() === 'test' && userRecord.prenom?.toLowerCase() === 'test') ||
-                               // Exclure les noms génériques de test
-                               (userRecord.nom?.toLowerCase() === 'marie' && userRecord.prenom?.toLowerCase() === 'dupont') ||
-                               (userRecord.nom?.toLowerCase() === 'pierre' && userRecord.prenom?.toLowerCase() === 'martin') ||
-                               (userRecord.nom?.toLowerCase() === 'sophie' && userRecord.prenom?.toLowerCase() === 'durand') ||
-                               userRecord.nom?.toLowerCase().includes('système');
+          // Exclure UNIQUEMENT les comptes de test/démonstration évidents
+          const isDemoAccount = 
+            // Emails de test spécifiques
+            userRecord.email?.toLowerCase() === 'admin@salon.com' ||
+            userRecord.email?.toLowerCase() === 'marie@salon.com' ||
+            userRecord.email?.toLowerCase() === 'pierre@salon.com' ||
+            userRecord.email?.toLowerCase() === 'client@email.com' ||
+            // Domaines de test
+            userRecord.email?.toLowerCase().includes('@salon.com') ||
+            userRecord.email?.toLowerCase().includes('example.com') ||
+            userRecord.email?.toLowerCase().includes('demo') ||
+            userRecord.email?.toLowerCase().includes('test@') ||
+            // Noms de test génériques
+            (userRecord.nom?.toLowerCase() === 'marie' && userRecord.prenom?.toLowerCase() === 'dupont') ||
+            (userRecord.nom?.toLowerCase() === 'pierre' && userRecord.prenom?.toLowerCase() === 'martin') ||
+            (userRecord.nom?.toLowerCase() === 'sophie' && userRecord.prenom?.toLowerCase() === 'durand') ||
+            userRecord.nom?.toLowerCase().includes('système') ||
+            userRecord.nom?.toLowerCase().includes('demo') ||
+            userRecord.prenom?.toLowerCase().includes('demo') ||
+            (userRecord.nom?.toLowerCase() === 'test' && userRecord.prenom?.toLowerCase() === 'test');
           
           const hasValidEmail = userRecord.email && userRecord.email.trim() !== '';
           
-          // Récupérer le profil associé pour vérifier le rôle
+          // Récupérer le profil pour les informations supplémentaires
           const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
           const userRole = userRecord.role || profile?.role;
           
-          // Ne garder que les comptes de professionnels et clients réels
-          const isRealUserAccount = userRole && ['client', 'coiffeur', 'coiffeuse', 'cosmetique'].includes(userRole);
+          console.log(`User ${userRecord.email}: isDemoAccount=${isDemoAccount}, hasValidEmail=${hasValidEmail}, role=${userRole}`);
           
-          console.log(`User ${userRecord.email}: isDemoAccount=${isDemoAccount}, hasValidEmail=${hasValidEmail}, role=${userRole}, isRealUserAccount=${isRealUserAccount}`);
-          
-          // Garder uniquement les vrais comptes professionnels/clients avec email valide
-          return !isDemoAccount && hasValidEmail && isRealUserAccount;
+          // Garder TOUS les vrais comptes avec email valide (clients, professionnels, et même admin réels)
+          return !isDemoAccount && hasValidEmail;
         })
         ?.map(userRecord => {
           const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
@@ -99,8 +99,8 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         }) || [];
       
       setUsers(transformedUsers);
-      console.log('Filtered admin users:', transformedUsers.length, 'users');
-      console.log('Transformed users:', transformedUsers.map(u => ({ email: u.email, nom: u.nom, prenom: u.prenom, role: u.role })));
+      console.log('Admin users visible:', transformedUsers.length, 'users');
+      console.log('Visible users:', transformedUsers.map(u => ({ email: u.email, nom: u.nom, prenom: u.prenom, role: u.role })));
     } catch (err) {
       console.error('Unexpected error:', err);
       setError('Une erreur inattendue est survenue');
