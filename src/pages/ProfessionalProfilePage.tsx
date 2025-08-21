@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
+  ArrowLeft,
   Star, 
   MapPin, 
   Calendar, 
@@ -30,7 +31,6 @@ interface WorkingDay {
 const ProfessionalProfilePage = () => {
   const { professionalId } = useParams<{ professionalId: string }>();
   const navigate = useNavigate();
-  const [showBookingWidget, setShowBookingWidget] = useState(false);
   
   // Use existing hooks for data
   const { hairdresser: professional, loading: isLoading, error } = useSecureHairdresserData(professionalId);
@@ -38,9 +38,12 @@ const ProfessionalProfilePage = () => {
   const { portfolio } = usePortfolioManagement(professionalId);
 
   const handleReserve = () => {
-    setShowBookingWidget(true);
-    // ou navigate vers page de réservation
-    // navigate(`/bookings/new?expert=${professionalId}`);
+    // Rediriger vers la page de réservation
+    navigate(`/reservation/${professionalId}`, {
+      state: {
+        hairdresser: professional
+      }
+    });
   };
 
   if (isLoading || servicesLoading) {
@@ -73,6 +76,19 @@ const ProfessionalProfilePage = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
+        
+        {/* Bouton Retour */}
+        <div className="mb-6">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 hover:bg-muted"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-[360px,1fr] gap-6">
           
           {/* Sidebar gauche - Profil */}
@@ -354,28 +370,6 @@ const ProfessionalProfilePage = () => {
           </div>
         </div>
       </div>
-
-      {/* Widget de réservation (placeholder) */}
-      {showBookingWidget && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader>
-              <CardTitle>Réservation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Widget de réservation en cours de développement
-              </p>
-              <Button 
-                onClick={() => setShowBookingWidget(false)}
-                className="w-full"
-              >
-                Fermer
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 };
