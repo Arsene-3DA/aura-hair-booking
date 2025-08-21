@@ -10,6 +10,8 @@ interface RoleChangeResult {
   error?: string;
   oldRole?: string;
   newRole?: string;
+  old_role?: string; // Backward compatibility
+  new_role?: string; // Backward compatibility
 }
 
 export const useDynamicRoleManagement = () => {
@@ -36,17 +38,17 @@ export const useDynamicRoleManagement = () => {
       if (result.success) {
         toast({
           title: '✅ Rôle modifié',
-          description: `Rôle changé de ${result.oldRole} vers ${result.newRole}`,
+          description: `Rôle changé de ${result.oldRole || result.old_role} vers ${result.newRole || result.new_role}`,
         });
         
         // Déclencher un événement personnalisé pour les mises à jour en temps réel
         window.dispatchEvent(new CustomEvent('userRoleChanged', {
-          detail: { userId: targetUserId, newRole, oldRole: result.oldRole }
+          detail: { userId: targetUserId, newRole, oldRole: result.oldRole || result.old_role }
         }));
         
         // Déclencher également un événement pour rafraîchir les listes de professionnels
         window.dispatchEvent(new CustomEvent('refreshProfessionals', {
-          detail: { userId: targetUserId, newRole, oldRole: result.oldRole }
+          detail: { userId: targetUserId, newRole, oldRole: result.oldRole || result.old_role }
         }));
         
         return result;
