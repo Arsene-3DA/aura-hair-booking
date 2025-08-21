@@ -75,6 +75,7 @@ const StylistsList = lazy(() => import("./pages/StylistsList"));
 const BookingQueue = lazy(() => import("./components/BookingQueue"));
 const WeeklyCalendar = lazy(() => import("./components/WeeklyCalendar"));
 const ClientChatPane = lazy(() => import("./components/ClientChatPane"));
+const AutoLogout = lazy(() => import("./components/AutoLogout"));
 
 const queryClient = new QueryClient();
 
@@ -146,6 +147,9 @@ const App = () => (
                 
                 {/* Post-login Hub */}
                 <Route path="/post-login" element={<PostAuthPage />} />
+                
+                {/* Auto logout route */}
+                <Route path="/logout" element={<AutoLogout />} />
                 
                 <Route path="/admin" element={
                   <RoleGuard allowedRoles={['admin']}>
