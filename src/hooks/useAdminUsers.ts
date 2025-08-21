@@ -43,20 +43,18 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         console.warn('Warning fetching profiles:', profilesError);
       }
       
-      // Transformer les données pour afficher tous les vrais comptes utilisateurs
+      // Transformer les données pour afficher TOUS les vrais comptes utilisateurs
       const transformedUsers = usersData
         ?.filter(userRecord => {
-          // Exclure uniquement les comptes de test/démonstration
-          const isTestAccount = userRecord.email?.includes('test') || 
-                               userRecord.email?.includes('demo') ||
-                               userRecord.email?.includes('example') ||
-                               userRecord.nom?.toLowerCase().includes('test') ||
-                               userRecord.prenom?.toLowerCase().includes('test') ||
+          // Exclure uniquement les comptes de démonstration évidents
+          const isDemoAccount = userRecord.email?.toLowerCase().includes('demo') ||
+                               userRecord.email?.toLowerCase().includes('example.com') ||
                                userRecord.nom?.toLowerCase().includes('demo') ||
-                               userRecord.prenom?.toLowerCase().includes('demo');
+                               userRecord.prenom?.toLowerCase().includes('demo') ||
+                               (userRecord.nom?.toLowerCase() === 'test' && userRecord.prenom?.toLowerCase() === 'test');
           
-          // Garder tous les vrais comptes avec un email valide
-          return !isTestAccount && userRecord.email && userRecord.email !== '';
+          // Garder TOUS les vrais comptes avec un email valide, même les comptes 'test' réels
+          return !isDemoAccount && userRecord.email && userRecord.email.trim() !== '';
         })
         ?.map(userRecord => {
           const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
