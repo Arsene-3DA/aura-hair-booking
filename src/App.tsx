@@ -76,6 +76,7 @@ const BookingQueue = lazy(() => import("./components/BookingQueue"));
 const WeeklyCalendar = lazy(() => import("./components/WeeklyCalendar"));
 const ClientChatPane = lazy(() => import("./components/ClientChatPane"));
 const AutoLogout = lazy(() => import("./components/AutoLogout"));
+const SessionDiagnostic = lazy(() => import("./components/SessionDiagnostic"));
 
 const queryClient = new QueryClient();
 
@@ -150,6 +151,9 @@ const App = () => (
                 
                 {/* Auto logout route */}
                 <Route path="/logout" element={<AutoLogout />} />
+                
+                {/* Session diagnostic route */}
+                <Route path="/diagnostic" element={<SessionDiagnostic />} />
                 
                 <Route path="/admin" element={
                   <RoleGuard allowedRoles={['admin']}>

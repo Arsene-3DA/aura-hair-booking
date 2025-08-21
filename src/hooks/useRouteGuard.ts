@@ -105,7 +105,7 @@ export const useRouteGuard = (options: RouteGuardOptions = {}) => {
     };
 
     checkRoute();
-  }, [location.pathname, allValidRoutes, enableLogging, onNotFound]);
+  }, [location.pathname]);
 
   const generateSuggestions = (path: string, validRoutes: string[]): string[] => {
     const suggestions: Array<{ route: string; score: number }> = [];
