@@ -53,7 +53,53 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
         setLoading(true);
         setError(null);
 
-        // First try to get full data (for authenticated users with permission)
+        // First try to get data by ID (hairdresser ID, not auth_id)
+        const { data: fullDataById, error: fullErrorById } = await supabase
+          .from('hairdressers')
+          .select(`
+            id,
+            name,
+            email,
+            phone,
+            specialties,
+            rating,
+            image_url,
+            experience,
+            location,
+            salon_address,
+            bio,
+            website,
+            instagram,
+            working_hours,
+            auth_id,
+            is_active
+          `)
+          .eq('id', hairdresserId) // Try by ID first
+          .eq('is_active', true)
+          .single();
+
+        if (!fullErrorById && fullDataById) {
+          // Found by ID - get profile data using auth_id
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('role, avatar_url, full_name')
+            .eq('user_id', fullDataById.auth_id)
+            .single();
+
+          setHairdresser({
+            ...fullDataById,
+            role: profileData?.role || 'coiffeur',
+            image_url: profileData?.avatar_url || fullDataById.image_url || '/placeholder.svg',
+            name: profileData?.full_name || fullDataById.name || 'Professionnel',
+            specialties: fullDataById.specialties || [],
+            experience: fullDataById.experience || '',
+            location: fullDataById.location || fullDataById.salon_address || '',
+            canViewContact: false // Default to false for public view
+          });
+          return;
+        }
+
+        // Fallback: try by auth_id (for backward compatibility)
         const { data: fullData, error: fullError } = await supabase
           .from('hairdressers')
           .select(`
@@ -78,7 +124,7 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
           .eq('is_active', true)
           .single();
 
-        if (fullData) {
+        if (!fullError && fullData) {
           // User has access to contact info
           const { data: profileData } = await supabase
             .from('profiles')
@@ -94,43 +140,14 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
             specialties: fullData.specialties || [],
             experience: fullData.experience || '',
             location: fullData.location || fullData.salon_address || '',
-            canViewContact: true
+            canViewContact: false // Default to false for public view
           });
-        } else {
-          // Try public view (business info only) using secure function
-          const { data: publicDataArray, error: publicError } = await supabase
-            .rpc('get_public_hairdresser_data')
-            .eq('auth_id', hairdresserId)
-            .eq('is_active', true);
-
-          const publicData = publicDataArray?.[0] || null;
-
-          if (publicError) {
-            throw publicError;
-          }
-
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('role, avatar_url, full_name')
-            .eq('user_id', hairdresserId)
-            .single();
-
-          // Si le professionnel a un compte mais pas de rôle professionnel, rejeter
-          if (hairdresserId && profileData && !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profileData.role)) {
-            throw new Error('Professionnel non trouvé ou compte non professionnel');
-          }
-
-          setHairdresser({
-            ...publicData,
-            role: profileData?.role || 'coiffeur',
-            image_url: profileData?.avatar_url || publicData?.image_url || '/placeholder.svg',
-            name: profileData?.full_name || publicData?.name || 'Professionnel',
-            specialties: publicData?.specialties || [],
-            experience: publicData?.experience || '',
-            location: publicData?.location || publicData?.salon_address || '',
-            canViewContact: false
-          });
+          return;
         }
+
+        // If both methods fail, set error
+        setError('Professionnel non trouvé');
+        setHairdresser(null);
       } catch (err: any) {
         console.error('Error fetching hairdresser data:', err);
         setError(err.message || 'Erreur lors du chargement des données');
@@ -141,7 +158,7 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
 
     fetchHairdresserData();
 
-    // Set up real-time updates
+    // Set up real-time updates based on the ID we found
     const channel = supabase
       .channel(`secure-hairdresser-${hairdresserId}`)
       .on(
@@ -150,7 +167,20 @@ export const useSecureHairdresserData = (hairdresserId?: string) => {
           event: '*',
           schema: 'public',
           table: 'hairdressers',
-          filter: `auth_id=eq.${hairdresserId}`,
+          filter: `id=eq.${hairdresserId}`, // Listen for ID changes
+        },
+        () => {
+          // Refetch data on changes
+          fetchHairdresserData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'hairdressers',
+          filter: `auth_id=eq.${hairdresserId}`, // Also listen for auth_id changes
         },
         () => {
           // Refetch data on changes

@@ -46,24 +46,34 @@ export const useProfessionalServices = (
       setLoading(true);
       setError(null);
 
-      // D'abord récupérer l'ID du hairdresser basé sur auth_id
-      const { data: hairdresserData, error: hairdresserError } = await supabase
+      // First try to get hairdresser ID by direct ID lookup
+      let hairdresserId = null;
+      
+      const { data: hairdresserByIdData } = await supabase
         .from('hairdressers')
         .select('id')
-        .eq('auth_id', professionalAuthId)
+        .eq('id', professionalAuthId) // Try by ID first
         .eq('is_active', true)
         .single();
 
-      if (hairdresserError) {
-        if (hairdresserError.code === 'PGRST116') {
-          // Professionnel non trouvé ou inactif
-          setServices([]);
-          return;
+      if (hairdresserByIdData) {
+        hairdresserId = hairdresserByIdData.id;
+      } else {
+        // Fallback: try by auth_id
+        const { data: hairdresserByAuthData } = await supabase
+          .from('hairdressers')
+          .select('id')
+          .eq('auth_id', professionalAuthId)
+          .eq('is_active', true)
+          .single();
+
+        if (hairdresserByAuthData) {
+          hairdresserId = hairdresserByAuthData.id;
         }
-        throw hairdresserError;
       }
 
-      if (!hairdresserData) {
+      if (!hairdresserId) {
+        console.log('🔍 No hairdresser found for ID:', professionalAuthId);
         setServices([]);
         return;
       }
@@ -83,7 +93,7 @@ export const useProfessionalServices = (
             updated_at
           )
         `)
-        .eq('hairdresser_id', hairdresserData.id);
+        .eq('hairdresser_id', hairdresserId);
 
       console.log('🔍 Services query result:', data, 'Error:', servicesError);
 
