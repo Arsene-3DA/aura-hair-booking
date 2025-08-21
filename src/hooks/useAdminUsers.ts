@@ -43,11 +43,20 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
         console.warn('Warning fetching profiles:', profilesError);
       }
       
-      // Transformer les données pour afficher TOUS les utilisateurs ayant un compte
+      // Transformer les données pour afficher tous les vrais comptes utilisateurs
       const transformedUsers = usersData
         ?.filter(userRecord => {
-          // Exclure seulement les comptes sans email valide
-          return userRecord.email && userRecord.email !== '';
+          // Exclure uniquement les comptes de test/démonstration
+          const isTestAccount = userRecord.email?.includes('test') || 
+                               userRecord.email?.includes('demo') ||
+                               userRecord.email?.includes('example') ||
+                               userRecord.nom?.toLowerCase().includes('test') ||
+                               userRecord.prenom?.toLowerCase().includes('test') ||
+                               userRecord.nom?.toLowerCase().includes('demo') ||
+                               userRecord.prenom?.toLowerCase().includes('demo');
+          
+          // Garder tous les vrais comptes avec un email valide
+          return !isTestAccount && userRecord.email && userRecord.email !== '';
         })
         ?.map(userRecord => {
           const profile = profilesData?.find(p => p.user_id === userRecord.auth_id);
