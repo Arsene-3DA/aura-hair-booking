@@ -46,7 +46,8 @@ const ReservationPage = () => {
   }, [error, navigate, toast]);
 
   const handleReservationSuccess = () => {
-    navigate('/client/dashboard');
+    // Rediriger vers la page d'accueil avec un message de succès
+    navigate('/', { replace: true });
   };
 
   if (loading) {
