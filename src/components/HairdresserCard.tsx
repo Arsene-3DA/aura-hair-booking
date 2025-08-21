@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfessionalServices } from '@/hooks/useProfessionalServices';
 import ResponsiveImage from '@/components/ResponsiveImage';
+
 interface HairdresserCardProps {
   id: string;
   name: string;
@@ -14,6 +15,7 @@ interface HairdresserCardProps {
   experience?: string;
   onChoose?: () => void;
 }
+
 const HairdresserCard = ({
   id,
   name,
@@ -25,9 +27,7 @@ const HairdresserCard = ({
 }: HairdresserCardProps) => {
   const navigate = useNavigate();
   const [currentRating, setCurrentRating] = useState(rating);
-  const {
-    services
-  } = useProfessionalServices(id, true);
+  const { services } = useProfessionalServices(id, true);
 
   // Synchronisation temps réel pour le rating
   useEffect(() => {
@@ -53,6 +53,7 @@ const HairdresserCard = ({
       supabase.removeChannel(channel);
     };
   }, [id]);
+
   const handleChooseHairdresser = () => {
     if (onChoose) {
       onChoose();
@@ -73,10 +74,13 @@ const HairdresserCard = ({
       });
     }
   };
+
   const handleViewProfile = () => {
-    navigate(`/expert/${id}`);
+    navigate(`/professional/${id}`);
   };
-  return <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform duration-200 cursor-pointer border border-gray-100">
+
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform duration-200 cursor-pointer border border-gray-100">
       {/* Photo ronde 96px avec gestion d'erreur améliorée */}
       <div className="flex justify-center mb-4">
         <div className="relative">
@@ -104,69 +108,80 @@ const HairdresserCard = ({
           Services ({services.length})
         </p>
         <div className="grid grid-cols-2 gap-2 min-h-[80px]">
-          {services.length > 0 ? services.slice(0, 4).map(service => <div key={service.id} className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-3 text-center hover:shadow-sm transition-shadow px-[10px] py-[15px] my-[15px] mx-[15px]">
-                <p className="text-xs font-medium text-blue-800 truncate">
-                  {service.name}
-                </p>
-              </div>) : <div className="col-span-2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+          {services.length > 0 ? services.slice(0, 4).map(service => (
+            <div key={service.id} className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-3 text-center hover:shadow-sm transition-shadow px-[10px] py-[15px] my-[15px] mx-[15px]">
+              <p className="text-xs font-medium text-blue-800 truncate">
+                {service.name}
+              </p>
+            </div>
+          )) : (
+            <div className="col-span-2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
               <span className="text-sm text-gray-600">Services généraux</span>
-            </div>}
+            </div>
+          )}
         </div>
-        {services.length > 4 && <p className="text-xs text-gray-500 text-center mt-2">
+        {services.length > 4 && (
+          <p className="text-xs text-gray-500 text-center mt-2">
             +{services.length - 4} autres services
-          </p>}
+          </p>
+        )}
       </div>
 
       {/* Tags spécialités */}
       <div className="flex flex-wrap gap-2 justify-center mb-4 min-h-[32px]">
-        {tags && tags.length > 0 ? tags.slice(0, 3).map((tag, index) => <span key={index} className="px-3 py-1 bg-gold-100 text-gold-700 rounded-full text-sm font-medium">
-              {tag}
-            </span>) : <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+        {tags && tags.length > 0 ? tags.slice(0, 3).map((tag, index) => (
+          <span key={index} className="px-3 py-1 bg-gold-100 text-gold-700 rounded-full text-sm font-medium">
+            {tag}
+          </span>
+        )) : (
+          <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
             Coiffure générale
-          </span>}
+          </span>
+        )}
       </div>
 
-          {/* Rating - 5 étoiles par défaut */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex space-x-1 mr-2">
-              {[...Array(5)].map((_, i) => {
-                const displayRating = currentRating > 0 ? currentRating : 5.0;
-                return (
-                  <Star 
-                    key={i} 
-                    className={`h-4 w-4 ${
-                      i < Math.floor(displayRating) 
-                        ? 'text-yellow-400 fill-yellow-400' 
-                        : 'text-gray-300'
-                    }`} 
-                  />
-                );
-              })}
-            </div>
-            <span className="text-sm text-gray-700 font-medium">
-              {(currentRating > 0 ? currentRating : 5.0).toFixed(1)}
-            </span>
-          </div>
+      {/* Rating - 5 étoiles par défaut */}
+      <div className="flex items-center justify-center mb-6">
+        <div className="flex space-x-1 mr-2">
+          {[...Array(5)].map((_, i) => {
+            const displayRating = currentRating > 0 ? currentRating : 5.0;
+            return (
+              <Star 
+                key={i} 
+                className={`h-4 w-4 ${
+                  i < Math.floor(displayRating) 
+                    ? 'text-yellow-400 fill-yellow-400' 
+                    : 'text-gray-300'
+                }`} 
+              />
+            );
+          })}
+        </div>
+        <span className="text-sm text-gray-700 font-medium">
+          {(currentRating > 0 ? currentRating : 5.0).toFixed(1)}
+        </span>
+      </div>
 
       {/* Boutons d'action */}
       <div className="space-y-3">
-        <Button onClick={handleViewProfile} variant="outline" className="w-full border-gold-300 text-gold-700 hover:bg-gold-50 px-6 py-3 rounded-xl font-bold transition-colors duration-200 text-slate-400">
+        <Button 
+          onClick={handleViewProfile} 
+          variant="outline" 
+          className="w-full border-gold-300 text-gold-700 hover:bg-gold-50 px-6 py-3 rounded-xl font-bold transition-colors duration-200 text-slate-400"
+        >
           <User className="h-5 w-5 mr-2" />
-            Voir le profil
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate(`/professional/${id}`)}
-            className="w-full"
-          >
-            Layout professionnel
+          Voir le profil
         </Button>
-        <Button onClick={handleChooseHairdresser} className="w-full bg-gradient-gold hover:bg-gold-600 text-white px-6 py-3 rounded-xl font-bold transition-colors duration-200">
+        <Button 
+          onClick={handleChooseHairdresser} 
+          className="w-full bg-gradient-gold hover:bg-gold-600 text-white px-6 py-3 rounded-xl font-bold transition-colors duration-200"
+        >
           <User className="h-5 w-5 mr-2" />
           Réserver maintenant
         </Button>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default HairdresserCard;
