@@ -38,7 +38,7 @@ export const useDynamicRoleManagement = () => {
       if (result.success) {
         toast({
           title: '✅ Rôle modifié',
-          description: `Rôle changé de ${result.oldRole || result.old_role} vers ${result.newRole || result.new_role}`,
+          description: `Rôle changé de ${result.oldRole || 'inconnu'} vers ${result.newRole || newRole}`,
         });
         
         // Déclencher un événement personnalisé pour les mises à jour en temps réel
