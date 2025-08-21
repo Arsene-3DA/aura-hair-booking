@@ -8,7 +8,11 @@ import { Search } from 'lucide-react';
 import { useCompleteProfessionals, type CompleteProfessional } from '@/hooks/useCompleteProfessionals';
 const AllProfessionalsList = () => {
   const navigate = useNavigate();
-  const { professionals, loading, error } = useCompleteProfessionals();
+  const {
+    professionals,
+    loading,
+    error
+  } = useCompleteProfessionals();
   const [filteredProfessionals, setFilteredProfessionals] = useState<CompleteProfessional[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -17,14 +21,7 @@ const AllProfessionalsList = () => {
     if (!searchQuery.trim()) {
       setFilteredProfessionals(professionals);
     } else {
-      const filtered = professionals.filter(professional => 
-        professional.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        professional.specialties.some(specialty => 
-          specialty.toLowerCase().includes(searchQuery.toLowerCase())
-        ) ||
-        (professional.salon_address && professional.salon_address.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (professional.location && professional.location.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
+      const filtered = professionals.filter(professional => professional.name.toLowerCase().includes(searchQuery.toLowerCase()) || professional.specialties.some(specialty => specialty.toLowerCase().includes(searchQuery.toLowerCase())) || professional.salon_address && professional.salon_address.toLowerCase().includes(searchQuery.toLowerCase()) || professional.location && professional.location.toLowerCase().includes(searchQuery.toLowerCase()));
       setFilteredProfessionals(filtered);
     }
   }, [searchQuery, professionals]);
@@ -97,7 +94,7 @@ const AllProfessionalsList = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <div className="bg-gradient-to-r from-gold-50 to-orange-50 p-4 rounded-lg border border-gold-200">
                   <p className="font-semibold text-gray-900">📞 Téléphone</p>
-                  <p className="text-gold-600">01 23 45 67 89</p>
+                  <p className="text-gold-600">+1 (873) 655-5275</p>
                 </div>
                 <div className="bg-gradient-to-r from-orange-50 to-gold-50 p-4 rounded-lg border border-orange-200">
                   <p className="font-semibold text-gray-900">⏰ Horaires</p>
