@@ -664,7 +664,21 @@ export type Database = {
             foreignKeyName: "reservations_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "professionals_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_coiffeur_id_fkey"
+            columns: ["coiffeur_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_directory"
             referencedColumns: ["id"]
           },
           {
@@ -1088,6 +1102,18 @@ export type Database = {
         }
         Relationships: []
       }
+      professionals_directory: {
+        Row: {
+          auth_id: string | null
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          status: Database["public"]["Enums"]["user_status"] | null
+        }
+        Relationships: []
+      }
       professionals_public: {
         Row: {
           bio: string | null
@@ -1295,6 +1321,17 @@ export type Database = {
           updated_at: string
           website: string
           working_hours: Json
+        }[]
+      }
+      get_professionals_for_booking: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          auth_id: string
+          avatar_url: string
+          full_name: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          status: Database["public"]["Enums"]["user_status"]
         }[]
       }
       get_public_hairdresser_data: {

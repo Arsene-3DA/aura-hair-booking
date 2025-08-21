@@ -78,7 +78,7 @@ export const useReservations = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Utilisateur non connecté');
 
-      // Get user profile to get the coiffeur_id
+      // Get user profile to get the coiffeur_id - secure access
       const { data: userProfile, error: profileError } = await supabase
         .from('users')
         .select('id, role')
@@ -145,7 +145,7 @@ export const useReservations = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Utilisateur non connecté');
 
-      // Get user profile to get the client_id
+      // Get user profile to get the client_id - secure access
       const { data: userProfile, error: profileError } = await supabase
         .from('users')
         .select('id')

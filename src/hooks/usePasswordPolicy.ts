@@ -10,6 +10,7 @@ export const usePasswordPolicy = () => {
 
   const checkPasswordChangeRequired = async (userId: string) => {
     try {
+      // Use secure access - users can only access their own data
       const { data, error } = await supabase
         .from('users')
         .select('created_at, updated_at, role')

@@ -210,12 +210,8 @@ export const useUsers = () => {
 
   const getCoiffeurs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('role', 'coiffeur')
-        .eq('status', 'actif')
-        .order('nom');
+      // Use the secure function for professional lookup
+      const { data, error } = await supabase.rpc('get_professionals_for_booking');
 
       if (error) throw error;
       return data || [];
