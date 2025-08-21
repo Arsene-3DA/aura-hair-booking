@@ -45,7 +45,7 @@ export const useCompleteProfessionals = () => {
 
       if (user) {
         // Authenticated user - can access full data including contact info
-        // Join with profiles to filter only users with professional roles
+        console.log('🔓 Utilisateur connecté - chargement complet des professionnels');
         const { data, error } = await supabase
           .from('hairdressers')
           .select(`
@@ -65,8 +65,7 @@ export const useCompleteProfessionals = () => {
             location,
             gender,
             is_active,
-            working_hours,
-            profiles(role)
+            working_hours
           `)
           .eq('is_active', true)
           .order('rating', { ascending: false });
@@ -75,9 +74,9 @@ export const useCompleteProfessionals = () => {
         hairdressersError = error;
       } else {
         // Unauthenticated user - use secure function that only returns business info (no email/phone)
+        console.log('🔒 Utilisateur non connecté - chargement public des professionnels');
         const { data, error } = await supabase
-          .rpc('get_public_hairdresser_data')
-          .order('rating', { ascending: false });
+          .rpc('get_public_hairdresser_data');
         
         hairdressersData = data;
         hairdressersError = error;
@@ -113,8 +112,13 @@ export const useCompleteProfessionals = () => {
         .map(hairdresser => {
           const profile = profilesData?.find(p => p.user_id === hairdresser.auth_id);
           
-          // Accepter les professionnels avec compte professionnel OU sans compte (ajoutés manuellement)
-          if (hairdresser.auth_id && profile && !['coiffeur', 'coiffeuse', 'cosmetique'].includes(profile.role)) {
+          // Inclure TOUS les professionnels actifs :
+          // 1. Professionnels avec compte et rôle professionnel
+          // 2. Professionnels sans compte (ajoutés manuellement)
+          const isProfessionalWithAccount = hairdresser.auth_id && profile && ['coiffeur', 'coiffeuse', 'cosmetique'].includes(profile.role);
+          const isProfessionalWithoutAccount = !hairdresser.auth_id; // Ajouté manuellement
+          
+          if (!isProfessionalWithAccount && !isProfessionalWithoutAccount) {
             return null; // Exclure seulement ceux avec compte mais sans rôle professionnel
           }
           
