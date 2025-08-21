@@ -77,6 +77,7 @@ const WeeklyCalendar = lazy(() => import("./components/WeeklyCalendar"));
 const ClientChatPane = lazy(() => import("./components/ClientChatPane"));
 const AutoLogout = lazy(() => import("./components/AutoLogout"));
 const SessionDiagnostic = lazy(() => import("./components/SessionDiagnostic"));
+const ProfessionalDataDiagnostic = lazy(() => import("./components/ProfessionalDataDiagnostic"));
 
 const queryClient = new QueryClient();
 
@@ -149,11 +150,12 @@ const App = () => (
                 {/* Post-login Hub */}
                 <Route path="/post-login" element={<PostAuthPage />} />
                 
-                {/* Auto logout route */}
-                <Route path="/logout" element={<AutoLogout />} />
+        {/* Auto logout route */}
+        <Route path="/logout" element={<AutoLogout />} />
                 
                 {/* Session diagnostic route */}
-                <Route path="/diagnostic" element={<SessionDiagnostic />} />
+                <Route path="/session-diagnostic" element={<SessionDiagnostic />} />
+                <Route path="/data-diagnostic" element={<ProfessionalDataDiagnostic />} />
                 
                 <Route path="/admin" element={
                   <RoleGuard allowedRoles={['admin']}>
