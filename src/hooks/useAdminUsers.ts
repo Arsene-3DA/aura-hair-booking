@@ -49,18 +49,29 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       
       const transformedUsers = usersData
         ?.filter(userRecord => {
-          // Exclure uniquement les comptes de démonstration évidents
+          // Exclure les comptes de démonstration et de test spécifiques
           const isDemoAccount = userRecord.email?.toLowerCase().includes('demo') ||
                                userRecord.email?.toLowerCase().includes('example.com') ||
+                               userRecord.email?.toLowerCase().includes('@salon.com') ||
+                               userRecord.email?.toLowerCase().includes('test@') ||
+                               userRecord.email?.toLowerCase() === 'admin@salon.com' ||
+                               userRecord.email?.toLowerCase() === 'marie@salon.com' ||
+                               userRecord.email?.toLowerCase() === 'pierre@salon.com' ||
+                               userRecord.email?.toLowerCase() === 'client@email.com' ||
                                userRecord.nom?.toLowerCase().includes('demo') ||
                                userRecord.prenom?.toLowerCase().includes('demo') ||
-                               (userRecord.nom?.toLowerCase() === 'test' && userRecord.prenom?.toLowerCase() === 'test');
+                               (userRecord.nom?.toLowerCase() === 'test' && userRecord.prenom?.toLowerCase() === 'test') ||
+                               // Exclure les noms génériques de test
+                               (userRecord.nom?.toLowerCase() === 'marie' && userRecord.prenom?.toLowerCase() === 'dupont') ||
+                               (userRecord.nom?.toLowerCase() === 'pierre' && userRecord.prenom?.toLowerCase() === 'martin') ||
+                               (userRecord.nom?.toLowerCase() === 'sophie' && userRecord.prenom?.toLowerCase() === 'durand') ||
+                               userRecord.nom?.toLowerCase().includes('système');
           
           const hasValidEmail = userRecord.email && userRecord.email.trim() !== '';
           
           console.log(`User ${userRecord.email}: isDemoAccount=${isDemoAccount}, hasValidEmail=${hasValidEmail}`);
           
-          // Garder TOUS les vrais comptes avec un email valide, même les comptes 'test' réels
+          // Garder TOUS les vrais comptes avec un email valide
           return !isDemoAccount && hasValidEmail;
         })
         ?.map(userRecord => {
