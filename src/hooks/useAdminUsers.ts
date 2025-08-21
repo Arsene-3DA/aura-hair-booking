@@ -49,26 +49,13 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       
       const transformedUsers = usersData
         ?.filter(userRecord => {
-          // Exclure UNIQUEMENT les comptes de test/démonstration évidents
+          // Filtre temporaire moins restrictif pour permettre les tests
+          // Exclure seulement les comptes de démonstration les plus évidents
           const isDemoAccount = 
-            // Emails de test spécifiques
-            userRecord.email?.toLowerCase() === 'admin@salon.com' ||
-            userRecord.email?.toLowerCase() === 'marie@salon.com' ||
-            userRecord.email?.toLowerCase() === 'pierre@salon.com' ||
-            userRecord.email?.toLowerCase() === 'client@email.com' ||
-            // Domaines de test
-            userRecord.email?.toLowerCase().includes('@salon.com') ||
             userRecord.email?.toLowerCase().includes('example.com') ||
             userRecord.email?.toLowerCase().includes('demo') ||
-            userRecord.email?.toLowerCase().includes('test@') ||
-            // Noms de test génériques
-            (userRecord.nom?.toLowerCase() === 'marie' && userRecord.prenom?.toLowerCase() === 'dupont') ||
-            (userRecord.nom?.toLowerCase() === 'pierre' && userRecord.prenom?.toLowerCase() === 'martin') ||
-            (userRecord.nom?.toLowerCase() === 'sophie' && userRecord.prenom?.toLowerCase() === 'durand') ||
-            userRecord.nom?.toLowerCase().includes('système') ||
-            userRecord.nom?.toLowerCase().includes('demo') ||
-            userRecord.prenom?.toLowerCase().includes('demo') ||
-            (userRecord.nom?.toLowerCase() === 'test' && userRecord.prenom?.toLowerCase() === 'test');
+            // Garder les autres comptes pour permettre les tests
+            userRecord.nom?.toLowerCase().includes('système');
           
           const hasValidEmail = userRecord.email && userRecord.email.trim() !== '';
           
