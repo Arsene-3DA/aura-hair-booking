@@ -12,12 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserPlus, Edit, Trash2, Ban, CheckCircle, Phone, Mail } from 'lucide-react';
 import { useUsers, User, UserRole, UserStatus } from '@/hooks/useUsers';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
+import { useDynamicRoleManagement } from '@/hooks/useDynamicRoleManagement';
 
 const AdminUserManagement = () => {
   const { users, loading, getAllUsers, createUser, updateUser, deleteUser, blockUser, unblockUser } = useUsers();
   const { signUp } = useRoleAuth();
+  const { changeUserRole } = useDynamicRoleManagement();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [roleChangeUser, setRoleChangeUser] = useState<User | null>(null);
+  const [newRoleSelection, setNewRoleSelection] = useState<UserRole>('client');
   const [newUserData, setNewUserData] = useState({
     email: '',
     password: '',
@@ -93,6 +97,15 @@ const AdminUserManagement = () => {
     
     if (result.success) {
       getAllUsers();
+    }
+  };
+
+  const handleRoleChange = async () => {
+    if (!roleChangeUser) return;
+    const result = await changeUserRole(roleChangeUser.auth_id || roleChangeUser.id, newRoleSelection as any);
+    if (result.success) {
+      getAllUsers();
+      setRoleChangeUser(null);
     }
   };
 
@@ -260,6 +273,13 @@ const AdminUserManagement = () => {
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setRoleChangeUser(user)}
+                      >
+                        Changer rôle
+                      </Button>
+                      <Button
                         variant={user.status === 'bloque' ? 'default' : 'destructive'}
                         size="sm"
                         onClick={() => handleToggleUserStatus(user)}
@@ -365,6 +385,13 @@ const AdminUserManagement = () => {
                         onClick={() => setEditingUser(user)}
                       >
                         <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setRoleChangeUser(user)}
+                      >
+                        Changer rôle
                       </Button>
                       <Button
                         variant={user.status === 'bloque' ? 'default' : 'destructive'}
@@ -490,6 +517,47 @@ const AdminUserManagement = () => {
                 </Button>
               </div>
             </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de changement de rôle */}
+      <Dialog open={!!roleChangeUser} onOpenChange={() => setRoleChangeUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Changer le rôle de l'utilisateur</DialogTitle>
+          </DialogHeader>
+          {roleChangeUser && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-lg">
+                <h4 className="font-semibold">{roleChangeUser.prenom} {roleChangeUser.nom}</h4>
+                <p className="text-sm text-muted-foreground">{roleChangeUser.email}</p>
+                <p className="text-sm">Rôle actuel: <Badge>{roleChangeUser.role}</Badge></p>
+              </div>
+              <div>
+                <Label htmlFor="new-role">Nouveau rôle</Label>
+                <Select value={newRoleSelection} onValueChange={(value: UserRole) => setNewRoleSelection(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="client">Client</SelectItem>
+                    <SelectItem value="coiffeur">Coiffeur</SelectItem>
+                    <SelectItem value="coiffeuse">Coiffeuse</SelectItem>
+                    <SelectItem value="cosmetique">Cosmétique</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleRoleChange} className="flex-1">
+                  Changer le rôle
+                </Button>
+                <Button variant="outline" onClick={() => setRoleChangeUser(null)}>
+                  Annuler
+                </Button>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>

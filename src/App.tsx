@@ -16,6 +16,7 @@ import { BrokenLinkDetector } from "@/components/BrokenLinkDetector";
 import { NotFound } from "@/components/NotFound";
 import RoleDashboardRedirect from "@/components/RoleDashboardRedirect";
 import { SmartRedirect } from "@/components/SmartRedirect";
+import { AdminRedirect } from "@/components/AdminRedirect";
 import "@/lib/i18n";
 
 // Lazy loading des pages
@@ -101,6 +102,7 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <SmartRedirect>
+                <AdminRedirect>
                 <RouteTracker>
                   <BrokenLinkDetector>
                        <Suspense fallback={<LoadingSpinner />}>
@@ -256,9 +258,10 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
              </Suspense>
-           </BrokenLinkDetector>
-         </RouteTracker>
-        </SmartRedirect>
+            </BrokenLinkDetector>
+          </RouteTracker>
+         </AdminRedirect>
+         </SmartRedirect>
       </BrowserRouter>
             </EnhancedSecurityProvider>
         </TooltipProvider>

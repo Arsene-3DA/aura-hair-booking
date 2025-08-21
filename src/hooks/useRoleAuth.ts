@@ -299,10 +299,60 @@ export function useRoleAuth(): AuthState & AuthActions {
     setState(prev => ({ ...prev, showTransition: false }));
   }, []);
 
-  /* init au premier rendu + subscribe changements */
+  /* init au premier rendu + subscribe changements + real-time role sync */
   useEffect(() => {
     init();
-    console.log('🚀 Setting up auth state listener');
+    console.log('🚀 Setting up auth state listener with real-time role sync');
+    
+    // Subscribe to real-time role changes
+    const roleChannel = supabase
+      .channel('role-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: state.session?.user ? `user_id=eq.${state.session.user.id}` : ''
+        },
+        (payload) => {
+          console.log('🔄 Real-time role change detected:', payload);
+          if (payload.new.role !== payload.old?.role) {
+            console.log('⚡ Role changed from', payload.old?.role, 'to', payload.new.role);
+            setState(prev => ({
+              ...prev,
+              role: payload.new.role as UserRole,
+              userRole: payload.new.role as UserRole,
+              userProfile: { ...prev.userProfile, ...payload.new } as UserProfile
+            }));
+            
+            toast({
+              title: '🔄 Rôle mis à jour',
+              description: `Votre rôle a été modifié en ${payload.new.role}. Redirection automatique...`,
+            });
+            
+            // Redirection automatique selon le nouveau rôle
+            setTimeout(() => {
+              switch (payload.new.role) {
+                case 'admin':
+                  navigate('/admin', { replace: true });
+                  break;
+                case 'coiffeur':
+                case 'coiffeuse':
+                case 'cosmetique':
+                  navigate('/stylist', { replace: true });
+                  break;
+                case 'client':
+                default:
+                  navigate('/app', { replace: true });
+                  break;
+              }
+            }, 1500);
+          }
+        }
+      )
+      .subscribe();
+
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('🔄 Auth state change:', event, session?.user?.email);
       setState(prev => ({
@@ -350,7 +400,11 @@ export function useRoleAuth(): AuthState & AuthActions {
         }));
       }
     });
-    return () => sub.subscription.unsubscribe();
+    
+    return () => {
+      sub.subscription.unsubscribe();
+      supabase.removeChannel(roleChannel);
+    };
   }, [init]);
 
   return {
