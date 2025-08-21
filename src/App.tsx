@@ -143,6 +143,11 @@ const App = () => (
                   <Suspense fallback={<LoadingSpinner />}>
                     {React.createElement(React.lazy(() => import('./pages/StylistProfilePage')))}
                   </Suspense>
+                 } />
+                <Route path="/professional/:professionalId" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {React.createElement(React.lazy(() => import('./pages/ProfessionalProfilePage')))}
+                  </Suspense>
                 } />
                 <Route path="/reservation/:stylistId" element={<ReservationPage />} />
                 <Route path="/review/:token" element={<ReviewPage />} />

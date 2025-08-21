@@ -152,7 +152,15 @@ const HairdresserCard = ({
       <div className="space-y-3">
         <Button onClick={handleViewProfile} variant="outline" className="w-full border-gold-300 text-gold-700 hover:bg-gold-50 px-6 py-3 rounded-xl font-bold transition-colors duration-200 text-slate-400">
           <User className="h-5 w-5 mr-2" />
-          Voir le profil
+            Voir le profil
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate(`/professional/${id}`)}
+            className="w-full"
+          >
+            Layout professionnel
         </Button>
         <Button onClick={handleChooseHairdresser} className="w-full bg-gradient-gold hover:bg-gold-600 text-white px-6 py-3 rounded-xl font-bold transition-colors duration-200">
           <User className="h-5 w-5 mr-2" />
