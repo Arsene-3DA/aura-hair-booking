@@ -592,8 +592,8 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
               }}
               disabled={loading}
             >
-              <SelectTrigger className="min-h-[2.5rem] text-left">
-                <SelectValue placeholder="Choisissez un service" />
+              <SelectTrigger className="min-h-[2.75rem] w-full">
+                <SelectValue placeholder="Choisissez un service" className="text-left truncate" />
               </SelectTrigger>
               <SelectContent>
               {availableServices.length > 0 ? (
