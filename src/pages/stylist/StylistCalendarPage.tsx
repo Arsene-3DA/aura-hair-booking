@@ -7,7 +7,7 @@ import { format, addWeeks, subWeeks } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
 import { DailyCalendar } from '@/components/DailyCalendar';
-import { AvailabilitySlotManager } from '@/components/AvailabilitySlotManager';
+import { StrictAvailabilityManager } from '@/components/StrictAvailabilityManager';
 import { validateUUID } from '@/utils/validateUUID';
 
 const StylistCalendarPage = () => {
@@ -125,7 +125,7 @@ const StylistCalendarPage = () => {
         </div>
       </div>
 
-      {/* Gestionnaire de créneaux granulaire */}
+      {/* Gestionnaire STRICT des créneaux (problème résolu) */}
       <Suspense fallback={
         <div className="bg-card rounded-xl border p-8">
           <div className="animate-pulse space-y-4">
@@ -134,7 +134,7 @@ const StylistCalendarPage = () => {
           </div>
         </div>
       }>
-        <AvailabilitySlotManager
+        <StrictAvailabilityManager
           stylistId={userProfile.user_id}
           selectedDate={selectedWeek}
         />
