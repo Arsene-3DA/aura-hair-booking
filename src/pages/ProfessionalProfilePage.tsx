@@ -15,6 +15,7 @@ interface WorkingDay {
   close: string;
   isOpen: boolean;
 }
+
 const ProfessionalProfilePage = () => {
   const {
     professionalId
@@ -22,6 +23,7 @@ const ProfessionalProfilePage = () => {
     professionalId: string;
   }>();
   const navigate = useNavigate();
+  const [selectedService, setSelectedService] = useState<any>(null);
 
   // Use existing hooks for data
   const {
@@ -36,6 +38,7 @@ const ProfessionalProfilePage = () => {
   const {
     portfolio
   } = usePortfolioManagement(professionalId);
+  
   const handleReserve = () => {
     // Rediriger vers la page de réservation
     navigate(`/reservation/${professionalId}`, {
@@ -198,61 +201,7 @@ const ProfessionalProfilePage = () => {
               </CardContent>
             </Card>
 
-            {/* Disponibilités en temps réel */}
-            <RealTimeAvailability 
-              stylistId={professionalId || ''} 
-              showControls={false}
-            />
-
-            {/* Services disponibles */}
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-xl">Services disponibles</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {services && services.length > 0 ? <div className="space-y-4">
-                    {services.map(service => <Card key={service.id} className="rounded-xl border-2 hover:border-primary/20 transition-colors">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-bold text-lg uppercase tracking-wide mb-2">
-                                {service.name}
-                              </h4>
-                              
-                              {service.description && <p className="text-muted-foreground mb-3 leading-relaxed">
-                                  {service.description}
-                                </p>}
-                              
-                              <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                  <Clock className="h-4 w-4" />
-                                  <span>{service.duration} min</span>
-                                </div>
-                                
-                                {service.category && <Badge variant="secondary" className="text-xs uppercase tracking-wide">
-                                    {service.category}
-                                  </Badge>}
-                              </div>
-                            </div>
-                            
-                            <div className="text-right ml-6">
-                              <PriceDisplay amount={service.price} size="xl" className="font-bold text-primary" showCAD={true} />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>)}
-                  </div> : <div className="text-center py-12">
-                    <p className="text-muted-foreground mb-2">
-                      Aucun service défini
-                    </p>
-                    <p className="text-sm text-muted-foreground/70">
-                      Les services seront bientôt disponibles
-                    </p>
-                  </div>}
-              </CardContent>
-            </Card>
-
-            {/* Réserver un rendez-vous */}
+            {/* Section de réservation intégrée */}
             <Card className="rounded-2xl border-2 border-primary/20 bg-primary/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl">
@@ -260,19 +209,96 @@ const ProfessionalProfilePage = () => {
                   Réserver un rendez-vous
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Prêt à transformer votre style ? Réservez dès maintenant votre rendez-vous 
-                  avec <span className="font-medium">{professional.name}</span> et découvrez 
-                  une expérience de coiffure personnalisée et professionnelle.
+              <CardContent className="space-y-6">
+                <p className="text-muted-foreground leading-relaxed">
+                  Prêt à transformer votre style ? Sélectionnez un service et un créneau pour réserver
+                  avec <span className="font-medium">{professional.name}</span>.
                 </p>
-                
-                <Button onClick={handleReserve} size="lg" className="w-full h-12 text-base font-semibold rounded-xl">
-                  <Calendar className="h-5 w-5 mr-2" />
-                  Réserver maintenant
-                </Button>
+
+                {/* Sélection de service */}
+                {services && services.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Choisissez votre service
+                    </h3>
+                    <div className="grid gap-3">
+                      {services.map(service => (
+                        <div 
+                          key={service.id}
+                          onClick={() => setSelectedService(service)}
+                          className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                            selectedService?.id === service.id 
+                              ? 'border-primary bg-primary/10 shadow-lg' 
+                              : 'border-gray-200 hover:border-primary/50 hover:bg-background'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-base mb-1">
+                                {service.name}
+                              </h4>
+                              {service.description && (
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  {service.description}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-4 w-4" />
+                                  {service.duration} min
+                                </span>
+                                {service.category && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {service.category}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right ml-4">
+                              <PriceDisplay 
+                                amount={service.price} 
+                                size="lg" 
+                                className="font-bold text-primary" 
+                                showCAD={true} 
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {selectedService && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <p className="text-green-800 text-sm">
+                          ✅ Service sélectionné : <span className="font-medium">{selectedService.name}</span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Message si aucun service */}
+                {(!services || services.length === 0) && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-blue-800 text-sm">
+                      ℹ️ Ce professionnel n'a pas encore défini de services spécifiques. 
+                      Vous pourrez discuter de vos besoins lors de la réservation.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
+
+            {/* Disponibilités en temps réel avec service sélectionné */}
+            <RealTimeAvailability 
+              stylistId={professionalId || ''} 
+              showControls={false}
+              selectedService={selectedService}
+              onTimeSelection={(date, time) => {
+                console.log('Créneau sélectionné:', { date, time, service: selectedService });
+              }}
+            />
 
           </div>
         </div>

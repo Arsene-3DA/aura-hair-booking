@@ -18,12 +18,21 @@ interface RealTimeAvailabilityProps {
   stylistId: string;
   showControls?: boolean;
   onTimeSelection?: (date: Date, time: string) => void;
+  selectedService?: {
+    id: string;
+    name: string;
+    price: number;
+    duration: number;
+    description?: string;
+    category?: string;
+  } | null;
 }
 
 export const RealTimeAvailability = ({ 
   stylistId, 
   showControls = false,
-  onTimeSelection
+  onTimeSelection,
+  selectedService
 }: RealTimeAvailabilityProps) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState<string>('');
@@ -210,6 +219,8 @@ export const RealTimeAvailability = ({
       console.log('🔄 Tentative de réservation:', {
         client_user_id: userProfile.user_id,
         stylist_user_id: stylistId,
+        service_id: selectedService?.id || null,
+        service_name: selectedService?.name || 'Aucun service spécifique',
         scheduled_at: scheduledAt.toISOString(),
         status: 'pending'
       });
@@ -219,6 +230,7 @@ export const RealTimeAvailability = ({
         .insert({
           client_user_id: userProfile.user_id,
           stylist_user_id: stylistId,
+          service_id: selectedService?.id || null,
           scheduled_at: scheduledAt.toISOString(),
           status: 'pending'
         });
@@ -426,15 +438,20 @@ export const RealTimeAvailability = ({
               </div>
             ) : selectedTime ? (
               // Section de réservation pour utilisateurs connectés avec créneau sélectionné
-              <div className="bg-blue-600 rounded-lg p-4">
+              <div className="bg-blue-600 rounded-lg p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="space-y-1">
                     <p className="font-medium text-white">
                       Créneau sélectionné: {selectedTime}
                     </p>
                     <p className="text-sm text-blue-100">
                       {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}
                     </p>
+                    {selectedService && (
+                      <p className="text-sm text-blue-100">
+                        Service: {selectedService.name} ({selectedService.duration} min)
+                      </p>
+                    )}
                   </div>
                   <Button 
                     onClick={handleReservation}
@@ -444,6 +461,17 @@ export const RealTimeAvailability = ({
                     Réserver maintenant
                   </Button>
                 </div>
+                
+                {selectedService && (
+                  <div className="bg-blue-500/30 rounded-lg p-3 border border-blue-400/30">
+                    <div className="flex items-center justify-between text-sm text-blue-100">
+                      <span>Prix du service:</span>
+                      <span className="font-semibold text-white">
+                        {selectedService.price.toFixed(2)} $CAD
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               // Message pour sélectionner un créneau
