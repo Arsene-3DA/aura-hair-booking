@@ -142,41 +142,35 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
               </div>
             ) : (
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {timeSlots.map((slot) => {
-                  const isSelected = selectedTime === slot.time_slot;
-                  
-                  return (
-                    <Button
-                      key={slot.time_slot}
-                      variant={isSelected ? "default" : "outline"}
-                      className={`
-                        h-12 text-sm relative
-                        ${isSelected 
-                          ? 'bg-gold-500 hover:bg-gold-600 text-white' 
-                          : slot.is_available 
-                            ? 'hover:bg-gold-50 hover:border-gold-300 text-gray-700' 
-                            : 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400'
-                        }
-                      `}
-                      disabled={!slot.is_available}
-                      onClick={() => slot.is_available && handleTimeSlotClick(slot.time_slot)}
-                    >
-                      {slot.time_slot}
-                      {isSelected && (
-                        <CheckCircle className="h-4 w-4 absolute -top-1 -right-1 text-green-500 bg-white rounded-full" />
-                      )}
-                      {!slot.is_available && !isSelected && (
-                        <div className="absolute inset-0 bg-gray-500/20 rounded-md flex items-center justify-center">
-                          <span className="text-xs text-gray-600 font-semibold">Indisponible</span>
-                        </div>
-                      )}
-                    </Button>
-                   );
-                 })}
+                {timeSlots
+                  .filter(slot => slot.is_available) // Filtrer pour ne garder que les créneaux disponibles
+                  .map((slot) => {
+                    const isSelected = selectedTime === slot.time_slot;
+                    
+                    return (
+                      <Button
+                        key={slot.time_slot}
+                        variant={isSelected ? "default" : "outline"}
+                        className={`
+                          h-12 text-sm relative
+                          ${isSelected 
+                            ? 'bg-gold-500 hover:bg-gold-600 text-white' 
+                            : 'hover:bg-gold-50 hover:border-gold-300 text-gray-700'
+                          }
+                        `}
+                        onClick={() => handleTimeSlotClick(slot.time_slot)}
+                      >
+                        {slot.time_slot}
+                        {isSelected && (
+                          <CheckCircle className="h-4 w-4 absolute -top-1 -right-1 text-green-500 bg-white rounded-full" />
+                        )}
+                      </Button>
+                     );
+                   })}
               </div>
             )}
             
-            {!loadingSlots && timeSlots.length > 0 && (
+            {!loadingSlots && timeSlots.filter(slot => slot.is_available).length > 0 && (
               <div className="mt-6 flex flex-wrap gap-4 text-sm">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-green-100 border border-green-300 rounded mr-2"></div>
@@ -186,14 +180,14 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
                   <div className="w-3 h-3 bg-gold-500 rounded mr-2"></div>
                   <span className="text-gray-600">Sélectionné</span>
                 </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-red-100 border border-red-300 rounded mr-2"></div>
-                  <span className="text-gray-600">Occupé</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-gray-100 border border-gray-300 rounded mr-2"></div>
-                  <span className="text-gray-600">Indisponible</span>
-                </div>
+              </div>
+            )}
+            
+            {!loadingSlots && timeSlots.filter(slot => slot.is_available).length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <p className="text-lg font-medium">Aucun créneau disponible</p>
+                <p className="text-sm">Veuillez choisir une autre date</p>
               </div>
             )}
           </CardContent>
