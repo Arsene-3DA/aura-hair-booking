@@ -9,6 +9,7 @@ import { useProfessionalServices } from '@/hooks/useProfessionalServices';
 import { usePortfolioManagement } from '@/hooks/usePortfolioManagement';
 import { usePublicProfessionalData } from '@/hooks/usePublicProfessionalData';
 import PriceDisplay from '@/components/ui/price-display';
+import { RealTimeAvailability } from '@/components/RealTimeAvailability';
 interface WorkingDay {
   open: string;
   close: string;
@@ -196,6 +197,12 @@ const ProfessionalProfilePage = () => {
                   </div>}
               </CardContent>
             </Card>
+
+            {/* Disponibilités en temps réel */}
+            <RealTimeAvailability 
+              stylistId={professionalId || ''} 
+              showControls={false}
+            />
 
             {/* Services disponibles */}
             <Card className="rounded-2xl">
