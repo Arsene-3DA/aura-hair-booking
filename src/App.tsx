@@ -15,6 +15,7 @@ import { RouteTracker } from "@/components/RouteTracker";
 import { BrokenLinkDetector } from "@/components/BrokenLinkDetector";
 import { NotFound } from "@/components/NotFound";
 import RoleDashboardRedirect from "@/components/RoleDashboardRedirect";
+import { SessionValidator } from "@/components/SessionValidator";
 import { SmartRedirect } from "@/components/SmartRedirect";
 import { AdminRedirect } from "@/components/AdminRedirect";
 import "@/lib/i18n";
@@ -100,8 +101,9 @@ const App = () => (
             <EnhancedSecurityProvider enableStrictMode={true} showWarnings={true}>
               <Toaster />
               <Sonner />
-              <BrowserRouter>
-                <SmartRedirect>
+               <BrowserRouter>
+                 <SessionValidator>
+                   <SmartRedirect>
                 <AdminRedirect>
                 <RouteTracker>
                   <BrokenLinkDetector>
@@ -278,7 +280,8 @@ const App = () => (
             </BrokenLinkDetector>
           </RouteTracker>
          </AdminRedirect>
-         </SmartRedirect>
+          </SmartRedirect>
+        </SessionValidator>
       </BrowserRouter>
             </EnhancedSecurityProvider>
         </TooltipProvider>

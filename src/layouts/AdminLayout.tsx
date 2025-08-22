@@ -11,6 +11,7 @@ import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { clearAllSessions } from '@/utils/sessionCleanup';
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
@@ -81,6 +82,23 @@ const AdminLayout = () => {
       });
     }
   };
+  const handleClearConflictingSessions = async () => {
+    try {
+      await clearAllSessions();
+      toast({
+        title: "Sessions nettoyées",
+        description: "Toutes les sessions conflictuelles ont été supprimées",
+      });
+      window.location.href = '/';
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de nettoyer les sessions",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getInitials = () => {
     if (userProfile?.full_name) {
       return userProfile.full_name.split(' ').map(name => name[0]).join('').toUpperCase().slice(0, 2);
@@ -166,6 +184,10 @@ const AdminLayout = () => {
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />
                 <span>Mon Profil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleClearConflictingSessions}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Nettoyer les sessions</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
