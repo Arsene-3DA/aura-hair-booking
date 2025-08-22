@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Clock, Calendar as CalendarIcon, CheckCircle, Info } from 'lucide-react';
 import { format, addDays, isSameDay, isAfter, isBefore } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { useTimeSlotAvailability } from '@/hooks/useTimeSlotAvailability';
+import { usePublicAvailability } from '@/hooks/usePublicAvailability';
 
 interface BookingCalendarProps {
   hairdresserId: string;
@@ -18,7 +18,7 @@ interface BookingCalendarProps {
 
 const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, selectedTime }: BookingCalendarProps) => {
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date>();
-  const { timeSlots, loading: loadingSlots } = useTimeSlotAvailability(hairdresserId, selectedCalendarDate);
+  const { timeSlots, loading: loadingSlots } = usePublicAvailability(hairdresserId, selectedCalendarDate);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -142,42 +142,29 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
               </div>
             ) : (
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {timeSlots.map((slot) => {
-                  const isSelected = selectedTime === slot.time;
+                {timeSlots.filter(slot => slot.is_available).map((slot) => {
+                  const isSelected = selectedTime === slot.time_slot;
                   
                   return (
                     <Button
-                      key={slot.time}
+                      key={slot.time_slot}
                       variant={isSelected ? "default" : "outline"}
                       className={`
                         h-12 text-sm relative
                         ${isSelected 
                           ? 'bg-gold-500 hover:bg-gold-600 text-white' 
-                          : slot.available 
-                            ? 'hover:bg-gold-50 hover:border-gold-300 text-gray-700' 
-                            : 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400'
+                          : 'hover:bg-gold-50 hover:border-gold-300 text-gray-700'
                         }
                       `}
-                      disabled={!slot.available}
-                      onClick={() => slot.available && handleTimeSlotClick(slot.time)}
+                      onClick={() => handleTimeSlotClick(slot.time_slot)}
                     >
-                      {slot.time}
+                      {slot.time_slot}
                       {isSelected && (
                         <CheckCircle className="h-4 w-4 absolute -top-1 -right-1 text-green-500 bg-white rounded-full" />
                       )}
-                      {slot.booked && !isSelected && (
-                        <div className="absolute inset-0 bg-red-500/20 rounded-md flex items-center justify-center">
-                          <span className="text-xs text-red-600 font-semibold">Occupé</span>
-                        </div>
-                      )}
-                      {slot.unavailable && !isSelected && (
-                        <div className="absolute inset-0 bg-gray-500/20 rounded-md flex items-center justify-center">
-                          <span className="text-xs text-gray-600 font-semibold">Indisponible</span>
-                        </div>
-                      )}
-                    </Button>
-                  );
-                })}
+                     </Button>
+                   );
+                 })}
               </div>
             )}
             
