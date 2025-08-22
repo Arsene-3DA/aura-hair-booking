@@ -123,9 +123,8 @@ export const useAvailability = (stylistId?: string) => {
       const { error } = await supabase
         .from('availabilities')
         .update({ 
-          status: data.status,
-          // Force la mise à jour du timestamp pour déclencher les triggers
-          updated_at: new Date().toISOString()
+          status: data.status
+          // SUPPRIMÉ: updated_at car cette colonne n'existe pas dans la table
         })
         .eq('id', data.id);
 
