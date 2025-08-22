@@ -59,21 +59,26 @@ export const useDynamicRoleManagement = () => {
   };
 
   const changeUserRole = async (targetUserId: string, newRole: UserRole): Promise<RoleChangeResult> => {
+    console.log('🔄 Début changement de rôle:', { targetUserId, newRole });
     setLoading(true);
     try {
       // SECURITY FIX: Use the new secure role change function
+      console.log('📡 Appel RPC secure_change_user_role...');
       const { data, error } = await supabase
         .rpc('secure_change_user_role', {
           target_user_id: targetUserId,
           new_role: newRole
         });
 
+      console.log('📡 Réponse RPC:', { data, error });
+
       if (error) {
-        console.error('Erreur changement de rôle:', error);
+        console.error('❌ Erreur changement de rôle:', error);
         throw error;
       }
 
       const result = (data as unknown) as RoleChangeResult;
+      console.log('✅ Résultat changement de rôle:', result);
       
       if (result.success) {
         toast({

@@ -67,6 +67,11 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       }
 
       // OPTIMISTIC UPDATE: Update local state immediately
+      console.log('🔄 useAdminUsers: Mise à jour optimiste', {
+        userId,
+        currentRole: user.role,
+        newRole
+      });
       setUsers(prev => 
         prev.map(u => 
           u.id === userId ? { ...u, role: newRole as UserRole } : u
@@ -74,13 +79,20 @@ export const useAdminUsers = (): UseAdminUsersReturn => {
       );
 
       // SECURITY FIX: Use the secure role change function with auth_id
+      console.log('📡 useAdminUsers: Appel RPC secure_change_user_role', {
+        target_user_id: user.auth_id,
+        new_role: newRole
+      });
+      
       const { data, error } = await supabase.rpc('secure_change_user_role', {
         target_user_id: user.auth_id,
         new_role: newRole
       });
 
+      console.log('📡 useAdminUsers: Réponse RPC', { data, error });
+
       if (error) {
-        console.error('Error promoting user:', error);
+        console.error('❌ useAdminUsers: Error promoting user:', error);
         // Revert optimistic update on error
         setUsers(prev => 
           prev.map(u => 

@@ -68,11 +68,13 @@ const Users = () => {
   });
 
   const handleOpenRoleChangeModal = (user: any) => {
+    console.log('🔄 Users: Ouverture modal changement rôle pour', user);
     setSelectedUserForRoleChange(user);
     setRoleChangeModalOpen(true);
   };
 
   const handleRoleChanged = () => {
+    console.log('✅ Users: Callback role changé - rechargement des données');
     // Force immédiatement le refetch des données
     refetch();
   };

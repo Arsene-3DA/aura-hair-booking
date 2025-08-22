@@ -85,9 +85,18 @@ const RoleChangeModal: React.FC<RoleChangeModalProps> = ({
   const handleRoleChange = async () => {
     if (!user || !selectedRole) return;
 
+    console.log('🔄 RoleChangeModal: Début changement de rôle', {
+      userId: user.auth_id,
+      currentRole: user.role,
+      newRole: selectedRole
+    });
+
     const result = await changeUserRole(user.auth_id, selectedRole);
     
+    console.log('📊 RoleChangeModal: Résultat changement', result);
+    
     if (result.success) {
+      console.log('✅ RoleChangeModal: Succès - déclenchement des callbacks');
       // Déclencher immédiatement la mise à jour
       onRoleChanged();
       onClose();
