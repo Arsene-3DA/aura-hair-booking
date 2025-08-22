@@ -1432,6 +1432,14 @@ export type Database = {
           working_hours: Json
         }[]
       }
+      get_public_professional_availability: {
+        Args: { check_date: string; professional_auth_id: string }
+        Returns: {
+          booking_duration: number
+          is_available: boolean
+          time_slot: string
+        }[]
+      }
       get_review_by_token: {
         Args: { token: string }
         Returns: {

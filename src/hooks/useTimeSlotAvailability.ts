@@ -18,13 +18,17 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
   console.log('🕒 useTimeSlotAvailability - Start:', { stylistId, selectedDate: selectedDate?.toISOString() });
   const generateSlotsFromWorkingHours = async (date: Date, hairdresserId: string) => {
     try {
-      // Utiliser la nouvelle fonction de disponibilité
+      // Utiliser la nouvelle fonction de disponibilité publique
       const dateStr = format(date, 'yyyy-MM-dd');
+      console.log('🔍 Trying public availability function with auth_id:', hairdresserId);
+      
       const { data: availabilityData, error } = await supabase
-        .rpc('get_professional_availability_by_id', {
-          hairdresser_id: hairdresserId,
+        .rpc('get_public_professional_availability', {
+          professional_auth_id: hairdresserId,
           check_date: dateStr
         });
+
+      console.log('📊 Public availability result:', { availabilityData, error });
 
       if (!error && availabilityData && availabilityData.length > 0) {
         return availabilityData.map((slot: any) => ({
@@ -34,8 +38,9 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
       }
 
       // Fallback: utiliser l'ancienne méthode avec RPC
+      console.log('🔄 Falling back to old method');
       const { data: professionalData, error: profError } = await supabase
-        .rpc('get_professional_by_auth_id', { auth_user_id: stylistId });
+        .rpc('get_professional_by_auth_id', { auth_user_id: hairdresserId });
 
       if (profError || !professionalData?.[0]?.working_hours) {
         console.log('⚠️ No working hours found, using default slots');
