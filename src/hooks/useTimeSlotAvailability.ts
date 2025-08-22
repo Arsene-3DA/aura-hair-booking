@@ -263,15 +263,14 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
     }
   }, [stylistId, selectedDate]);
 
-  // Écouter les modifications en temps réel des horaires et des créneaux
+  // Écouter les modifications en temps réel des horaires du professionnel
   useEffect(() => {
-    if (!stylistId || !selectedDate) return;
+    if (!stylistId) return;
 
-    console.log('🔄 Setting up comprehensive real-time subscriptions for stylist:', stylistId);
+    console.log('🔄 Setting up real-time subscription for stylist:', stylistId);
     
-    // Channel pour écouter les horaires d'ouverture
-    const workingHoursChannel = supabase
-      .channel(`working-hours-${stylistId}`)
+    const channel = supabase
+      .channel('stylist-updates')
       .on(
         'postgres_changes',
         {
@@ -281,15 +280,12 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
           filter: `auth_id=eq.${stylistId}`
         },
         (payload) => {
-          console.log('🔄 Working hours updated, refreshing availability:', payload);
-          fetchAvailabilityData(selectedDate);
+          console.log('🔄 Working hours updated for stylist:', payload);
+          if (selectedDate) {
+            fetchAvailabilityData(selectedDate);
+          }
         }
       )
-      .subscribe();
-
-    // Channel pour écouter les créneaux spécifiques (disponibilités)
-    const availabilityChannel = supabase
-      .channel(`availability-${stylistId}`)
       .on(
         'postgres_changes',
         {
@@ -299,15 +295,12 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
           filter: `stylist_id=eq.${stylistId}`
         },
         (payload) => {
-          console.log('🔄 Availability slots updated, refreshing slots:', payload);
-          fetchAvailabilityData(selectedDate);
+          console.log('🔄 Availability updated for stylist:', payload);
+          if (selectedDate) {
+            fetchAvailabilityData(selectedDate);
+          }
         }
       )
-      .subscribe();
-
-    // Channel pour écouter les nouvelles réservations
-    const reservationsChannel = supabase
-      .channel(`reservations-${stylistId}`)
       .on(
         'postgres_changes',
         {
@@ -317,19 +310,19 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
           filter: `stylist_user_id=eq.${stylistId}`
         },
         (payload) => {
-          console.log('🔄 Reservation updated, refreshing availability:', payload);
-          fetchAvailabilityData(selectedDate);
+          console.log('🔄 Reservation updated for stylist:', payload);
+          if (selectedDate) {
+            fetchAvailabilityData(selectedDate);
+          }
         }
       )
       .subscribe();
 
     return () => {
-      console.log('🔄 Cleaning up all real-time subscriptions for stylist:', stylistId);
-      supabase.removeChannel(workingHoursChannel);
-      supabase.removeChannel(availabilityChannel);
-      supabase.removeChannel(reservationsChannel);
+      console.log('🔄 Cleaning up subscription for stylist:', stylistId);
+      supabase.removeChannel(channel);
     };
-  }, [stylistId, selectedDate]);
+  }, [stylistId]);
 
   return {
     timeSlots,
