@@ -429,8 +429,8 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
   };
 
   const handleInputChange = (field: string, value: string) => {
-    // Sanitize input first
-    const sanitizedValue = sanitizeInput(value);
+    // Sanitize input first with special handling for notes
+    const sanitizedValue = field === 'notes' ? sanitizeInput(value, true) : sanitizeInput(value);
     
     // Validate the input
     const error = validateInput(field, sanitizedValue);
@@ -687,10 +687,11 @@ const ReservationForm = ({ hairdresserId, hairdresserName, onSuccess, preselecte
             id="notes"
             value={formData.notes}
             onChange={(e) => handleInputChange('notes', e.target.value)}
-            placeholder="Précisez vos souhaits, allergies, etc."
+            placeholder="Précisez vos souhaits, allergies, etc.&#10;Vous pouvez utiliser plusieurs lignes et des espaces."
             disabled={loading}
-            rows={3}
-            className={validationErrors.notes ? 'border-red-500' : ''}
+            rows={4}
+            className={`resize-none ${validationErrors.notes ? 'border-red-500' : ''}`}
+            style={{ whiteSpace: 'pre-wrap' }}
           />
           {validationErrors.notes && (
             <div className="flex items-center gap-1 mt-1 text-sm text-red-600">

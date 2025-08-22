@@ -128,8 +128,19 @@ export const validateBookingData = (data: {
   };
 };
 
-export const sanitizeInput = (input: string): string => {
-  // SECURITY FIX: Enhanced input sanitization
+export const sanitizeInput = (input: string, isNotes = false): string => {
+  // SECURITY FIX: Enhanced input sanitization with special handling for notes
+  if (isNotes) {
+    // Pour les notes, préserver les espaces et caractères normaux
+    return input
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+      .replace(/<[^>]*>/g, '') // Remove HTML tags but keep content
+      .replace(/javascript:/gi, '') // Remove javascript: protocols
+      .replace(/on\w+\s*=/gi, '') // Remove event handlers
+      .slice(0, 1000); // Limit length to prevent buffer overflow
+  }
+  
+  // Pour les autres champs, sanitisation plus stricte
   return input
     .trim()
     .replace(/[<>]/g, '') // Remove potential XSS tags
