@@ -69,33 +69,23 @@ export const useUsers = () => {
   const getAllUsers = async () => {
     try {
       setLoading(true);
-      // CORRECTION: Utiliser la table profiles pour obtenir tous les utilisateurs
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          id,
-          user_id,
-          role,
-          full_name,
-          created_at,
-          updated_at
-        `)
-        .order('created_at', { ascending: false });
+      // Utiliser la fonction RPC qui filtre automatiquement les comptes de test
+      const { data, error } = await supabase.rpc('get_all_users_for_admin');
 
       if (error) throw error;
       
-      // Adapter les données pour compatibilité
-      const adaptedUsers = (data || []).map(profile => ({
-        id: profile.id,
-        auth_id: profile.user_id,
-        email: '', // L'email sera récupéré depuis auth.users si nécessaire
-        nom: profile.full_name?.split(' ')[0] || '',
-        prenom: profile.full_name?.split(' ').slice(1).join(' ') || '',
-        telephone: '',
-        role: profile.role as UserRole,
-        status: 'actif' as UserStatus,
-        created_at: profile.created_at,
-        updated_at: profile.updated_at
+      // Adapter les données pour compatibilité avec l'interface User
+      const adaptedUsers = (data || []).map(user => ({
+        id: user.id,
+        auth_id: user.auth_id,
+        email: user.email || '',
+        nom: user.nom || '',
+        prenom: user.prenom || '',
+        telephone: user.telephone || '',
+        role: user.role as UserRole,
+        status: user.status as UserStatus,
+        created_at: user.created_at,
+        updated_at: user.updated_at
       }));
 
       setUsers(adaptedUsers);
