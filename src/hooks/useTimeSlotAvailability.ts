@@ -263,14 +263,15 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
     }
   }, [stylistId, selectedDate]);
 
-  // Écouter les modifications en temps réel des horaires du professionnel
+  // Écouter les modifications en temps réel des horaires et des créneaux
   useEffect(() => {
     if (!stylistId) return;
 
-    console.log('🔄 Setting up real-time subscription for stylist working hours:', stylistId);
+    console.log('🔄 Setting up real-time subscriptions for stylist:', stylistId);
     
     const channel = supabase
-      .channel('working-hours-updates')
+      .channel('stylist-availability-updates')
+      // Écouter les modifications des horaires d'ouverture
       .on(
         'postgres_changes',
         {
@@ -286,10 +287,42 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
           }
         }
       )
+      // Écouter les modifications des créneaux spécifiques
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'availabilities',
+          filter: `stylist_id=eq.${stylistId}`
+        },
+        (payload) => {
+          console.log('🔄 Availability slots updated for stylist:', payload);
+          if (selectedDate) {
+            fetchAvailabilityData(selectedDate);
+          }
+        }
+      )
+      // Écouter les nouvelles réservations
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'new_reservations',
+          filter: `stylist_user_id=eq.${stylistId}`
+        },
+        (payload) => {
+          console.log('🔄 New reservation for stylist:', payload);
+          if (selectedDate) {
+            fetchAvailabilityData(selectedDate);
+          }
+        }
+      )
       .subscribe();
 
     return () => {
-      console.log('🔄 Cleaning up working hours subscription');
+      console.log('🔄 Cleaning up real-time subscriptions');
       supabase.removeChannel(channel);
     };
   }, [stylistId, selectedDate]);
