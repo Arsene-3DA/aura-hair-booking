@@ -1277,6 +1277,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_professional_availabilities: {
+        Args: { end_date?: string; start_date?: string }
+        Returns: {
+          created_at: string
+          end_at: string
+          id: string
+          start_at: string
+          status: string
+        }[]
+      }
       get_professional_availability: {
         Args: { check_date: string; professional_id: string }
         Returns: {
@@ -1519,6 +1529,14 @@ export type Database = {
           p_hairdresser_id: string
           p_message: string
           p_subject: string
+        }
+        Returns: Json
+      }
+      set_professional_availability: {
+        Args: {
+          availability_status?: string
+          end_datetime: string
+          start_datetime: string
         }
         Returns: Json
       }
