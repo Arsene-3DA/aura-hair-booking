@@ -31,7 +31,6 @@ const ClientLayout = () => {
 
   const navigationItems = [
     { path: '/app', label: 'Accueil', icon: Home },
-    { path: '/app/bookings/new', label: 'Réservation', icon: Plus },
     { path: '/app/bookings', label: 'Mes RDV', icon: Calendar },
     { path: '/app/profile', label: 'Profil', icon: User },
     { path: '/app/reviews', label: 'Avis', icon: Star },
