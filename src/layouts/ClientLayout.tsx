@@ -84,7 +84,7 @@ const ClientLayout = () => {
             <div className="flex items-center gap-3">
               {isMobile && <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                   <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="hover:bg-muted text-slate-300">
+                    <Button variant="ghost" size="icon" className="hover:bg-muted text-foreground">
                       <Menu className="h-5 w-5" />
                     </Button>
                   </SheetTrigger>
