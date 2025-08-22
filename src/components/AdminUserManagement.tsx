@@ -140,8 +140,8 @@ const AdminUserManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Gestion des utilisateurs</h2>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold">Gestion des utilisateurs</h2>
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gold-500 hover:bg-gold-600">
@@ -229,53 +229,56 @@ const AdminUserManagement = () => {
       </div>
 
       <Tabs defaultValue="coiffeurs" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="coiffeurs">Expert Coiffeur ({coiffeurs.length})</TabsTrigger>
-          <TabsTrigger value="cosmetique">Cosmétique ({users.filter(user => user.role === 'cosmetique').length})</TabsTrigger>
-          <TabsTrigger value="clients">Clients ({clients.length})</TabsTrigger>
-          <TabsTrigger value="admins">Admins ({admins.length})</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+          <TabsTrigger value="coiffeurs" className="text-xs sm:text-sm">Expert ({coiffeurs.length})</TabsTrigger>
+          <TabsTrigger value="cosmetique" className="text-xs sm:text-sm">Cosmé ({users.filter(user => user.role === 'cosmetique').length})</TabsTrigger>
+          <TabsTrigger value="clients" className="text-xs sm:text-sm">Clients ({clients.length})</TabsTrigger>
+          <TabsTrigger value="admins" className="text-xs sm:text-sm">Admins ({admins.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="coiffeurs" className="space-y-4">
           <div className="grid gap-4">
             {coiffeurs.map((user) => (
               <Card key={user.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarFallback className="bg-blue-100 text-blue-700">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div className="flex items-center space-x-3 flex-1 min-w-0">
+                      <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+                        <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
                           {user.prenom.charAt(0)}{user.nom.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <h3 className="font-semibold">{user.prenom} {user.nom}</h3>
-                        <div className="flex items-center space-x-2 text-sm text-gray-600">
-                          <Mail className="h-4 w-4" />
-                          <span>{user.email}</span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-sm sm:text-base truncate">{user.prenom} {user.nom}</h3>
+                        <div className="flex items-center space-x-1 text-xs sm:text-sm text-muted-foreground">
+                          <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{user.email}</span>
                         </div>
                         {user.telephone && (
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <Phone className="h-4 w-4" />
-                            <span>{user.telephone}</span>
+                          <div className="flex items-center space-x-1 text-xs sm:text-sm text-muted-foreground">
+                            <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">{user.telephone}</span>
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                       {getRoleBadge(user.role)}
                       {getStatusBadge(user.status)}
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setEditingUser(user)}
+                        className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="hidden sm:ml-2 sm:inline">Modifier</span>
                       </Button>
                       <Button
                         variant="secondary"
                         size="sm"
                         onClick={() => setRoleChangeUser(user)}
+                        className="hidden sm:inline-flex"
                       >
                         Changer rôle
                       </Button>
@@ -283,15 +286,19 @@ const AdminUserManagement = () => {
                         variant={user.status === 'bloque' ? 'default' : 'destructive'}
                         size="sm"
                         onClick={() => handleToggleUserStatus(user)}
+                        className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
                       >
-                        {user.status === 'bloque' ? <CheckCircle className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
+                        {user.status === 'bloque' ? <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" /> : <Ban className="h-3 w-3 sm:h-4 sm:w-4" />}
+                        <span className="hidden sm:ml-2 sm:inline">{user.status === 'bloque' ? 'Débloquer' : 'Bloquer'}</span>
                       </Button>
                       <Button
                         variant="destructive"
                         size="sm"
                         onClick={() => handleDeleteUser(user.id)}
+                        className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="hidden sm:ml-2 sm:inline">Supprimer</span>
                       </Button>
                     </div>
                   </div>

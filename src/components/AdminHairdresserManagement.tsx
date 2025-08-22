@@ -227,10 +227,10 @@ const AdminHairdresserManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Gestion des Coiffeurs</h2>
-          <p className="text-gray-600 mt-1">Gérez les profils des coiffeurs du salon</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Gestion des Coiffeurs</h2>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Gérez les profils des coiffeurs du salon</p>
         </div>
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
@@ -345,82 +345,92 @@ const AdminHairdresserManagement = () => {
       <div className="grid gap-4">
         {hairdressers.map((hairdresser) => (
           <Card key={hairdresser.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-4">
-                  <Avatar className="h-16 w-16">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex items-start space-x-3 sm:space-x-4 flex-1 min-w-0">
+                  <Avatar className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 flex-shrink-0">
                     <AvatarImage src={hairdresser.image_url || undefined} />
-                    <AvatarFallback className="bg-gold-100 text-gold-700 text-lg">
-                      <Scissors className="h-8 w-8" />
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      <Scissors className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" />
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="font-semibold text-lg">{hairdresser.name}</h3>
-                      <Badge variant={hairdresser.is_active ? "default" : "secondary"}>
-                        {hairdresser.is_active ? "Actif" : "Inactif"}
-                      </Badge>
-                      {hairdresser.rating !== null && (
-                        <Badge variant="outline" className="text-yellow-600">
-                          <Star className="h-3 w-3 mr-1" />
-                          {hairdresser.rating.toFixed(1)}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-base sm:text-lg truncate">{hairdresser.name}</h3>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant={hairdresser.is_active ? "default" : "secondary"} className="text-xs">
+                          {hairdresser.is_active ? "Actif" : "Inactif"}
                         </Badge>
-                      )}
+                        {hairdresser.rating !== null && (
+                          <Badge variant="outline" className="text-yellow-600 text-xs">
+                            <Star className="h-3 w-3 mr-1" />
+                            {hairdresser.rating.toFixed(1)}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                     
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
                       <div className="flex items-center space-x-2">
-                        <Mail className="h-4 w-4" />
-                        <span>{hairdresser.email}</span>
+                        <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="truncate">{hairdresser.email}</span>
                       </div>
                       {hairdresser.phone && (
                         <div className="flex items-center space-x-2">
-                          <Phone className="h-4 w-4" />
-                          <span>{hairdresser.phone}</span>
+                          <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{hairdresser.phone}</span>
                         </div>
                       )}
                       {hairdresser.location && (
                         <div className="flex items-center space-x-2">
-                          <MapPin className="h-4 w-4" />
-                          <span>{hairdresser.location}</span>
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{hairdresser.location}</span>
                         </div>
                       )}
                     </div>
 
                     {hairdresser.specialties && hairdresser.specialties.length > 0 && (
-                      <div className="mt-3">
-                        <p className="text-sm font-medium mb-1">Spécialités:</p>
+                      <div className="mt-2 sm:mt-3">
+                        <p className="text-xs sm:text-sm font-medium mb-1">Spécialités:</p>
                         <div className="flex flex-wrap gap-1">
-                          {hairdresser.specialties.map((specialty, index) => (
+                          {hairdresser.specialties.slice(0, 3).map((specialty, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
                               {specialty}
                             </Badge>
                           ))}
+                          {hairdresser.specialties.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{hairdresser.specialties.length - 3}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     )}
 
                     {hairdresser.experience && (
-                      <div className="mt-3">
-                        <p className="text-sm font-medium mb-1">Expérience:</p>
-                        <p className="text-sm text-gray-600">{hairdresser.experience}</p>
+                      <div className="mt-2 sm:mt-3 sm:hidden lg:block">
+                        <p className="text-xs sm:text-sm font-medium mb-1">Expérience:</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{hairdresser.experience}</p>
                       </div>
                     )}
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-row sm:flex-col gap-2 self-start">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setEditingHairdresser(hairdresser)}
+                    className="flex-1 sm:flex-none"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Modifier</span>
                   </Button>
                   <Button
                     variant={hairdresser.is_active ? "secondary" : "default"}
                     size="sm"
                     onClick={() => handleToggleActive(hairdresser)}
+                    className="flex-1 sm:flex-none text-xs"
                   >
                     {hairdresser.is_active ? "Désactiver" : "Activer"}
                   </Button>
@@ -428,8 +438,10 @@ const AdminHairdresserManagement = () => {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDeleteHairdresser(hairdresser.id)}
+                    className="flex-1 sm:flex-none"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Supprimer</span>
                   </Button>
                 </div>
               </div>
