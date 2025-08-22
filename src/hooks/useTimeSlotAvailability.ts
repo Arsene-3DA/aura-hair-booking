@@ -93,11 +93,24 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
       setLoading(true);
       const dateStr = format(date, 'yyyy-MM-dd');
       
-      // D'abord, essayer de récupérer l'ID du hairdresser pour ce stylist
+      // D'abord, vérifier si le professionnel est actif et publié
+      const { data: professionalCheck } = await supabase
+        .from('hairdressers')
+        .select('id, is_active')
+        .eq('auth_id', stylistId)
+        .eq('is_active', true)
+        .single();
+
+      if (!professionalCheck) {
+        setTimeSlots([]); // Professionnel non actif ou non publié
+        return;
+      }
+
+      // Récupérer les données du professionnel
       const { data: professionalData } = await supabase
         .rpc('get_professional_by_auth_id', { auth_user_id: stylistId });
 
-      let hairdresserId = null;
+      let hairdresserId = professionalCheck.id;
       if (professionalData && professionalData.length > 0) {
         hairdresserId = professionalData[0].id;
       }
@@ -137,6 +150,17 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
       const isToday = isSameDay(date, today);
       const currentTime = new Date();
 
+      // Récupérer aussi les réservations en attente pour éviter les conflits
+      const { data: pendingBookings, error: pendingError } = await supabase
+        .from('new_reservations')
+        .select('scheduled_at')
+        .eq('stylist_user_id', stylistId)
+        .eq('status', 'pending')
+        .gte('scheduled_at', `${dateStr}T00:00:00`)
+        .lt('scheduled_at', `${dateStr}T23:59:59`);
+
+      if (pendingError) throw pendingError;
+
       const slotsWithStatus: TimeSlot[] = workingSlots.map(slot => {
         const time = slot.time;
         // Parser le format "10h00" pour extraire les heures et minutes
@@ -170,14 +194,27 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
         }
 
         // Vérifier si le créneau est occupé par une réservation confirmée
-        const isBooked = confirmedBookings?.some(booking => {
+        const isConfirmedBooking = confirmedBookings?.some(booking => {
           const bookingTime = parseISO(booking.scheduled_at);
           return isSameDay(bookingTime, slotDateTime) && 
                  bookingTime.getHours() === hours && 
                  bookingTime.getMinutes() === minutes;
         });
 
-        if (isBooked) {
+        if (isConfirmedBooking) {
+          available = false;
+          booked = true;
+        }
+
+        // Empêcher la double-réservation en vérifiant aussi les réservations pending
+        const isPendingBooking = pendingBookings?.some(booking => {
+          const bookingTime = parseISO(booking.scheduled_at);
+          return isSameDay(bookingTime, slotDateTime) && 
+                 bookingTime.getHours() === hours && 
+                 bookingTime.getMinutes() === minutes;
+        });
+
+        if (isPendingBooking) {
           available = false;
           booked = true;
         }

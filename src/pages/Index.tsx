@@ -250,10 +250,10 @@ const Index = () => {
                   Mon Dashboard
                 </Button>
                 
-                {userProfile.role === 'client' && <Button onClick={() => navigate('/app/bookings/new')} className="bg-transparent border border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300 px-8 py-4 text-lg">
-                    <Calendar className="h-6 w-6 mr-3" />
-                    Nouvelle Réservation
-                  </Button>}
+                {userProfile.role === 'client' && <Button onClick={() => navigate('/bookings/new')} className="bg-transparent border border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700] hover:text-black transition-all duration-300 px-8 py-4 text-lg">
+                     <Calendar className="h-6 w-6 mr-3" />
+                     + Nouveau rendez-vous
+                   </Button>}
               </div>
             </div>
           </section>}

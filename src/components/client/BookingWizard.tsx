@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TimeSlotSelector } from './TimeSlotSelector';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -29,6 +30,7 @@ interface Stylist {
   full_name: string;
   avatar_url?: string;
   specialties?: string[];
+  role?: 'coiffeur' | 'coiffeuse' | 'cosmetique';
 }
 
 interface Service {
@@ -58,18 +60,27 @@ export const BookingWizard = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingData, setLoadingData] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<'coiffeur' | 'coiffeuse' | 'cosmetique' | 'all'>('all');
 
-  // Load stylists
+  // Load stylists with proper categorization
   const loadStylists = async () => {
     setLoadingData(true);
     try {
       const { data } = await supabase
         .from('profiles')
-        .select('user_id, full_name, avatar_url')
-        .eq('role', 'coiffeur')
-        .limit(20);
+        .select('user_id, full_name, avatar_url, role')
+        .in('role', ['coiffeur', 'coiffeuse', 'cosmetique'])
+        .limit(50);
       
-      setStylists(data?.map(p => ({ id: p.user_id, full_name: p.full_name, avatar_url: p.avatar_url })) || []);
+      if (data) {
+        setStylists(data.map(p => ({ 
+          id: p.user_id, 
+          full_name: p.full_name, 
+          avatar_url: p.avatar_url,
+          specialties: [],
+          role: p.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
+        })));
+      }
     } catch (error) {
       console.error('Error loading stylists:', error);
     } finally {
@@ -177,9 +188,11 @@ export const BookingWizard = () => {
     };
   };
 
-  const filteredStylists = stylists.filter(stylist =>
-    stylist.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredStylists = stylists.filter(stylist => {
+    const matchesSearch = stylist.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || stylist.role === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const nextStep = () => setCurrentStep(prev => Math.min(4, prev + 1));
   const prevStep = () => setCurrentStep(prev => Math.max(1, prev - 1));
@@ -222,14 +235,51 @@ export const BookingWizard = () => {
               <p className="text-muted-foreground">Sélectionnez le professionnel de votre choix</p>
             </div>
 
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher un coiffeur..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher un professionnel..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Category filters */}
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('all')}
+                >
+                  Tous
+                </Button>
+                <Button
+                  variant={selectedCategory === 'coiffeur' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('coiffeur')}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  Coiffeurs
+                </Button>
+                <Button
+                  variant={selectedCategory === 'coiffeuse' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('coiffeuse')}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black"
+                >
+                  Coiffeuses
+                </Button>
+                <Button
+                  variant={selectedCategory === 'cosmetique' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('cosmetique')}
+                  className="bg-purple-500 hover:bg-purple-600 text-white"
+                >
+                  Cosmétique
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
@@ -252,7 +302,21 @@ export const BookingWizard = () => {
                         </div>
                         <div className="flex-1">
                           <h3 className="font-medium">{stylist.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">Coiffeur professionnel</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge 
+                              variant="secondary" 
+                              className={cn(
+                                "text-xs",
+                                stylist.role === 'coiffeur' && "bg-blue-100 text-blue-800",
+                                stylist.role === 'coiffeuse' && "bg-yellow-100 text-yellow-800",
+                                stylist.role === 'cosmetique' && "bg-purple-100 text-purple-800"
+                              )}
+                            >
+                              {stylist.role === 'coiffeur' ? 'Coiffeur' : 
+                               stylist.role === 'coiffeuse' ? 'Coiffeuse' : 
+                               'Cosmétique'}
+                            </Badge>
+                          </div>
                         </div>
                         {selectedStylist?.id === stylist.id && (
                           <Check className="h-5 w-5 text-primary" />
@@ -343,19 +407,12 @@ export const BookingWizard = () => {
                   <h3 className="font-medium mb-3">
                     Créneaux pour le {format(selectedDate, 'dd MMMM', { locale: fr })}
                   </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {timeSlots.map((time) => (
-                      <Button
-                        key={time}
-                        variant={selectedTime === time ? "default" : "outline"}
-                        onClick={() => setSelectedTime(time)}
-                        className="w-full"
-                        size="sm"
-                      >
-                        {time}
-                      </Button>
-                    ))}
-                  </div>
+                   <TimeSlotSelector
+                     stylistId={selectedStylist?.id || ''}
+                     selectedDate={selectedDate}
+                     selectedTime={selectedTime}
+                     onTimeSelect={setSelectedTime}
+                   />
                 </div>
               )}
             </div>
