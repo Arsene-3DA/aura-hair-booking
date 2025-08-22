@@ -28,12 +28,6 @@ export default function MyReservationsPage() {
             Gérez vos rendez-vous passés et à venir
           </p>
         </div>
-        <Button asChild>
-          <Link to="/experts">
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvelle réservation
-          </Link>
-        </Button>
       </div>
 
       {/* Reservations Display */}
