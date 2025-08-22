@@ -76,7 +76,48 @@ const ClientLayout = () => {
       </header>
 
       <div className="flex min-h-[calc(100vh-4rem)]">
-        {/* Main Content - Full width without sidebar */}
+        {/* Sidebar Navigation */}
+        <nav className="w-[220px] border-r bg-primary/90 p-6 flex flex-col">
+          <div className="space-y-2 flex-1">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              
+              return (
+                <Button
+                  key={item.path}
+                  asChild
+                  variant={isActive ? "secondary" : "ghost"}
+                  className="w-full justify-start text-primary-foreground hover:text-primary hover:bg-primary-foreground/90"
+                >
+                  <Link to={item.path}>
+                    <Icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                    {item.path === '/app/notifications' && unreadCount > 0 && (
+                      <Badge variant="destructive" className="ml-auto h-5 px-2 text-xs">
+                        {unreadCount}
+                      </Badge>
+                    )}
+                  </Link>
+                </Button>
+              );
+            })}
+          </div>
+          
+          {/* Logout Button */}
+          <div className="mt-6 pt-6 border-t border-primary-foreground/20">
+            <Button 
+              variant="ghost" 
+              onClick={handleLogout}
+              className="w-full justify-start text-primary-foreground hover:text-primary hover:bg-primary-foreground/90"
+            >
+              <LogOut className="h-4 w-4 mr-3" />
+              Déconnexion
+            </Button>
+          </div>
+        </nav>
+
+        {/* Main Content */}
         <main className="flex-1 p-6">
           <Outlet />
         </main>
