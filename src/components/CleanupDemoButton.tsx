@@ -13,8 +13,8 @@ const CleanupDemoButton = () => {
   const handleCleanup = async () => {
     setLoading(true);
     try {
-      // Appeler directement la fonction RPC
-      const { data, error } = await supabase.rpc('cleanup_demo_users');
+      // Appeler la nouvelle fonction RPC améliorée
+      const { data, error } = await supabase.rpc('cleanup_all_demo_data');
       
       if (error) {
         console.error('❌ Erreur lors du nettoyage:', error);

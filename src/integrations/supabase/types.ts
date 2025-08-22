@@ -1145,6 +1145,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_all_demo_data: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       cleanup_demo_users: {
         Args: Record<PropertyKey, never>
         Returns: Json
