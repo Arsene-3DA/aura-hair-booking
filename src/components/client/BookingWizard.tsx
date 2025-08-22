@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 import PriceDisplay from '@/components/ui/price-display';
 
 interface Stylist {
-  id: string;
+  id: string; // Ceci est en fait l'auth_id du user (user_id)
   full_name: string;
   avatar_url?: string;
   specialties?: string[];
@@ -570,10 +570,11 @@ export const BookingWizard = () => {
                     Créneaux disponibles - {format(selectedDate, 'EEEE d MMMM', { locale: fr })}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Basé sur les horaires réels de {selectedStylist.full_name}
+                    Basé sur les horaires réels de {formatProfessionalName(selectedStylist.full_name)} 
+                    (Auth ID: {selectedStylist.id})
                   </p>
                   <TimeSlotSelector
-                     stylistId={selectedStylist?.id || ''}
+                     stylistId={selectedStylist.id}
                      selectedDate={selectedDate}
                      selectedTime={selectedTime}
                      onTimeSelect={setSelectedTime}

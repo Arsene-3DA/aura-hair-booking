@@ -19,6 +19,8 @@ export const TimeSlotSelector = ({
 }: TimeSlotSelectorProps) => {
   const { timeSlots, loading } = useTimeSlotAvailability(stylistId, selectedDate);
 
+  console.log('🕒 TimeSlotSelector - Params:', { stylistId, selectedDate: selectedDate?.toISOString(), selectedTime });
+
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-2">

@@ -15,6 +15,7 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
   const [loading, setLoading] = useState(false);
 
   // Generate slots based on stylist working hours using new public functions
+  console.log('🕒 useTimeSlotAvailability - Start:', { stylistId, selectedDate: selectedDate?.toISOString() });
   const generateSlotsFromWorkingHours = async (date: Date, hairdresserId: string) => {
     try {
       // Utiliser la nouvelle fonction de disponibilité
@@ -87,7 +88,13 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
   };
 
   const fetchAvailabilityData = async (date: Date) => {
-    if (!stylistId) return;
+    console.log('🕒 fetchAvailabilityData - Start:', { stylistId, date: date.toISOString() });
+    
+    if (!stylistId) {
+      console.log('❌ No stylistId provided');
+      setTimeSlots([]);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -102,6 +109,7 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
         .single();
 
       if (!professionalCheck) {
+        console.log('❌ Professional not found or inactive:', { stylistId, professionalCheck });
         setTimeSlots([]); // Professionnel non actif ou non publié
         return;
       }
@@ -143,6 +151,7 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
         : await generateSlotsFromWorkingHours(date, stylistId); // fallback
         
       if (workingSlots.length === 0) {
+        console.log('❌ No working slots generated for date:', { date, hairdresserId });
         setTimeSlots([]);
         return;
       }
@@ -231,6 +240,12 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
           unavailable,
           booked
         };
+      });
+
+      console.log('✅ Time slots generated:', { 
+        totalSlots: slotsWithStatus.length, 
+        availableSlots: slotsWithStatus.filter(s => s.available).length,
+        date: dateStr
       });
 
       setTimeSlots(slotsWithStatus);
