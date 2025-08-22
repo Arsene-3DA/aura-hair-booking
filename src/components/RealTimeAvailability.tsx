@@ -173,21 +173,65 @@ export const RealTimeAvailability = ({
       return;
     }
 
+    // Validation des IDs
+    if (!stylistId || stylistId === 'undefined') {
+      console.error('Stylist ID manquant ou invalide:', stylistId);
+      toast({
+        title: "Erreur",
+        description: "Identifiant du styliste manquant",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!userProfile?.user_id || userProfile.user_id === 'undefined') {
+      console.error('User ID manquant ou invalide:', userProfile?.user_id);
+      toast({
+        title: "Erreur", 
+        description: "Identifiant utilisateur manquant. Reconnectez-vous.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const [hours, minutes] = selectedTime.split(':').map(Number);
       const scheduledAt = new Date(selectedDate);
       scheduledAt.setHours(hours, minutes, 0, 0);
 
+      console.log('🔄 Tentative de réservation:', {
+        client_user_id: userProfile.user_id,
+        stylist_user_id: stylistId,
+        scheduled_at: scheduledAt.toISOString(),
+        status: 'pending'
+      });
+
       const { error } = await supabase
         .from('new_reservations')
         .insert({
-          client_user_id: userProfile?.user_id,
+          client_user_id: userProfile.user_id,
           stylist_user_id: stylistId,
           scheduled_at: scheduledAt.toISOString(),
           status: 'pending'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erreur Supabase:', error);
+        
+        // Gestion spécifique de l'erreur de rate limiting
+        if (error.message?.includes('Trop de réservations créées récemment')) {
+          toast({
+            title: "Limitation temporaire",
+            description: "Vous avez créé plusieurs réservations récemment. Veuillez attendre quelques minutes avant de réessayer.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        throw error;
+      }
+
+      console.log('✅ Réservation créée avec succès');
 
       toast({
         title: "Réservation créée",
@@ -210,10 +254,10 @@ export const RealTimeAvailability = ({
       }
       
     } catch (error) {
-      console.error('Erreur réservation:', error);
+      console.error('💥 Erreur réservation:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de créer la réservation",
+        description: "Impossible de créer la réservation. Vérifiez votre connexion.",
         variant: "destructive"
       });
     }
