@@ -201,7 +201,7 @@ export default function ClientDashboard() {
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-3">
               <Button asChild className="h-auto p-4 flex-col">
-                <Link to="/app/booking">
+                <Link to="/app/bookings/new">
                   <Plus className="h-6 w-6 mb-2" />
                   Nouveau RDV
                 </Link>

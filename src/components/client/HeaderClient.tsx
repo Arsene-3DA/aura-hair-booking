@@ -12,18 +12,27 @@ import { Badge } from '@/components/ui/badge';
 import { EnhancedAvatar } from '@/components/EnhancedAvatar';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface HeaderClientProps {
-  onNewBookingClick: () => void;
+  onNewBookingClick?: () => void;
   pendingNotifications?: number;
 }
 
 export const HeaderClient = ({ onNewBookingClick, pendingNotifications = 0 }: HeaderClientProps) => {
   const { signOut, user, userProfile } = useRoleAuth();
+  const navigate = useNavigate();
   
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleNewBookingClick = () => {
+    if (onNewBookingClick) {
+      onNewBookingClick();
+    } else {
+      navigate('/app/bookings/new');
+    }
   };
 
   const getInitials = () => {
@@ -62,7 +71,7 @@ export const HeaderClient = ({ onNewBookingClick, pendingNotifications = 0 }: He
         <div className="flex items-center space-x-4">
           {/* New Booking Button */}
           <Button 
-            onClick={onNewBookingClick}
+            onClick={handleNewBookingClick}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Calendar className="mr-2 h-4 w-4" />
