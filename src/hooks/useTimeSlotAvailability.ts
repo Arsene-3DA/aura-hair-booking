@@ -263,6 +263,37 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
     }
   }, [stylistId, selectedDate]);
 
+  // Écouter les modifications en temps réel des horaires du professionnel
+  useEffect(() => {
+    if (!stylistId) return;
+
+    console.log('🔄 Setting up real-time subscription for stylist working hours:', stylistId);
+    
+    const channel = supabase
+      .channel('working-hours-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'hairdressers',
+          filter: `auth_id=eq.${stylistId}`
+        },
+        (payload) => {
+          console.log('🔄 Working hours updated for stylist:', payload);
+          if (selectedDate) {
+            fetchAvailabilityData(selectedDate);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔄 Cleaning up working hours subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [stylistId, selectedDate]);
+
   return {
     timeSlots,
     loading,

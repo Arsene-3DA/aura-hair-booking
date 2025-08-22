@@ -58,7 +58,10 @@ const WorkingHoursSection = () => {
       setSaving(true);
       await updateWorkingHours(workingHours);
       
-      console.log('✅ Working hours updated successfully, booking slots synchronized');
+      console.log('✅ Working hours updated successfully, booking slots will be synchronized automatically');
+      
+      // Déclencher une notification pour informer de la synchronisation
+      // Les créneaux clients seront mis à jour automatiquement grâce aux subscriptions en temps réel
     } catch (error) {
       console.error('❌ Working hours update failed:', error);
       // Error is handled in the hook
