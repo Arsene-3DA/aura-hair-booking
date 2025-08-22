@@ -127,11 +127,15 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           continue;
         }
 
-        // RÈGLE 3: Vérifier la disponibilité définie par le professionnel
+        // RÈGLE 3: Vérifier la disponibilité définie par le professionnel - MATCHING STRICT 30MIN
         const availability = availabilities.find(avail => {
           const startTime = new Date(avail.start_at);
           const endTime = new Date(avail.end_at);
-          return datetime >= startTime && datetime < endTime;
+          const duration = endTime.getTime() - startTime.getTime();
+          const is30Minutes = duration === (30 * 60 * 1000); // Exactement 30 minutes
+          
+          // MATCH STRICT: même heure de début ET durée exacte de 30min
+          return is30Minutes && startTime.getTime() === datetime.getTime();
         });
 
         if (availability) {
@@ -203,6 +207,9 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
   const handleStatusChange = async (newStatus: 'available' | 'busy' | 'unavailable') => {
     if (!selectedSlot) return;
 
+    console.log('🎯 STRICT UPDATE - Single Slot:', selectedSlot.time, 'to status:', newStatus);
+    
+    // FORCER une durée de 30 minutes EXACTEMENT
     const endTime = new Date(selectedSlot.datetime);
     endTime.setMinutes(endTime.getMinutes() + 30);
 
@@ -210,11 +217,13 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
       if (newStatus === 'unavailable') {
         // RÈGLE: Marquer comme indisponible = créer/mettre à jour avec status 'unavailable' (ROUGE 🔴)
         if (selectedSlot.availabilityId) {
+          console.log('🔄 Updating EXISTING slot to unavailable:', selectedSlot.availabilityId);
           await updateAvailability({
             id: selectedSlot.availabilityId,
             status: 'unavailable'
           });
         } else {
+          console.log('➕ Creating NEW unavailable slot:', selectedSlot.datetime.toISOString(), 'to', endTime.toISOString());
           await createAvailability({
             start_at: selectedSlot.datetime.toISOString(),
             end_at: endTime.toISOString(),
@@ -223,16 +232,18 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         }
         toast({
           title: "Créneau indisponible",
-          description: "Le créneau a été marqué comme indisponible sur votre demande (rouge)",
+          description: `SEUL le créneau ${selectedSlot.time} est indisponible (rouge)`,
         });
       } else if (newStatus === 'busy') {
         // RÈGLE: Bloquer temporairement = créer/mettre à jour avec status 'busy' (GRIS ⚫)
         if (selectedSlot.availabilityId) {
+          console.log('🔄 Updating EXISTING slot to busy:', selectedSlot.availabilityId);
           await updateAvailability({
             id: selectedSlot.availabilityId,
             status: 'busy'
           });
         } else {
+          console.log('➕ Creating NEW busy slot:', selectedSlot.datetime.toISOString(), 'to', endTime.toISOString());
           await createAvailability({
             start_at: selectedSlot.datetime.toISOString(),
             end_at: endTime.toISOString(),
@@ -241,16 +252,18 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         }
         toast({
           title: "Créneau bloqué",
-          description: "Le créneau a été bloqué temporairement (gris)",
+          description: `SEUL le créneau ${selectedSlot.time} est bloqué (gris)`,
         });
       } else if (newStatus === 'available') {
         // RÈGLE: Rendre disponible = créer/mettre à jour avec status 'available' (VERT 🟢)
         if (selectedSlot.availabilityId) {
+          console.log('🔄 Updating EXISTING slot to available:', selectedSlot.availabilityId);
           await updateAvailability({
             id: selectedSlot.availabilityId,
             status: 'available'
           });
         } else {
+          console.log('➕ Creating NEW available slot:', selectedSlot.datetime.toISOString(), 'to', endTime.toISOString());
           await createAvailability({
             start_at: selectedSlot.datetime.toISOString(),
             end_at: endTime.toISOString(),
@@ -259,7 +272,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
         }
         toast({
           title: "Créneau disponible",
-          description: "Le créneau est maintenant disponible pour réservation (vert)",
+          description: `SEUL le créneau ${selectedSlot.time} est disponible (vert)`,
         });
       }
     } catch (error) {
