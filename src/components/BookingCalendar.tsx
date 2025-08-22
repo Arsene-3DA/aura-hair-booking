@@ -142,7 +142,7 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
               </div>
             ) : (
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {timeSlots.filter(slot => slot.is_available).map((slot) => {
+                {timeSlots.map((slot) => {
                   const isSelected = selectedTime === slot.time_slot;
                   
                   return (
@@ -153,16 +153,24 @@ const BookingCalendar = ({ hairdresserId, onTimeSlotSelect, selectedDate, select
                         h-12 text-sm relative
                         ${isSelected 
                           ? 'bg-gold-500 hover:bg-gold-600 text-white' 
-                          : 'hover:bg-gold-50 hover:border-gold-300 text-gray-700'
+                          : slot.is_available 
+                            ? 'hover:bg-gold-50 hover:border-gold-300 text-gray-700' 
+                            : 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400'
                         }
                       `}
-                      onClick={() => handleTimeSlotClick(slot.time_slot)}
+                      disabled={!slot.is_available}
+                      onClick={() => slot.is_available && handleTimeSlotClick(slot.time_slot)}
                     >
                       {slot.time_slot}
                       {isSelected && (
                         <CheckCircle className="h-4 w-4 absolute -top-1 -right-1 text-green-500 bg-white rounded-full" />
                       )}
-                     </Button>
+                      {!slot.is_available && !isSelected && (
+                        <div className="absolute inset-0 bg-gray-500/20 rounded-md flex items-center justify-center">
+                          <span className="text-xs text-gray-600 font-semibold">Indisponible</span>
+                        </div>
+                      )}
+                    </Button>
                    );
                  })}
               </div>
