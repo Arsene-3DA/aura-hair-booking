@@ -570,8 +570,7 @@ export const BookingWizard = () => {
                     Créneaux disponibles - {format(selectedDate, 'EEEE d MMMM', { locale: fr })}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Basé sur les horaires réels de {formatProfessionalName(selectedStylist.full_name)} 
-                    (Auth ID: {selectedStylist.id})
+                    Basé sur les horaires réels de {formatProfessionalName(selectedStylist.full_name)}
                   </p>
                   <TimeSlotSelector
                      stylistId={selectedStylist.id}
