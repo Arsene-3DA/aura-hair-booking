@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import AdminStats from '@/components/AdminStats';
 import AdminUserManagement from '@/components/AdminUserManagement';
 import AdminHairdresserManagement from '@/components/AdminHairdresserManagement';
+import RefreshUsersButton from '@/components/RefreshUsersButton';
 import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
 import { AdminReviewsManagement } from '@/components/AdminReviewsManagement';
 import CleanupDemoButton from '@/components/CleanupDemoButton';
@@ -37,7 +38,7 @@ const AdminDashboard = () => {
           showBackButton={true}
           actions={
             <div className="flex gap-2">
-              <CleanupDemoButton />
+              <RefreshUsersButton />
               <Button variant="outline" onClick={handleLogout}>
                 Déconnexion
               </Button>
