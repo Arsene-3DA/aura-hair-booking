@@ -64,12 +64,44 @@ export const useClientReservations = (clientId?: string) => {
 
       if (error) throw error;
 
-      // Récupérer les profils des stylistes
+      // Récupérer les profils des stylistes avec leurs noms complets
       const stylistIds = [...new Set(data?.map(r => r.stylist_user_id).filter(Boolean))];
-      const { data: stylistProfiles } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, avatar_url')
-        .in('user_id', stylistIds);
+      let stylistProfiles = [];
+      
+      if (stylistIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', stylistIds);
+        
+        stylistProfiles = profilesData || [];
+        
+        // Si certains profils sont manquants ou n'ont pas de full_name, essayer de récupérer depuis hairdressers
+        const missingProfiles = stylistIds.filter(id => 
+          !stylistProfiles.find(p => p.user_id === id && p.full_name)
+        );
+        
+        if (missingProfiles.length > 0) {
+          const { data: hairdressersData } = await supabase
+            .from('hairdressers')
+            .select('auth_id, name')
+            .in('auth_id', missingProfiles);
+          
+          // Compléter avec les noms des hairdressers
+          hairdressersData?.forEach(h => {
+            const existingProfile = stylistProfiles.find(p => p.user_id === h.auth_id);
+            if (existingProfile && !existingProfile.full_name) {
+              existingProfile.full_name = h.name;
+            } else if (!existingProfile) {
+              stylistProfiles.push({
+                user_id: h.auth_id,
+                full_name: h.name,
+                avatar_url: null
+              });
+            }
+          });
+        }
+      }
 
       // Combiner les données
       const reservationsWithProfiles = data?.map(reservation => ({

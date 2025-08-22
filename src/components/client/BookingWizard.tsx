@@ -33,6 +33,7 @@ interface Stylist {
   avatar_url?: string;
   specialties?: string[];
   role?: 'coiffeur' | 'coiffeuse' | 'cosmetique';
+  rating?: number; // Ajouter le rating pour synchronisation
 }
 
 interface Service {
@@ -64,24 +65,39 @@ export const BookingWizard = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<'coiffeur' | 'coiffeuse' | 'cosmetique' | 'all'>('all');
 
-  // Load stylists with proper categorization
+  // Load stylists with proper categorization and ratings
   const loadStylists = async () => {
     setLoadingData(true);
     try {
-      const { data } = await supabase
+      // Récupérer les profils ET les données hairdressers pour avoir les ratings
+      const { data: profilesData } = await supabase
         .from('profiles')
         .select('user_id, full_name, avatar_url, role')
         .in('role', ['coiffeur', 'coiffeuse', 'cosmetique'])
         .limit(50);
-      
-      if (data) {
-        setStylists(data.map(p => ({ 
-          id: p.user_id, 
-          full_name: p.full_name, 
-          avatar_url: p.avatar_url,
-          specialties: [],
-          role: p.role as 'coiffeur' | 'coiffeuse' | 'cosmetique'
-        })));
+
+      if (profilesData) {
+        // Récupérer les ratings depuis la table hairdressers
+        const userIds = profilesData.map(p => p.user_id);
+        const { data: hairdressersData } = await supabase
+          .from('hairdressers')
+          .select('auth_id, rating, specialties')
+          .in('auth_id', userIds)
+          .eq('is_active', true);
+
+        const stylistsWithRatings = profilesData.map(p => {
+          const hairdresserData = hairdressersData?.find(h => h.auth_id === p.user_id);
+          return {
+            id: p.user_id,
+            full_name: p.full_name || 'Professionnel',
+            avatar_url: p.avatar_url,
+            specialties: hairdresserData?.specialties || [],
+            role: p.role as 'coiffeur' | 'coiffeuse' | 'cosmetique',
+            rating: hairdresserData?.rating || 5.0 // Utiliser 5.0 par défaut si pas de rating
+          };
+        });
+
+        setStylists(stylistsWithRatings);
       }
     } catch (error) {
       console.error('Error loading stylists:', error);
@@ -183,6 +199,19 @@ export const BookingWizard = () => {
         () => {
           // Recharger aussi si les services sont modifiés
           loadServices(stylist.id);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'hairdressers',
+          filter: `auth_id=eq.${stylist.id}`,
+        },
+        () => {
+          // Recharger la liste des stylistes pour mettre à jour le rating
+          loadStylists();
         }
       )
       .subscribe();
@@ -343,7 +372,9 @@ export const BookingWizard = () => {
                             </Badge>
                             <div className="flex items-center gap-1">
                               <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                              <span className="text-xs text-muted-foreground">4.8</span>
+                              <span className="text-xs text-muted-foreground">
+                                {(stylist.rating || 5.0).toFixed(1)}
+                              </span>
                             </div>
                           </div>
                         </div>
