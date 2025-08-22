@@ -25,7 +25,7 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { availabilities, loading, createAvailability, updateAvailability, deleteAvailability } = useAvailability(stylistId);
+  const { availabilities, loading, createAvailability, updateAvailability, deleteAvailability, refetch } = useAvailability(stylistId);
   const { toast } = useToast();
 
   // Charger les réservations pour la date sélectionnée
@@ -273,12 +273,14 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           });
         }
         
-        // FORCER le rafraîchissement immédiat de l'affichage
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // FORCER le rafraîchissement COMPLET des données
+        console.log('🔄 DailyCalendar - FORCING COMPLETE REFRESH');
+        await refetch(); // Rafraîchir les availabilities
+        await fetchBookings(); // Rafraîchir les bookings
         
         toast({
           title: "Créneau indisponible",
-          description: `SEUL le créneau ${selectedSlot.time} est indisponible (rouge)`,
+          description: `Le créneau ${selectedSlot.time} est maintenant ROUGE (indisponible)`,
         });
       } else if (newStatus === 'busy') {
         // RÈGLE: Bloquer temporairement = créer/mettre à jour avec status 'busy' (GRIS ⚫)
@@ -297,12 +299,14 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           });
         }
         
-        // FORCER le rafraîchissement immédiat de l'affichage
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // FORCER le rafraîchissement COMPLET des données
+        console.log('🔄 DailyCalendar - FORCING COMPLETE REFRESH');
+        await refetch(); // Rafraîchir les availabilities
+        await fetchBookings(); // Rafraîchir les bookings
         
         toast({
           title: "Créneau bloqué",
-          description: `SEUL le créneau ${selectedSlot.time} est bloqué (gris)`,
+          description: `Le créneau ${selectedSlot.time} est maintenant GRIS (bloqué)`,
         });
       } else if (newStatus === 'available') {
         // RÈGLE: Rendre disponible = créer/mettre à jour avec status 'available' (VERT 🟢)
@@ -321,12 +325,14 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           });
         }
         
-        // FORCER le rafraîchissement immédiat de l'affichage
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // FORCER le rafraîchissement COMPLET des données
+        console.log('🔄 DailyCalendar - FORCING COMPLETE REFRESH');
+        await refetch(); // Rafraîchir les availabilities
+        await fetchBookings(); // Rafraîchir les bookings
         
         toast({
           title: "Créneau disponible",
-          description: `SEUL le créneau ${selectedSlot.time} est disponible (vert)`,
+          description: `Le créneau ${selectedSlot.time} est maintenant VERT (disponible)`,
         });
       }
     } catch (error) {

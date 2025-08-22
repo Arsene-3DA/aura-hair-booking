@@ -25,7 +25,8 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
   const [bookings, setBookings] = useState<any[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { availabilities, loading, createAvailability, updateAvailability, deleteAvailability } = useAvailability(stylistId);
+  const [forceRefresh, setForceRefresh] = useState(0);
+  const { availabilities, loading, createAvailability, updateAvailability, deleteAvailability, refetch } = useAvailability(stylistId);
   const { toast } = useToast();
 
   // Charger les réservations pour la date sélectionnée
@@ -147,21 +148,15 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
   };
 
   const timeSlots = useMemo(() => {
-    console.log('🔍 TimeSlotGrid - REGENERATING SLOTS');
+    console.log('🔍 TimeSlotGrid - REGENERATING SLOTS - Refresh count:', forceRefresh);
     console.log('📊 TimeSlotGrid - Total availabilities:', availabilities.length);
     console.log('📅 TimeSlotGrid - Selected date:', format(selectedDate, 'yyyy-MM-dd'));
-    console.log('🗂️ TimeSlotGrid - All availabilities:', availabilities.map(a => ({
-      id: a.id,
-      start: a.start_at,
-      status: a.status,
-      duration: `${(new Date(a.end_at).getTime() - new Date(a.start_at).getTime()) / (60 * 1000)}min`
-    })));
     
     const slots = generateTimeSlots();
     console.log('📊 TimeSlotGrid - Generated slots for', format(selectedDate, 'yyyy-MM-dd'), ':', slots.length);
-    console.log('🎨 TimeSlotGrid - Slot colors:', slots.slice(0, 5).map(s => ({ time: s.time, status: s.status, hasId: !!s.availabilityId })));
+    console.log('🎨 TimeSlotGrid - First 5 slots status:', slots.slice(0, 5).map(s => ({ time: s.time, status: s.status })));
     return slots;
-  }, [selectedDate, availabilities, bookings]);
+  }, [selectedDate, availabilities, bookings, forceRefresh]);
 
   const handleSlotClick = (slot: TimeSlot) => {
     console.log('🎯 TimeSlotGrid - SLOT CLICKED:', {
@@ -243,12 +238,15 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
           });
         }
         
-        // FORCER le rafraîchissement immédiat de l'affichage
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // FORCER le rafraîchissement COMPLET des données
+        console.log('🔄 TimeSlotGrid - FORCING COMPLETE REFRESH');
+        await refetch(); // Rafraîchir les availabilities
+        await fetchBookings(); // Rafraîchir les bookings
+        setForceRefresh(prev => prev + 1); // Forcer le re-render
         
         toast({
           title: "Créneau indisponible",
-          description: `SEUL le créneau ${selectedSlot.time} est indisponible (rouge)`,
+          description: `Le créneau ${selectedSlot.time} est maintenant ROUGE (indisponible)`,
         });
       } else if (newStatus === 'busy') {
         // RÈGLE: Bloquer temporairement = créer/mettre à jour avec status 'busy' (GRIS ⚫)
@@ -267,12 +265,15 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
           });
         }
         
-        // FORCER le rafraîchissement immédiat de l'affichage
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // FORCER le rafraîchissement COMPLET des données
+        console.log('🔄 TimeSlotGrid - FORCING COMPLETE REFRESH');
+        await refetch(); // Rafraîchir les availabilities
+        await fetchBookings(); // Rafraîchir les bookings
+        setForceRefresh(prev => prev + 1); // Forcer le re-render
         
         toast({
           title: "Créneau bloqué",
-          description: `SEUL le créneau ${selectedSlot.time} est bloqué (gris)`,
+          description: `Le créneau ${selectedSlot.time} est maintenant GRIS (bloqué)`,
         });
       } else if (newStatus === 'available') {
         // RÈGLE: Rendre disponible = créer/mettre à jour avec status 'available' (VERT 🟢)
@@ -291,12 +292,15 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
           });
         }
         
-        // FORCER le rafraîchissement immédiat de l'affichage
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // FORCER le rafraîchissement COMPLET des données
+        console.log('🔄 TimeSlotGrid - FORCING COMPLETE REFRESH');
+        await refetch(); // Rafraîchir les availabilities
+        await fetchBookings(); // Rafraîchir les bookings
+        setForceRefresh(prev => prev + 1); // Forcer le re-render
         
         toast({
           title: "Créneau disponible",
-          description: `SEUL le créneau ${selectedSlot.time} est disponible (vert)`,
+          description: `Le créneau ${selectedSlot.time} est maintenant VERT (disponible)`,
         });
       }
     } catch (error) {
