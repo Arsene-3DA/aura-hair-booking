@@ -134,6 +134,17 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
           const duration = endTime.getTime() - startTime.getTime();
           const is30Minutes = duration === (30 * 60 * 1000); // Exactement 30 minutes
           
+          // DEBUG: Log des créneaux problématiques
+          if (!is30Minutes && isSameDay(startTime, selectedDate)) {
+            console.warn('⚠️ PROBLEMATIC SLOT DETECTED:', {
+              id: avail.id,
+              start: startTime.toISOString(),
+              end: endTime.toISOString(),
+              duration: `${duration / (60 * 1000)} minutes`,
+              status: avail.status
+            });
+          }
+          
           // MATCH STRICT: même heure de début ET durée exacte de 30min
           return is30Minutes && startTime.getTime() === datetime.getTime();
         });
@@ -176,9 +187,20 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
     return slots;
   };
 
-  const timeSlots = useMemo(() => generateTimeSlots(), [selectedDate, availabilities, bookings]);
+  const timeSlots = useMemo(() => {
+    console.log('🔍 GENERATING TIME SLOTS - Total availabilities:', availabilities.length);
+    const slots = generateTimeSlots();
+    console.log('📊 Generated slots for', format(selectedDate, 'yyyy-MM-dd'), ':', slots.length);
+    return slots;
+  }, [selectedDate, availabilities, bookings]);
 
   const handleSlotClick = (slot: TimeSlot) => {
+    console.log('🎯 SLOT CLICKED:', {
+      time: slot.time,
+      status: slot.status,
+      availabilityId: slot.availabilityId,
+      datetime: slot.datetime.toISOString()
+    });
     // RÈGLE: Ne pas permettre de modifier les créneaux réservés
     if (slot.status === 'booked') {
       toast({
@@ -338,6 +360,46 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
       </CardHeader>
       
       <CardContent className="p-8">
+        {/* Bouton de nettoyage des créneaux problématiques */}
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-yellow-800">
+              🧹 Cliquez ici si plusieurs créneaux changent en même temps (nettoyage des anciens enregistrements)
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-yellow-700 border-yellow-300 hover:bg-yellow-100"
+              onClick={async () => {
+                console.log('🧹 CLEANING PROBLEMATIC SLOTS');
+                const problematicSlots = availabilities.filter(avail => {
+                  const startTime = new Date(avail.start_at);
+                  const endTime = new Date(avail.end_at);
+                  const duration = endTime.getTime() - startTime.getTime();
+                  return duration !== (30 * 60 * 1000) && isSameDay(startTime, selectedDate);
+                });
+                
+                console.log('Found', problematicSlots.length, 'problematic slots to delete');
+                
+                for (const slot of problematicSlots) {
+                  try {
+                    await deleteAvailability(slot.id);
+                    console.log('🗑️ Deleted:', slot.id);
+                  } catch (error) {
+                    console.error('❌ Error deleting:', slot.id, error);
+                  }
+                }
+                
+                toast({
+                  title: "Nettoyage terminé",
+                  description: `${problematicSlots.length} créneaux problématiques supprimés`,
+                });
+              }}
+            >
+              Nettoyer
+            </Button>
+          </div>
+        </div>
         {/* Légende avec système de couleurs automatique */}
         <div className="flex flex-wrap justify-center gap-6 mb-8 p-6 bg-muted/30 rounded-xl">
           <div className="flex items-center gap-3">
