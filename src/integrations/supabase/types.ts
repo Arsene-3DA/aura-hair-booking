@@ -1145,6 +1145,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_demo_users: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       confirm_booking: {
         Args: { p_booking_id: string }
         Returns: undefined

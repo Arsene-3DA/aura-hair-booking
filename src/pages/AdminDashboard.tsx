@@ -6,6 +6,7 @@ import AdminUserManagement from '@/components/AdminUserManagement';
 import AdminHairdresserManagement from '@/components/AdminHairdresserManagement';
 import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
 import { AdminReviewsManagement } from '@/components/AdminReviewsManagement';
+import CleanupDemoButton from '@/components/CleanupDemoButton';
 import { usePasswordPolicy } from '@/hooks/usePasswordPolicy';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import PageHeader from '@/components/PageHeader';
@@ -35,9 +36,12 @@ const AdminDashboard = () => {
           icon={<Users className="h-8 w-8" />}
           showBackButton={true}
           actions={
-            <Button variant="outline" onClick={handleLogout}>
-              Déconnexion
-            </Button>
+            <div className="flex gap-2">
+              <CleanupDemoButton />
+              <Button variant="outline" onClick={handleLogout}>
+                Déconnexion
+              </Button>
+            </div>
           }
         />
         <div className="mb-8">

@@ -9,7 +9,7 @@ import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { usePasswordPolicy } from '@/hooks/usePasswordPolicy';
 import { useProfileRole } from '@/hooks/useProfileRole';
 import AdminPasswordChangeModal from '@/components/AdminPasswordChangeModal';
-import InitializeDataButton from '@/components/InitializeDataButton';
+
 import AuthRedirectHandler from '@/components/AuthRedirectHandler';
 import ScissorsTransition from '@/components/ScissorsTransition';
 
@@ -119,7 +119,7 @@ const RoleAuthPage = () => {
                   Connectez-vous ou créez votre compte
                 </p>
               </div>
-              <InitializeDataButton />
+              
             </div>
           </CardHeader>
           <CardContent>
