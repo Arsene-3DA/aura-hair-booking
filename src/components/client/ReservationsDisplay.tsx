@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatProfessionalName } from '@/utils/professionalNameFormatter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -98,7 +99,7 @@ const ReservationCard = ({ reservation, onCancel, showCancelButton = false }: Re
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground flex items-center gap-1">
               <User className="h-4 w-4" />
-              {reservation.stylist_profile?.full_name || 'Professionnel'}
+              {formatProfessionalName(reservation.stylist_profile?.full_name)}
             </p>
             
             <div className="flex items-center gap-4 text-sm text-muted-foreground">

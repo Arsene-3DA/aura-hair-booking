@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { formatProfessionalName } from '@/utils/professionalNameFormatter';
 import { Star, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -130,7 +131,7 @@ const HairdresserCard = ({
       </div>
 
       {/* Nom */}
-      <h3 className="text-xl font-bold text-gray-900 text-center mb-3">{name}</h3>
+      <h3 className="text-xl font-bold text-gray-900 text-center mb-3">{formatProfessionalName(name)}</h3>
 
       {/* Experience */}
       {experience && <p className="text-sm text-gray-600 text-center mb-3">{experience}</p>}

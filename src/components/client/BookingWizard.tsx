@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { formatProfessionalName, getProfessionalInitials } from '@/utils/professionalNameFormatter';
 import { useNavigate } from 'react-router-dom';
 import { useBookings } from '@/hooks/useBookings';
 import { supabase } from '@/integrations/supabase/client';
@@ -351,11 +352,11 @@ export const BookingWizard = () => {
                               className="w-12 h-12 rounded-full object-cover"
                             />
                           ) : (
-                            stylist.full_name?.charAt(0) || 'S'
+                            getProfessionalInitials(stylist.full_name)
                           )}
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-medium">{stylist.full_name}</h3>
+                          <h3 className="font-medium">{formatProfessionalName(stylist.full_name)}</h3>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge 
                               variant="secondary" 
@@ -406,11 +407,11 @@ export const BookingWizard = () => {
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       ) : (
-                        selectedStylist.full_name?.charAt(0) || 'S'
+                        getProfessionalInitials(selectedStylist.full_name)
                       )}
                     </div>
                     <div>
-                      <h3 className="font-medium">{selectedStylist.full_name}</h3>
+                      <h3 className="font-medium">{formatProfessionalName(selectedStylist.full_name)}</h3>
                       <Badge variant="outline" className="text-xs">
                         {selectedStylist.role === 'coiffeur' ? 'Coiffeur' : 
                          selectedStylist.role === 'coiffeuse' ? 'Coiffeuse' : 
@@ -498,11 +499,11 @@ export const BookingWizard = () => {
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
-                          selectedStylist.full_name?.charAt(0) || 'S'
+                          getProfessionalInitials(selectedStylist.full_name)
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-sm">{selectedStylist.full_name}</p>
+                        <p className="font-medium text-sm">{formatProfessionalName(selectedStylist.full_name)}</p>
                         <p className="text-xs text-muted-foreground">
                           {selectedStylist.role === 'coiffeur' ? 'Coiffeur' : 
                            selectedStylist.role === 'coiffeuse' ? 'Coiffeuse' : 
@@ -597,7 +598,7 @@ export const BookingWizard = () => {
                   <User className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">Coiffeur</p>
-                    <p className="text-sm text-muted-foreground">{selectedStylist?.full_name}</p>
+                    <p className="text-sm text-muted-foreground">{formatProfessionalName(selectedStylist?.full_name)}</p>
                   </div>
                 </div>
 
