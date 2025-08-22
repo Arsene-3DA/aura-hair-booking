@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Star, MapPin, Calendar, Clock, Phone, Mail, Globe, Instagram, Camera, ExternalLink } from 'lucide-react';
 import { useProfessionalServices } from '@/hooks/useProfessionalServices';
 import { usePortfolioManagement } from '@/hooks/usePortfolioManagement';
-import { useSecureHairdresserData } from '@/hooks/useSecureHairdresserData';
+import { usePublicProfessionalData } from '@/hooks/usePublicProfessionalData';
 import PriceDisplay from '@/components/ui/price-display';
 interface WorkingDay {
   open: string;
@@ -24,10 +24,10 @@ const ProfessionalProfilePage = () => {
 
   // Use existing hooks for data
   const {
-    hairdresser: professional,
+    professional,
     loading: isLoading,
     error
-  } = useSecureHairdresserData(professionalId);
+  } = usePublicProfessionalData(professionalId);
   const {
     services,
     loading: servicesLoading
@@ -39,7 +39,7 @@ const ProfessionalProfilePage = () => {
     // Rediriger vers la page de réservation
     navigate(`/reservation/${professionalId}`, {
       state: {
-        hairdresser: professional
+        professional: professional
       }
     });
   };
@@ -119,19 +119,6 @@ const ProfessionalProfilePage = () => {
                       </span>
                     </div>}
 
-                  {professional.email && <div className="flex items-center gap-3">
-                      <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                      <a href={`mailto:${professional.email}`} className="text-sm text-primary hover:underline">
-                        {professional.email}
-                      </a>
-                    </div>}
-
-                  {professional.phone && <div className="flex items-center gap-3">
-                      <Phone className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                      <a href={`tel:${professional.phone}`} className="text-sm text-primary hover:underline">
-                        {professional.phone}
-                      </a>
-                    </div>}
 
                   {professional.website && <div className="flex items-center gap-3">
                       <Globe className="h-5 w-5 text-muted-foreground flex-shrink-0" />
