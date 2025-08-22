@@ -141,13 +141,13 @@ const Index = () => {
     // Navigation vers les pages dédiées selon la catégorie
     switch (category) {
       case 'coiffeur':
-        navigate('/professionals/male');
+        navigate('/coiffeurs');
         break;
       case 'coiffeuse':
-        navigate('/professionals/female');
+        navigate('/coiffeuses');
         break;
       case 'cosmetique':
-        navigate('/professionals/cosmetique');
+        navigate('/cosmetique');
         break;
     }
   };

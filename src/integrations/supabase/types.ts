@@ -1327,6 +1327,31 @@ export type Database = {
           working_hours: Json
         }[]
       }
+      get_professionals_by_role: {
+        Args: { role_filter?: string }
+        Returns: {
+          auth_id: string
+          bio: string
+          created_at: string
+          email: string
+          experience: string
+          gender: string
+          id: string
+          image_url: string
+          instagram: string
+          is_active: boolean
+          location: string
+          name: string
+          phone: string
+          rating: number
+          role: string
+          salon_address: string
+          specialties: string[]
+          updated_at: string
+          website: string
+          working_hours: Json
+        }[]
+      }
       get_professionals_for_booking: {
         Args: Record<PropertyKey, never>
         Returns: {

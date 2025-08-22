@@ -96,6 +96,13 @@ export const useDynamicRoleManagement = () => {
           detail: { userId: targetUserId, newRole, oldRole: result.oldRole || result.old_role }
         }));
 
+        // Ajouter un délai pour s'assurer que les données DB sont synchronisées
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('refreshProfessionals', {
+            detail: { userId: targetUserId, newRole, oldRole: result.oldRole || result.old_role, delayed: true }
+          }));
+        }, 2000);
+
         // Créer automatiquement le profil professionnel si nécessaire
         if (['coiffeur', 'coiffeuse', 'cosmetique'].includes(newRole)) {
           await createProfessionalProfile(targetUserId, newRole);

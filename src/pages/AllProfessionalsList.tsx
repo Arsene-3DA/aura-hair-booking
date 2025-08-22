@@ -5,15 +5,15 @@ import Footer from '@/components/Footer';
 import HairdresserCard from '@/components/HairdresserCard';
 import { Input } from "@/components/ui/input";
 import { Search } from 'lucide-react';
-import { useCompleteProfessionals, type CompleteProfessional } from '@/hooks/useCompleteProfessionals';
+import { useProfessionalsByRole, type ProfessionalByRole } from '@/hooks/useProfessionalsByRole';
 const AllProfessionalsList = () => {
   const navigate = useNavigate();
   const {
     professionals,
     loading,
     error
-  } = useCompleteProfessionals();
-  const [filteredProfessionals, setFilteredProfessionals] = useState<CompleteProfessional[]>([]);
+  } = useProfessionalsByRole(); // Récupère tous les professionnels (tous rôles)
+  const [filteredProfessionals, setFilteredProfessionals] = useState<ProfessionalByRole[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filtrer les professionnels en temps réel selon la recherche

@@ -1,41 +1,15 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useProfessionalsByRole } from '@/hooks/useProfessionalsByRole';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HairdresserCard from '@/components/HairdresserCard';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-type UserRole = 'coiffeur' | 'coiffeuse' | 'cosmetique';
-
-const ProfessionalsList = () => {
-  const { role } = useParams<{ role?: UserRole }>();
+const CosmetiquePage = () => {
   const navigate = useNavigate();
-  const { professionals, loading, error } = useProfessionalsByRole(role);
-  
-  console.log('Current role parameter:', role);
-  
-  // Si pas de rôle spécifié ou rôle invalide, rediriger vers l'accueil
-  if (!role || !['coiffeur', 'coiffeuse', 'cosmetique'].includes(role)) {
-    console.log('Invalid role parameter, redirecting to home');
-    navigate('/');
-    return null;
-  }
-
-  const titles = {
-    coiffeur: 'Nos Coiffeurs Experts',
-    coiffeuse: 'Nos Coiffeuses Expertes', 
-    cosmetique: 'Nos Experts Cosmétique'
-  };
-
-  const subtitles = {
-    coiffeur: 'Spécialistes en coupe homme, barbe et styling masculin',
-    coiffeuse: 'Spécialistes en coupe femme, couleur et coiffage',
-    cosmetique: 'Spécialistes en soins du visage, maquillage et esthétique'
-  };
-
-  const title = titles[role];
-  const subtitle = subtitles[role];
+  const { professionals, loading, error } = useProfessionalsByRole('cosmetique');
 
   return (
     <div className="min-h-screen bg-black">
@@ -55,10 +29,10 @@ const ProfessionalsList = () => {
             
             <div className="text-center">
               <h1 className="text-4xl font-bold mb-4 text-white">
-                {title.split(' ').slice(0, 2).join(' ')} <span className="text-[#FFD700]">{title.split(' ').slice(2).join(' ')}</span>
+                Nos <span className="text-[#FFD700]">Experts Cosmétique</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                {subtitle}
+                Spécialistes en soins du visage, maquillage et esthétique
               </p>
             </div>
           </div>
@@ -70,7 +44,7 @@ const ProfessionalsList = () => {
             {loading ? (
               <div className="text-center py-16">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFD700] mx-auto mb-4"></div>
-                <p className="text-gray-300 text-lg">Chargement des professionnels...</p>
+                <p className="text-gray-300 text-lg">Chargement des experts cosmétique...</p>
               </div>
             ) : professionals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -90,10 +64,10 @@ const ProfessionalsList = () => {
             ) : (
               <div className="text-center py-16">
                 <p className="text-gray-300 text-lg mb-4">
-                  Aucun professionnel {role} trouvé pour cette catégorie.
+                  Aucun expert cosmétique trouvé pour le moment.
                 </p>
                 <p className="text-gray-500 text-sm mb-6">
-                  Nos professionnels seront bientôt disponibles sur la plateforme.
+                  Nos experts cosmétique seront bientôt disponibles sur la plateforme.
                 </p>
                 <Button onClick={() => navigate('/auth')} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300">
                   Être notifié de leur arrivée
@@ -124,4 +98,4 @@ const ProfessionalsList = () => {
   );
 };
 
-export default ProfessionalsList;
+export default CosmetiquePage;

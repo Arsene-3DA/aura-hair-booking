@@ -124,10 +124,27 @@ const App = () => (
                     {React.createElement(React.lazy(() => import('./pages/AllProfessionalsList')))}
                   </Suspense>
                 } />
-                <Route path="/professionals/:gender" element={<ProfessionalsList />} />
-                <Route path="/professionals/cosmetique" element={
+                <Route path="/coiffeurs" element={
                   <Suspense fallback={<div>Chargement...</div>}>
-                    {React.createElement(React.lazy(() => import('./pages/CosmetiqueProfessionalsList')))}
+                    {React.createElement(React.lazy(() => import('./pages/CoiffeursPage')))}
+                  </Suspense>
+                } />
+                <Route path="/coiffeuses" element={
+                  <Suspense fallback={<div>Chargement...</div>}>
+                    {React.createElement(React.lazy(() => import('./pages/CoiffeusesPage')))}
+                  </Suspense>
+                } />
+                <Route path="/cosmetique" element={
+                  <Suspense fallback={<div>Chargement...</div>}>
+                    {React.createElement(React.lazy(() => import('./pages/CosmetiquePage')))}
+                  </Suspense>
+                } />
+                {/* Legacy routes for backward compatibility */}
+                <Route path="/professionals/:role" element={<ProfessionalsList />} />
+                {/* Test page for role system */}
+                <Route path="/test-roles" element={
+                  <Suspense fallback={<div>Chargement...</div>}>
+                    {React.createElement(React.lazy(() => import('./pages/TestRoleSystemPage')))}
                   </Suspense>
                 } />
                 <Route path="/auth" element={
