@@ -219,15 +219,9 @@ export const ReservationsDisplay = ({
               <div className="text-center py-12">
                 <Calendar className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-lg font-medium mb-2">Aucune réservation à venir</h3>
-                <p className="text-muted-foreground mb-4">
-                  Réservez votre prochain rendez-vous dès maintenant
+                <p className="text-muted-foreground">
+                  Vos prochaines réservations apparaîtront ici
                 </p>
-                <Button asChild>
-                  <Link to="/app/bookings/new">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Réserver maintenant
-                  </Link>
-                </Button>
               </div>
             )}
           </CardContent>
