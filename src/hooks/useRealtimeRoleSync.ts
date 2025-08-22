@@ -105,8 +105,25 @@ export const useRealtimeRoleSync = () => {
         },
         (payload) => {
           const notification = payload.new;
+          console.log('📢 Nouvelle notification:', notification);
+          
           if (notification.title === 'Changement de rôle') {
             handleRoleChange();
+          }
+          
+          // Gérer la notification de rafraîchissement de session
+          if (notification.title === 'SESSION_REFRESH_REQUIRED') {
+            toast({
+              title: '🔄 Rôle mis à jour',
+              description: 'Votre rôle a été modifié. Redirection en cours...',
+            });
+            
+            // Forcer la redirection immédiate
+            setTimeout(async () => {
+              await handleRoleChange();
+              // Recharger la page pour s'assurer que tout est rafraîchi
+              window.location.reload();
+            }, 1500);
           }
         }
       )
@@ -115,7 +132,7 @@ export const useRealtimeRoleSync = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, handleRoleChange]);
+  }, [user, handleRoleChange, toast]);
 
   // Écouter les événements personnalisés de changement de rôle
   useEffect(() => {

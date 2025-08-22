@@ -1201,6 +1201,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      force_user_session_refresh: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       get_admin_reservations: {
         Args: Record<PropertyKey, never>
         Returns: {

@@ -96,14 +96,10 @@ export const useDynamicRoleManagement = () => {
           await createProfessionalProfile(targetUserId, newRole);
         }
 
-        // Envoyer une notification à l'utilisateur cible
-        await supabase
-          .from('notifications')
-          .insert({
-            user_id: targetUserId,
-            title: 'Changement de rôle',
-            body: `Votre rôle a été modifié en ${newRole}. Reconnectez-vous pour voir les changements.`,
-          });
+        // Envoyer une notification à l'utilisateur cible pour forcer le rafraîchissement
+        await supabase.rpc('force_user_session_refresh', {
+          target_user_id: targetUserId
+        });
         
         return result;
       } else {
