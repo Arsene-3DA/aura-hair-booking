@@ -35,59 +35,48 @@ export const usePublicProfessionalData = (professionalId?: string) => {
         setLoading(true);
         setError(null);
 
-        // Essayer d'abord par ID de hairdresser
-        const { data: byIdData, error: byIdError } = await supabase
-          .rpc('get_professional_by_id', { professional_id: professionalId });
+        console.log('🔄 Chargement professionnel ID:', professionalId);
 
-        if (!byIdError && byIdData && byIdData.length > 0) {
-          const professionalData: PublicProfessionalData = {
-            id: byIdData[0].id,
-            name: byIdData[0].name || 'Professionnel',
-            specialties: byIdData[0].specialties || [],
-            rating: byIdData[0].rating || 5.0,
-            image_url: byIdData[0].image_url || '/placeholder.svg',
-            experience: byIdData[0].experience || '',
-            location: byIdData[0].salon_address || '',
-            salon_address: byIdData[0].salon_address,
-            bio: byIdData[0].bio,
-            website: byIdData[0].website,
-            instagram: byIdData[0].instagram,
-            working_hours: byIdData[0].working_hours,
-            auth_id: byIdData[0].auth_id,
-            gender: byIdData[0].gender || 'non_specifie',
-            is_active: byIdData[0].is_active
-          };
-          setProfessional(professionalData);
-          return;
+        // Rechercher directement dans la table hairdressers
+        const { data, error } = await supabase
+          .from('hairdressers')
+          .select('*')
+          .or(`id.eq.${professionalId},auth_id.eq.${professionalId}`)
+          .eq('is_active', true)
+          .single();
+
+        if (error) {
+          console.error('❌ Erreur lors du chargement du professionnel:', error);
+          throw new Error('Professionnel non trouvé ou inactif');
         }
 
-        // Essayer par auth_id en fallback
-        const { data: byAuthData, error: byAuthError } = await supabase
-          .rpc('get_professional_by_auth_id', { auth_user_id: professionalId });
-
-        if (!byAuthError && byAuthData && byAuthData.length > 0) {
-          const professionalData: PublicProfessionalData = {
-            id: byAuthData[0].id,
-            name: byAuthData[0].name || 'Professionnel',
-            specialties: byAuthData[0].specialties || [],
-            rating: byAuthData[0].rating || 5.0,
-            image_url: byAuthData[0].image_url || '/placeholder.svg',
-            experience: byAuthData[0].experience || '',
-            location: byAuthData[0].salon_address || '',
-            salon_address: byAuthData[0].salon_address,
-            bio: byAuthData[0].bio,
-            website: byAuthData[0].website,
-            instagram: byAuthData[0].instagram,
-            working_hours: byAuthData[0].working_hours,
-            auth_id: byAuthData[0].auth_id,
-            gender: byAuthData[0].gender || 'non_specifie',
-            is_active: byAuthData[0].is_active
-          };
-          setProfessional(professionalData);
-          return;
+        if (!data) {
+          throw new Error('Professionnel non trouvé ou inactif');
         }
 
-        throw new Error('Professionnel non trouvé ou inactif');
+        console.log('✅ Professionnel trouvé:', data);
+
+        const professionalData: PublicProfessionalData = {
+          id: data.id,
+          name: data.name || 'Professionnel',
+          specialties: data.specialties || [],
+          rating: data.rating || 5.0,
+          image_url: data.image_url || '/placeholder.svg',
+          experience: data.experience || '',
+          location: data.salon_address || data.location || '',
+          salon_address: data.salon_address,
+          bio: data.bio,
+          website: data.website,
+          instagram: data.instagram,
+          working_hours: data.working_hours,
+          auth_id: data.auth_id,
+          gender: data.gender || 'non_specifie',
+          is_active: data.is_active
+        };
+        
+        setProfessional(professionalData);
+
+        console.log('✅ Données du professionnel chargées:', professionalData);
 
       } catch (err: any) {
         console.error('Error fetching public professional data:', err);
