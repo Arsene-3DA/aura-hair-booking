@@ -41,12 +41,20 @@ export const AvailabilitySlotManager: React.FC<AvailabilitySlotManagerProps> = (
         
         const timeString = format(slotTime, 'HH:mm');
         
-        // Trouver la disponibilité correspondante
+        // Trouver la disponibilité correspondante EXACTEMENT pour ce créneau de 30min
+        const slotEndTime = new Date(slotTime);
+        slotEndTime.setMinutes(slotEndTime.getMinutes() + 30);
+        
         const availability = availabilities.find(avail => {
           const availStart = new Date(avail.start_at);
+          const availEnd = new Date(avail.end_at);
+          
+          // Match EXACT: même jour, même heure de début ET même durée (30min)
           return (
             format(availStart, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd') &&
-            format(availStart, 'HH:mm') === timeString
+            format(availStart, 'HH:mm') === timeString &&
+            availStart.getTime() === slotTime.getTime() &&
+            (availEnd.getTime() - availStart.getTime()) === (30 * 60 * 1000) // Exactement 30 minutes
           );
         });
         
@@ -67,13 +75,17 @@ export const AvailabilitySlotManager: React.FC<AvailabilitySlotManagerProps> = (
     
     if (processingSlots.has(slotKey) || loading) return;
     
+    console.log('🎯 Clicked on slot:', slot.time, 'Status:', slot.status, 'ID:', slot.availabilityId);
+    
     setProcessingSlots(prev => new Set([...prev, slotKey]));
     
     try {
       if (slot.status === 'none') {
-        // Créer un nouveau créneau disponible
+        // Créer un nouveau créneau de 30 minutes EXACT
         const endTime = new Date(slot.datetime);
         endTime.setMinutes(endTime.getMinutes() + 30);
+        
+        console.log('➕ Creating NEW 30min slot:', slot.datetime.toISOString(), 'to', endTime.toISOString());
         
         await createAvailability({
           start_at: slot.datetime.toISOString(),
@@ -81,7 +93,7 @@ export const AvailabilitySlotManager: React.FC<AvailabilitySlotManagerProps> = (
           status: 'available'
         });
       } else if (slot.availabilityId) {
-        // Changer le statut du créneau existant
+        // Modifier UNIQUEMENT ce créneau spécifique
         let newStatus: 'available' | 'busy' | 'unavailable';
         
         switch (slot.status) {
@@ -98,13 +110,17 @@ export const AvailabilitySlotManager: React.FC<AvailabilitySlotManagerProps> = (
             newStatus = 'available';
         }
         
+        console.log('🔄 Updating SPECIFIC slot ID:', slot.availabilityId, 'from', slot.status, 'to', newStatus);
+        
         await updateAvailability({
           id: slot.availabilityId,
           status: newStatus
         });
+      } else {
+        console.warn('⚠️ No availability ID found for non-none slot:', slot);
       }
     } catch (error) {
-      console.error('Error managing slot:', error);
+      console.error('❌ Error managing slot:', error);
     } finally {
       setProcessingSlots(prev => {
         const newSet = new Set(prev);
