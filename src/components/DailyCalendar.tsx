@@ -272,6 +272,10 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
             status: 'unavailable'
           });
         }
+        
+        // FORCER le rafraîchissement immédiat de l'affichage
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         toast({
           title: "Créneau indisponible",
           description: `SEUL le créneau ${selectedSlot.time} est indisponible (rouge)`,
@@ -292,6 +296,10 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
             status: 'busy'
           });
         }
+        
+        // FORCER le rafraîchissement immédiat de l'affichage
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         toast({
           title: "Créneau bloqué",
           description: `SEUL le créneau ${selectedSlot.time} est bloqué (gris)`,
@@ -312,6 +320,10 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
             status: 'available'
           });
         }
+        
+        // FORCER le rafraîchissement immédiat de l'affichage
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         toast({
           title: "Créneau disponible",
           description: `SEUL le créneau ${selectedSlot.time} est disponible (vert)`,

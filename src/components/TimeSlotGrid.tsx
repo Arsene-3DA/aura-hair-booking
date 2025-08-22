@@ -212,6 +212,10 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
             status: 'unavailable'
           });
         }
+        
+        // FORCER le rafraîchissement immédiat de l'affichage
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         toast({
           title: "Créneau indisponible",
           description: `SEUL le créneau ${selectedSlot.time} est indisponible (rouge)`,
@@ -232,6 +236,10 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
             status: 'busy'
           });
         }
+        
+        // FORCER le rafraîchissement immédiat de l'affichage
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         toast({
           title: "Créneau bloqué",
           description: `SEUL le créneau ${selectedSlot.time} est bloqué (gris)`,
@@ -252,6 +260,10 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
             status: 'available'
           });
         }
+        
+        // FORCER le rafraîchissement immédiat de l'affichage
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         toast({
           title: "Créneau disponible",
           description: `SEUL le créneau ${selectedSlot.time} est disponible (vert)`,
