@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBookings } from '@/hooks/useBookings';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,7 +18,9 @@ import {
   DollarSign, 
   Clock,
   Calendar as CalendarIcon,
-  Check
+  Check,
+  Star,
+  MapPin
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -143,15 +145,18 @@ export const BookingWizard = () => {
   };
 
   // Initialize data on mount
-  useState(() => {
+  useEffect(() => {
     loadStylists();
-  });
+  }, []);
 
   // Load services when stylist is selected
-  const handleStylistSelection = (stylist: Stylist) => {
+  const handleStylistSelection = async (stylist: Stylist) => {
     setSelectedStylist(stylist);
     setSelectedService(null); // Reset service selection
-    loadServices(stylist.id);
+    setSelectedDate(undefined); // Reset date selection
+    setSelectedTime(''); // Reset time selection
+    
+    await loadServices(stylist.id);
 
     // Écouter les changements en temps réel pour les services du styliste sélectionné
     const channel = supabase
@@ -221,7 +226,7 @@ export const BookingWizard = () => {
     });
 
     if (result.success) {
-      navigate('/client/dashboard');
+      navigate('/app');
     }
   };
 
@@ -298,7 +303,15 @@ export const BookingWizard = () => {
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                          {stylist.full_name?.charAt(0) || 'S'}
+                          {stylist.avatar_url ? (
+                            <img 
+                              src={stylist.avatar_url} 
+                              alt={stylist.full_name} 
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                          ) : (
+                            stylist.full_name?.charAt(0) || 'S'
+                          )}
                         </div>
                         <div className="flex-1">
                           <h3 className="font-medium">{stylist.full_name}</h3>
@@ -316,6 +329,10 @@ export const BookingWizard = () => {
                                stylist.role === 'coiffeuse' ? 'Coiffeuse' : 
                                'Cosmétique'}
                             </Badge>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                              <span className="text-xs text-muted-foreground">4.8</span>
+                            </div>
                           </div>
                         </div>
                         {selectedStylist?.id === stylist.id && (
@@ -333,6 +350,35 @@ export const BookingWizard = () => {
       case 2:
         return (
           <div className="space-y-6">
+            {/* Informations du professionnel sélectionné */}
+            {selectedStylist && (
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      {selectedStylist.avatar_url ? (
+                        <img 
+                          src={selectedStylist.avatar_url} 
+                          alt={selectedStylist.full_name} 
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        selectedStylist.full_name?.charAt(0) || 'S'
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-medium">{selectedStylist.full_name}</h3>
+                      <Badge variant="outline" className="text-xs">
+                        {selectedStylist.role === 'coiffeur' ? 'Coiffeur' : 
+                         selectedStylist.role === 'coiffeuse' ? 'Coiffeuse' : 
+                         'Cosmétique'}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <div>
               <h2 className="text-xl font-semibold mb-2">Choisir un service</h2>
               <p className="text-muted-foreground">Sélectionnez le service souhaité</p>
@@ -384,6 +430,48 @@ export const BookingWizard = () => {
       case 3:
         return (
           <div className="space-y-6">
+            {/* Récapitulatif professionnel et service */}
+            {selectedStylist && selectedService && (
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        {selectedStylist.avatar_url ? (
+                          <img 
+                            src={selectedStylist.avatar_url} 
+                            alt={selectedStylist.full_name} 
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          selectedStylist.full_name?.charAt(0) || 'S'
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{selectedStylist.full_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {selectedStylist.role === 'coiffeur' ? 'Coiffeur' : 
+                           selectedStylist.role === 'coiffeuse' ? 'Coiffeuse' : 
+                           'Cosmétique'}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{selectedService.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary" className="text-xs">
+                          <PriceDisplay amount={selectedService.price} size="sm" />
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {selectedService.duration} min
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <div>
               <h2 className="text-xl font-semibold mb-2">Choisir date et heure</h2>
               <p className="text-muted-foreground">Sélectionnez votre créneau préféré</p>
@@ -402,12 +490,15 @@ export const BookingWizard = () => {
                 />
               </div>
 
-              {selectedDate && (
+              {selectedDate && selectedStylist && (
                 <div>
                   <h3 className="font-medium mb-3">
-                    Créneaux pour le {format(selectedDate, 'dd MMMM', { locale: fr })}
+                    Créneaux disponibles - {format(selectedDate, 'EEEE d MMMM', { locale: fr })}
                   </h3>
-                   <TimeSlotSelector
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Basé sur les horaires réels de {selectedStylist.full_name}
+                  </p>
+                  <TimeSlotSelector
                      stylistId={selectedStylist?.id || ''}
                      selectedDate={selectedDate}
                      selectedTime={selectedTime}

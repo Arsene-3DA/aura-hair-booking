@@ -31,12 +31,25 @@ export const TimeSlotSelector = ({
 
   const availableSlots = timeSlots.filter(slot => slot.available);
 
-  if (availableSlots.length === 0) {
+  console.log('📅 TimeSlotSelector Debug:', {
+    stylistId,
+    selectedDate,
+    totalSlots: timeSlots.length,
+    availableSlots: availableSlots.length,
+    timeSlots: timeSlots.map(slot => ({ time: slot.time, available: slot.available, booked: slot.booked, unavailable: slot.unavailable }))
+  });
+
+  if (availableSlots.length === 0 && !loading) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p>Aucun créneau disponible pour cette date</p>
         <p className="text-sm">Veuillez choisir une autre date</p>
+        {timeSlots.length > 0 && (
+          <p className="text-xs mt-2">
+            {timeSlots.filter(s => s.booked).length} créneaux réservés, {timeSlots.filter(s => s.unavailable).length} indisponibles
+          </p>
+        )}
       </div>
     );
   }
