@@ -1,423 +1,705 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Calendar, Clock, User, MessageSquare } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
-import { useProfessionalServices } from '@/hooks/useProfessionalServices';
-import PriceDisplay from '@/components/ui/price-display';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { RealTimeAvailability } from '@/components/RealTimeAvailability';
+import { 
+  ArrowLeft, 
+  User, 
+  Search, 
+  Clock,
+  Calendar as CalendarIcon,
+  Check,
+  Star,
+  Scissors,
+  Euro,
+  ArrowRight
+} from 'lucide-react';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import PageHeader from '@/components/PageHeader';
 
-const bookingSchema = z.object({
-  service: z.string().optional(),
-  service_id: z.string().optional(),
-  scheduled_at: z.string().min(1, 'Veuillez sélectionner une date et heure'),
-  comments: z.string().optional()
-});
+interface Professional {
+  id: string;
+  auth_id: string;
+  full_name: string;
+  avatar_url?: string;
+  role: 'coiffeur' | 'coiffeuse' | 'cosmetique';
+  rating: number;
+  specialties?: string[];
+}
 
-type BookingFormData = z.infer<typeof bookingSchema>;
-
-interface ExpertData {
+interface Service {
   id: string;
   name: string;
-  image_url: string;
-  auth_id: string;
+  description?: string;
+  price: number;
+  duration: number;
+  category?: string;
+}
+
+interface BookingFormData {
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone?: string;
 }
 
 const NewBookingFormPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const expertId = searchParams.get('expert');
+  const { userProfile, isAuthenticated } = useRoleAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { user } = useRoleAuth();
 
-  // Récupérer les services du professionnel avec mises à jour temps réel
-  const { services, loading: servicesLoading } = useProfessionalServices(expertId || undefined, true);
-
-  const form = useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema),
-    defaultValues: {
-      service: '',
-      scheduled_at: '',
-      comments: ''
-    }
+  const [currentStep, setCurrentStep] = useState(1);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedTime, setSelectedTime] = useState<string>('');
+  const [formData, setFormData] = useState<BookingFormData>({
+    nom: '',
+    prenom: '',
+    email: ''
   });
+  
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<'coiffeur' | 'coiffeuse' | 'cosmetique' | 'all'>('all');
 
-  // Récupérer les données de l'expert
-  const { data: expert, isLoading: expertLoading } = useQuery({
-    queryKey: ['expert-booking', expertId],
-    queryFn: async () => {
-      if (!expertId) throw new Error('ID expert manquant');
+  // 🔎 1. Chargement initial - Récupérer la liste des professionnels actifs
+  const loadProfessionals = async () => {
+    try {
+      console.log('🔍 Chargement des professionnels...');
+      
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url, role')
+        .in('role', ['coiffeur', 'coiffeuse', 'cosmetique']);
 
-      const { data: expertData, error } = await supabase
+      if (profilesError) throw profilesError;
+
+      if (profilesData) {
+        const userIds = profilesData.map(p => p.user_id);
+        const { data: hairdressersData } = await supabase
+          .from('hairdressers')
+          .select('auth_id, rating, specialties')
+          .in('auth_id', userIds)
+          .eq('is_active', true);
+
+        const professionalsWithData = profilesData
+          .map(p => {
+            const hairdresserData = hairdressersData?.find(h => h.auth_id === p.user_id);
+            if (!hairdresserData) return null;
+            
+            return {
+              id: p.user_id,
+              auth_id: p.user_id,
+              full_name: p.full_name || 'Professionnel',
+              avatar_url: p.avatar_url,
+              role: p.role as 'coiffeur' | 'coiffeuse' | 'cosmetique',
+              rating: hairdresserData.rating || 5.0,
+              specialties: hairdresserData.specialties || []
+            };
+          })
+          .filter(Boolean) as Professional[];
+
+        setProfessionals(professionalsWithData);
+        console.log('✅ Professionnels chargés:', professionalsWithData.length);
+
+        // Si un expert ID est fourni, le sélectionner automatiquement
+        if (expertId) {
+          const expert = professionalsWithData.find(p => p.auth_id === expertId);
+          if (expert) {
+            setSelectedProfessional(expert);
+            setCurrentStep(2);
+            await loadServices(expert.auth_id);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Erreur chargement professionnels:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger la liste des professionnels",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Récupérer les services offerts par chaque professionnel
+  const loadServices = async (professionalId: string) => {
+    try {
+      console.log('🔍 Chargement des services pour:', professionalId);
+      
+      const { data: hairdresserData } = await supabase
         .from('hairdressers')
-        .select(`
-          id,
-          auth_id,
-          name,
-          image_url
-        `)
-        .eq('auth_id', expertId)
+        .select('id')
+        .eq('auth_id', professionalId)
         .eq('is_active', true)
         .single();
 
+      if (!hairdresserData) {
+        setServices([]);
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('hairdresser_services')
+        .select(`
+          services (
+            id,
+            name,
+            description,
+            price,
+            duration,
+            category
+          )
+        `)
+        .eq('hairdresser_id', hairdresserData.id);
+
       if (error) throw error;
 
-      return {
-        id: expertData.id,
-        name: expertData.name,
-        image_url: expertData.image_url || '/placeholder.svg',
-        auth_id: expertData.auth_id
-      } as ExpertData;
-    },
-    enabled: !!expertId
-  });
-
-  // Mutation pour créer une réservation
-  const createBookingMutation = useMutation({
-    mutationFn: async (data: BookingFormData) => {
-      if (!user?.id || !expertId) {
-        throw new Error('Utilisateur ou expert non défini');
-      }
-
-      // Validation : si des services existent pour ce pro, un service doit être sélectionné
-      if (services && services.length > 0 && !data.service) {
-        throw new Error('service_required');
-      }
-
-      const selectedService = services?.find(s => s.name === data.service);
-
-      const { error } = await supabase
-        .from('bookings')
-        .insert({
-          client_id: user.id,
-          stylist_id: expertId, // expertId est déjà l'auth_id qui correspond à profiles.id
-          hairdresser_id: expertId, // Utiliser le même ID pour hairdresser_id
-          service: data.service || null,
-          service_id: selectedService?.id || null,
-          scheduled_at: data.scheduled_at,
-          comments: data.comments || null,
-          status: 'pending',
-          // Champs requis pour la compatibilité
-          client_name: user.email?.split('@')[0] || 'Client',
-          client_email: user.email,
-          client_phone: '', // À améliorer avec un profil utilisateur complet
-          booking_date: data.scheduled_at.split('T')[0],
-          booking_time: data.scheduled_at.split('T')[1]
-        });
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Demande envoyée !",
-        description: "Votre demande de rendez-vous a été envoyée avec succès. Le professionnel vous confirmera sous peu.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      navigate('/app/bookings');
-    },
-    onError: (error: any) => {
-      console.error('Erreur lors de la création:', error);
-      const errorMessage = error.message === 'service_required' 
-        ? 'Veuillez choisir un service avant de confirmer.'
-        : 'Impossible d\'envoyer votre demande. Veuillez réessayer.';
-      
-      toast({
-        title: "Erreur",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      const servicesList = data?.map((item: any) => item.services).filter(Boolean) || [];
+      setServices(servicesList);
+      console.log('✅ Services chargés:', servicesList.length);
+    } catch (error) {
+      console.error('❌ Erreur chargement services:', error);
+      setServices([]);
     }
-  });
-
-  // Générer les créneaux horaires (exemple simple)
-  const generateTimeSlots = () => {
-    const slots = [];
-    const today = new Date();
-    for (let day = 1; day <= 14; day++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + day);
-      
-      // Créneaux de 9h à 18h
-      for (let hour = 9; hour <= 18; hour++) {
-        if (hour === 12 || hour === 13) continue; // Pause déjeuner
-        
-        const dateTime = new Date(date);
-        dateTime.setHours(hour, 0, 0, 0);
-        
-        // Format ISO pour l'input datetime-local
-        const isoString = dateTime.toISOString().slice(0, 16);
-        
-        // Format d'affichage
-        const displayDate = date.toLocaleDateString('fr-FR', { 
-          weekday: 'long', 
-          day: 'numeric', 
-          month: 'long' 
-        });
-        const displayTime = `${hour.toString().padStart(2, '0')}:00`;
-        
-        slots.push({
-          value: isoString,
-          label: `${displayDate} à ${displayTime}`
-        });
-      }
-    }
-    return slots;
   };
 
-  const timeSlots = generateTimeSlots();
+  // Gérer la sélection du professionnel
+  const handleProfessionalSelection = async (professional: Professional) => {
+    setSelectedProfessional(professional);
+    setSelectedService(null);
+    setSelectedTime('');
+    await loadServices(professional.auth_id);
+  };
 
-  const onSubmit = (data: BookingFormData) => {
-    // Validation côté client : si des services existent, un service doit être sélectionné
-    if (services && services.length > 0 && !data.service) {
+  // Gérer la sélection depuis RealTimeAvailability
+  const handleTimeSelection = (date: Date, time: string) => {
+    setSelectedDate(date);
+    setSelectedTime(time);
+  };
+
+  // Finaliser la réservation
+  const handleBookingSubmit = async () => {
+    if (!selectedProfessional || !selectedDate || !selectedTime) {
       toast({
-        title: "Service requis",
-        description: "Veuillez choisir un service avant de confirmer.",
+        title: "Informations manquantes",
+        description: "Veuillez compléter tous les champs requis",
         variant: "destructive"
       });
       return;
     }
-    
-    createBookingMutation.mutate(data);
+
+    if (!formData.nom || !formData.prenom || !formData.email) {
+      toast({
+        title: "Informations personnelles manquantes",
+        description: "Veuillez renseigner vos nom, prénom et email",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const [hours, minutes] = selectedTime.split(':').map(Number);
+      const scheduledAt = new Date(selectedDate);
+      scheduledAt.setHours(hours, minutes, 0, 0);
+
+      // Si l'utilisateur est connecté, utiliser son ID
+      const clientUserId = isAuthenticated && userProfile?.user_id 
+        ? userProfile.user_id 
+        : null;
+
+      const reservationData = {
+        client_user_id: clientUserId,
+        stylist_user_id: selectedProfessional.auth_id,
+        service_id: selectedService?.id || null,
+        scheduled_at: scheduledAt.toISOString(),
+        status: 'pending' as const,
+        notes: `Client: ${formData.prenom} ${formData.nom} - Email: ${formData.email}${formData.telephone ? ` - Tél: ${formData.telephone}` : ''}`
+      };
+
+      console.log('🔄 Création de la réservation:', reservationData);
+
+      const { error } = await supabase
+        .from('new_reservations')
+        .insert(reservationData);
+
+      if (error) throw error;
+
+      toast({
+        title: "Réservation créée avec succès !",
+        description: `Votre rendez-vous avec ${selectedProfessional.full_name} a été demandé pour le ${format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })} à ${selectedTime}.`,
+      });
+
+      console.log('✅ Réservation créée avec succès');
+
+      // Rediriger selon le statut d'authentification
+      if (isAuthenticated) {
+        navigate('/app/bookings');
+      } else {
+        navigate('/auth?message=reservation-created');
+      }
+    } catch (error: any) {
+      console.error('❌ Erreur création réservation:', error);
+      
+      // Gestion spécifique de l'erreur de rate limiting
+      if (error.message?.includes('Trop de réservations créées récemment')) {
+        toast({
+          title: "Limitation temporaire",
+          description: "Vous avez créé plusieurs réservations récemment. Veuillez attendre quelques minutes avant de réessayer.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la réservation. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (!expertId) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Expert non spécifié</h2>
-          <Button onClick={() => navigate('/experts')}>
-            Choisir un expert
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // Initialisation
+  useEffect(() => {
+    loadProfessionals();
+  }, []);
 
-  if (expertLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Chargement...</p>
-        </div>
-      </div>
-    );
-  }
+  // Pré-remplir le formulaire si l'utilisateur est connecté
+  useEffect(() => {
+    if (isAuthenticated && userProfile) {
+      const fullName = userProfile.full_name || '';
+      const nameParts = fullName.split(' ');
+      setFormData(prev => ({
+        ...prev,
+        prenom: nameParts[0] || '',
+        nom: nameParts.slice(1).join(' ') || '',
+        email: userProfile.user_id ? '' : '' // L'email n'est pas dans le profil
+      }));
+    }
+  }, [isAuthenticated, userProfile]);
 
-  if (!expert) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Expert non trouvé</h2>
-          <Button onClick={() => navigate('/experts')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Retour aux experts
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const filteredProfessionals = professionals.filter(professional => {
+    const matchesSearch = professional.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || professional.role === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const canProceedToNext = () => {
+    switch (currentStep) {
+      case 1: return selectedProfessional !== null;
+      case 2: return services.length === 0 || selectedService !== null;
+      case 3: return selectedDate && selectedTime;
+      case 4: return formData.nom && formData.prenom && formData.email;
+      default: return false;
+    }
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">🧑 Choisir un professionnel</h2>
+              <p className="text-muted-foreground">Sélectionnez le professionnel de votre choix</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher un professionnel..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <div className="flex gap-2 flex-wrap justify-center">
+                <Button
+                  variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('all')}
+                >
+                  Tous
+                </Button>
+                <Button
+                  variant={selectedCategory === 'coiffeur' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('coiffeur')}
+                  className={selectedCategory === 'coiffeur' ? '' : 'border-blue-500 text-blue-500 hover:bg-blue-50'}
+                >
+                  Coiffeurs
+                </Button>
+                <Button
+                  variant={selectedCategory === 'coiffeuse' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('coiffeuse')}
+                  className={selectedCategory === 'coiffeuse' ? '' : 'border-pink-500 text-pink-500 hover:bg-pink-50'}
+                >
+                  Coiffeuses
+                </Button>
+                <Button
+                  variant={selectedCategory === 'cosmetique' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory('cosmetique')}
+                  className={selectedCategory === 'cosmetique' ? '' : 'border-purple-500 text-purple-500 hover:bg-purple-50'}
+                >
+                  Cosmétique
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+              {filteredProfessionals.map((professional) => (
+                <Card 
+                  key={professional.id}
+                  className={cn(
+                    "cursor-pointer transition-all hover:shadow-lg hover:scale-105",
+                    selectedProfessional?.id === professional.id && "ring-2 ring-primary bg-primary/5"
+                  )}
+                  onClick={() => handleProfessionalSelection(professional)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={professional.avatar_url} />
+                        <AvatarFallback>
+                          {professional.full_name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h3 className="font-medium">{professional.full_name}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge 
+                            variant="secondary" 
+                            className={cn(
+                              "text-xs",
+                              professional.role === 'coiffeur' && "bg-blue-100 text-blue-800",
+                              professional.role === 'coiffeuse' && "bg-pink-100 text-pink-800",
+                              professional.role === 'cosmetique' && "bg-purple-100 text-purple-800"
+                            )}
+                          >
+                            {professional.role === 'coiffeur' ? 'Coiffeur' : 
+                             professional.role === 'coiffeuse' ? 'Coiffeuse' : 
+                             'Cosmétique'}
+                          </Badge>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                            <span className="text-xs text-muted-foreground">
+                              {professional.rating.toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {selectedProfessional?.id === professional.id && (
+                        <Check className="h-5 w-5 text-primary" />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-6">
+            {selectedProfessional && (
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={selectedProfessional.avatar_url} />
+                      <AvatarFallback>
+                        {selectedProfessional.full_name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-medium">{selectedProfessional.full_name}</h3>
+                      <Badge variant="outline" className="text-xs">
+                        {selectedProfessional.role === 'coiffeur' ? 'Coiffeur' : 
+                         selectedProfessional.role === 'coiffeuse' ? 'Coiffeuse' : 
+                         'Cosmétique'}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">✂️ Choisir un service</h2>
+              <p className="text-muted-foreground">Sélectionnez le service souhaité</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
+              {services.length === 0 ? (
+                <Card className="border-dashed">
+                  <CardContent className="p-6 text-center">
+                    <Scissors className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-2">
+                      Ce professionnel n'a pas encore configuré de services spécifiques.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Vous pouvez continuer pour un service général.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                services.map((service) => (
+                  <Card 
+                    key={service.id}
+                    className={cn(
+                      "cursor-pointer transition-all hover:shadow-lg hover:scale-105",
+                      selectedService?.id === service.id && "ring-2 ring-primary bg-primary/5"
+                    )}
+                    onClick={() => setSelectedService(service)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-medium">{service.name}</h3>
+                          {service.description && (
+                            <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
+                          )}
+                          <div className="flex gap-2 mt-2">
+                            <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+                              <Euro className="h-3 w-3" />
+                              {service.price}€
+                            </Badge>
+                            <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+                              <Clock className="h-3 w-3" />
+                              {service.duration} min
+                            </Badge>
+                          </div>
+                        </div>
+                        {selectedService?.id === service.id && (
+                          <Check className="h-5 w-5 text-primary" />
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">📆 Choisir la date et l'heure</h2>
+              <p className="text-muted-foreground">Sélectionnez votre créneau préféré</p>
+            </div>
+
+            {selectedProfessional && (
+              <div>
+                <RealTimeAvailability 
+                  stylistId={selectedProfessional.auth_id}
+                  showControls={false}
+                  onTimeSelection={(date, time) => {
+                    setSelectedDate(date);
+                    setSelectedTime(time);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">🧾 Vos informations</h2>
+              <p className="text-muted-foreground">Complétez vos coordonnées pour finaliser la réservation</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="prenom">Prénom *</Label>
+                <Input
+                  id="prenom"
+                  value={formData.prenom}
+                  onChange={(e) => setFormData(prev => ({ ...prev, prenom: e.target.value }))}
+                  placeholder="Votre prénom"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nom">Nom *</Label>
+                <Input
+                  id="nom"
+                  value={formData.nom}
+                  onChange={(e) => setFormData(prev => ({ ...prev, nom: e.target.value }))}
+                  placeholder="Votre nom"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="votre.email@exemple.com"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="telephone">Téléphone (optionnel)</Label>
+              <Input
+                id="telephone"
+                type="tel"
+                value={formData.telephone || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, telephone: e.target.value }))}
+                placeholder="Votre numéro de téléphone"
+              />
+            </div>
+
+            {/* Résumé de la réservation */}
+            <Card className="bg-muted/50">
+              <CardHeader>
+                <CardTitle className="text-lg">Résumé de votre réservation</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Professionnel:</span>
+                  <span className="font-medium">{selectedProfessional?.full_name}</span>
+                </div>
+                {selectedService && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Service:</span>
+                    <span className="font-medium">{selectedService.name} - {selectedService.price}€</span>
+                  </div>
+                )}
+                {selectedDate && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Date:</span>
+                    <span className="font-medium">{format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}</span>
+                  </div>
+                )}
+                {selectedTime && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Heure:</span>
+                    <span className="font-medium">{selectedTime}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  const stepTitles = [
+    'Professionnel',
+    'Service', 
+    'Date & Heure',
+    'Vos informations'
+  ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Button 
-        variant="outline" 
-        onClick={() => navigate(`/experts/${expertId}`)}
-        className="mb-6"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Retour au profil
-      </Button>
+    <div className="min-h-screen bg-background">
+      <PageHeader
+        title="Réserver un rendez-vous"
+        description="Prenez rendez-vous en quelques clics"
+        showBackButton={true}
+        breadcrumbs={[
+          { label: 'Accueil', path: '/' },
+          { label: 'Réserver maintenant' }
+        ]}
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Résumé de l'expert */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Votre expert
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <Avatar className="h-20 w-20 mx-auto mb-4">
-                <AvatarImage src={expert.image_url} alt={expert.name} />
-                <AvatarFallback>
-                  {expert.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <h3 className="font-semibold text-lg">{expert.name}</h3>
-              
-              {/* Services avec état de chargement */}
-              {servicesLoading ? (
-                <div className="mt-4">
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-                  </div>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Progress bar */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            {stepTitles.map((title, index) => (
+              <div key={index} className="flex items-center">
+                <div className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+                  index + 1 <= currentStep ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                )}>
+                  {index + 1}
                 </div>
-              ) : services.length > 0 ? (
-                <div className="mt-4">
-                  <p className="text-sm text-muted-foreground mb-2">Services disponibles:</p>
-                  <div className="flex flex-wrap gap-1 justify-center">
-                    {services.slice(0, 3).map((service) => (
-                      <Badge key={service.id} variant="outline" className="text-xs">
-                        {service.name}
-                      </Badge>
-                    ))}
-                    {services.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{services.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground mt-4">Services génériques disponibles</p>
-              )}
-            </CardContent>
-          </Card>
+                <span className="ml-2 text-sm font-medium hidden sm:block">{title}</span>
+                {index < stepTitles.length - 1 && (
+                  <div className={cn(
+                    "w-12 h-0.5 mx-4",
+                    index + 1 < currentStep ? "bg-primary" : "bg-muted"
+                  )} />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Formulaire de réservation */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Réserver un rendez-vous
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="service"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Service souhaité</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un service" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {services.length > 0 ? (
-                              services.map((service) => (
-                                <SelectItem key={service.id} value={service.name}>
-                                  <div className="flex items-center justify-between w-full">
-                                    <span>{service.name}</span>
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                      <PriceDisplay amount={service.price} size="sm" />
-                                      <span>({service.duration}min)</span>
-                                    </div>
-                                  </div>
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <>
-                                <SelectItem value="coupe">Coupe de cheveux</SelectItem>
-                                <SelectItem value="couleur">Coloration</SelectItem>
-                                <SelectItem value="meches">Mèches</SelectItem>
-                                <SelectItem value="brushing">Brushing</SelectItem>
-                                <SelectItem value="soin">Soin capillaire</SelectItem>
-                              </>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+        {/* Step content */}
+        <Card>
+          <CardContent className="p-6">
+            {renderStepContent()}
+          </CardContent>
+        </Card>
 
-                  <FormField
-                    control={form.control}
-                    name="scheduled_at"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Date et heure</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choisissez un créneau" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="max-h-[200px]">
-                            {timeSlots.map((slot) => (
-                              <SelectItem key={slot.value} value={slot.value}>
-                                <div className="flex items-center gap-2">
-                                  <Clock className="h-4 w-4" />
-                                  {slot.label}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+        {/* Navigation buttons */}
+        <div className="flex justify-between mt-6">
+          <Button
+            variant="outline"
+            onClick={() => currentStep > 1 ? setCurrentStep(prev => prev - 1) : navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {currentStep > 1 ? 'Précédent' : 'Retour'}
+          </Button>
 
-                  <FormField
-                    control={form.control}
-                    name="comments"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Commentaires (optionnel)</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Décrivez vos attentes, préférences particulières..."
-                            className="resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="flex gap-4 pt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => navigate(`/experts/${expertId}`)}
-                      className="flex-1"
-                    >
-                      Annuler
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={createBookingMutation.isPending}
-                      className="flex-1"
-                    >
-                      {createBookingMutation.isPending ? (
-                        "Envoi en cours..."
-                      ) : (
-                        <>
-                          <MessageSquare className="h-4 w-4 mr-2" />
-                          Envoyer la demande
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+          {currentStep < 4 ? (
+            <Button
+              onClick={() => setCurrentStep(prev => prev + 1)}
+              disabled={!canProceedToNext()}
+              className="flex items-center gap-2"
+            >
+              Suivant
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleBookingSubmit}
+              disabled={!canProceedToNext() || loading}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+            >
+              {loading ? 'Création...' : 'Confirmer la réservation'}
+              <Check className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>

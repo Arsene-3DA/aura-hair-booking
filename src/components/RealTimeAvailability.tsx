@@ -17,11 +17,13 @@ import { useNavigate } from 'react-router-dom';
 interface RealTimeAvailabilityProps {
   stylistId: string;
   showControls?: boolean;
+  onTimeSelection?: (date: Date, time: string) => void;
 }
 
 export const RealTimeAvailability = ({ 
   stylistId, 
-  showControls = false 
+  showControls = false,
+  onTimeSelection
 }: RealTimeAvailabilityProps) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState<string>('');
@@ -154,7 +156,13 @@ export const RealTimeAvailability = ({
     }
     
     // Mode public - sélection pour réservation
-    setSelectedTime(slot.time === selectedTime ? '' : slot.time);
+    const newTime = slot.time === selectedTime ? '' : slot.time;
+    setSelectedTime(newTime);
+    
+    // Notifier le parent si callback fourni
+    if (onTimeSelection && newTime) {
+      onTimeSelection(selectedDate, newTime);
+    }
   };
 
   const handleReservation = async () => {
