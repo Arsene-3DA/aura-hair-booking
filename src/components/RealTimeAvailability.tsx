@@ -75,22 +75,22 @@ export const RealTimeAvailability = ({
 
   const getSlotColor = (status: string, isSelected: boolean = false) => {
     if (isSelected) {
-      return 'bg-yellow-400 text-yellow-900 border-yellow-500';
+      return 'bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500';
     }
     
     switch (status) {
       case 'available':
-        return 'bg-green-500 text-white border-green-600 hover:bg-green-600';
+        return 'bg-green-500 text-white border-green-600 hover:bg-green-600 cursor-pointer';
       case 'busy':
-        return 'bg-gray-500 text-white border-gray-600';
+        return 'bg-gray-500 text-white border-gray-600 cursor-not-allowed';
       case 'unavailable':
-        return 'bg-red-500 text-white border-red-600';
+        return 'bg-red-500 text-white border-red-600 cursor-not-allowed';
       case 'booked':
-        return 'bg-purple-500 text-white border-purple-600';
+        return 'bg-purple-500 text-white border-purple-600 cursor-not-allowed';
       case 'past':
-        return 'bg-gray-300 text-gray-600 border-gray-400';
+        return 'bg-gray-400 text-gray-200 border-gray-500 cursor-not-allowed opacity-60';
       default:
-        return 'bg-gray-200 text-gray-700 border-gray-300';
+        return 'bg-green-500 text-white border-green-600 hover:bg-green-600 cursor-pointer';
     }
   };
 
@@ -247,30 +247,29 @@ export const RealTimeAvailability = ({
             )}
           </div>
           
-          <div className="bg-gray-900 p-4 rounded-lg">
-            <div className="grid grid-cols-6 gap-2">
-              {timeSlots.map((slot) => {
-                const isSelected = selectedTime === slot.time;
-                const isClickable = slot.status === 'available' && !showControls;
-                
-                return (
-                  <button
-                    key={slot.time}
-                    onClick={() => handleSlotClick(slot)}
-                    disabled={!isClickable}
-                    className={cn(
-                      "px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2",
-                      getSlotColor(slot.status, isSelected),
-                      isClickable && "cursor-pointer transform hover:scale-105",
-                      !isClickable && "cursor-not-allowed opacity-80"
-                    )}
-                  >
-                    {slot.time}
-                  </button>
-                );
-              })}
+            <div className="bg-gray-900 p-4 rounded-lg">
+              <div className="grid grid-cols-6 gap-2">
+                {timeSlots.map((slot) => {
+                  const isSelected = selectedTime === slot.time;
+                  const isClickable = slot.status === 'available' && !showControls;
+                  
+                  return (
+                    <button
+                      key={slot.time}
+                      onClick={() => handleSlotClick(slot)}
+                      disabled={!isClickable && slot.status !== 'available'}
+                      className={cn(
+                        "px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2",
+                        getSlotColor(slot.status, isSelected),
+                        slot.status === 'available' && !showControls && "transform hover:scale-105"
+                      )}
+                    >
+                      {slot.time}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
         </div>
 
         {/* Instructions et bouton de réservation pour la vue publique */}
