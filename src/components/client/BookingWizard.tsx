@@ -216,8 +216,16 @@ export const BookingWizard = () => {
     if (!selectedStylist || !selectedService || !selectedDate || !selectedTime) return;
 
     const scheduledAt = new Date(selectedDate);
-    const [hours, minutes] = selectedTime.split(':');
-    scheduledAt.setHours(parseInt(hours), parseInt(minutes));
+    // Parser le format "14h30" pour extraire les heures et minutes
+    const timeMatch = selectedTime.match(/(\d+)h(\d+)/);
+    if (timeMatch) {
+      const [, hours, minutes] = timeMatch;
+      scheduledAt.setHours(parseInt(hours), parseInt(minutes));
+    } else {
+      // Fallback pour le format "14:30"
+      const [hours, minutes] = selectedTime.split(':');
+      scheduledAt.setHours(parseInt(hours), parseInt(minutes));
+    }
 
     const result = await createBooking({
       stylist_id: selectedStylist.id,
@@ -484,7 +492,16 @@ export const BookingWizard = () => {
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
-                  disabled={(date) => date < new Date() || date.getDay() === 0}
+                  disabled={(date) => {
+                    // Empêcher la sélection des dates passées (mais autoriser aujourd'hui)
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const checkDate = new Date(date);
+                    checkDate.setHours(0, 0, 0, 0);
+                    
+                    // Désactiver les dimanches et les dates passées (mais pas aujourd'hui)
+                    return checkDate < today || date.getDay() === 0;
+                  }}
                   locale={fr}
                   className="rounded-md border"
                 />

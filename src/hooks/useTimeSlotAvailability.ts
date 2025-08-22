@@ -177,8 +177,14 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
         let booked = false;
 
         // Si c'est aujourd'hui, vérifier si le créneau est dans le passé
-        if (isToday && slotDateTime <= currentTime) {
-          available = false;
+        // Ajouter un buffer de 30 minutes pour permettre les réservations de dernière minute
+        if (isToday) {
+          const bufferTime = new Date(currentTime);
+          bufferTime.setMinutes(bufferTime.getMinutes() + 30);
+          
+          if (slotDateTime <= bufferTime) {
+            available = false;
+          }
         }
 
         // Vérifier si le créneau est marqué comme indisponible par le coiffeur
