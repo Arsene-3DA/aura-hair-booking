@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, Calendar, Settings, Activity, LogOut, Menu, User, Shield, FileText, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,10 +9,13 @@ import { cn } from '@/lib/utils';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useRealtimeRoleSync } from '@/hooks/useRealtimeRoleSync';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const {
-    signOut,
     user,
     userProfile
   } = useRoleAuth();
@@ -45,7 +48,38 @@ const AdminLayout = () => {
     icon: Settings
   }];
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      // Force logout directement avec Supabase
+      await supabase.auth.signOut();
+      
+      // Nettoyage du localStorage
+      const sensitiveKeys = [
+        'lastActivity',
+        'rate_limits',
+        'lastAdminPromotion',
+        'session.user_agent',
+        'supabase.auth.token'
+      ];
+      
+      sensitiveKeys.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès",
+      });
+      
+      // Redirection vers la page d'accueil
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+      toast({
+        title: "Erreur de déconnexion",
+        description: "Une erreur s'est produite lors de la déconnexion",
+        variant: "destructive",
+      });
+    }
   };
   const getInitials = () => {
     if (userProfile?.full_name) {
