@@ -29,7 +29,7 @@ const HairdresserCard = ({
   const [currentRating, setCurrentRating] = useState(rating);
   const { services } = useProfessionalServices(id, true);
 
-  // Synchronisation temps réel pour le rating
+  // Synchronisation temps réel pour le rating avec les reviews
   useEffect(() => {
     const channel = supabase
       .channel(`hairdresser-rating-${id}`)
@@ -42,9 +42,24 @@ const HairdresserCard = ({
           filter: `auth_id=eq.${id}`,
         },
         (payload) => {
+          console.log('🔄 Rating update received for hairdresser:', id, payload.new.rating);
           if (payload.new.rating !== undefined) {
             setCurrentRating(payload.new.rating);
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews',
+          filter: `stylist_id=eq.${id}`,
+        },
+        () => {
+          console.log('🔄 Review update detected, refreshing rating for:', id);
+          // Recharger la note depuis la base quand il y a un changement de review
+          refreshRating();
         }
       )
       .subscribe();
@@ -53,6 +68,24 @@ const HairdresserCard = ({
       supabase.removeChannel(channel);
     };
   }, [id]);
+
+  // Fonction pour recharger la note depuis la base
+  const refreshRating = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('hairdressers')
+        .select('rating')
+        .eq('auth_id', id)
+        .single();
+
+      if (!error && data) {
+        console.log('✅ Rating refreshed for', id, 'new rating:', data.rating);
+        setCurrentRating(data.rating || 5.0);
+      }
+    } catch (error) {
+      console.error('Error refreshing rating:', error);
+    }
+  };
 
   const handleChooseHairdresser = () => {
     if (onChoose) {

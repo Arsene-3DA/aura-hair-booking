@@ -205,7 +205,9 @@ export const BookingWizard = () => {
   const canProceed = () => {
     switch (currentStep) {
       case 1: return selectedStylist !== null;
-      case 2: return selectedService !== null;
+      case 2: 
+        // Permettre de continuer même sans service sélectionné si le professionnel n'en a pas
+        return services.length === 0 || selectedService !== null;
       case 3: return selectedDate && selectedTime;
       case 4: return true;
       default: return false;
@@ -213,7 +215,9 @@ export const BookingWizard = () => {
   };
 
   const handleConfirm = async () => {
-    if (!selectedStylist || !selectedService || !selectedDate || !selectedTime) return;
+    if (!selectedStylist || !selectedDate || !selectedTime) return;
+    
+    // Permettre la réservation même sans service si le professionnel n'en a pas configuré
 
     const scheduledAt = new Date(selectedDate);
     // Parser le format "14h30" pour extraire les heures et minutes
@@ -229,7 +233,7 @@ export const BookingWizard = () => {
 
     const result = await createBooking({
       stylist_id: selectedStylist.id,
-      service_id: selectedService.id,
+      service_id: selectedService?.id || null, // Null si aucun service sélectionné
       scheduled_at: scheduledAt.toISOString()
     });
 
@@ -395,6 +399,17 @@ export const BookingWizard = () => {
             <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
               {loadingData ? (
                 [...Array(3)].map((_, i) => <Skeleton key={i} className="h-20" />)
+              ) : services.length === 0 ? (
+                <Card className="border-dashed">
+                  <CardContent className="p-6 text-center">
+                    <p className="text-muted-foreground mb-2">
+                      Ce professionnel n'a pas encore configuré de services spécifiques.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Vous pouvez continuer la réservation pour un service général.
+                    </p>
+                  </CardContent>
+                </Card>
               ) : (
                 services.map((service) => (
                   <Card 
@@ -439,7 +454,7 @@ export const BookingWizard = () => {
         return (
           <div className="space-y-6">
             {/* Récapitulatif professionnel et service */}
-            {selectedStylist && selectedService && (
+            {selectedStylist && (
               <Card className="bg-primary/5 border-primary/20">
                 <CardContent className="p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -465,14 +480,24 @@ export const BookingWizard = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="font-medium text-sm">{selectedService.name}</p>
+                      <p className="font-medium text-sm">
+                        {selectedService ? selectedService.name : 'Service général'}
+                      </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="text-xs">
-                          <PriceDisplay amount={selectedService.price} size="sm" />
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {selectedService.duration} min
-                        </Badge>
+                        {selectedService ? (
+                          <>
+                            <Badge variant="secondary" className="text-xs">
+                              <PriceDisplay amount={selectedService.price} size="sm" />
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {selectedService.duration} min
+                            </Badge>
+                          </>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            Prix et durée à définir
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>
