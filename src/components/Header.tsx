@@ -120,27 +120,18 @@ const Header = () => {
           {/* Dashboard & Login Buttons */}
           <div className="hidden lg:flex items-center space-x-4">
             {user ? (
-              <div className="flex items-center space-x-2">
-                <Button 
-                  asChild
-                  className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6"
-                >
-                  <Link to={
-                    role === 'admin' ? '/admin' :
-                    role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
-                    '/app'
-                  }>
-                    Dashboard
-                  </Link>
-                </Button>
-                <Button 
-                  onClick={handleForceLogout}
-                  variant="outline"
-                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 rounded-full px-4"
-                >
-                  Déconnexion
-                </Button>
-              </div>
+              <Button 
+                asChild
+                className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6"
+              >
+                <Link to={
+                  role === 'admin' ? '/admin' :
+                  role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
+                  '/app'
+                }>
+                  Dashboard
+                </Link>
+              </Button>
             ) : (
               <Button onClick={handleLogin} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6">
                 Se connecter
@@ -192,33 +183,21 @@ const Header = () => {
                 </Link>
               )}
               
-              <div className="px-2 pt-4 space-y-2">
+              <div className="px-2 pt-4">
                 {user ? (
-                  <>
-                    <Button 
-                      asChild
-                      className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <Link to={
-                        role === 'admin' ? '/admin' :
-                        role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
-                        '/app'
-                      }>
-                        Dashboard
-                      </Link>
-                    </Button>
-                    <Button 
-                      onClick={() => {
-                        handleForceLogout();
-                        setIsMenuOpen(false);
-                      }}
-                      variant="outline"
-                      className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 rounded-full"
-                    >
-                      Déconnexion forcée
-                    </Button>
-                  </>
+                  <Button 
+                    asChild
+                    className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Link to={
+                      role === 'admin' ? '/admin' :
+                      role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
+                      '/app'
+                    }>
+                      Dashboard
+                    </Link>
+                  </Button>
                 ) : (
                   <Button onClick={() => {
                     handleLogin();
