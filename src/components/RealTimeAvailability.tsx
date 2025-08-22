@@ -394,25 +394,66 @@ export const RealTimeAvailability = ({
         </div>
 
         {/* Section de réservation pour la vue publique */}
-        {!showControls && selectedTime && (
-          <div className="bg-blue-600 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-white">
-                  Créneau sélectionné: {selectedTime}
-                </p>
-                <p className="text-sm text-blue-100">
-                  {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}
+        {!showControls && (
+          <div>
+            {!isAuthenticated ? (
+              // Message pour utilisateurs non connectés
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <div className="text-center space-y-4">
+                  <div className="flex justify-center">
+                    <User className="h-12 w-12 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                      Connexion requise pour réserver
+                    </h3>
+                    <p className="text-blue-700 leading-relaxed mb-4">
+                      Pour réserver un créneau, veuillez d'abord vous connecter ou créer un compte. 
+                      Une fois connecté, sélectionnez simplement votre créneau et le service souhaité, 
+                      puis cliquez sur "Réserver maintenant".
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      const currentPath = window.location.pathname;
+                      navigate(`/auth?returnTo=${encodeURIComponent(currentPath)}`);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
+                  >
+                    Se connecter / Créer un compte
+                  </Button>
+                </div>
+              </div>
+            ) : selectedTime ? (
+              // Section de réservation pour utilisateurs connectés avec créneau sélectionné
+              <div className="bg-blue-600 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-white">
+                      Créneau sélectionné: {selectedTime}
+                    </p>
+                    <p className="text-sm text-blue-100">
+                      {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={handleReservation}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-yellow-900 font-semibold"
+                    size="lg"
+                  >
+                    Réserver maintenant
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              // Message pour sélectionner un créneau
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p className="text-center text-gray-600">
+                  <Clock className="h-4 w-4 inline mr-2" />
+                  Sélectionnez un créneau disponible (en vert) pour continuer
                 </p>
               </div>
-              <Button 
-                onClick={handleReservation}
-                className="bg-yellow-500 hover:bg-yellow-600 text-yellow-900 font-semibold"
-                size="lg"
-              >
-                Réserver maintenant
-              </Button>
-            </div>
+            )}
           </div>
         )}
       </CardContent>
