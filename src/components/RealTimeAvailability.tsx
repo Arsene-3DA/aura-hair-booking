@@ -25,10 +25,51 @@ export const RealTimeAvailability = ({
 }: RealTimeAvailabilityProps) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState<string>('');
+  const [reservations, setReservations] = useState<any[]>([]);
   const { availabilities, loading } = useAvailability(stylistId);
   const { isAuthenticated, userProfile } = useRoleAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Récupérer les réservations confirmées pour la date sélectionnée
+  useEffect(() => {
+    const fetchReservations = async () => {
+      const { data, error } = await supabase
+        .from('new_reservations')
+        .select('*')
+        .eq('stylist_user_id', stylistId)
+        .eq('status', 'confirmed')
+        .gte('scheduled_at', startOfDay(selectedDate).toISOString())
+        .lt('scheduled_at', addDays(startOfDay(selectedDate), 1).toISOString());
+
+      if (!error && data) {
+        setReservations(data);
+      }
+    };
+
+    fetchReservations();
+
+    // Écouter les changements en temps réel pour les réservations
+    const reservationsChannel = supabase
+      .channel('reservations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'new_reservations',
+          filter: `stylist_user_id=eq.${stylistId}`
+        },
+        () => {
+          fetchReservations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(reservationsChannel);
+    };
+  }, [stylistId, selectedDate]);
 
   // Générer les créneaux pour la date sélectionnée
   const generateTimeSlots = () => {
@@ -45,6 +86,12 @@ export const RealTimeAvailability = ({
         const slotDateTime = new Date(selectedDate);
         slotDateTime.setHours(hour, minute, 0, 0);
         
+        // Vérifier si ce créneau est déjà réservé
+        const isReserved = reservations.some(reservation => {
+          const reservationTime = new Date(reservation.scheduled_at);
+          return Math.abs(reservationTime.getTime() - slotDateTime.getTime()) < 30 * 60 * 1000;
+        });
+        
         // Trouver la disponibilité correspondante
         const availability = availabilities.find(avail => {
           const availStart = new Date(avail.start_at);
@@ -56,6 +103,8 @@ export const RealTimeAvailability = ({
         
         if (slotDateTime <= new Date()) {
           status = 'past';
+        } else if (isReserved) {
+          status = 'booked';
         } else if (availability) {
           status = availability.status;
         }
@@ -64,7 +113,8 @@ export const RealTimeAvailability = ({
           time: timeStr,
           datetime: slotDateTime,
           status,
-          availabilityId: availability?.id
+          availabilityId: availability?.id,
+          isReserved
         });
       }
     }
@@ -95,7 +145,8 @@ export const RealTimeAvailability = ({
   };
 
   const handleSlotClick = (slot: any) => {
-    if (slot.status !== 'available') return;
+    // Empêcher la sélection des créneaux réservés, occupés ou indisponibles
+    if (slot.status !== 'available' || slot.isReserved) return;
     
     if (showControls) {
       // Mode styliste - pas de réservation
@@ -144,6 +195,19 @@ export const RealTimeAvailability = ({
       });
 
       setSelectedTime('');
+      
+      // Rafraîchir les réservations pour mettre à jour l'affichage
+      const { data: updatedReservations } = await supabase
+        .from('new_reservations')
+        .select('*')
+        .eq('stylist_user_id', stylistId)
+        .eq('status', 'confirmed')
+        .gte('scheduled_at', startOfDay(selectedDate).toISOString())
+        .lt('scheduled_at', addDays(startOfDay(selectedDate), 1).toISOString());
+      
+      if (updatedReservations) {
+        setReservations(updatedReservations);
+      }
       
     } catch (error) {
       console.error('Erreur réservation:', error);
@@ -251,17 +315,17 @@ export const RealTimeAvailability = ({
               <div className="grid grid-cols-6 gap-2">
                 {timeSlots.map((slot) => {
                   const isSelected = selectedTime === slot.time;
-                  const isClickable = slot.status === 'available' && !showControls;
+                  const isClickable = slot.status === 'available' && !slot.isReserved && !showControls;
                   
                   return (
                     <button
                       key={slot.time}
                       onClick={() => handleSlotClick(slot)}
-                      disabled={!isClickable && slot.status !== 'available'}
+                      disabled={!isClickable}
                       className={cn(
                         "px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2",
                         getSlotColor(slot.status, isSelected),
-                        slot.status === 'available' && !showControls && "transform hover:scale-105"
+                        isClickable && "transform hover:scale-105"
                       )}
                     >
                       {slot.time}
