@@ -6,6 +6,8 @@ import { Scissors, Menu, X, Search } from 'lucide-react';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
 import { useProfileRole } from '@/hooks/useProfileRole';
 import { supabase } from '@/integrations/supabase/client';
+import { clearAllSessions } from '@/utils/sessionCleanup';
+import { useToast } from '@/hooks/use-toast';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,9 +16,8 @@ const Header = () => {
     user,
     loading
   } = useRoleAuth();
-  const {
-    data: role
-  } = useProfileRole(user?.id);
+  const { data: role } = useProfileRole(user?.id);
+  const { toast } = useToast();
 
   // Handle loading state to prevent context errors
   if (loading) {
@@ -40,6 +41,26 @@ const Header = () => {
   const handleLogin = () => {
     navigate('/auth');
   };
+
+  const handleForceLogout = async () => {
+    try {
+      console.log('🚨 Force logout initiated...');
+      await clearAllSessions();
+      toast({
+        title: "Déconnexion forcée",
+        description: "Session nettoyée avec succès",
+      });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Force logout error:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de se déconnecter",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -99,18 +120,27 @@ const Header = () => {
           {/* Dashboard & Login Buttons */}
           <div className="hidden lg:flex items-center space-x-4">
             {user ? (
-              <Button 
-                asChild
-                className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6"
-              >
-                <Link to={
-                  role === 'admin' ? '/admin' :
-                  role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
-                  '/app'
-                }>
-                  Dashboard
-                </Link>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button 
+                  asChild
+                  className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6"
+                >
+                  <Link to={
+                    role === 'admin' ? '/admin' :
+                    role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
+                    '/app'
+                  }>
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button 
+                  onClick={handleForceLogout}
+                  variant="outline"
+                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 rounded-full px-4"
+                >
+                  Déconnexion
+                </Button>
+              </div>
             ) : (
               <Button onClick={handleLogin} className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full px-6">
                 Se connecter
@@ -162,21 +192,33 @@ const Header = () => {
                 </Link>
               )}
               
-              <div className="px-2 pt-4">
+              <div className="px-2 pt-4 space-y-2">
                 {user ? (
-                  <Button 
-                    asChild
-                    className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Link to={
-                      role === 'admin' ? '/admin' :
-                      role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
-                      '/app'
-                    }>
-                      Dashboard
-                    </Link>
-                  </Button>
+                  <>
+                    <Button 
+                      asChild
+                      className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Link to={
+                        role === 'admin' ? '/admin' :
+                        role === 'coiffeur' || role === 'coiffeuse' || role === 'cosmetique' ? '/stylist' :
+                        '/app'
+                      }>
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        handleForceLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      variant="outline"
+                      className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 rounded-full"
+                    >
+                      Déconnexion forcée
+                    </Button>
+                  </>
                 ) : (
                   <Button onClick={() => {
                     handleLogin();
