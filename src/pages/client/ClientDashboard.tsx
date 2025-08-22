@@ -198,13 +198,7 @@ export default function ClientDashboard() {
           <CardHeader className={isMobile ? 'pb-3' : ''}>
             <CardTitle className={isMobile ? 'text-lg' : ''}>Actions rapides</CardTitle>
           </CardHeader>
-          <CardContent className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-2 gap-3'}`}>
-            <Button asChild className={`h-auto ${isMobile ? 'p-3 flex-row justify-start' : 'p-4 flex-col'}`}>
-              <Link to="/professionals">
-                <Plus className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-6 w-6 mb-2'}`} />
-                Nouveau RDV
-              </Link>
-            </Button>
+          <CardContent className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-3 gap-3'}`}>
             <Button asChild variant="outline" className={`h-auto ${isMobile ? 'p-3 flex-row justify-start' : 'p-4 flex-col'}`}>
               <Link to="/app/profile">
                 <User className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-6 w-6 mb-2'}`} />
