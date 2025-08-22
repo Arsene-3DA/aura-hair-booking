@@ -18,6 +18,46 @@ export const useDynamicRoleManagement = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // Fonction pour créer automatiquement un profil professionnel
+  const createProfessionalProfile = async (targetUserId: string, newRole: UserRole) => {
+    try {
+      // Vérifier si un profil existe déjà
+      const { data: existingProfile } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .eq('auth_id', targetUserId)
+        .single();
+
+      if (existingProfile) {
+        console.log('Profil professionnel existe déjà');
+        return;
+      }
+
+      // Récupérer les infos utilisateur
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', targetUserId)
+        .single();
+
+      // Créer le profil professionnel
+      await supabase
+        .from('hairdressers')
+        .insert({
+          auth_id: targetUserId,
+          name: profile?.full_name || 'Nouveau professionnel',
+          email: '', // sera rempli par le professionnel
+          gender: newRole === 'coiffeuse' ? 'femme' : 'homme',
+          is_active: true,
+          rating: 5.0
+        });
+
+      console.log('Profil professionnel créé avec succès');
+    } catch (error) {
+      console.error('Erreur lors de la création du profil professionnel:', error);
+    }
+  };
+
   const changeUserRole = async (targetUserId: string, newRole: UserRole): Promise<RoleChangeResult> => {
     setLoading(true);
     try {
@@ -50,6 +90,20 @@ export const useDynamicRoleManagement = () => {
         window.dispatchEvent(new CustomEvent('refreshProfessionals', {
           detail: { userId: targetUserId, newRole, oldRole: result.oldRole || result.old_role }
         }));
+
+        // Créer automatiquement le profil professionnel si nécessaire
+        if (['coiffeur', 'coiffeuse', 'cosmetique'].includes(newRole)) {
+          await createProfessionalProfile(targetUserId, newRole);
+        }
+
+        // Envoyer une notification à l'utilisateur cible
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: targetUserId,
+            title: 'Changement de rôle',
+            body: `Votre rôle a été modifié en ${newRole}. Reconnectez-vous pour voir les changements.`,
+          });
         
         return result;
       } else {

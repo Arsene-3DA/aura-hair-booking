@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useProfessionalsRefresh } from './useProfessionalsRefresh';
 
 export interface CompleteProfessional {
   id: string;
@@ -102,6 +103,9 @@ export const useCompleteProfessionals = () => {
   useEffect(() => {
     loadProfessionals();
   }, []);
+
+  // Utiliser le hook pour rafraîchir automatiquement
+  useProfessionalsRefresh(loadProfessionals);
 
   // Configuration de la synchronisation temps réel
   useEffect(() => {
