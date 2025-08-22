@@ -37,7 +37,8 @@ export const usePublicAvailability = (
     try {
       console.log('🔍 Fetching public availability for:', {
         professionalId,
-        date: dateString
+        date: dateString,
+        targetDate
       });
 
       const { data, error: rpcError } = await supabase.rpc(

@@ -23,9 +23,10 @@ export const TimeSlotSelector = ({
     stylistId, 
     selectedDate: selectedDate?.toISOString(), 
     selectedTime,
-    timeSlots: timeSlots.length,
+    timeSlots: timeSlots?.length || 0,
     loading,
-    error
+    error,
+    availableSlots: timeSlots?.filter(slot => slot.is_available)?.length || 0
   });
 
   if (loading) {

@@ -572,7 +572,7 @@ export const BookingWizard = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Basé sur les horaires réels de {formatProfessionalName(selectedStylist.full_name)}
                   </p>
-                  <TimeSlotSelector
+                   <TimeSlotSelector
                      stylistId={selectedStylist.id}
                      selectedDate={selectedDate}
                      selectedTime={selectedTime}
