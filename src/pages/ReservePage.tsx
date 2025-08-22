@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useRoleAuth } from '@/hooks/useRoleAuth';
+import { useAvailability } from '@/hooks/useAvailability';
 import { CalendarIcon, Clock, Euro, User, ArrowLeft } from 'lucide-react';
 import { format, addDays, setHours, setMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -42,6 +43,35 @@ const ReservePage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [notes, setNotes] = useState('');
+
+  // Utiliser le même hook que le calendrier professionnel
+  const { availabilities, loading: availabilitiesLoading } = useAvailability(stylistId || '');
+
+  // Récupérer les réservations existantes pour ce styliste
+  const { data: existingReservations = [], isLoading: reservationsLoading } = useQuery({
+    queryKey: ['stylist-reservations', stylistId, selectedDate?.toDateString()],
+    queryFn: async () => {
+      if (!stylistId || !selectedDate) return [];
+      
+      const startOfDay = new Date(selectedDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(selectedDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const { data, error } = await supabase
+        .from('new_reservations')
+        .select('scheduled_at, status')
+        .eq('stylist_user_id', stylistId)
+        .gte('scheduled_at', startOfDay.toISOString())
+        .lte('scheduled_at', endOfDay.toISOString())
+        .in('status', ['pending', 'confirmed']);
+        
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!stylistId && !!selectedDate,
+  });
 
   // Récupérer le service (TOUS LES HOOKS DOIVENT ÊTRE APPELÉS AVANT TOUT RETURN)
   const { data: service, isLoading: serviceLoading } = useQuery({
@@ -155,12 +185,68 @@ const ReservePage = () => {
     });
   };
 
-  const timeSlots = [
-    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
-  ];
+  // Générer les créneaux disponibles en temps réel basés sur les disponibilités du professionnel
+  const generateAvailableTimeSlots = () => {
+    if (!selectedDate) return [];
+    
+    const slots = [];
+    const startHour = 9;
+    const endHour = 21;
+    const intervalMinutes = 30;
 
-  if (serviceLoading || stylistsLoading) {
+    for (let hour = startHour; hour <= endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += intervalMinutes) {
+        if (hour === endHour && minute > 30) break;
+        
+        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        const slotDateTime = new Date(selectedDate);
+        slotDateTime.setHours(hour, minute, 0, 0);
+        
+        // Vérifier si ce créneau est dans le passé
+        if (slotDateTime <= new Date()) {
+          continue; // Ignorer les créneaux passés
+        }
+        
+        // Trouver la disponibilité correspondante
+        const availability = availabilities.find(avail => {
+          const availStart = new Date(avail.start_at);
+          return Math.abs(availStart.getTime() - slotDateTime.getTime()) < 30 * 60 * 1000;
+        });
+
+        // Vérifier les réservations existantes
+        const isBooked = existingReservations.some(reservation => {
+          const reservationTime = new Date(reservation.scheduled_at);
+          return Math.abs(reservationTime.getTime() - slotDateTime.getTime()) < 30 * 60 * 1000;
+        });
+        
+        if (isBooked) {
+          continue; // Ignorer les créneaux déjà réservés
+        }
+        
+        // Déterminer si le créneau est disponible
+        let isAvailable = true;
+        
+        if (availability) {
+          // Si le professionnel a défini ce créneau comme indisponible ou occupé
+          isAvailable = availability.status === 'available';
+        }
+        // Sinon, par défaut, le créneau est disponible
+
+        if (isAvailable) {
+          slots.push({
+            time: timeStr,
+            datetime: slotDateTime,
+            availabilityId: availability?.id
+          });
+        }
+      }
+    }
+    return slots;
+  };
+
+  const availableTimeSlots = generateAvailableTimeSlots();
+
+  if (serviceLoading || stylistsLoading || availabilitiesLoading || reservationsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -260,21 +346,47 @@ const ReservePage = () => {
               </Popover>
             </div>
 
-            {/* Sélection de l'heure */}
+            {/* Sélection de l'heure - Créneaux en temps réel */}
             <div className="space-y-2">
               <Label>Heure de rendez-vous</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {timeSlots.map((time) => (
-                  <Button
-                    key={time}
-                    variant={selectedTime === time ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedTime(time)}
-                  >
-                    {time}
-                  </Button>
-                ))}
-              </div>
+              {selectedDate ? (
+                <div className="space-y-4">
+                  {availableTimeSlots.length > 0 ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        {availableTimeSlots.length} créneaux disponibles pour le {format(selectedDate, 'EEEE d MMMM', { locale: fr })}
+                      </p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {availableTimeSlots.map((slot) => (
+                          <Button
+                            key={slot.time}
+                            variant={selectedTime === slot.time ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setSelectedTime(slot.time)}
+                            className={cn(
+                              "transition-all",
+                              selectedTime === slot.time && "ring-2 ring-primary"
+                            )}
+                          >
+                            <Clock className="h-3 w-3 mr-1" />
+                            {slot.time}
+                          </Button>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>Aucun créneau disponible pour cette date</p>
+                      <p className="text-sm">Le professionnel n'a pas défini de créneaux disponibles ou ils sont tous réservés</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground py-4">
+                  Veuillez d'abord sélectionner une date
+                </p>
+              )}
             </div>
 
             {/* Notes optionnelles */}
