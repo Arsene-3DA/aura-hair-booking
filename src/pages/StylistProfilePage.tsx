@@ -26,6 +26,7 @@ import { ContactHairdresserModal } from '@/components/ContactHairdresserModal';
 import { useAuth } from '@/hooks/useAuth';
 import PriceDisplay from '@/components/ui/price-display';
 import PageHeader from '@/components/PageHeader';
+import { RealTimeAvailability } from '@/components/RealTimeAvailability';
 
 interface WorkingDay {
   open: string;
@@ -334,25 +335,27 @@ const StylistProfilePage = () => {
             </CardContent>
           </Card>
 
-          {/* Bouton de réservation */}
+          {/* Créneaux de réservation en temps réel */}
+          <RealTimeAvailability 
+            stylistId={expert.auth_id} 
+            showControls={false} 
+          />
+
+          {/* Information supplémentaire */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Réserver un rendez-vous
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Prêt à réserver votre rendez-vous avec {expert.name} ? 
-                Sélectionnez votre service, date et heure préférés.
-              </p>
-              <Button asChild size="lg" className="w-full">
-                <Link to={`/bookings/new?expert=${stylistId}`}>
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Réserver maintenant
-                </Link>
-              </Button>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Vous pouvez aussi{' '}
+                  <button 
+                    onClick={() => setShowContactModal(true)}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    contacter directement {expert.name}
+                  </button>
+                  {' '}pour des demandes spéciales.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
