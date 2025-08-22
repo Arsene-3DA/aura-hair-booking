@@ -79,16 +79,21 @@ export const useTimeSlotAvailability = (stylistId: string, selectedDate: Date | 
     }
   };
 
-  // Créneaux par défaut: 9h à 18h par pas de 30min
+  // Créneaux par défaut: 9h à 21h30 par pas de 30min
   const generateDefaultTimeSlots = (): TimeSlot[] => {
     const slots: TimeSlot[] = [];
-    for (let hour = 9; hour <= 18; hour++) {
-      if (hour === 18) break; // S'arrêter à 18h
+    for (let hour = 9; hour <= 21; hour++) {
       slots.push(
-        { time: formatTimeToFrench(`${hour.toString().padStart(2, '0')}:00`), available: true },
-        { time: formatTimeToFrench(`${hour.toString().padStart(2, '0')}:30`), available: true }
+        { time: formatTimeToFrench(`${hour.toString().padStart(2, '0')}:00`), available: true }
       );
+      if (hour < 21) { // Ajouter le :30 sauf pour 21h30 qui sera ajouté séparément
+        slots.push(
+          { time: formatTimeToFrench(`${hour.toString().padStart(2, '0')}:30`), available: true }
+        );
+      }
     }
+    // Ajouter explicitement 21h30
+    slots.push({ time: formatTimeToFrench('21:30'), available: true });
     return slots;
   };
 

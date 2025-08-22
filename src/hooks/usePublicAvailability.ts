@@ -58,10 +58,12 @@ export const usePublicAvailability = (
 
       console.log('✅ Public availability data:', data);
 
-      // Filtrer les créneaux pour s'assurer qu'ils sont entre 9h et 21h
+      // Filtrer les créneaux pour s'assurer qu'ils sont entre 9h et 21h30
       const filteredSlots = (data || []).filter((slot: AvailabilitySlot) => {
-        const hour = parseInt(slot.time_slot.split(':')[0]);
-        return hour >= 9 && hour < 21;
+        const [hour, minute] = slot.time_slot.split(':').map(Number);
+        const timeInMinutes = hour * 60 + minute;
+        // 9h00 = 540 minutes, 21h30 = 1290 minutes
+        return timeInMinutes >= 540 && timeInMinutes <= 1290;
       });
 
       setTimeSlots(filteredSlots);
