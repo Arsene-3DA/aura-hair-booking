@@ -117,6 +117,72 @@ export const useWelcomeData = (uid?: string) => {
 
   useEffect(() => {
     fetchWelcomeData();
+
+    // Configuration des mises à jour temps réel
+    if (!uid) return;
+
+    console.log('🔄 Setting up real-time updates for client dashboard:', uid);
+
+    const channel = supabase
+      .channel(`client-dashboard-${uid}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'new_reservations',
+          filter: `client_user_id=eq.${uid}`,
+        },
+        () => {
+          console.log('📡 Client reservations updated, refreshing dashboard');
+          fetchWelcomeData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${uid}`,
+        },
+        () => {
+          console.log('📡 Client notifications updated, refreshing dashboard');
+          fetchWelcomeData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews',
+          filter: `client_id=eq.${uid}`,
+        },
+        () => {
+          console.log('📡 Client reviews updated, refreshing dashboard');
+          fetchWelcomeData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${uid}`,
+        },
+        (payload) => {
+          console.log('📡 Client profile updated:', payload);
+          fetchWelcomeData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🧹 Cleaning up client dashboard real-time sync');
+      supabase.removeChannel(channel);
+    };
   }, [uid]);
 
   return {
