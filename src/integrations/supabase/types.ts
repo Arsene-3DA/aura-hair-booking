@@ -407,6 +407,7 @@ export type Database = {
       }
       new_reservations: {
         Row: {
+          client_name: string | null
           client_user_id: string
           created_at: string | null
           id: string
@@ -418,6 +419,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          client_name?: string | null
           client_user_id: string
           created_at?: string | null
           id?: string
@@ -429,6 +431,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          client_name?: string | null
           client_user_id?: string
           created_at?: string | null
           id?: string
@@ -1145,6 +1148,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      clean_invalid_image_urls: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       cleanup_all_demo_data: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -1268,6 +1275,10 @@ export type Database = {
           slot_datetime: string
           time_slot: string
         }[]
+      }
+      get_client_name: {
+        Args: { client_user_id: string }
+        Returns: string
       }
       get_current_user_id: {
         Args: Record<PropertyKey, never>
