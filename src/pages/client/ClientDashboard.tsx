@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useWelcomeData } from '@/hooks/useWelcomeData';
 import { useClientReservations } from '@/hooks/useClientReservations';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ReservationsDisplay } from '@/components/client/ReservationsDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,6 +107,7 @@ const RecentActionItem = ({ action }: { action: any }) => (
 
 export default function ClientDashboard() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const { data: welcomeData, loading: welcomeLoading } = useWelcomeData(user?.id);
   const { 
     upcomingReservations, 
@@ -147,19 +149,19 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4`}>
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">
+        <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>
           Bonjour {welcomeData?.user_name} ! 👋
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Voici un aperçu de votre activité récente
         </p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 md:grid-cols-3 gap-6'}`}>
         <KPICard
           title="Total réservations"
           value={welcomeData?.stats.total_bookings || 0}
@@ -190,70 +192,68 @@ export default function ClientDashboard() {
         onCancelReservation={cancelReservation}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* Actions rapides & Activité récente */}
-        <div className="space-y-6">
-          {/* Actions rapides */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Actions rapides</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-3">
-              <Button asChild className="h-auto p-4 flex-col">
-                <Link to="/professionals">
-                  <Plus className="h-6 w-6 mb-2" />
-                  Nouveau RDV
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-auto p-4 flex-col">
-                <Link to="/app/profile">
-                  <User className="h-6 w-6 mb-2" />
-                  Mon profil
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-auto p-4 flex-col">
-                <Link to="/app/reviews">
-                  <Star className="h-6 w-6 mb-2" />
-                  Mes avis
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-auto p-4 flex-col">
-                <Link to="/app/notifications">
-                  <Bell className="h-6 w-6 mb-2" />
-                  Notifications
-                  {(welcomeData?.stats.unread_notifications || 0) > 0 && (
-                    <Badge className="ml-1 h-5 px-1">
-                      {welcomeData?.stats.unread_notifications}
-                    </Badge>
-                  )}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Activité récente */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Activité récente</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {welcomeData?.recent_actions && welcomeData.recent_actions.length > 0 ? (
-                <div className="space-y-2">
-                  {welcomeData.recent_actions.map(action => (
-                    <RecentActionItem key={action.id} action={action} />
-                  ))}
+      <div className="grid grid-cols-1 gap-4">
+        {/* Actions rapides */}
+        <Card>
+          <CardHeader className={isMobile ? 'pb-3' : ''}>
+            <CardTitle className={isMobile ? 'text-lg' : ''}>Actions rapides</CardTitle>
+          </CardHeader>
+          <CardContent className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-2 gap-3'}`}>
+            <Button asChild className={`h-auto ${isMobile ? 'p-3 flex-row justify-start' : 'p-4 flex-col'}`}>
+              <Link to="/professionals">
+                <Plus className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-6 w-6 mb-2'}`} />
+                Nouveau RDV
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className={`h-auto ${isMobile ? 'p-3 flex-row justify-start' : 'p-4 flex-col'}`}>
+              <Link to="/app/profile">
+                <User className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-6 w-6 mb-2'}`} />
+                Mon profil
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className={`h-auto ${isMobile ? 'p-3 flex-row justify-start' : 'p-4 flex-col'}`}>
+              <Link to="/app/reviews">
+                <Star className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-6 w-6 mb-2'}`} />
+                Mes avis
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className={`h-auto ${isMobile ? 'p-3 flex-row justify-between' : 'p-4 flex-col'}`}>
+              <Link to="/app/notifications">
+                <div className={`flex ${isMobile ? 'items-center' : 'flex-col items-center'}`}>
+                  <Bell className={`${isMobile ? 'h-5 w-5 mr-3' : 'h-6 w-6 mb-2'}`} />
+                  <span>Notifications</span>
                 </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-muted-foreground text-sm">
-                    Aucune activité récente
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                {(welcomeData?.stats.unread_notifications || 0) > 0 && (
+                  <Badge className="h-5 px-2 text-xs">
+                    {welcomeData?.stats.unread_notifications}
+                  </Badge>
+                )}
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Activité récente */}
+        <Card>
+          <CardHeader className={isMobile ? 'pb-3' : ''}>
+            <CardTitle className={isMobile ? 'text-lg' : ''}>Activité récente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {welcomeData?.recent_actions && welcomeData.recent_actions.length > 0 ? (
+              <div className="space-y-2">
+                {welcomeData.recent_actions.map(action => (
+                  <RecentActionItem key={action.id} action={action} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-muted-foreground text-sm">
+                  Aucune activité récente
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
