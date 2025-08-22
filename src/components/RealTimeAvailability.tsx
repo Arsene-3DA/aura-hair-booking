@@ -238,9 +238,9 @@ export const RealTimeAvailability = ({
   }
 
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl bg-slate-900 text-white border-slate-700">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-white">
           <Calendar className="h-5 w-5" />
           Créneaux de réservation
         </CardTitle>
@@ -248,41 +248,36 @@ export const RealTimeAvailability = ({
       
       <CardContent className="space-y-6">
         {/* Légende des statuts */}
-        <div className="bg-gray-900 text-white p-4 rounded-lg">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>Disponible</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-              <span>Réservé</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-              <span>Bloqué</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span>Indisponible</span>
-            </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <span className="text-sm text-white">Disponible</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+            <span className="text-sm text-white">Réservé</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+            <span className="text-sm text-white">Bloqué</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+            <span className="text-sm text-white">Indisponible</span>
           </div>
         </div>
 
         {/* Sélection de date */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5" />
-            <h3 className="font-semibold">Choisissez une date</h3>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-white" />
+            <h3 className="font-semibold text-white">Choisissez une date</h3>
           </div>
           
           <Popover>
             <PopoverTrigger asChild>
               <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal bg-blue-600 text-white border-blue-700 hover:bg-blue-700",
-                )}
+                className="w-full justify-start text-left font-normal bg-blue-600 text-white border-blue-700 hover:bg-blue-700 rounded-lg h-12"
               >
                 Date sélectionnée : {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}
               </Button>
@@ -302,72 +297,70 @@ export const RealTimeAvailability = ({
         {/* Grille des créneaux */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            <h3 className="font-semibold">Créneaux disponibles</h3>
-            {!showControls && selectedTime && (
-              <span className="text-sm text-muted-foreground">
-                • Cliquez sur un créneau disponible pour le sélectionner
-              </span>
-            )}
+            <Clock className="h-5 w-5 text-white" />
+            <h3 className="font-semibold text-white">Créneaux disponibles</h3>
           </div>
           
-            <div className="bg-gray-900 p-4 rounded-lg">
-              <div className="grid grid-cols-6 gap-2">
-                {timeSlots.map((slot) => {
-                  const isSelected = selectedTime === slot.time;
-                  const isClickable = slot.status === 'available' && !slot.isReserved && !showControls;
-                  
-                  return (
-                    <button
-                      key={slot.time}
-                      onClick={() => handleSlotClick(slot)}
-                      disabled={!isClickable}
-                      className={cn(
-                        "px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2",
-                        getSlotColor(slot.status, isSelected),
-                        isClickable && "transform hover:scale-105"
-                      )}
-                    >
-                      {slot.time}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          <div className="grid grid-cols-6 gap-2">
+            {timeSlots.map((slot) => {
+              const isSelected = selectedTime === slot.time;
+              const isClickable = slot.status === 'available' && !slot.isReserved && !showControls;
+              
+              return (
+                <button
+                  key={slot.time}
+                  onClick={() => handleSlotClick(slot)}
+                  disabled={!isClickable}
+                  className={cn(
+                    "px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 h-10 flex items-center justify-center",
+                    // Couleurs selon le statut
+                    slot.status === 'available' && !slot.isReserved && "bg-green-500 text-white hover:bg-green-600",
+                    slot.status === 'booked' || slot.isReserved && "bg-purple-500 text-white cursor-not-allowed",
+                    slot.status === 'busy' && "bg-gray-500 text-white cursor-not-allowed",
+                    slot.status === 'unavailable' && "bg-red-500 text-white cursor-not-allowed",
+                    slot.status === 'past' && "bg-gray-600 text-gray-400 cursor-not-allowed opacity-60",
+                    // Slot sélectionné
+                    isSelected && "ring-2 ring-yellow-400 bg-yellow-500 text-black",
+                    // Hover effects pour les slots disponibles
+                    isClickable && !isSelected && "transform hover:scale-105 cursor-pointer"
+                  )}
+                >
+                  {slot.time}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Instructions et bouton de réservation pour la vue publique */}
-        {!showControls && (
-          <div className="space-y-4">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm text-yellow-800">
-                <Clock className="h-4 w-4 inline mr-2" />
-                Cliquez sur un créneau pour le modifier • Les créneaux passés sont 
-                automatiquement bloqués • Par défaut, les créneaux futurs sont disponibles
-              </p>
-            </div>
+        {/* Instructions et informations */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <p className="text-sm text-yellow-800">
+            <Clock className="h-4 w-4 inline mr-2" />
+            Cliquez sur un créneau pour le {showControls ? 'modifier' : 'sélectionner'} • Les créneaux passés sont 
+            automatiquement bloqués • Par défaut, les créneaux futurs sont disponibles
+          </p>
+        </div>
 
-            {selectedTime && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-blue-900">
-                      Créneau sélectionné: {selectedTime}
-                    </p>
-                    <p className="text-sm text-blue-700">
-                      {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}
-                    </p>
-                  </div>
-                  <Button 
-                    onClick={handleReservation}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-yellow-900 font-semibold"
-                    size="lg"
-                  >
-                    Réserver maintenant
-                  </Button>
-                </div>
+        {/* Section de réservation pour la vue publique */}
+        {!showControls && selectedTime && (
+          <div className="bg-blue-600 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-white">
+                  Créneau sélectionné: {selectedTime}
+                </p>
+                <p className="text-sm text-blue-100">
+                  {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}
+                </p>
               </div>
-            )}
+              <Button 
+                onClick={handleReservation}
+                className="bg-yellow-500 hover:bg-yellow-600 text-yellow-900 font-semibold"
+                size="lg"
+              >
+                Réserver maintenant
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
