@@ -140,54 +140,82 @@ const Header = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button className="lg:hidden p-2 text-[#FFD700]" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          <button 
+            className="lg:hidden p-3 text-[#FFD700] hover:bg-[#FFD700]/10 rounded-lg transition-colors touch-manipulation" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Menu"
+          >
+            {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && <div className="lg:hidden py-4 border-t border-[#FFD700]/20 bg-[#1a1a1a]">
-            <nav className="flex flex-col space-y-4">
+        {isMenuOpen && <div className="lg:hidden py-6 border-t border-[#FFD700]/20 bg-[#1a1a1a] min-h-[50vh]">
+            <nav className="flex flex-col space-y-6">
               {/* Mobile Search */}
-              <div className="px-2 mb-4">
+              <div className="px-4 mb-2">
                 <form onSubmit={handleSearch} className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input 
                     type="text" 
                     placeholder="Rechercher un professionnel..." 
                     value={searchQuery} 
                     onChange={e => setSearchQuery(e.target.value)} 
-                    className="pl-10 bg-black border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 h-12" 
+                    className="pl-12 bg-black border-[#FFD700]/30 text-white placeholder:text-gray-400 focus:border-[#FFD700] focus:ring-[#FFD700]/50 h-14 text-base rounded-xl" 
                   />
                 </form>
               </div>
               
-              <Link to="/" className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
+              <Link 
+                to="/" 
+                className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-4 py-3 text-lg border-b border-gray-800/50 touch-manipulation" 
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Accueil
               </Link>
-              <Link to="/professionals" className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
+              <Link 
+                to="/professionals" 
+                className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-4 py-3 text-lg border-b border-gray-800/50 touch-manipulation" 
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Nos Professionnels
               </Link>
-              <Link to="/services" className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
+              <Link 
+                to="/services" 
+                className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-4 py-3 text-lg border-b border-gray-800/50 touch-manipulation" 
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Services
               </Link>
-              <Link to="/tarifs" className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
+              <Link 
+                to="/tarifs" 
+                className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-4 py-3 text-lg border-b border-gray-800/50 touch-manipulation" 
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Tarifs
               </Link>
-              <Link to="/contact" className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
+              <Link 
+                to="/contact" 
+                className="text-gray-300 hover:text-[#FFD700] transition-colors font-medium px-4 py-3 text-lg border-b border-gray-800/50 touch-manipulation" 
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Nous contacter
               </Link>
               {role === 'admin' && (
-                <Link to="/admin" className="text-[#FFD700] hover:text-[#FFD700]/80 transition-colors font-medium px-2" onClick={() => setIsMenuOpen(false)}>
+                <Link 
+                  to="/admin" 
+                  className="text-[#FFD700] hover:text-[#FFD700]/80 transition-colors font-medium px-4 py-3 text-lg border-b border-gray-800/50 touch-manipulation" 
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Dashboard Admin
                 </Link>
               )}
               
-              <div className="px-2 pt-4">
+              <div className="px-4 pt-6">
                 {user ? (
                   <Button 
                     asChild
-                    className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full"
+                    className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-xl h-14 text-lg font-semibold touch-manipulation"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Link to={
@@ -199,10 +227,13 @@ const Header = () => {
                     </Link>
                   </Button>
                 ) : (
-                  <Button onClick={() => {
-                    handleLogin();
-                    setIsMenuOpen(false);
-                  }} className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-full">
+                  <Button 
+                    onClick={() => {
+                      handleLogin();
+                      setIsMenuOpen(false);
+                    }} 
+                    className="w-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:shadow-lg hover:shadow-[#FFD700]/20 transition-all duration-300 border-0 rounded-xl h-14 text-lg font-semibold touch-manipulation"
+                  >
                     Se connecter
                   </Button>
                 )}
