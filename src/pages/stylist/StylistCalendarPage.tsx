@@ -7,6 +7,7 @@ import { format, addWeeks, subWeeks } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import PageHeader from '@/components/PageHeader';
 import { DailyCalendar } from '@/components/DailyCalendar';
+import { AvailabilitySlotManager } from '@/components/AvailabilitySlotManager';
 import { validateUUID } from '@/utils/validateUUID';
 
 const StylistCalendarPage = () => {
@@ -124,7 +125,22 @@ const StylistCalendarPage = () => {
         </div>
       </div>
 
-      {/* Time Slot Grid - Identique au Dashboard */}
+      {/* Gestionnaire de créneaux granulaire */}
+      <Suspense fallback={
+        <div className="bg-card rounded-xl border p-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+            <div className="h-64 bg-muted rounded"></div>
+          </div>
+        </div>
+      }>
+        <AvailabilitySlotManager
+          stylistId={userProfile.user_id}
+          selectedDate={selectedWeek}
+        />
+      </Suspense>
+
+      {/* Calendrier traditionnel en complément */}
       <Suspense fallback={
         <div className="bg-card rounded-xl border p-8">
           <div className="animate-pulse space-y-4">

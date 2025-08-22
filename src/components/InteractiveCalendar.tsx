@@ -109,6 +109,8 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
   const handleCreateAvailability = async (status: 'available' | 'busy') => {
     if (!selectedSlot) return;
 
+    console.log('🎯 Creating specific availability slot:', selectedSlot.startStr, 'to', selectedSlot.endStr, 'with status:', status);
+
     await createAvailability({
       start_at: selectedSlot.startStr,
       end_at: selectedSlot.endStr,
@@ -121,6 +123,8 @@ const InteractiveCalendar = ({ stylistId, selectedWeek }: InteractiveCalendarPro
 
   const handleUpdateAvailability = async (status: 'available' | 'busy') => {
     if (!selectedEvent) return;
+
+    console.log('🎯 Updating specific availability slot:', selectedEvent.extendedProps.availabilityId, 'to status:', status);
 
     await updateAvailability({
       id: selectedEvent.extendedProps.availabilityId,
