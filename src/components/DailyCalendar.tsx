@@ -231,7 +231,27 @@ export const DailyCalendar = ({ stylistId }: DailyCalendarProps) => {
 
     console.log('🎯 STRICT UPDATE - Single Slot:', selectedSlot.time, 'to status:', newStatus);
     
-    // FORCER une durée de 30 minutes EXACTEMENT
+    // ÉTAPE 1: NETTOYER TOUS LES AVAILABILITIES NON-30MIN POUR CE JOUR
+    const problematicSlots = availabilities.filter(avail => {
+      const startTime = new Date(avail.start_at);
+      const endTime = new Date(avail.end_at);
+      const duration = endTime.getTime() - startTime.getTime();
+      return duration !== (30 * 60 * 1000) && isSameDay(startTime, selectedDate);
+    });
+    
+    if (problematicSlots.length > 0) {
+      console.log('🧹 AUTO-CLEANING', problematicSlots.length, 'problematic slots before modification');
+      for (const slot of problematicSlots) {
+        try {
+          await deleteAvailability(slot.id);
+          console.log('🗑️ Auto-deleted problematic slot:', slot.id);
+        } catch (error) {
+          console.error('❌ Error auto-deleting:', slot.id, error);
+        }
+      }
+    }
+    
+    // ÉTAPE 2: FORCER une durée de 30 minutes EXACTEMENT
     const endTime = new Date(selectedSlot.datetime);
     endTime.setMinutes(endTime.getMinutes() + 30);
 
