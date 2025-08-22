@@ -206,33 +206,10 @@ export const StylistCard = ({
               size="sm"
               onClick={handleProfileClick}
               onKeyDown={(e) => handleKeyDown(e, handleProfileClick)}
-              className="flex-1"
+              className="w-full"
               aria-label={`Voir le profil de ${name}`}
             >
               Voir le profil
-            </Button>
-          )}
-          
-          {onBooking && isActive && (
-            <Button
-              size="sm"
-              onClick={handleBookingClick}
-              onKeyDown={(e) => handleKeyDown(e, handleBookingClick)}
-              className="flex-1"
-              aria-label={`Réserver avec ${name}`}
-            >
-              Réserver
-            </Button>
-          )}
-          
-          {!isActive && (
-            <Button
-              size="sm"
-              disabled
-              className="flex-1"
-              aria-label={`${name} n'est pas disponible`}
-            >
-              Indisponible
             </Button>
           )}
         </div>
