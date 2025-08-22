@@ -100,11 +100,30 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
           const duration = endTime.getTime() - startTime.getTime();
           const is30Minutes = duration === (30 * 60 * 1000); // Exactement 30 minutes
           
+          // DEBUG: Log pour voir les correspondances
+          if (isSameDay(startTime, selectedDate)) {
+            console.log(`🔍 TimeSlotGrid - Checking slot ${timeString}:`, {
+              availabilityId: avail.id,
+              availabilityStart: startTime.toISOString(),
+              availabilityDuration: `${duration / (60 * 1000)}min`,
+              slotDateTime: datetime.toISOString(),
+              exactMatch: startTime.getTime() === datetime.getTime(),
+              is30Minutes,
+              status: avail.status
+            });
+          }
+          
           // MATCH STRICT: même heure de début ET durée exacte de 30min
           return is30Minutes && startTime.getTime() === datetime.getTime();
         });
 
         if (availability) {
+          console.log(`✅ TimeSlotGrid - MATCHED slot ${timeString} with availability:`, {
+            id: availability.id,
+            status: availability.status,
+            start: availability.start_at,
+            end: availability.end_at
+          });
           // Statut défini par le professionnel
           slots.push({
             time: timeString,
@@ -113,6 +132,7 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
             availabilityId: availability.id
           });
         } else {
+          console.log(`❌ TimeSlotGrid - NO MATCH for slot ${timeString}, defaulting to available`);
           // RÈGLE 4: Par défaut, les créneaux futurs sont DISPONIBLES
           slots.push({
             time: timeString,
@@ -127,9 +147,19 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({ stylistId, selectedD
   };
 
   const timeSlots = useMemo(() => {
-    console.log('🔍 TimeSlotGrid - Total availabilities:', availabilities.length);
+    console.log('🔍 TimeSlotGrid - REGENERATING SLOTS');
+    console.log('📊 TimeSlotGrid - Total availabilities:', availabilities.length);
+    console.log('📅 TimeSlotGrid - Selected date:', format(selectedDate, 'yyyy-MM-dd'));
+    console.log('🗂️ TimeSlotGrid - All availabilities:', availabilities.map(a => ({
+      id: a.id,
+      start: a.start_at,
+      status: a.status,
+      duration: `${(new Date(a.end_at).getTime() - new Date(a.start_at).getTime()) / (60 * 1000)}min`
+    })));
+    
     const slots = generateTimeSlots();
     console.log('📊 TimeSlotGrid - Generated slots for', format(selectedDate, 'yyyy-MM-dd'), ':', slots.length);
+    console.log('🎨 TimeSlotGrid - Slot colors:', slots.slice(0, 5).map(s => ({ time: s.time, status: s.status, hasId: !!s.availabilityId })));
     return slots;
   }, [selectedDate, availabilities, bookings]);
 
